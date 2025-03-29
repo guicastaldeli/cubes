@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cubes</title>
+    <link rel="stylesheet" href="./styles/styles.css">
+    <script type="importmap">  
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.174.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.174.0/examples/jsm/"
+          }
+        }
+    </script>
+</head>
+<body>
+    <!-- Audios -->
+    <audio src="../assets/audio/menu/select-1.ogg" id="click-sound" preload="auto"></audio>
+
+    <div class="menu">
+        <div id="menu-el">
+            <div id="game-logo">
+                <img src="../assets/img/logo.png" alt="cubes" id="game-logo-img" />
+            </div>
+    
+            <div id="menu-options">
+                <button id="btn-start">Start</button>
+                <button id="btn-quit">Quit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas -->
+    <canvas id="canvas-menu"></canvas>
+
+    <!-- Scripts -->
+    <script type="module" src="./main.js" defer></script>
+    <script type="module" src="./main-scene.js" defer></script>
+</body>
+</html>

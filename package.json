@@ -1,0 +1,21 @@
+{
+  "name": "cubes",
+  "version": "1.0.0",
+  "main": "./configs/main.js",
+  "scripts": {
+    "electron-dev": "development electron .",
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron": "^35.0.2"
+  },
+  "dependencies": {
+    "@tweenjs/tween.js": "^25.0.0",
+    "cannon": "^0.6.2",
+    "three": "^0.174.0"
+  }
+}
