@@ -1,17 +1,26 @@
 {
     "version": 2,
     "builds": [
-        { "src": "menu/**/*", "use": "@vercel/static" },
-        { "src": "main/**/*", "use": "@vercel/static" },
-        { "src": "assets/**/*", "use": "@vercel/static" }
+        { 
+            "src": "menu/**/*", 
+            "use": "@vercel/static"
+        },
+        { 
+            "src": "main/**/*", 
+            "use": "@vercel/static"
+        },
+        { 
+            "src": "assets/**/*", 
+            "use": "@vercel/static"
+        }
     ],
     "rewrites": [
         { 
-            "source": "/menu(?:/(.*))?", 
+            "source": "/menu/(.*)", 
             "destination": "/menu/index.html" 
         },
         { 
-            "source": "/main(?:/(.*))?", 
+            "source": "/main/main/(.*)", 
             "destination": "/main/main/index.html" 
         },
         { 
