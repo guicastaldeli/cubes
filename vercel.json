@@ -1,0 +1,38 @@
+{
+    "version": 2,
+    "builds": [
+        { 
+            "src": "menu/**/*", 
+            "use": "@vercel/static"
+        },
+        { 
+            "src": "main/**/*", 
+            "use": "@vercel/static"
+        },
+        { 
+            "src": "assets/**/*", 
+            "use": "@vercel/static"
+        }
+    ],
+    "rewrites": [
+        { 
+            "source": "/menu/(.*)", 
+            "destination": "/menu/index.html" 
+        },
+        { 
+            "source": "/main/(.*)", 
+            "destination": "/main/main/index.html" 
+        }
+    ],
+    "headers": [
+        {
+            "source": "/(.*)\\.js$",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/javascript"
+                }
+            ]
+        }
+    ]
+}
