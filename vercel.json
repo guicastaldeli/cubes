@@ -22,6 +22,10 @@
         { 
             "source": "/main/(.*)", 
             "destination": "/main/main/index.html" 
+        },
+        { 
+            "source": "/assets/(.*)", 
+            "destination": "/assets/$1" 
         }
     ],
     "headers": [
