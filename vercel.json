@@ -17,15 +17,7 @@
     "rewrites": [
         { 
             "source": "/menu/(.*)", 
-            "destination": "/index.html" 
-        },
-        { 
-            "source": "/main/main/(.*)", 
-            "destination": "/main/main/index.html" 
-        },
-        { 
-            "source": "/assets/(.*)", 
-            "destination": "/assets/$1" 
+            "destination": "/menu/index.html" 
         }
     ],
     "headers": [
