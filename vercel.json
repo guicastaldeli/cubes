@@ -20,8 +20,8 @@
             "destination": "/menu/index.html" 
         },
         { 
-            "source": "/main/(.*)", 
-            "destination": "/main/$1" 
+            "source": "/main/main/(.*)", 
+            "destination": "/main/main/index.html" 
         },
         { 
             "source": "/assets/(.*)", 
