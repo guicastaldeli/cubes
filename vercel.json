@@ -6,7 +6,7 @@
             "use": "@vercel/static"
         },
         { 
-            "src": "main/**/**/*", 
+            "src": "main/**/*", 
             "use": "@vercel/static"
         },
         { 
@@ -20,7 +20,7 @@
             "destination": "/menu/index.html" 
         },
         { 
-            "source": "/main/main/(.*)", 
+            "source": "/main/(.*)", 
             "destination": "/main/main/index.html" 
         },
         { 
