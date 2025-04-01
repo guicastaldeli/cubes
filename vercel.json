@@ -17,7 +17,7 @@
     "rewrites": [
         { 
             "source": "/menu/(.*)", 
-            "destination": "/menu/index.html" 
+            "destination": "/index.html" 
         },
         { 
             "source": "/main/main/(.*)", 
