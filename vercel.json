@@ -21,11 +21,11 @@
         },
         { 
             "source": "/main/(.*)", 
-            "destination": "/main/main/index.html" 
+            "destination": "/main/$1" 
         },
         { 
             "source": "/assets/(.*)", 
-            "destination": "/assets/img/$1" 
+            "destination": "/assets/$1" 
         }
     ],
     "headers": [
