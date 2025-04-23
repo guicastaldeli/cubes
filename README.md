@@ -2,7 +2,7 @@
 # 🧊 Cubes
 
 Click cubes on air!
-Avaliable on GameJolt: https://gamejolt.com/games/cubes/983682
+⬤ Avaliable on GameJolt: https://gamejolt.com/games/cubes/983682
 
 
 
