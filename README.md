@@ -1,7 +1,7 @@
 
 # 🧊 Cubes
 
-Click cubes on air!
+Click cubes on air!  
 ⬤ Avaliable on GameJolt: https://gamejolt.com/games/cubes/983682
 
 
