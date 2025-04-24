@@ -13,7 +13,7 @@ function startGame() {
 
             await new Promise(res => setTimeout(res, 500));
 
-            window.location.href = '/main/main/index.html';
+            window.location.href = '../main/main/index.html';
         }
     }
 
