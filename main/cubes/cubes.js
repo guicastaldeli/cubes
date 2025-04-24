@@ -145,7 +145,7 @@ export function createCubes() {
         const audioLoader = new THREE.AudioLoader();
         let cubeSound;
 
-        audioLoader.load('/assets/audio/game/cubes.ogg', (buffer) => {
+        audioLoader.load('../../assets/audio/game/cubes.ogg', (buffer) => {
             cubeSound = new THREE.Audio(listener);
             cubeSound.setBuffer(buffer);
             cubeSound.setLoop(false);
