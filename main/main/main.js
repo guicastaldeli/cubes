@@ -97,7 +97,7 @@ world.gravity.set(0, -1, 0);
     const audioLoader = new THREE.AudioLoader();
     let ambienceSound;
 
-    audioLoader.load('../../assets/audio/game/ambience.ogg', (buffer) => {
+    audioLoader.load('/assets/audio/game/ambience.ogg', (buffer) => {
         ambienceSound = new THREE.Audio(listener);
         ambienceSound.setBuffer(buffer);
         ambienceSound.setLoop(true);
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //Audio Buttons
 const audioContainer = `
-    <audio src="../../assets/audio/menu/select-1.ogg" id="click-sound"></audio>
+    <audio src="/assets/audio/menu/select-1.ogg" id="click-sound"></audio>
 `;
 document.body.insertAdjacentHTML('beforeend', audioContainer);
 
