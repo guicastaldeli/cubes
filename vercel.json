@@ -2,11 +2,11 @@
     "version": 2,
     "builds": [
         { 
-            "src": "menu/**/*", 
+            "src": "menu/**/*",
             "use": "@vercel/static"
         },
         { 
-            "src": "main/**/*", 
+            "src": "main/**/*",
             "use": "@vercel/static"
         },
         { 
@@ -15,13 +15,17 @@
         }
     ],
     "rewrites": [
-        { 
-            "source": "/menu/(.*)", 
-            "destination": "/menu/index.html" 
+        {
+            "source": "/",
+            "destination": "/menu/index.html"
         },
         { 
             "source": "/main/(.*)", 
             "destination": "/main/main/index.html" 
+        },
+        { 
+            "source": "/main/(.*)", 
+            "destination": "/main/$1" 
         },
         { 
             "source": "/assets/(.*)", 
