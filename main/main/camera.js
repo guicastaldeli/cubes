@@ -121,7 +121,7 @@ export function initCameraControls() {
     const audioLoader = new THREE.AudioLoader();
     let stepSound;
     
-    audioLoader.load('../../assets/audio/game/steps.ogg', (buffer) => {
+    audioLoader.load('/assets/audio/game/steps.ogg', (buffer) => {
         stepSound = new THREE.Audio(listener);
         stepSound.setBuffer(buffer);
         stepSound.setLoop(true);
