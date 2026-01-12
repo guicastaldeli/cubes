@@ -1,0 +1,11 @@
+- Time Cycle
+- Multiplayer
+- Different Meshes (Cubes, Triangles, Spheres)
+- rotations for meshes
+- Each 20 cubes clicked, map increases 10 blocks
+- procedurally generated world
+- save system
+- max world 1000x1000
+- self player (always white/gray, other players random colors and skins)
+- lantern (right click)
+- dither effect (maybe??? :P)
