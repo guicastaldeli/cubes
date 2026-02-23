@@ -29,3 +29,4 @@ C:\Users\casta\OneDrive\Desktop\vscode\cubes\main\obj\Debug\net9.0\refint\main.d
 C:\Users\casta\OneDrive\Desktop\vscode\cubes\main\obj\Debug\net9.0\main.pdb
 C:\Users\casta\OneDrive\Desktop\vscode\cubes\main\obj\Debug\net9.0\main.genruntimeconfig.cache
 C:\Users\casta\OneDrive\Desktop\vscode\cubes\main\obj\Debug\net9.0\ref\main.dll
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\main\obj\Debug\net9.0\main.sourcelink.json

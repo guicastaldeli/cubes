@@ -2,10 +2,13 @@
 - Multiplayer
 - Different Meshes (Cubes, Triangles, Spheres)
 - rotations for meshes
-- Each 20 cubes clicked, map increases 10 blocks
+- Each 20 cubes clicked, world platform increases 10-15 blocks (random) **Chunks
 - procedurally generated world
 - save system
 - max world 1000x1000
 - self player (always white/gray, other players random colors and skins)
 - lantern (right click)
 - dither effect (maybe??? :P)
+- Heavy early 2014-2015 unturned inspired
+- create own server like Minecraft
+- use LUA for data
