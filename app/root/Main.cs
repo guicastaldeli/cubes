@@ -1,4 +1,4 @@
-namespace App.Root.Main;
+namespace App.Root;
 
 class Main {
     private Window window;

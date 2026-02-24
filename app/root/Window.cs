@@ -1,4 +1,4 @@
-namespace App.Root.Main;
+namespace App.Root;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
