@@ -1,0 +1,15 @@
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\app.exe
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\app.deps.json
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\app.runtimeconfig.json
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\app.dll
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\app.pdb
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\app.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\app.AssemblyInfoInputs.cache
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\app.AssemblyInfo.cs
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\app.csproj.CoreCompileInputs.cache
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\app.sourcelink.json
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\app.dll
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\refint\app.dll
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\app.pdb
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\app.genruntimeconfig.cache
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\obj\Debug\net9.0\ref\app.dll
