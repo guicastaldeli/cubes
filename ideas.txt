@@ -12,3 +12,9 @@
 - Heavy early 2014-2015 unturned inspired
 - create own server like Minecraft
 - use LUA for data
+- Ambient Occlusion
+
+** more ideas
+- Maybe change the proposal to the player will get a cube with hands put in the central reactor, and with it will accumulating points to upgrade the island (?)
+- a shop (ofc)
+- move the arm like in burger citizen disorder

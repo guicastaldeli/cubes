@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "5J4/cWx5e6I=",
+  "dgSpecHash": "SQJGLJkNvYM=",
   "success": true,
   "projectFilePath": "C:\\Users\\casta\\OneDrive\\Desktop\\vscode\\cubes\\app\\app.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\casta\\.nuget\\packages\\keralua\\1.4.9\\keralua.1.4.9.nupkg.sha512",
+    "C:\\Users\\casta\\.nuget\\packages\\nlua\\1.7.8\\nlua.1.7.8.nupkg.sha512",
     "C:\\Users\\casta\\.nuget\\packages\\opentk\\4.9.4\\opentk.4.9.4.nupkg.sha512",
     "C:\\Users\\casta\\.nuget\\packages\\opentk.audio.openal\\4.9.4\\opentk.audio.openal.4.9.4.nupkg.sha512",
     "C:\\Users\\casta\\.nuget\\packages\\opentk.compute\\4.9.4\\opentk.compute.4.9.4.nupkg.sha512",

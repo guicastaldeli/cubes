@@ -50,6 +50,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "NLua": {
+              "target": "Package",
+              "version": "[1.7.8, )"
+            },
             "OpenTK": {
               "target": "Package",
               "version": "[4.9.4, )"
