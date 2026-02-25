@@ -15,6 +15,8 @@ class Window : NativeWindow {
         API = ContextAPI.OpenGL
     }) {
         Context.MakeCurrent();
+        GL.ClearColor(0.2f, 0.3f, 0.8f, 1.0f);
+        GL.Viewport(0, 0, width, height);
     }
 
     public void Run() {
