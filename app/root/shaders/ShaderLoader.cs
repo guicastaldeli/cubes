@@ -41,7 +41,62 @@ class ShaderLoader {
             }
         }
 
-        res.ToString();
+        return res.ToString();
+    }
+
+    private static string getParentDir(string path) {
+        int lastSlash = path.LastIndexOf('/');
+        return lastSlash > 0 ? path[..(lastSlash+1)] : ""; 
+    }
+
+    private static string resRelativePath(string baseDir, string relativePath) {
+        string[] baseParts = baseDir.Split('/');
+        string[] relativeParts = relativePath.Split('/');
+
+        int upCount = 0;
+        int relativeStart = 0;
+        for(int i = 0; i < relativeParts.Length; i++) {
+            if(relativeParts[i] == "..") {
+                upCount++;
+                relativeStart = i+1;
+            }
+            else if(relativeParts[i] == ".") {
+                relativeStart = i+1;
+            }
+            else {
+                break;
+            }
+        }
+
+        StringBuilder res = new();
+        for(int i = 0; i < baseParts.Length - upCount; i++) {
+            if(!string.IsNullOrEmpty(baseParts[i])) {
+                res.Append(baseParts[i] + "/");
+            }
+        }
+        for(int i = relativeStart; i < relativeParts.Length; i++) {
+            res.Append(relativeParts[i]);
+            if(i < relativeParts.Length - 1) res.Append('/');
+        }
+
+        return res.ToString();
+    }
+
+    private static string stripVerDirective(string content) {
+        StringBuilder res = new();
+        bool verFound = false;
+        foreach(string l in content.Split('\n')) {
+            if(l.Trim().StartsWith("#version")) {
+                if(!verFound) {
+                    res.AppendLine(l);
+                    verFound = true;
+                }
+            } else {
+                res.AppendLine(l);
+            }
+        }
+
+        return res.ToString();
     }
 
     ///
@@ -65,4 +120,7 @@ class ShaderLoader {
         }
         return File.ReadAllText(path);
     }
+
+    public static void clearCache() => loadedShaders.Clear();
+    public static string getDir() => DIR;
 }
