@@ -17,6 +17,7 @@ class ShaderProgram {
             string content = ShaderLoader.load(data.File);
             if(!sources.ContainsKey(data.Type)) sources[data.Type] = new StringBuilder();
             sources[data.Type].AppendLine(content);
+            Console.WriteLine("Shader Loaded: " + sources + ": " + content);
         }
         foreach(var entry in sources) {
             int shaderId = createShader(entry.Value.ToString(), entry.Key);

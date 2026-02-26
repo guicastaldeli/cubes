@@ -5,7 +5,7 @@ namespace App.Root.Shaders;
 class ShaderLoader {
     private static readonly Dictionary<string, string> loadedShaders = new();
     private static readonly string INCLUDE_PREFIX = "#include ";
-    private static readonly string DIR = "shaders/";
+    private static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "shaders/main/");
 
     // Process Includes
     private static string processIncludes(string content, string parentFile) {
@@ -99,11 +99,9 @@ class ShaderLoader {
         return res.ToString();
     }
 
-    ///
     /// 
     /// Load
     ///  
-    /// 
     public static string load(string fileName) {
         if(loadedShaders.ContainsKey(fileName)) return loadedShaders[fileName];
 

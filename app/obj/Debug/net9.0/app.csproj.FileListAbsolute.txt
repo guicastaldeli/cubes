@@ -48,3 +48,5 @@ C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\runtimes\win-a
 C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\runtimes\win-arm64\native\lua54.dll
 C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\runtimes\win-x64\native\lua54.dll
 C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\runtimes\win-x86\native\lua54.dll
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\shaders\main\frag.glsl
+C:\Users\casta\OneDrive\Desktop\vscode\cubes\app\bin\Debug\net9.0\shaders\main\vert.glsl
