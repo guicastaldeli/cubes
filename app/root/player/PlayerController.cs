@@ -13,10 +13,11 @@ class PlayerController {
 
     private Camera camera;
     private PlayerInputMap playerInputMap;
+    private RigidBody rigidBody = null!;
 
     private Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
+    private Vector3 size = new Vector3(1.0f, 2.0f, 1.0f);
     private float movSpeed = 5.0f;
-    private float yVel = 0.0f;
 
     private bool movingForward = false;
     private bool movingBackward = false;
@@ -24,10 +25,8 @@ class PlayerController {
     private bool movingRight = false;
     private bool movingUp = false;
     private bool movingDown = false;
-    private bool onGround = true;
 
     private float jumpForce = 8.0f;
-    private float gravity = -20.0f;
 
     private bool flyMode = false;
     private float flySpeed = 10.0f;
@@ -35,6 +34,7 @@ class PlayerController {
     public PlayerController() {
         camera = new Camera();
         playerInputMap = new PlayerInputMap(this);
+        rigidBody = new RigidBody(position, size);
     }
 
     // Get Camera
@@ -50,6 +50,7 @@ class PlayerController {
     // Position
     public void setPosition(float x, float y, float z) {
         position = new Vector3(x, y, z);
+        rigidBody.setPosition(position);
         camera.setPosition(position);
     }
     
@@ -65,33 +66,37 @@ class PlayerController {
         Vector3 horizontalFront = Vector3.Normalize(new Vector3(front.X, 0.0f, front.Z));
         Vector3 horizontalRight = Vector3.Normalize(new Vector3(right.X, 0.0f, right.Z));
 
-        Vector3 vel = Vector3.Zero;
-        float speed = (flyMode ? flySpeed : movSpeed) * Tick.getDeltaTimeI();
-        if(movingForward) vel += horizontalFront * speed;
-        if(movingBackward) vel -= horizontalFront * speed;
-        if(movingLeft) vel -= horizontalRight * speed;
-        if(movingRight) vel += horizontalRight * speed;
-        if(flyMode) {
-            if(movingUp) vel.Y += speed;
-            if(movingDown) vel.Y -= speed;
-        } else {
-            yVel += gravity * Tick.getDeltaTimeI();
-            vel.Y = yVel * Tick.getDeltaTimeI();
-            if(position.Y + vel.Y <= 0.0f) {
-                vel.Y = -position.Y;
-                yVel = 0.0f;
-                onGround = true;
-            }
-        }
+        float speed = flyMode ? flySpeed : movSpeed;
+        Vector3 currentVel = rigidBody.getVelocity();
+        Vector3 targetVel = Vector3.Zero;
 
-        position += vel;
-        camera.setPosition(position);
+        if(movingForward) targetVel += horizontalFront * speed;
+        if(movingBackward) targetVel -= horizontalFront * speed;
+        if(movingLeft) targetVel -= horizontalRight * speed;
+        if(movingRight) targetVel += horizontalRight * speed;
+        if(flyMode) {
+            if(movingUp) targetVel.Y = speed;
+            else if(movingDown) targetVel.Y = -speed;
+            else targetVel.Y = 0;
+
+            rigidBody.setGravityEnabled(false);
+            rigidBody.setVelocity(targetVel);
+        } else {
+            rigidBody.setGravityEnabled(true);
+            rigidBody.setVelocity(new Vector3(
+                targetVel.X,
+                currentVel.Y,
+                targetVel.Z
+            ));
+        }
     }
 
     public void jump() {
-        if(onGround) {
-            yVel = jumpForce;
-            onGround = false;
+        if(rigidBody.isOnGround()) {
+            Vector3 vel = rigidBody.getVelocity();
+            vel.Y = jumpForce;
+            rigidBody.setVelocity(vel);
+            rigidBody.setOnGround(false);
         }
     }
 
@@ -133,5 +138,24 @@ class PlayerController {
 
     public void update() {
         applyMov();
+        rigidBody.update();
+        position = rigidBody.getPosition();
+
+        if(!flyMode) {
+            if(position.Y <= 0.0f) {
+                position.Y = 0.0f;
+                rigidBody.setPosition(position);
+                rigidBody.setVelocity(new Vector3(
+                    rigidBody.getVelocity().X,
+                    0.0f,
+                    rigidBody.getVelocity().Z
+                ));
+                rigidBody.setOnGround(true);
+            } else {
+                rigidBody.setOnGround(false);
+            }
+        }
+
+        camera.setPosition(position);
     }
 }
