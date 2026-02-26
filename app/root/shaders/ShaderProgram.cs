@@ -1,6 +1,7 @@
 namespace App.Root.Shaders;
 using System.Text;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 
 class ShaderProgram {
     public readonly int programId;
@@ -76,6 +77,16 @@ class ShaderProgram {
     public void setUniform(string name, float val) {
         int loc = getUniformLocation(name);
         if(loc != -1) GL.Uniform1(loc, val);
+    }
+
+    public void setUniform(string name, Matrix4 matrix) {
+        int loc = getUniformLocation(name);
+        if(loc != -1) GL.UniformMatrix4(loc, false, ref matrix);
+    }
+
+    public void setUniform(string name, float x, float y, float z, float w) {
+        int loc = getUniformLocation(name);
+        if(loc != -1) GL.Uniform4(loc, x, y, z, w);
     }
 
     public int getUniformLocation(string name) {

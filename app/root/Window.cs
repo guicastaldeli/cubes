@@ -19,6 +19,7 @@ class Window : NativeWindow {
 
     public void run() {
         while(!IsExiting) {
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             Context.SwapBuffers();
             ProcessEvents(0);
         }
