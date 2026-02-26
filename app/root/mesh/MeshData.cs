@@ -1,5 +1,4 @@
 using System.Numerics;
-
 namespace App.Root.Mesh;
 
 class MeshData {
@@ -46,6 +45,26 @@ class MeshData {
     public int getVertexCount() {
         var v = getVertices();
         int val = v != null ? v.Length / 3 : 0;
+        return val;
+    }
+
+    // Indices
+    public void setIndices(int[] i) {
+        data[DataType.INDICES] = i;
+    }
+
+    public int[]? getIndices() {
+        int[]? val =
+            data.TryGetValue(DataType.INDICES, out var v) ?
+            (int[])v :
+            null;
+
+        return val;
+    }
+
+    public int getIndexCount() {
+        var i = getIndices();
+        int val = i != null ? i.Length : 0;
         return val;
     }
 
