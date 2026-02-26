@@ -2,7 +2,6 @@ namespace App.Root.Mesh;
 using App.Root.Shaders;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
-using System.Drawing;
 
 class MeshRenderer {
     public readonly ShaderProgram shaderProgram;
