@@ -14,7 +14,7 @@ class Main {
         window = new Window();
         tick = new Tick();
         shaderProgram = new ShaderProgram(loadShaders());
-        input = new Input(window);
+        input = new Input(window, tick);
 
         init();
         set();
@@ -51,7 +51,7 @@ class Main {
     /// 
     private void update() {
         tick.update();
-        window.updateTitle(tick.getFps());
+        window.updateTitle(tick.getTickCount(), tick.getFps());
         scene.update();
     }
 

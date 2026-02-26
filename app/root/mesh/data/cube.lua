@@ -168,9 +168,7 @@ texCoords = {
     0.0, 0.333]]
 }
 -- Rotation
---[[
 rotation = {
     axis = "Y",
-    speed = 0.0
+    speed = 10.0
 }
-    ]]

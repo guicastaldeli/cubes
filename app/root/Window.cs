@@ -23,8 +23,11 @@ class Window : NativeWindow {
         KeyUp += args => onKeyUp?.Invoke(args.Key);
     }
 
-    public void updateTitle(int fps) {
-        Title = TITLE + " / FPS: " + fps;
+    public void updateTitle(int tickCount, int fps) {
+        Title = 
+            TITLE +
+            " / Tick: " + tickCount +
+            " / FPS: " + fps;
     }
 
     public void run(Action renderCallback) {

@@ -88,6 +88,10 @@ class Tick {
         return paused;
     }
 
+    public void togglePause() {
+        paused = !paused;
+    }
+
     // Reset
     public void reset() {
         lastFrameTime = DateTime.Now.Ticks;

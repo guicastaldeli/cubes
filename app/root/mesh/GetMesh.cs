@@ -89,6 +89,17 @@ class GetMesh {
         getMeshRenderer(id)?.setModelMatrix(matrix);
     }
 
+    // Set Color
+    public void setColor(string id, string hex) {
+        MeshData? data = getData(id);
+        MeshRenderer? meshRenderer = getMeshRenderer(id);
+        if(data == null || meshRenderer == null) return;
+
+        data.setColorHex(hex);
+        float[]? colors = data.getColors();
+        if(colors != null) meshRenderer.updateColors(colors);
+    }
+
     ///
     /// Add
     /// 

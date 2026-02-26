@@ -25,6 +25,7 @@ class Scene {
         mesh.setCamera(playerController.getCamera());
         mesh.add("cube");
         mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
+        mesh.setColor("cube", "#FF69B4");
     }
 
     ///
