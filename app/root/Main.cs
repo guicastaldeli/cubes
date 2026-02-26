@@ -11,6 +11,8 @@ class Main {
         window = new Window();
         shaderProgram = new ShaderProgram(loadShaders());
         scene = new Scene(shaderProgram);
+
+        set();
     }
 
     // Load Shaders
@@ -21,16 +23,28 @@ class Main {
         };
     }
 
+    ///
+    /// Set
     /// 
-    /// Render
-    /// 
-    private void render() {
+    private void set() {
         GL.ClearColor(0.2f, 0.3f, 0.8f, 1.0f);
         GL.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
         GL.Enable(EnableCap.DepthTest);
         GL.Disable(EnableCap.CullFace);
+    }
 
+    ///
+    /// Update
+    /// 
+    private void update() {
+        scene.update();
+    }
+
+    /// 
+    /// Render
+    /// 
+    private void render() {
         scene.render();
     }
     
@@ -39,6 +53,9 @@ class Main {
     /// 
     public void run() {
         GL.Clear(ClearBufferMask.ColorBufferBit);
-        window.run(render);
+        window.run(() => {
+            render();
+            update();
+        });
     }
 }

@@ -128,6 +128,15 @@ class GetMesh {
     }
 
     ///
+    /// Update
+    /// 
+    public void update() {
+        foreach(var meshRenderer in meshRendererMap.Values) {
+            meshRenderer.update();
+        }
+    }
+
+    ///
     /// Render
     /// 
     public void render(string id) {

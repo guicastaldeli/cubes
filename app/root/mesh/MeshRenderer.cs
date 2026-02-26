@@ -17,8 +17,11 @@ class MeshRenderer {
     private int vertexCount;
 
     private Matrix4 modelMatrix = Matrix4.Identity;
+    private Matrix4 rotationMatrix = Matrix4.Identity;
+
     private Vector3 position = Vector3.Zero;
     private Vector3 scale = Vector3.One;
+    private float rotationAngle = 0.0f;
 
     private bool hasScale = false;
     private bool isDynamic = false;
@@ -97,6 +100,27 @@ class MeshRenderer {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
     } 
 
+    // Update Rotation
+    public void updateRotation() {
+        if(meshData == null || !meshData.hasRotation()) return;
+
+        string? axis = meshData.getRotationAxis();
+        float speed = meshData.getRotationSpeed();
+        float deltaTime = 0.016f;
+
+        switch(axis?.ToLower()) {
+            case "x":
+                rotationMatrix *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(speed * deltaTime));
+                break;
+            case "y":
+                rotationMatrix *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(speed * deltaTime));
+                break;
+            case "z":
+                rotationMatrix *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(speed * deltaTime));
+                break;
+        }
+    }
+
     // Create Buffers
     private void createBuffers() {
         if(meshData == null) return;
@@ -156,25 +180,26 @@ class MeshRenderer {
     }
 
     ///
+    /// Update
+    /// 
+    public void update() {
+        if(meshData == null) return;
+        if(meshData.hasRotation() == true) updateRotation();
+    }
+
+    ///
     /// Render
     /// 
     public void render() {
         if(meshData == null || camera == null) return;
 
+        modelMatrix = rotationMatrix * Matrix4.CreateTranslation(position);
         if(!isDynamic) {
-            modelMatrix = Matrix4.Identity;
             if(hasScale) {
-                modelMatrix = 
-                    Matrix4.CreateTranslation(position) *
-                    Matrix4.CreateScale(scale);
+                modelMatrix *= Matrix4.CreateScale(scale);
             } else if(meshData.hasScale()) {
                 float[]? s = meshData.getScale();
-                if(s != null)
-                    modelMatrix = 
-                        Matrix4.CreateTranslation(position) *
-                        Matrix4.CreateScale(s[0], s[1], s[2]);
-            } else {
-                modelMatrix = Matrix4.CreateTranslation(position);
+                if(s != null) modelMatrix *= Matrix4.CreateScale(s[0], s[1], s[2]);
             }
         }
 

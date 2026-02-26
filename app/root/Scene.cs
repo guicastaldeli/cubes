@@ -29,7 +29,7 @@ class Scene {
     /// Update
     /// 
     public void update() {
-        
+        mesh.update();
     }
 
     ///
