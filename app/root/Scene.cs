@@ -1,5 +1,5 @@
 namespace App.Root;
-
+using App.Root.Player;
 using App.Root.Mesh;
 using App.Root.Shaders;
 

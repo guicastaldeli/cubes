@@ -1,4 +1,4 @@
-namespace App.Root;
+namespace App.Root.Player;
 using OpenTK.Mathematics;
 
 class Camera {
