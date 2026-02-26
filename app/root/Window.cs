@@ -18,11 +18,19 @@ class Window : NativeWindow {
     }
 
     public void run(Action renderCallback) {
-    while(!IsExiting) {
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        renderCallback();
-        Context.SwapBuffers();
-        ProcessEvents(0);
+        Thread thread = new Thread(() => {
+            Context.MakeCurrent();
+            while(!IsExiting) {
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                renderCallback();
+                Context.SwapBuffers();
+            }
+        });
+
+        Context.MakeNoneCurrent();
+        thread.Start();
+        while(!IsExiting) ProcessEvents(0.016);
+        
+        thread.Join();
     }
-}
 }

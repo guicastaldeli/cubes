@@ -46,8 +46,17 @@ class Camera {
 
     ///
     /// Update 
-    /// 
+    ///
+    private void updateRotation() {
+        yaw += 0.5f;
+        front = Vector3.Normalize(new Vector3(
+            MathF.Cos(MathHelper.DegreesToRadians(yaw)) * MathF.Cos(MathHelper.DegreesToRadians(pitch)),
+            MathF.Sin(MathHelper.DegreesToRadians(pitch)),
+            MathF.Sin(MathHelper.DegreesToRadians(yaw)) * MathF.Cos(MathHelper.DegreesToRadians(pitch))
+        ));
+    } 
+
     public void update() {
-        
+        updateRotation();    
     }
 }

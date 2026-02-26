@@ -38,6 +38,7 @@ class Main {
     /// Update
     /// 
     private void update() {
+        scene.getCamera().update();
         scene.update();
     }
 

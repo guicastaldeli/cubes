@@ -16,6 +16,10 @@ class Scene {
         init();
     }
 
+    public Camera getCamera() {
+        return camera;
+    }
+
     ///
     /// Set
     /// 
