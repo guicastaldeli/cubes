@@ -119,6 +119,11 @@ class ShaderLoader {
         return File.ReadAllText(path);
     }
 
-    public static void clearCache() => loadedShaders.Clear();
-    public static string getDir() => DIR;
+    public static void clearCache() {
+        loadedShaders.Clear();
+    }
+    
+    public static string getDir() {
+        return DIR;
+    }
 }

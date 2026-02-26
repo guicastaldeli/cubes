@@ -54,11 +54,9 @@ class ShaderProgram {
         return id;
     }
 
-    ///
     /// 
     /// Set/Get Uniform
     /// 
-    ///
     public void setUniform(string name, float x, float y) {
         int loc = getUniformLocation(name);
         if(loc != -1) GL.Uniform2(loc, x, y);
@@ -96,14 +94,18 @@ class ShaderProgram {
         return uniformLocations[name];
     }
 
-    ///
     /// 
     /// Bind
     /// 
-    /// 
-    public void bind() => GL.UseProgram(programId);
-    public void unbind() => GL.UseProgram(0);
+    public void bind() {
+        GL.UseProgram(programId);
+    }
 
+    public void unbind() {
+        GL.UseProgram(0);
+    }
+
+    // Cleanup
     public void cleanup() {
         unbind();
         if(programId != 0) GL.DeleteProgram(programId);
