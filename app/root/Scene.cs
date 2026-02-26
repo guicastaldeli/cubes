@@ -2,6 +2,7 @@ namespace App.Root;
 using App.Root.Player;
 using App.Root.Mesh;
 using App.Root.Shaders;
+using App.Root.Resource;
 
 class Scene {
     private ShaderProgram shaderProgram;
@@ -25,7 +26,9 @@ class Scene {
         mesh.setCamera(playerController.getCamera());
         mesh.add("cube");
         mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
-        mesh.setColor("cube", "#FF69B4");
+
+        int texId = TextureLoader.load("env/test.jpg");
+        mesh.setTexture("cube", texId);
     }
 
     ///

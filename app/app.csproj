@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="NLua" Version="1.7.8" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="root\shaders\main\**\*">
@@ -19,5 +20,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>mesh\data\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
+    <Content Include="root\resource\texture\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>resource\texture\%(RecursiveDir)%(Filename)%(Extension)</Link>
+  </Content>
   </ItemGroup>
 </Project>
