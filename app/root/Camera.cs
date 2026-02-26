@@ -10,6 +10,8 @@ class Camera {
     private float pitch = 0.0f;
     private float fov = 45.0f;
 
+    private float targetAngle = 0.0f;
+
     public Camera() {
         position = new Vector3(0.0f, 0.0f, 0.0f);
         front = new Vector3(0.0f, 0.0f, -1.0f);
@@ -48,7 +50,7 @@ class Camera {
     /// Update 
     ///
     private void updateRotation() {
-        yaw += 0.5f;
+        yaw += 5.0f * Tick.getDeltaTimeI();
         front = Vector3.Normalize(new Vector3(
             MathF.Cos(MathHelper.DegreesToRadians(yaw)) * MathF.Cos(MathHelper.DegreesToRadians(pitch)),
             MathF.Sin(MathHelper.DegreesToRadians(pitch)),
@@ -56,7 +58,23 @@ class Camera {
         ));
     } 
 
+    private void updateRotationTarget(Vector3 target) {
+        float targetRadius = 5.0f;
+        float targetHeight = 1.0f;
+        float targetSpeed = 5.0f;
+
+        targetAngle += targetSpeed * Tick.getDeltaTimeI();
+        position = new Vector3(
+            target.X + targetRadius * MathF.Cos(MathHelper.DegreesToRadians(targetAngle)),
+            target.Y + targetHeight,
+            target.Z + targetRadius * MathF.Sin(MathHelper.DegreesToRadians(targetAngle))
+        );
+
+        front = Vector3.Normalize(target - position);
+    }
+
     public void update() {
-        updateRotation();    
+        updateRotationTarget(new Vector3(0.0f, 0.0f, -3.0f));
+        //updateRotation();    
     }
 }

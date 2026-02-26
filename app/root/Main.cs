@@ -4,14 +4,16 @@ using OpenTK.Graphics.OpenGL;
 
 class Main {
     private Window window;
+    private Tick tick;
     private ShaderProgram shaderProgram;
-    private Scene scene;
+    private Scene scene = null!;
 
     public Main() {
         window = new Window();
+        tick = new Tick();
         shaderProgram = new ShaderProgram(loadShaders());
-        scene = new Scene(shaderProgram);
 
+        init();
         set();
     }
 
@@ -21,6 +23,13 @@ class Main {
             new ShaderModule(ShaderType.VertexShader, "vert.glsl"),
             new ShaderModule(ShaderType.FragmentShader, "frag.glsl")
         };
+    }
+
+    ///
+    /// Init
+    /// 
+    public void init() {
+        scene = new Scene(shaderProgram);
     }
 
     ///
@@ -38,6 +47,8 @@ class Main {
     /// Update
     /// 
     private void update() {
+        tick.update();
+        window.updateTitle(tick.getFps());
         scene.getCamera().update();
         scene.update();
     }

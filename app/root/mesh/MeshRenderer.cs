@@ -106,7 +106,7 @@ class MeshRenderer {
 
         string? axis = meshData.getRotationAxis();
         float speed = meshData.getRotationSpeed();
-        float deltaTime = 0.016f;
+        float deltaTime = Tick.getDeltaTimeI();
 
         switch(axis?.ToLower()) {
             case "x":

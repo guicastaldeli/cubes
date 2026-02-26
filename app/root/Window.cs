@@ -17,6 +17,10 @@ class Window : NativeWindow {
         Context.MakeCurrent();
     }
 
+    public void updateTitle(int fps) {
+        Title = TITLE + " / FPS: " + fps;
+    }
+
     public void run(Action renderCallback) {
         Thread thread = new Thread(() => {
             Context.MakeCurrent();
