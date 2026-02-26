@@ -162,18 +162,19 @@ class MeshRenderer {
         if(meshData == null || camera == null) return;
 
         if(!isDynamic) {
-            modelMatrix = Matrix4.CreateTranslation(position);
+            modelMatrix = Matrix4.Identity;
             if(hasScale) {
-                modelMatrix *= Matrix4.CreateScale(scale);
+                modelMatrix = 
+                    Matrix4.CreateTranslation(position) *
+                    Matrix4.CreateScale(scale);
             } else if(meshData.hasScale()) {
-                float[]? scale = meshData.getScale();
-                if(scale != null) {
-                    modelMatrix *= Matrix4.CreateScale(
-                        scale[0],
-                        scale[1],
-                        scale[2]
-                    );
-                }
+                float[]? s = meshData.getScale();
+                if(s != null)
+                    modelMatrix = 
+                        Matrix4.CreateTranslation(position) *
+                        Matrix4.CreateScale(s[0], s[1], s[2]);
+            } else {
+                modelMatrix = Matrix4.CreateTranslation(position);
             }
         }
 
@@ -191,7 +192,8 @@ class MeshRenderer {
                         "uColor", 
                         color[0], 
                         color[1], 
-                        color[2]
+                        color[2],
+                        color[3]
                     );
                 }
             }
@@ -206,7 +208,7 @@ class MeshRenderer {
 
         int[]? indices = meshData.getIndices();
         if(indices != null) {
-            GL.DrawElements(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedByte, 0);
+            GL.DrawElements(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, 0);
         } else {
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
         }
@@ -223,7 +225,8 @@ class MeshRenderer {
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         
         if(vbo != 0) GL.DeleteBuffer(vbo);
-        if(normalVbo != 0) GL.DeleteBuffer(colorVbo);
+        if(normalVbo != 0) GL.DeleteBuffer(normalVbo);
+        if(colorVbo != 0) GL.DeleteBuffer(colorVbo);
         if(texCoordsVbo != 0) GL.DeleteBuffer(texCoordsVbo);
         if(ebo != 0) GL.DeleteBuffer(ebo);
         if(vao != 0) GL.DeleteVertexArray(vao);

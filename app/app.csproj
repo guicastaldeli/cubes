@@ -15,9 +15,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>shaders\main\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
-    <Content Include="root\mesh\types\**\*">
+    <Content Include="root\mesh\data\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <Link>meshes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <Link>mesh\data\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
   </ItemGroup>
 </Project>

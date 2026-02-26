@@ -2,7 +2,7 @@ namespace App.Root.Mesh;
 using NLua;
 
 class MeshLoader {
-    private static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data/");
+    private static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mesh/data/");
 
     private static float[] toFloatArray(LuaTable table) {
         int len = (int)(long)table.Values.Count;
@@ -27,6 +27,7 @@ class MeshLoader {
 
         if(data["vertices"] is LuaTable vert) meshData.setVertices(toFloatArray(vert));
         if(data["indices"] is LuaTable idx) meshData.setIndices(toIntArray(idx));
+        if(data["colors"] is LuaTable colors) meshData.setColors(toFloatArray(colors));
         if(data["normals"] is LuaTable norm) meshData.setNormals(toFloatArray(norm));
         if(data["texCoords"] is LuaTable texCoords) meshData.setTexCoords(toFloatArray(texCoords));
         if(data["scale"] is LuaTable scale) meshData.setScale(toFloatArray(scale));

@@ -17,11 +17,12 @@ class Window : NativeWindow {
         Context.MakeCurrent();
     }
 
-    public void run() {
-        while(!IsExiting) {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            Context.SwapBuffers();
-            ProcessEvents(0);
-        }
+    public void run(Action renderCallback) {
+    while(!IsExiting) {
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        renderCallback();
+        Context.SwapBuffers();
+        ProcessEvents(0);
     }
+}
 }

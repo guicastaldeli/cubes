@@ -2,14 +2,14 @@ namespace App.Root.Mesh;
 using App.Root.Shaders;
 using OpenTK.Mathematics;
 
-class Mesh {
+class GetMesh {
     public readonly ShaderProgram shaderProgram;
     private Camera? camera;
 
     private readonly Dictionary<string, MeshData> meshDataMap = new();
     private readonly Dictionary<string, MeshRenderer> meshRendererMap = new();
 
-    public Mesh(ShaderProgram shaderProgram) {
+    public GetMesh(ShaderProgram shaderProgram) {
         this.shaderProgram = shaderProgram;
     }
 
@@ -49,6 +49,20 @@ class Mesh {
             null;
 
         return val;   
+    }
+
+    // Position
+    public void setPosition(string id, Vector3 position) {
+        getMeshRenderer(id)?.setPosition(position);
+    }
+
+    public void setPosition(string id, float x, float y, float z) {
+        getMeshRenderer(id)?.setPosition(x, y, z);
+    }
+
+    public Vector3 getPosition(string id) {
+        Vector3 val = getMeshRenderer(id)?.getPosition() ?? Vector3.Zero;
+        return val;
     }
 
     // Scale
