@@ -5,6 +5,8 @@ class Camera {
     private Vector3 position;
     private Vector3 front;
     private Vector3 up;
+    private Vector3 right;
+    private Vector3 worldUp;
 
     private float yaw = -90.0f;
     private float pitch = 0.0f;
@@ -14,8 +16,44 @@ class Camera {
 
     public Camera() {
         position = new Vector3(0.0f, 0.0f, 0.0f);
+        worldUp = Vector3.UnitY;
         front = new Vector3(0.0f, 0.0f, -1.0f);
         up = Vector3.UnitY;
+        right = Vector3.UnitX;
+        updateVectors();
+    }
+
+    public Vector3 getFront() {
+        return new Vector3(front);
+    }
+
+    public Vector3 getRight() {
+        return new Vector3(right);
+    }
+
+    public Vector3 getUp() {
+        return new Vector3(up);
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    // Position
+    public void setPosition(float x, float y, float z) {
+        position = new Vector3(x, y, z);
+    }
+
+    public void setPosition(Vector3 position) {
+        this.position = position;
+    }
+    
+    public Vector3 getPosition() {
+        return new Vector3(position);
     }
 
     // Get View
@@ -46,9 +84,31 @@ class Camera {
         ));
     }
 
+    // Handle Mouse
+    public void handleMouse(float xOffset, float yOffset) {
+        float sensv = 0.1f;
+        yaw += xOffset * sensv;
+        pitch += yOffset * sensv;
+        pitch = Math.Clamp(pitch, -89.0f, 89.0f);
+        updateVectors();
+    }
+
     ///
     /// Update 
     ///
+    private void updateVectors() {
+        float yawRad = MathHelper.DegreesToRadians(yaw);
+        float pitchRad = MathHelper.DegreesToRadians(pitch);
+
+        front = Vector3.Normalize(new Vector3(
+            MathF.Cos(yawRad) * MathF.Cos(pitchRad),
+            MathF.Sin(pitchRad),
+            MathF.Sin(yawRad) * MathF.Cos(pitchRad)
+        ));
+        right = Vector3.Normalize(Vector3.Cross(front, worldUp));
+        up = Vector3.Normalize(Vector3.Cross(right, front));
+    }
+
     private void updateRotation() {
         yaw += 5.0f * Tick.getDeltaTimeI();
         front = Vector3.Normalize(new Vector3(
@@ -74,7 +134,7 @@ class Camera {
     }
 
     public void update() {
-        updateRotationTarget(new Vector3(0.0f, 0.0f, -3.0f));
+        //updateRotationTarget(new Vector3(0.0f, 0.0f, -3.0f));
         //updateRotation();    
     }
 }

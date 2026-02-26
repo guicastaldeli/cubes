@@ -6,12 +6,15 @@ class Main {
     private Window window;
     private Tick tick;
     private ShaderProgram shaderProgram;
+    private Input input;
+
     private Scene scene = null!;
 
     public Main() {
         window = new Window();
         tick = new Tick();
         shaderProgram = new ShaderProgram(loadShaders());
+        input = new Input(window);
 
         init();
         set();
@@ -29,7 +32,7 @@ class Main {
     /// Init
     /// 
     public void init() {
-        scene = new Scene(shaderProgram);
+        scene = new Scene(shaderProgram, input);
     }
 
     ///
@@ -49,7 +52,6 @@ class Main {
     private void update() {
         tick.update();
         window.updateTitle(tick.getFps());
-        scene.getCamera().update();
         scene.update();
     }
 
