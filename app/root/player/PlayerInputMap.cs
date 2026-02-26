@@ -6,6 +6,7 @@ class PlayerInputMap {
     private PlayerController playerController;
     
     private bool[] keyPressed = new bool[(int) Keys.LastKey + 1];
+    private bool fKeyPressed = false;
 
     public PlayerInputMap(PlayerController playerController) {
         this.playerController = playerController;
@@ -31,5 +32,12 @@ class PlayerInputMap {
         playerController.updatePosition(PlayerController.MovDir.LEFT, keyPressed[(int)Keys.A]);
         playerController.updatePosition(PlayerController.MovDir.RIGHT, keyPressed[(int)Keys.D]);
         playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[(int)Keys.Space]);
+        playerController.updatePosition(PlayerController.MovDir.DOWN, keyPressed[(int)Keys.LeftShift]);
+        if(keyPressed[(int)Keys.F] && !fKeyPressed) {
+            playerController.toggleFlyMode();
+            fKeyPressed = true;
+        } else if(!keyPressed[(int)Keys.F]) {
+            fKeyPressed = false;
+        }
     }
 }
