@@ -4,17 +4,19 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NLua" Version="1.7.8" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
     <PackageReference Include="StbImageSharp" Version="2.30.15" />
+    <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="root\shaders\main\**\*">
+    <Content Include="root\shaders\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <Link>shaders\main\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <Link>shaders\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
     <Content Include="root\mesh\data\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -23,6 +25,10 @@
     <Content Include="root\resource\texture\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>resource\texture\%(RecursiveDir)%(Filename)%(Extension)</Link>
-  </Content>
+    </Content>
+    <Content Include="root\resource\font\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>resource\font\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
   </ItemGroup>
 </Project>

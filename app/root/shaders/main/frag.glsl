@@ -8,14 +8,21 @@ out vec4 fragColor;
 uniform vec4 uColor;
 uniform int uHasColors;
 uniform int hasTex;
+uniform int shaderType;
 uniform sampler2D uSampler;
 
+#include "../text/text_frag.glsl"
+
 void main() {
-    if(hasTex == 1) {
-        fragColor = texture(uSampler, vTexCoord);
-    } else if(uHasColors == 1) {
-        fragColor = vColor;
+    if(shaderType == 1) {
+        setTextFrag();
     } else {
-        fragColor = uColor;
+        if(hasTex == 1) {
+            fragColor = texture(uSampler, vTexCoord);
+        } else if(uHasColors == 1) {
+            fragColor = vColor;
+        } else {
+            fragColor = uColor;
+        }
     }
 }

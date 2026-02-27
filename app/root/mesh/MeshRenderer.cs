@@ -208,6 +208,7 @@ class MeshRenderer {
         }
 
         shaderProgram.bind();
+        shaderProgram.setUniform("shaderType", 0);
         shaderProgram.setUniform("uModel", modelMatrix);
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());

@@ -12,9 +12,17 @@ uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProjection;
 uniform int uHasColors;
+uniform int shaderType;
+uniform vec2 screenSize;
+
+#include "../text/text_vert.glsl"
 
 void main() {
-    gl_Position = uProjection * uView * uModel * vec4(aPos, 1.0);
-    vColor = uHasColors == 1 ? aColor : vec4(1.0); 
-    vTexCoord = aTexCoord;
+    if(shaderType == 1) {
+        setTextVert();
+    } else {
+        gl_Position = uProjection * uView * uModel * vec4(aPos, 1.0);
+        vColor = uHasColors == 1 ? aColor : vec4(1.0); 
+        vTexCoord = aTexCoord;
+    }
 }

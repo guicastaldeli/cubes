@@ -5,6 +5,7 @@ using App.Root.Shaders;
 using App.Root.Resource;
 using App.Root.Collider;
 using App.Root.Collider.Types;
+using App.Root.Text;
 
 class Scene {
     private ShaderProgram shaderProgram;
@@ -13,6 +14,7 @@ class Scene {
     private CollisionManager collisionManager;
 
     private GetMesh mesh;
+    private TextRenderer textRenderer = null!;
 
     public Scene(ShaderProgram shaderProgram, Input input) {
         this.shaderProgram = shaderProgram;
@@ -21,6 +23,9 @@ class Scene {
         collisionManager = new CollisionManager();
         mesh = new GetMesh(shaderProgram);
         init();
+        
+        textRenderer = new TextRenderer(shaderProgram, Window.WIDTH, Window.HEIGHT);
+        textRenderer.loadFont("default", "HomeVideo-BLG6G.ttf", 16.0f);
     }
 
     ///
@@ -65,5 +70,6 @@ class Scene {
     /// 
     public void render() {
         mesh.renderAll();
+        textRenderer.renderText("Hello World", 1.0f, 1.0f, 1.0f, new float[]{1,1,1,1});
     }
 }
