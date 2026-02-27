@@ -1,3 +1,4 @@
+using App.Root.Collider;
 using OpenTK.Mathematics;
 
 namespace App.Root.Player;
@@ -92,6 +93,18 @@ class RigidBody {
 
     public bool isGravityEnabled() {
         return gravityEnabled;
+    }
+
+    // BBox
+    public BBox getBBox() {
+        return new BBox(
+            position.X - size.X / 2,
+            position.Y - size.Y / 2,
+            position.Z - size.Z / 2,
+            position.X + size.X / 2,
+            position.Y + size.Y / 2,
+            position.Z + size.Z / 2
+        );
     }
 
     ///

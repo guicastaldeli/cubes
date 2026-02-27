@@ -39,7 +39,7 @@ class BBox {
 
     public bool intersects(BBox other) {
         return (minX <= other.maxX && maxX >= other.minX) &&
-            (minY <= other.maxX && maxY >= other.minY) &&
-            (minZ <= other.minZ && maxZ >= other.minZ);
+            (minY <= other.maxY && maxY >= other.minY) &&
+            (minZ <= other.maxZ && maxZ >= other.minZ);
     }
 }

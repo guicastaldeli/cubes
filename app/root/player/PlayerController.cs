@@ -1,4 +1,6 @@
 namespace App.Root.Player;
+
+using App.Root.Collider;
 using OpenTK.Mathematics;
 
 class PlayerController {
@@ -14,6 +16,7 @@ class PlayerController {
     private Camera camera;
     private PlayerInputMap playerInputMap;
     private RigidBody rigidBody = null!;
+    private CollisionManager collisionManager = null!;
 
     private Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
     private Vector3 size = new Vector3(1.0f, 2.0f, 1.0f);
@@ -45,6 +48,11 @@ class PlayerController {
     // Get Input Map
     public PlayerInputMap getPlayerInputMap() {
         return playerInputMap;
+    }
+
+    // Set Collision Manager
+    public void setCollisionManager(CollisionManager collisionManager) {
+        this.collisionManager = collisionManager;
     }
 
     // Position
@@ -139,6 +147,11 @@ class PlayerController {
     public void update() {
         applyMov();
         rigidBody.update();
+
+        if(collisionManager != null) {
+            CollisionResult collision = collisionManager.checkCollision(rigidBody);
+            collisionManager.resolveCollision(rigidBody, collision);
+        }
         position = rigidBody.getPosition();
 
         if(!flyMode) {

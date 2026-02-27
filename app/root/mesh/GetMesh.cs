@@ -2,6 +2,7 @@ namespace App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.Player;
 using OpenTK.Mathematics;
+using App.Root.Collider;
 
 class GetMesh {
     public readonly ShaderProgram shaderProgram;
@@ -98,6 +99,38 @@ class GetMesh {
         data.setColorHex(hex);
         float[]? colors = data.getColors();
         if(colors != null) meshRenderer.updateColors(colors);
+    }
+
+    // Get BBox
+    public BBox getBBox(string id) {
+        Vector3 pos = getPosition(id);
+        MeshData? meshData = getData(id);
+
+        float sizeX = 1.0f;
+        float sizeY = 1.0f;
+        float sizeZ = 1.0f;
+
+        if(meshData != null && meshData.hasScale()) {
+            float[]? scale = meshData.getScale();
+            if(scale != null) {
+                sizeX = scale[0];
+                sizeY = scale[1];
+                sizeZ = scale[2];
+            }    
+        } else {
+            MeshRenderer? meshRenderer = getMeshRenderer(id);
+            if(meshRenderer != null) {
+                Vector3 scale = meshRenderer.getScale();
+                sizeX = scale.X;
+                sizeY = scale.Y;
+                sizeZ = scale.Z;
+            }
+        }
+
+        return new BBox(
+            pos.X - sizeX / 2, pos.Y - sizeY / 2, pos.Z - sizeZ / 2,
+            pos.X + sizeX / 2, pos.Y + sizeY / 2, pos.Z + sizeZ / 2
+        );
     }
 
     ///

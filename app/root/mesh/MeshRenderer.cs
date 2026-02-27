@@ -22,7 +22,6 @@ class MeshRenderer {
 
     private Vector3 position = Vector3.Zero;
     private Vector3 scale = Vector3.One;
-    private float rotationAngle = 0.0f;
 
     private bool hasScale = false;
     private bool isDynamic = false;
@@ -75,6 +74,10 @@ class MeshRenderer {
 
     public void setScale(float x, float y, float z) {
         setScale(new Vector3(x, y, z));
+    }
+
+    public Vector3 getScale() {
+        return new Vector3(scale);
     }
 
     // Texture
