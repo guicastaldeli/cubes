@@ -8,10 +8,6 @@ class Input {
     private Tick tick;
     private PlayerInputMap? playerInputMap = null!;
 
-    private float lastMouseX = 0;
-    private float lastMouseY = 0;
-    private bool firstMouse = true;
-
     public Input(Window window, Tick tick) {
         this.window = window;
         this.tick = tick;
@@ -50,7 +46,6 @@ class Input {
 
     public void unlockMouse() {
         window.CursorState = OpenTK.Windowing.Common.CursorState.Normal;
-        firstMouse = true;
     }
 
     ///
