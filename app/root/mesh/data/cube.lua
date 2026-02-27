@@ -146,5 +146,5 @@ texCoords = {
 -- Rotation
 rotation = {
     axis = "Y",
-    speed = 10.0
+    speed = 200.0
 }
