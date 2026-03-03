@@ -2,7 +2,6 @@ namespace App.Root.Screen;
 using App.Root.Shaders;
 using App.Root.Text;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 
 class Screen : ScreenHandler {
     public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/screen/");
@@ -10,7 +9,7 @@ class Screen : ScreenHandler {
     public static int screenWidth;
     public static int screenHeight;
     public static ShaderProgram shaderProgram = null!;
-    public static ScreenController screenController = null;
+    public static ScreenController screenController = null!;
 
     public TextRenderer? textRenderer;
     public bool active = false;

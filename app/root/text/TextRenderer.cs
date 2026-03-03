@@ -1,6 +1,5 @@
 namespace App.Root.Text;
 
-using System.Net.NetworkInformation;
 using App.Root.Shaders;
 using OpenTK.Graphics.OpenGL;
 
@@ -38,9 +37,33 @@ class TextRenderer {
         foreach(char c in chars) loadGlyphToAtlas(c, key);
     }
 
+    // Get Font Metrics
+    public FontMetrics getFontMetrics(string fontKey = "default") {
+        return fontLoaders[fontKey].getFontMetrics();
+    }
+
+    // Get Text Width
+    public float getTextWidth(string text, float scale, string fontKey = "default") {
+        if(!fontLoaders.ContainsKey(fontKey)) return 0f;
+
+        var cache = glyphCaches[fontKey];
+        var fontLoader = fontLoaders[fontKey];
+        float width = 0f;
+
+        for(int i = 0; i < text.Length; i++) {
+            if(!cache.TryGetValue(text[i], out var glyph)) continue;
+            width += glyph.advance * scale;
+            if(i < text.Length - 1 && cache.TryGetValue(text[i + 1], out var next)) {
+                width += fontLoader.getKerning(glyph.glypthIndex, next.glypthIndex) * scale;
+            }
+        }
+
+        return width;
+    }
+
     ///
     /// Setup
-    /// 
+    ///
     private void setupBuffers() {
         vao = GL.GenVertexArray();
         vbo = GL.GenBuffer();
@@ -68,35 +91,8 @@ class TextRenderer {
     }
 
     ///
-    /// Load
-    /// 
-    public void loadFont(string key, string fileName, float size = 16.0f) {
-        if(fontLoaders.ContainsKey(key)) return;
-        string path = Path.Combine(FONT_DIR, fileName);
-    
-        FontLoader fontLoader = new FontLoader(path, size);
-        Atlas atlas = new Atlas(ATLAS_SIZE, ATLAS_SIZE);
-
-        fontLoaders[key] = fontLoader;
-        atlases[key] = atlas;
-        glyphCaches[key] = new Dictionary<char, Glyph>();
-        
-        preloadChars(key);    
-    }
-
-    private Glyph? loadGlyphToAtlas(char c, string fontKey) {
-        var cache = glyphCaches[fontKey];
-        if(cache.TryGetValue(c, out var cached)) return cached;
-        atlases[fontKey].addGlyph(fontLoaders[fontKey], c);
-
-        Glyph? glyph = atlases[fontKey].getGlyph(c);
-        if(glyph != null) cache[c] = glyph;
-        return glyph;
-    }
-
-    ///
     /// Update
-    /// 
+    ///
     private void updateQuad(float x, float y, float w, float h, Glyph glyph, float[] color) {
         float r = color[0], g = color[1], b = color[2], a = color.Length > 3 ? color[3] : 1.0f;
         float[] verts = {
@@ -117,15 +113,29 @@ class TextRenderer {
 
     ///
     /// Render
-    /// 
+    ///
     public void renderText(
-        string text, 
-        float x, 
-        float y, 
-        float scale, 
-        float[] color, 
+        string text,
+        float x,
+        float y,
+        float scale,
+        float[] color,
         string fontKey = "default"
     ) {
+        renderTextWithShadow(text, x, y, scale, color, 0, 0, 0, new float[]{ 0, 0, 0, 0 }, fontKey);
+    }
+
+    public void renderTextWithShadow(
+        string text,
+        float x, float y,
+        float scale,
+        float[] color,
+        float shadowOffsetX, float shadowOffsetY,
+        float shadowBlur,
+        float[] shadowColor,
+        string fontKey = "default"
+    ) {
+        if(string.IsNullOrEmpty(text)) return;
         if(!fontLoaders.ContainsKey(fontKey)) return;
         currentFont = fontKey;
 
@@ -138,15 +148,40 @@ class TextRenderer {
         shaderProgram.setUniform("shaderType", 1);
         shaderProgram.setUniform("screenSize", (float)screenWidth, (float)screenHeight);
         shaderProgram.setUniform("uSampler", 0);
-        shaderProgram.setUniform("uColor", color[0], color[1], color[2], color.Length > 3 ? color[3] : 1.0f);
 
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, atlases[currentFont].getTextureId());
         GL.BindVertexArray(vao);
 
         FontMetrics metrics = fontLoaders[currentFont].getFontMetrics();
-        float cursorX = x;
         float baseline = y + metrics.ascent * scale;
+
+        if(shadowBlur > 0) {
+            int blurPasses = Math.Min(5, (int)shadowBlur);
+            for(int pass = 0; pass < blurPasses; pass++) {
+                float blurOffset = pass * 0.5f;
+                renderTextPass(text, x + shadowOffsetX - blurOffset, baseline + shadowOffsetY - blurOffset, scale, shadowColor);
+                renderTextPass(text, x + shadowOffsetX + blurOffset, baseline + shadowOffsetY - blurOffset, scale, shadowColor);
+                renderTextPass(text, x + shadowOffsetX - blurOffset, baseline + shadowOffsetY + blurOffset, scale, shadowColor);
+                renderTextPass(text, x + shadowOffsetX + blurOffset, baseline + shadowOffsetY + blurOffset, scale, shadowColor);
+            }
+        } else {
+            renderTextPass(text, x + shadowOffsetX, baseline + shadowOffsetY, scale, shadowColor);
+        }
+
+        renderTextPass(text, x, baseline, scale, color);
+
+        GL.BindVertexArray(0);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        if(depthTest) GL.Enable(EnableCap.DepthTest);
+        GL.Disable(EnableCap.Blend);
+        shaderProgram.unbind();
+    }
+
+    private void renderTextPass(string text, float startX, float baseline, float scale, float[] color) {
+        shaderProgram.setUniform("uColor", color[0], color[1], color[2], color.Length > 3 ? color[3] : 1.0f);
+
+        float cursorX = startX;
         var cache = glyphCaches[currentFont];
         var fontLoader = fontLoaders[currentFont];
 
@@ -160,25 +195,41 @@ class TextRenderer {
             float w = glyph.bitmapWidth * scale;
             float h = glyph.bitmapHeight * scale;
 
-            updateQuad(
-                xPos, yPos,
-                w, h,
-                glyph,
-                color
-            );
+            updateQuad(xPos, yPos, w, h, glyph, color);
             GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
 
             cursorX += glyph.advance * scale;
-            if(i < text.Length - 1 && cache.TryGetValue(text[i+1], out var next)) {
+            if(i < text.Length - 1 && cache.TryGetValue(text[i + 1], out var next)) {
                 cursorX += fontLoader.getKerning(glyph.glypthIndex, next.glypthIndex) * scale;
             }
         }
+    }
 
-        GL.BindVertexArray(0);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-        if(depthTest) GL.Enable(EnableCap.DepthTest);
-        GL.Disable(EnableCap.Blend);
-        shaderProgram.unbind();
+    ///
+    /// Load
+    ///
+    public void loadFont(string key, string fileName, float size = 16.0f) {
+        if(fontLoaders.ContainsKey(key)) return;
+        string path = Path.Combine(FONT_DIR, fileName);
+
+        FontLoader fontLoader = new FontLoader(path, size);
+        Atlas atlas = new Atlas(ATLAS_SIZE, ATLAS_SIZE);
+
+        fontLoaders[key] = fontLoader;
+        atlases[key] = atlas;
+        glyphCaches[key] = new Dictionary<char, Glyph>();
+
+        preloadChars(key);
+    }
+
+    private Glyph? loadGlyphToAtlas(char c, string fontKey) {
+        var cache = glyphCaches[fontKey];
+        if(cache.TryGetValue(c, out var cached)) return cached;
+        atlases[fontKey].addGlyph(fontLoaders[fontKey], c);
+
+        Glyph? glyph = atlases[fontKey].getGlyph(c);
+        if(glyph != null) cache[c] = glyph;
+        return glyph;
     }
 
     // Cleanup

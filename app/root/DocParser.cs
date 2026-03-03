@@ -1,16 +1,15 @@
-namespace App.Root;
-using App.Root.Screen;
+namespace App.Root.Screen;
+using App.Root.Resource;
+using App.Root.Shaders;
+using App.Root.Text;
+using App.Root.ui;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using App.Root.Resource;
-using App.Root.Shaders;
-using App.Root.Text;
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
 
 class DocParser {
     public static readonly string IMG_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/img/");
@@ -40,6 +39,23 @@ class DocParser {
         return screenData;
     }
 
+    public static UIData parseUI(string filePath, int screenWidth, int screenHeight) {
+        UIData uiData = new UIData(filePath);
+        try {
+            XmlDocument document = new XmlDocument();
+            document.Load(filePath);
+
+            XmlElement root = document.DocumentElement!;
+            uiData.uiType = root.Name;
+
+            parseAttr(root, uiData.uiAttr);
+            parseEl(root, uiData.elements, screenWidth, screenHeight, null);
+        } catch(Exception err) {
+            Console.Error.WriteLine("Error parsing UI XML: " + err.Message);
+        }
+        return uiData;
+    }
+
     private static void parseEl(
         XmlElement parent,
         List<ScreenElement> elements,
@@ -61,6 +77,31 @@ class DocParser {
             if(screenElement != null) {
                 elements.Add(screenElement);
                 parseEl(element, elements, screenWidth, screenHeight, screenElement);
+            }
+        }
+    }
+
+    private static void parseEl(
+        XmlElement parent,
+        List<UIElement> elements,
+        int screenWidth,
+        int screenHeight,
+        UIElement? parentElement
+    ) {
+        foreach(XmlNode node in parent.ChildNodes) {
+            if(node is not XmlElement element) continue;
+
+            UIElement? uiElement = createUIElement(
+                element,
+                element.Name,
+                screenWidth,
+                screenHeight,
+                parentElement
+            );
+
+            if(uiElement != null) {
+                elements.Add(uiElement);
+                parseEl(element, elements, screenWidth, screenHeight, uiElement);
             }
         }
     }
@@ -116,20 +157,18 @@ class DocParser {
         return null;
     }
 
-    public static List<ScreenElement> parseButtons(string xmlFilePath, int screenWidth, int screenHeight) {
-        return getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "button");
-    }
-
-    public static List<ScreenElement> parseLabels(string xmlFilePath, int screenWidth, int screenHeight) {
-        return getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "label");
-    }
     
-    public static List<ScreenElement> parseDivs(string xmlFilePath, int screenWidth, int screenHeight) {
-        return getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "div");
-    }
+    public static List<ScreenElement> parseButtons(string xmlFilePath, int screenWidth, int screenHeight) =>
+        getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "button");
+
+    public static List<ScreenElement> parseLabels(string xmlFilePath, int screenWidth, int screenHeight) =>
+        getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "label");
+
+    public static List<ScreenElement> parseDivs(string xmlFilePath, int screenWidth, int screenHeight) =>
+        getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "div");
 
     ///
-    /// Element
+    /// Create Element
     ///
     private static ScreenElement? createScreenElement(
         XmlElement element,
@@ -212,6 +251,7 @@ class DocParser {
                 }
             }
         }
+
         if(element.HasAttribute("hoverable")) {
             screenElement.hoverable = bool.Parse(element.GetAttribute("hoverable"));
         }
@@ -241,14 +281,13 @@ class DocParser {
 
         if(type == "input") {
             screenElement.hasBackground = true;
-            if(!element.HasAttribute("color")) {
+            if(!element.HasAttribute("color"))
                 screenElement.color = new float[]{ 0.0f, 0.0f, 0.0f, 1.0f };
-            }
         }
 
-        if(element.HasAttribute("visible")) {
+        if(element.HasAttribute("visible"))
             screenElement.visible = bool.Parse(element.GetAttribute("visible"));
-        }
+
         if(element.HasAttribute("textShadow")) {
             string shadowStr = element.GetAttribute("textShadow");
             string[] shadowParts = shadowStr.Split(' ');
@@ -274,6 +313,9 @@ class DocParser {
         return screenElement;
     }
 
+    ///
+    /// Get Elements
+    ///
     public static List<ScreenElement> getElementsByType(ScreenData screenData, string type) {
         var result = new List<ScreenElement>();
         foreach(var el in screenData.elements) {
@@ -289,9 +331,6 @@ class DocParser {
         return null;
     }
 
-    ///
-    /// Render
-    /// 
     public static void initElRendering() {
         if(uiBuffersInitialized) return;
 
@@ -321,6 +360,9 @@ class DocParser {
         uiBuffersInitialized = true;
     }
 
+    ///
+    /// Render Element
+    ///
     public static void renderScreenElement(
         ScreenElement element,
         int screenWidth,
@@ -382,6 +424,9 @@ class DocParser {
         GL.Disable(EnableCap.Blend);
     }
 
+    ///
+    /// Render Screen
+    ///
     public static void renderScreen(
         ScreenData? screenData,
         int screenWidth,
@@ -392,23 +437,22 @@ class DocParser {
         if(screenData == null || screenData.elements.Count == 0) return;
 
         foreach(var el in screenData.elements) {
-            if(el.visible && el.type == "div") {
+            if(el.visible && el.type == "div")
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
-            }
         }
 
         foreach(var el in screenData.elements) {
-            if(el.visible && el.type == "img") {
+            if(el.visible && el.type == "img")
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
-            }        
         }
+
         foreach(var el in screenData.elements) {
             if(el.visible && el.type == "input" && textRenderer != null) {
-                if(!string.IsNullOrEmpty(el.text)) {
+                if(!string.IsNullOrEmpty(el.text))
                     textRenderer.renderText(el.text, el.x, el.y, el.scale, el.color, el.fontFamily);
-                }
             }
         }
+
         foreach(var el in screenData.elements) {
             if(el.visible && el.type == "button") {
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
@@ -426,7 +470,285 @@ class DocParser {
                 }
             }
         }
+
         foreach(var el in screenData.elements) {
+            if(el.visible && el.type == "label") {
+                if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
+                    if(el.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            el.text, el.x, el.y, el.scale, el.color,
+                            el.shadowOffsetX, el.shadowOffsetY, el.shadowBlur,
+                            el.shadowColor, el.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(el.text, el.x, el.y, el.scale, el.color, el.fontFamily);
+                    }
+                }
+            }
+        }
+    }
+
+    ///
+    /// Create UI Element
+    ///
+    private static UIElement? createUIElement(
+        XmlElement element,
+        string type,
+        int screenWidth,
+        int screenHeight,
+        UIElement? parentElement
+    ) {
+        string text = element.InnerText.Trim();
+        string id   = element.HasAttribute("id") ? element.GetAttribute("id") : "";
+
+        int x = parseCoordinate(element, "x", screenWidth, 1280);
+        int y = parseCoordinate(element, "y", screenHeight, 720);
+        if(parentElement != null) {
+            x += parentElement.x;
+            y += parentElement.y;
+        }
+
+        int width  = parseSize(element, "width",  screenWidth,  1280, 100);
+        int height = parseSize(element, "height", screenHeight, 720,  50);
+
+        float scale = element.HasAttribute("scale") ? float.Parse(element.GetAttribute("scale")) : 1.0f;
+
+        float[] color = new float[]{ 1.0f, 1.0f, 1.0f, 1.0f };
+        if(element.HasAttribute("color")) {
+            float[]? parsed = parseColor(element.GetAttribute("color"));
+            if(parsed != null) color = parsed;
+        }
+
+        bool hasBackground = type == "div" || type == "container" || type == "input";
+        if(element.HasAttribute("background")) {
+            hasBackground = true;
+            float[]? bg = parseColor(element.GetAttribute("background"));
+            if(bg != null) color = bg;
+        }
+
+        string fontFamily = element.HasAttribute("fontFamily")
+            ? element.GetAttribute("fontFamily").ToLower()
+            : "arial";
+
+        string action = element.HasAttribute("action") ? element.GetAttribute("action") : "";
+
+        float borderWidth = element.HasAttribute("border")
+            ? float.Parse(element.GetAttribute("border"))
+            : 0.0f;
+
+        float[] borderColor = new float[]{ 0.0f, 0.0f, 0.0f, 1.0f };
+        if(element.HasAttribute("borderColor")) {
+            float[]? bc = parseColor(element.GetAttribute("borderColor"));
+            if(bc != null) borderColor = bc;
+        }
+
+        if(element.HasAttribute("text")) {
+            text = evaluateExpression(element.GetAttribute("text"));
+        } else {
+            text = evaluateExpression(text);
+        }
+
+        UIElement uiElement = new UIElement(
+            type, id, text, fontFamily,
+            x, y, width, height,
+            scale, color, hasBackground, action
+        );
+
+        uiElement.borderWidth = borderWidth;
+        uiElement.borderColor = borderColor;
+        if(element.HasAttribute("background")) uiElement.hasBackground = true;
+        parseAttr(element, uiElement.attr);
+
+        // img
+        if(type == "img") {
+            uiElement.hasBackground = true;
+            if(element.HasAttribute("src")) {
+                string fullPath = IMG_PATH + element.GetAttribute("src");
+                int texId = TextureLoader.load(fullPath);
+                if(texId != -1) {
+                    uiElement.textureId = texId;
+                    uiElement.hasTexture = true;
+                } else {
+                    Console.Error.WriteLine("Failed to load texture: " + fullPath);
+                }
+            }
+        }
+
+        if(element.HasAttribute("hoverable"))
+            uiElement.hoverable = bool.Parse(element.GetAttribute("hoverable"));
+
+        if(type == "button")
+            uiElement.hoverable = true;
+
+        if(element.HasAttribute("hoverColor")) {
+            float[]? hc = parseColor(element.GetAttribute("hoverColor"));
+            if(hc != null) uiElement.hoverColor = hc;
+        }
+
+        if(element.HasAttribute("hoverTextColor")) {
+            float[]? htc = parseColor(element.GetAttribute("hoverTextColor"));
+            if(htc != null) uiElement.hoverTextColor = htc;
+        }
+
+        if(element.HasAttribute("hoverBorderColor")) {
+            float[]? hbc = parseColor(element.GetAttribute("hoverBorderColor"));
+            if(hbc != null) uiElement.hoverBorderColor = hbc;
+        }
+
+        if(element.HasAttribute("hoverScale"))
+            uiElement.hoverScale = float.Parse(element.GetAttribute("hoverScale"));
+
+        if(type == "input") {
+            uiElement.hasBackground = true;
+            if(!element.HasAttribute("color"))
+                uiElement.color = new float[]{ 0.0f, 0.0f, 0.0f, 1.0f };
+        }
+
+        if(element.HasAttribute("visible"))
+            uiElement.visible = bool.Parse(element.GetAttribute("visible"));
+
+        if(element.HasAttribute("textShadow")) {
+            string shadowStr = element.GetAttribute("textShadow");
+            string[] shadowParts = shadowStr.Split(' ');
+
+            if(shadowParts.Length >= 2) {
+                uiElement.hasShadow = true;
+
+                string[] offsetParts = shadowParts[0].Split(',');
+                if(offsetParts.Length >= 2) {
+                    uiElement.shadowOffsetX = float.Parse(offsetParts[0].Replace("px", "").Trim());
+                    uiElement.shadowOffsetY = float.Parse(offsetParts[1].Replace("px", "").Trim());
+                }
+
+                uiElement.shadowBlur = float.Parse(shadowParts[1].Replace("px", "").Trim());
+
+                if(shadowParts.Length >= 3) {
+                    float[]? sc = parseColor(shadowParts[2]);
+                    if(sc != null) uiElement.shadowColor = sc;
+                }
+            }
+        }
+
+        return uiElement;
+    }
+
+    public static List<UIElement> getElementsByType(UIData uiData, string type) {
+        var result = new List<UIElement>();
+        foreach(var el in uiData.elements) {
+            if(el.type == type && el.visible) result.Add(el);
+        }
+        return result;
+    }
+
+    public static UIElement? getElementById(UIData uiData, string id) {
+        foreach(var el in uiData.elements) {
+            if(el.id == id && el.visible) return el;
+        }
+        return null;
+    }
+
+    public static void renderUIElement(
+        UIElement element,
+        int screenWidth,
+        int screenHeight,
+        ShaderProgram shaderProgram
+    ) {
+        if(!element.visible || !element.hasBackground) return;
+
+        initElRendering();
+
+        float x1 = element.x;
+        float y1 = element.y;
+        float x2 = element.x + element.width;
+        float y2 = element.y + element.height;
+
+        bool depthTest = GL.IsEnabled(EnableCap.DepthTest);
+        if(depthTest) GL.Disable(EnableCap.DepthTest);
+
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+        shaderProgram.bind();
+
+        if(element.hasTexture && element.textureId != -1) {
+            shaderProgram.setUniform("shaderType", 3);
+            shaderProgram.setUniform("hasTex", 1);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, element.textureId);
+            shaderProgram.setUniform("uSampler", 0);
+        } else {
+            shaderProgram.setUniform("shaderType", 3);
+            shaderProgram.setUniform("hasTex", 0);
+        }
+
+        shaderProgram.setUniform("screenSize", (float)screenWidth, (float)screenHeight);
+        shaderProgram.setUniform("uColor",
+            element.getRed(), element.getGreen(),
+            element.getBlue(), element.getAlpha()
+        );
+
+        float r = element.getRed(), g = element.getGreen(), b = element.getBlue(), a = element.getAlpha();
+        float[] verts = {
+            x1, y1,  r, g, b, a,  0.0f, 0.0f,
+            x1, y2,  r, g, b, a,  0.0f, 1.0f,
+            x2, y2,  r, g, b, a,  1.0f, 1.0f,
+            x2, y1,  r, g, b, a,  1.0f, 0.0f,
+        };
+
+        GL.BindVertexArray(uiVao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, uiVbo);
+        GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, verts.Length * sizeof(float), verts);
+        GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+
+        GL.BindVertexArray(0);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        shaderProgram.unbind();
+
+        if(depthTest) GL.Enable(EnableCap.DepthTest);
+        GL.Disable(EnableCap.Blend);
+    }
+
+    ///
+    /// Render UI
+    ///
+    public static void renderUI(
+        UIData? uiData,
+        int screenWidth,
+        int screenHeight,
+        ShaderProgram shaderProgram,
+        TextRenderer? textRenderer
+    ) {
+        if(uiData == null || uiData.elements.Count == 0) return;
+
+        foreach(var el in uiData.elements) {
+            if(el.visible && el.type == "div")
+                renderUIElement(el, screenWidth, screenHeight, shaderProgram);
+        }
+
+        foreach(var el in uiData.elements) {
+            if(el.visible && el.type == "img")
+                renderUIElement(el, screenWidth, screenHeight, shaderProgram);
+        }
+
+        foreach(var el in uiData.elements) {
+            if(el.visible && el.type == "button") {
+                renderUIElement(el, screenWidth, screenHeight, shaderProgram);
+
+                if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
+                    if(el.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            el.text, el.x, el.y, el.scale, el.color,
+                            el.shadowOffsetX, el.shadowOffsetY, el.shadowBlur,
+                            el.shadowColor, el.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(el.text, el.x, el.y, el.scale, el.color, el.fontFamily);
+                    }
+                }
+            }
+        }
+
+        foreach(var el in uiData.elements) {
             if(el.visible && el.type == "label") {
                 if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
                     if(el.hasShadow) {
@@ -473,15 +795,16 @@ class DocParser {
             int count = int.Parse(repeatMatch.Groups[2].Value);
             return string.Concat(Enumerable.Repeat(repeatText, count));
         }
+
         if(expression.Contains("+")) {
             var sb = new StringBuilder();
             foreach(var part in expression.Split('+'))
                 sb.Append(part.Trim().Trim('\''));
             return sb.ToString();
         }
-        if(expression.StartsWith("'") && expression.EndsWith("'")) {
+
+        if(expression.StartsWith("'") && expression.EndsWith("'"))
             return expression[1..^1];
-        }
 
         return "${" + expression + "}";
     }
