@@ -12,6 +12,9 @@ class ScreenElement {
     public int height;
     public float scale;
     public float[] color;
+    public float textOffsetX = 0.0f;
+    public float textOffsetY = 0.0f;
+    public float[] backgroundColor;
     public string action;
     public Dictionary<string, string> attr;
     public bool visible;
@@ -61,6 +64,7 @@ class ScreenElement {
         this.height = height;
         this.scale = scale;
         this.color = color;
+        this.backgroundColor = new float[]{ 0.0f, 0.0f, 0.0f, 0.0f, };
         this.action = action;
         this.attr = new Dictionary<string, string>();
         this.visible = true;

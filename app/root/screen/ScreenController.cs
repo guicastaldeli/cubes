@@ -2,6 +2,7 @@ namespace App.Root.Screen;
 using App.Root.Shaders;
 using System.Collections.Generic;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using App.Root.Screen.Main;
 
 class ScreenController {
     public enum SCREENS {
@@ -32,6 +33,7 @@ class ScreenController {
             shaderProgram,
             this
         );
+        this.init();
     }
 
     // Handle Window Resize
@@ -98,5 +100,13 @@ class ScreenController {
         if(currentScreen != null && currentScreen.isActive()) {
             currentScreen.update();
         }
+    }
+
+    ///
+    /// Init
+    /// 
+    public void init() {
+        // Main
+        screens[SCREENS.MAIN] = new MainScreen();
     }
 }

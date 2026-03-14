@@ -12,11 +12,16 @@ uniform int shaderType;
 uniform sampler2D uSampler;
 
 #include "../text/text_frag.glsl"
+#include "../ui/ui_frag.glsl"
 
 void main() {
     if(shaderType == 1) {
         setTextFrag();
-    } else {
+    }
+    else if(shaderType == 3) {
+        setUIFrag();
+    }
+    else {
         if(hasTex == 1) {
             fragColor = texture(uSampler, vTexCoord);
         } else if(uHasColors == 1) {

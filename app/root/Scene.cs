@@ -70,6 +70,6 @@ class Scene {
     /// 
     public void render() {
         mesh.renderAll();
-        textRenderer.renderText("Hello World!!", 1.0f, 1.0f, 1.0f, new float[]{1,1,1,1});
+        //textRenderer.renderText("Hello World!!", 1.0f, 1.0f, 1.0f, new float[]{1,1,1,1});
     }
 }

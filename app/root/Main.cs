@@ -1,4 +1,5 @@
 namespace App.Root;
+using App.Root.Screen;
 using App.Root.Shaders;
 using OpenTK.Graphics.OpenGL;
 
@@ -9,6 +10,7 @@ class Main {
     private Input input;
 
     private Scene scene = null!;
+    private ScreenController screenController = null!;
 
     public Main() {
         window = new Window();
@@ -33,6 +35,9 @@ class Main {
     /// 
     public void init() {
         scene = new Scene(shaderProgram, input);
+        
+        screenController = new ScreenController(shaderProgram, Window.WIDTH, Window.HEIGHT);
+        screenController.switchTo(ScreenController.SCREENS.MAIN);
     }
 
     ///
@@ -53,6 +58,7 @@ class Main {
         tick.update();
         window.updateTitle(tick.getTickCount(), tick.getFps());
         scene.update();
+        screenController.update();
     }
 
     /// 
@@ -60,6 +66,7 @@ class Main {
     /// 
     private void render() {
         scene.render();
+        screenController.render();
     }
     
     ///

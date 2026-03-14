@@ -30,5 +30,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>resource\font\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
+    <Content Include="root\screen\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>screen\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
   </ItemGroup>
 </Project>

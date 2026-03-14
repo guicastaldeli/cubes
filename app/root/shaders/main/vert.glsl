@@ -16,11 +16,16 @@ uniform int shaderType;
 uniform vec2 screenSize;
 
 #include "../text/text_vert.glsl"
+#include "../ui/ui_vert.glsl"
 
 void main() {
     if(shaderType == 1) {
         setTextVert();
-    } else {
+    }
+    else if(shaderType == 3) {
+        setUIVert();
+    }
+    else {
         gl_Position = uProjection * uView * uModel * vec4(aPos, 1.0);
         vColor = uHasColors == 1 ? aColor : vec4(1.0); 
         vTexCoord = aTexCoord;

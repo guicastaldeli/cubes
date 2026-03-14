@@ -198,13 +198,6 @@ class DocParser {
             if(parsed != null) color = parsed;
         }
 
-        bool hasBackground = type == "div" || type == "container" || type == "input";
-        if(element.HasAttribute("background")) {
-            hasBackground = true;
-            float[]? bg = parseColor(element.GetAttribute("background"));
-            if(bg != null) color = bg;
-        }
-
         string fontFamily = element.HasAttribute("fontFamily")
             ? element.GetAttribute("fontFamily").ToLower()
             : "arial";
@@ -232,6 +225,33 @@ class DocParser {
             x, y, width, height,
             scale, color, action
         );
+
+        bool hasBackground = type == "div" || type == "container" || type == "input";
+        if(element.HasAttribute("background")) {
+            hasBackground = true;
+            float[]? bg = parseColor(element.GetAttribute("background"));
+            if(bg != null) screenElement.backgroundColor = bg;
+        }
+
+        if(element.HasAttribute("textOffset")) {
+            string[] parts = element.GetAttribute("textOffset").Split(',');
+            if(parts.Length >= 2) {
+                string xPart = parts[0].Trim();
+                string yPart = parts[1].Trim();
+                if(xPart.EndsWith("%")) {
+                    float pct = float.Parse(xPart.Replace("%", "")) / 100.0f;
+                    screenElement.textOffsetX = screenElement.width * pct;
+                } else {
+                    screenElement.textOffsetX = float.Parse(xPart);
+                }
+                if(yPart.EndsWith("%")) {
+                    float pct = float.Parse(yPart.Replace("%", "")) / 100.0f;
+                    screenElement.textOffsetY = screenElement.height * pct;
+                } else {
+                    screenElement.textOffsetY = float.Parse(yPart);
+                }
+            }
+        }
 
         screenElement.borderWidth = borderWidth;
         screenElement.borderColor = borderColor;
@@ -397,13 +417,14 @@ class DocParser {
             shaderProgram.setUniform("hasTex", 0);
         }
 
-        shaderProgram.setUniform("screenSize", (float)screenWidth, (float)screenHeight);
-        shaderProgram.setUniform("uColor",
-            element.getRed(), element.getGreen(),
-            element.getBlue(), element.getAlpha()
-        );
+        float r = element.backgroundColor[0];
+        float g = element.backgroundColor[1];
+        float b = element.backgroundColor[2];
+        float a = element.backgroundColor[3];
 
-        float r = element.getRed(), g = element.getGreen(), b = element.getBlue(), a = element.getAlpha();
+        shaderProgram.setUniform("screenSize", (float)screenWidth, (float)screenHeight);
+        shaderProgram.setUniform("uColor", r, g, b, a);
+
         float[] verts = {
             x1, y1,  r, g, b, a,  0.0f, 0.0f,
             x1, y2,  r, g, b, a,  0.0f, 1.0f,
@@ -449,7 +470,12 @@ class DocParser {
         foreach(var el in screenData.elements) {
             if(el.visible && el.type == "input" && textRenderer != null) {
                 if(!string.IsNullOrEmpty(el.text))
-                    textRenderer.renderText(el.text, el.x, el.y, el.scale, el.color, el.fontFamily);
+                    textRenderer.renderText(
+                        el.text, 
+                        el.x + el.textOffsetX,
+                        el.y + el.textOffsetY, 
+                        el.scale, el.color, el.fontFamily
+                    );
             }
         }
 
@@ -460,12 +486,17 @@ class DocParser {
                 if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
                     if(el.hasShadow) {
                         textRenderer.renderTextWithShadow(
-                            el.text, el.x, el.y, el.scale, el.color,
+                            el.text, el.x + el.textOffsetX, el.y + el.textOffsetY, el.scale, el.color,
                             el.shadowOffsetX, el.shadowOffsetY, el.shadowBlur,
                             el.shadowColor, el.fontFamily
                         );
                     } else {
-                        textRenderer.renderText(el.text, el.x, el.y, el.scale, el.color, el.fontFamily);
+                        textRenderer.renderText(
+                            el.text, 
+                            el.x + el.textOffsetX,
+                            el.y + el.textOffsetY, 
+                            el.scale, el.color, el.fontFamily
+                        );
                     }
                 }
             }
@@ -476,12 +507,17 @@ class DocParser {
                 if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
                     if(el.hasShadow) {
                         textRenderer.renderTextWithShadow(
-                            el.text, el.x, el.y, el.scale, el.color,
+                            el.text, el.x + el.textOffsetX, el.y + el.textOffsetY, el.scale, el.color,
                             el.shadowOffsetX, el.shadowOffsetY, el.shadowBlur,
                             el.shadowColor, el.fontFamily
                         );
                     } else {
-                        textRenderer.renderText(el.text, el.x, el.y, el.scale, el.color, el.fontFamily);
+                        textRenderer.renderText(
+                            el.text, 
+                            el.x + el.textOffsetX,
+                            el.y + el.textOffsetY, 
+                            el.scale, el.color, el.fontFamily
+                        );
                     }
                 }
             }

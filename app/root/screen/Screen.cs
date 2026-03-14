@@ -4,7 +4,7 @@ using App.Root.Text;
 using System.Collections.Generic;
 
 class Screen : ScreenHandler {
-    public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/screen/");
+    public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screen/");
     
     public static int screenWidth;
     public static int screenHeight;
@@ -109,7 +109,7 @@ class Screen : ScreenHandler {
 
             bool mouseOver = el.containsPoint(mouseX, mouseY);
             if(mouseOver && !el.isHovered) el.applyHover();
-            else if(mouseOver && el.isHovered) el.applyHover();
+            else if(mouseOver && el.isHovered) el.removeHover();
         }
     }
 
