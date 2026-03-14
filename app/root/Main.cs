@@ -45,7 +45,7 @@ class Main {
         GL.Enable(EnableCap.DepthTest);
         GL.Disable(EnableCap.CullFace);
     }
-
+    
     ///
     /// Update
     /// 
