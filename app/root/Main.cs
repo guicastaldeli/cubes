@@ -38,6 +38,9 @@ class Main {
         
         screenController = new ScreenController(shaderProgram, Window.WIDTH, Window.HEIGHT);
         screenController.switchTo(ScreenController.SCREENS.MAIN);
+        
+        input.setScreenController(screenController);
+        input.init();
     }
 
     ///
@@ -57,7 +60,6 @@ class Main {
     private void update() {
         tick.update();
         window.updateTitle(tick.getTickCount(), tick.getFps());
-        scene.update();
         screenController.update();
     }
 
@@ -65,7 +67,6 @@ class Main {
     /// Render
     /// 
     private void render() {
-        scene.render();
         screenController.render();
     }
     

@@ -12,7 +12,8 @@ class Window : NativeWindow {
 
     public Action<Keys>? onKeyDown;
     public Action<Keys>? onKeyUp;
-    
+    public Action<int, int>? onMouseMove;
+
     public Window() : base(new NativeWindowSettings() {
         ClientSize = new Vector2i(WIDTH, HEIGHT),
         Title = TITLE,
@@ -21,6 +22,7 @@ class Window : NativeWindow {
         Context.MakeCurrent();
         KeyDown += args => onKeyDown?.Invoke(args.Key);
         KeyUp += args => onKeyUp?.Invoke(args.Key);
+        MouseMove += args => onMouseMove?.Invoke((int)args.X, (int)args.Y);
     }
 
     public void updateTitle(int tickCount, int fps) {

@@ -1,11 +1,13 @@
 using App.Root;
 using App.Root.Player;
+using App.Root.Screen;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Window = App.Root.Window;
 
 class Input {
     private Window window;
     private Tick tick;
+    private ScreenController screenController = null!;
     private PlayerInputMap? playerInputMap = null!;
 
     public Input(Window window, Tick tick) {
@@ -13,6 +15,10 @@ class Input {
         this.tick = tick;
     }
 
+    public void setScreenController(ScreenController screenController) {
+        this.screenController = screenController;
+    }
+    
     public void setPlayerInputMap(PlayerInputMap playerInputMap) {
         this.playerInputMap = playerInputMap;
         setKeys();
@@ -38,10 +44,15 @@ class Input {
     }
 
     /// 
-    /// Lock/Unlock Mouse
+    /// Mouse
     /// 
+    public void setMouse() {
+        window.onMouseMove += (x, y) => screenController.handleMouseMove(x, y);
+    }
+    
     public void lockMouse() {
-        window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
+        window.CursorState = OpenTK.Windowing.Common.CursorState.Normal;
+        //window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
     }
 
     public void unlockMouse() {
@@ -60,5 +71,12 @@ class Input {
 
         playerInputMap.handleMouse(xOffset, yOffset);
         playerInputMap.keyboardCallback();
+    }
+
+    ///
+    /// Init
+    /// 
+    public void init() {
+        setMouse();
     }
 }

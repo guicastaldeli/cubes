@@ -34,10 +34,12 @@ class ScreenElement {
     public float[]? hoverColor = null;
     public float[]? hoverTextColor = null;
     public float[]? hoverBorderColor = null;
+    public float[]? hoverBackgroundColor = null;
     public float hoverScale = 1.0f;
 
     private float[] originalColor;
     private float[] originalBorderColor;
+    public float[] originalBackgroundColor;
     private float originalScale;
 
     public int textureId = -1;
@@ -64,7 +66,8 @@ class ScreenElement {
         this.height = height;
         this.scale = scale;
         this.color = color;
-        this.backgroundColor = new float[]{ 0.0f, 0.0f, 0.0f, 0.0f, };
+        this.backgroundColor = new float[]{ 0.0f, 0.0f, 0.0f, 0.0f };
+        this.originalBackgroundColor = (float[])this.backgroundColor.Clone();
         this.action = action;
         this.attr = new Dictionary<string, string>();
         this.visible = true;
@@ -111,6 +114,7 @@ class ScreenElement {
         isHovered = true;
         if(hoverColor != null) color = hoverColor;
         if(hoverBorderColor != null) borderColor = hoverBorderColor;
+        if(hoverBackgroundColor != null) backgroundColor = hoverBackgroundColor;
         if(hoverScale > 0) scale = hoverScale;
     }
 
@@ -120,6 +124,7 @@ class ScreenElement {
         isHovered = false;
         color = (float[])originalColor.Clone();
         borderColor = (float[])originalBorderColor.Clone();
+        backgroundColor = (float[])originalBackgroundColor.Clone();
         scale = originalScale;
     }
 

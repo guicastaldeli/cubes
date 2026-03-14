@@ -228,9 +228,12 @@ class DocParser {
 
         bool hasBackground = type == "div" || type == "container" || type == "input";
         if(element.HasAttribute("background")) {
-            hasBackground = true;
+            screenElement.hasBackground = true;
             float[]? bg = parseColor(element.GetAttribute("background"));
-            if(bg != null) screenElement.backgroundColor = bg;
+            if(bg != null) {
+                screenElement.backgroundColor = bg;
+                screenElement.originalBackgroundColor = (float[])bg.Clone();
+            }
         }
 
         if(element.HasAttribute("textOffset")) {
@@ -294,6 +297,11 @@ class DocParser {
         if(element.HasAttribute("hoverBorderColor")) {
             float[]? hbc = parseColor(element.GetAttribute("hoverBorderColor"));
             if(hbc != null) screenElement.hoverBorderColor = hbc;
+        }
+
+        if(element.HasAttribute("hoverBackground")) {
+            float[]? hbg = parseColor(element.GetAttribute("hoverBackground"));
+            if(hbg != null) screenElement.hoverBackgroundColor = hbg;
         }
 
         if(element.HasAttribute("hoverScale"))
@@ -629,6 +637,11 @@ class DocParser {
         if(element.HasAttribute("hoverBorderColor")) {
             float[]? hbc = parseColor(element.GetAttribute("hoverBorderColor"));
             if(hbc != null) uiElement.hoverBorderColor = hbc;
+        }
+
+        if(element.HasAttribute("hoverBackground")) {
+            float[]? hbg = parseColor(element.GetAttribute("hoverBackground"));
+            // IMPLEMENT UI HOVER BACKGROUND LATER... if(hbg != null) screenElement.hoverBackgroundColor = hbg;
         }
 
         if(element.HasAttribute("hoverScale"))

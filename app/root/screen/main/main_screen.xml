@@ -2,30 +2,30 @@
 <main_screen>
     <button 
         id="startBtn" 
-        x="20%" y="42%" 
+        x="20%" y="38%" 
         scale="1.0" 
         width="250"
         height="200"
-        color="0.8,0.6,1.0" 
+        color="0.0, 0.0, 0.0" 
         background="1.0,1.0,1.0,1.0"
         action="start"
-        hoverTextColor="0.5, 0.5, 0.5, 1.0"
-        textShadow="2,2 0 0,0,0,1.0"
+        hoverTextColor="0.8, 0.2, 0.5, 1.0"
+        hoverBackground="0.8,0.8,0.8,1.0"
         textOffset="25%, 37%"
     >
         Client
     </button>
     <button 
         id="loadBtn" 
-        x="60%" y="42%" 
+        x="60%" y="38%" 
         scale="1.0" 
         width="250"
         height="200"
-        color="0.5,0.7,1.0" 
+        color="0.0, 0.0, 0.0" 
         background="1.0,1.0,1.0,1.0"
         action="load"
-        hoverTextColor="0.5, 0.5, 0.5, 1.0"
-        textShadow="2,2 0 0,0,0,1.0"
+        hoverTextColor="0.7, 1.0, 0.2, 1.0"
+        hoverBackground="0.8,0.8,0.8,1.0"
         textOffset="23%, 37%"
     >
         Server

@@ -109,7 +109,7 @@ class Screen : ScreenHandler {
 
             bool mouseOver = el.containsPoint(mouseX, mouseY);
             if(mouseOver && !el.isHovered) el.applyHover();
-            else if(mouseOver && el.isHovered) el.removeHover();
+            else if(!mouseOver && el.isHovered) el.removeHover();
         }
     }
 
