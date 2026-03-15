@@ -6,6 +6,7 @@ using App.Root.Resource;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Text;
+using App.Root.Screen;
 
 class Scene {
     private Window window;
@@ -13,6 +14,7 @@ class Scene {
     private Input input;
     private PlayerController playerController;
     private CollisionManager collisionManager;
+    private ScreenController screenController = null!;
 
     private GetMesh mesh;
     private TextRenderer textRenderer = null!;
@@ -34,6 +36,10 @@ class Scene {
 
     public bool isInit() {
         return initialized;
+    }
+
+    public void setScreenController(ScreenController screenController) {
+        this.screenController = screenController;
     }
 
     ///
@@ -75,6 +81,7 @@ class Scene {
     /// Init
     /// 
     public void init() {
+        reset();
         setInput();
         window.queueOnRenderThread(() => set());
         
@@ -85,6 +92,17 @@ class Scene {
     /// Render
     /// 
     public void render() {
+        screenController.running = true;
         mesh.renderAll();
+    }
+
+    ///
+    /// Reset
+    /// 
+    public void reset() {
+        initialized = false;
+        playerController = new PlayerController();
+        collisionManager = new CollisionManager();
+        mesh = new GetMesh(shaderProgram);
     }
 }

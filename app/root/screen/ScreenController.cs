@@ -15,6 +15,7 @@ class ScreenController {
     public int screenHeight;
 
     public Tick tick;
+    public Input input;
     public Window window;
     public ShaderProgram shaderProgram;
     public Scene scene = null!;
@@ -24,8 +25,11 @@ class ScreenController {
     public Screen? currentScreen = null;
     public Screen? prevScreen = null;
 
+    public bool running = false;
+
     public ScreenController(
         Tick tick,
+        Input input,
         Window window,
         ShaderProgram shaderProgram,
         Scene scene,
@@ -33,6 +37,7 @@ class ScreenController {
         int screenHeight
     ) {
         this.tick = tick;
+        this.input = input;
         this.window = window;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
@@ -42,6 +47,7 @@ class ScreenController {
             screenWidth, 
             screenHeight,
             tick,
+            input,
             window, 
             shaderProgram,
             this,
@@ -63,6 +69,11 @@ class ScreenController {
         }
     }
 
+    // Is Running
+    public bool isRunning() {
+        return running;
+    }
+
     ///
     /// Mouse
     /// 
@@ -78,23 +89,37 @@ class ScreenController {
     /// Switch
     /// 
     public void switchTo(SCREENS? screenType) {
-        if(screenType == null) {
-            currentScreen = prevScreen;
-            prevScreen = null;
-            return;
-        }
-
-        prevScreen = currentScreen;
-        foreach(var screen in screens.Values) screen.setActive(false);
+        prevScreen = null;
         currentScreen = null;
         activeScreen = null;
+        foreach(var screen in screens.Values) screen.setActive(false);
+        if(screenType == null) return;
 
         if(screens.TryGetValue(screenType.Value, out var target)) {
             currentScreen = target;
             activeScreen = screenType;
             currentScreen.setActive(true);
+        }
+    }
+
+    public void switchToOverlay(SCREENS screenType) {
+        prevScreen = currentScreen;
+
+        foreach(var screen in screens.Values) screen.setActive(false);
+        currentScreen = null;
+        activeScreen = null;
+
+        if(screens.TryGetValue(screenType, out var target)) {
+            currentScreen = target;
+            activeScreen = screenType;
+            currentScreen.setActive(true);
             prevScreen?.setActive(true);
         }
+    }
+
+    public void closeOverlay() {
+        currentScreen = prevScreen;
+        prevScreen = null;
     }
 
     ///

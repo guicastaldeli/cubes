@@ -26,27 +26,37 @@ class Input {
 
     // Set Keys
     private void setKeys() {
-        window.onKeyDown += key => {
-            if(key == Keys.Escape) {
-                onPause();
-            } else {
-                playerInputMap?.setKeyState(key, true);
-            }
-        };
-        window.onKeyUp += key => playerInputMap?.setKeyState(key, false);
+        window.onKeyDown -= onKeyDown;
+        window.onKeyUp -= onKeyUp;
+        window.onKeyDown += onKeyDown;
+        window.onKeyUp += onKeyUp;
     } 
+
+    private void onKeyDown(Keys key) {
+        if(key == Keys.Escape) {
+            onPause();
+        } else {
+            playerInputMap?.setKeyState(key, true);
+        }
+    }
+
+    private void onKeyUp(Keys key) {
+        playerInputMap?.setKeyState(key, false);
+    }
 
     // On Pause
     private void onPause() {
+        if(!screenController.isRunning()) return;
+        
         tick.togglePause();
 
         if(tick.isPaused()) {
             unlockMouse();
-            screenController.switchTo(ScreenController.SCREENS.PAUSE);
+            screenController.switchToOverlay(ScreenController.SCREENS.PAUSE);
         }
         else {
             lockMouse();
-            screenController.switchTo(null);
+            screenController.closeOverlay();
         }
     }
 

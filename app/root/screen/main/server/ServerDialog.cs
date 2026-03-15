@@ -31,6 +31,10 @@ class ServerDialog : Screen {
     /// Update
     /// 
     public override void update() {
+        if(scene.isInit()) {
+            scene.update();
+            return;
+        }
         base.update();    
     }
 
@@ -38,6 +42,10 @@ class ServerDialog : Screen {
     /// Render
     /// 
     public override void render() {
+        if(scene.isInit()) {
+            scene.render();
+            return;
+        }
         base.render();
     }
 }

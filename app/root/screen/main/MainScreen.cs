@@ -88,4 +88,11 @@ class MainScreen : Screen {
         }
         base.render();
     }
+
+    // Reset
+    public void reset() {
+        clientDialog.setActive(false);
+        serverDialog.setActive(false);
+        show();
+    }
 }

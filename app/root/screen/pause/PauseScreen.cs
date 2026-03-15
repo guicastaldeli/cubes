@@ -7,7 +7,12 @@ class PauseScreen : Screen {
 
     public PauseScreen() : 
     base(PATH, "pause") {
-        this.pauseScreenAction = new PauseScreenAction(tick, screenController, this);
+        this.pauseScreenAction = new PauseScreenAction(
+            tick, 
+            input,
+            screenController, 
+            this
+        );
     }
 
     // Handle Action

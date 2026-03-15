@@ -42,12 +42,15 @@ class Main {
         
         screenController = new ScreenController(
             tick,
+            input,
             window,
             shaderProgram, 
             scene,
             Window.WIDTH, Window.HEIGHT
         );
         screenController.switchTo(ScreenController.SCREENS.MAIN);
+
+        scene.setScreenController(screenController);
         
         input.setScreenController(screenController);
         input.init();
