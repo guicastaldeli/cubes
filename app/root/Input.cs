@@ -51,8 +51,7 @@ class Input {
     }
     
     public void lockMouse() {
-        window.CursorState = OpenTK.Windowing.Common.CursorState.Normal;
-        //window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
+        window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
     }
 
     public void unlockMouse() {
