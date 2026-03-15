@@ -10,6 +10,8 @@ class Window : NativeWindow {
     public static readonly int HEIGHT = 600;
     public static readonly string TITLE = "build";
 
+    private volatile Action? pendingAction = null;
+
     public Action<Keys>? onKeyDown;
     public Action<Keys>? onKeyUp;
     public Action<int, int>? onMouseMove;
@@ -31,6 +33,10 @@ class Window : NativeWindow {
         };
     }
 
+    public void queueOnRenderThread(Action action) {
+        pendingAction = action;
+    }
+
     public void updateTitle(int tickCount, int fps) {
         Title = 
             TITLE +
@@ -42,6 +48,9 @@ class Window : NativeWindow {
         Thread thread = new Thread(() => {
             Context.MakeCurrent();
             while(!IsExiting) {
+                pendingAction?.Invoke();
+                pendingAction = null;
+
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
                 renderCallback();
                 Context.SwapBuffers();
@@ -51,7 +60,6 @@ class Window : NativeWindow {
         Context.MakeNoneCurrent();
         thread.Start();
         while(!IsExiting) ProcessEvents(0.016);
-        
         thread.Join();
     }
 }

@@ -11,12 +11,15 @@ class ClientDialog : Screen {
     public ClientDialog(MainScreen mainScreen) : 
     base(PATH, "client_dialog") {
         this.mainScreen = mainScreen;
-        this.clientDialogAction = new ClientDialogAction(this);
+        this.clientDialogAction = new ClientDialogAction(window, screenController, this);
     }
 
     // Handle Action
     public override void handleAction(string action) {
         switch(action) {
+            case "start":
+                clientDialogAction.start();
+                break;
             case "back":
                 clientDialogAction.back();
                 break;
@@ -27,13 +30,21 @@ class ClientDialog : Screen {
     /// Update
     /// 
     public override void update() {
-        base.update();    
+        if(scene.isInit()) {
+            scene.update();
+            return;
+        }  
+        base.update();  
     }
 
     ///
     /// Render
     /// 
     public override void render() {
+        if(scene.isInit()) {
+            scene.render();
+            return;
+        }
         base.render();
     }
 }

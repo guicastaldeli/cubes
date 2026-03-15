@@ -8,8 +8,11 @@ class Screen : ScreenHandler {
     
     public static int screenWidth;
     public static int screenHeight;
+
+    public static Window window = null!;
     public static ShaderProgram shaderProgram = null!;
     public static ScreenController screenController = null!;
+    public static Scene scene = null!;
 
     public TextRenderer? textRenderer;
     public bool active = false;
@@ -22,13 +25,17 @@ class Screen : ScreenHandler {
     public static void init(
         int screenWidth,
         int screenHeight,
+        Window window,
         ShaderProgram shaderProgram,
-        ScreenController screenController
+        ScreenController screenController,
+        Scene scene
     ) {
+        Screen.window = window;
         Screen.screenWidth = screenWidth;
         Screen.screenHeight = screenHeight;
         Screen.shaderProgram = shaderProgram;
         Screen.screenController = screenController;
+        Screen.scene = scene;
     }
 
     public Screen(string filePath, string screenName) {
@@ -45,6 +52,10 @@ class Screen : ScreenHandler {
         } catch(Exception err) {
             Console.Error.WriteLine($"Failed to init screen '{screenName}': {err.Message}");
         }
+    }
+
+    public Scene getScene() {
+        return scene;
     }
 
     public string? getScreenType() {

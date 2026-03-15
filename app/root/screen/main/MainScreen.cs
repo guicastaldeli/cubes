@@ -15,7 +15,7 @@ class MainScreen : Screen {
         this.mainScreenAction = new MainScreenAction(screenController, this);
 
         this.clientDialog = new ClientDialog(this);
-        this.serverDialog = new ServerDialog();
+        this.serverDialog = new ServerDialog(this);
     }
 
     // Handle Action

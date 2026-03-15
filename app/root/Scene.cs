@@ -16,14 +16,18 @@ class Scene {
     private GetMesh mesh;
     private TextRenderer textRenderer = null!;
 
+    public bool initialized = false;
+
     public Scene(ShaderProgram shaderProgram, Input input) {
         this.shaderProgram = shaderProgram;
         this.input = input;
         playerController = new PlayerController();
         collisionManager = new CollisionManager();
         mesh = new GetMesh(shaderProgram);
-        
-        init();
+    }
+
+    public bool isInit() {
+        return initialized;
     }
 
     ///
@@ -35,14 +39,14 @@ class Scene {
         mesh.setCamera(playerController.getCamera());
 
         // Test Cube
-        mesh.add("cube");
-        mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
+            mesh.add("cube");
+            mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
 
-        int texId = TextureLoader.load("env/test.jpg");
-        mesh.setTexture("cube", texId);
+            int texId = TextureLoader.load("env/test.jpg");
+            mesh.setTexture("cube", texId);
 
-        collisionManager.addStaticCollider(new BoundaryObject(5.0f));
-        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
+            collisionManager.addStaticCollider(new BoundaryObject(5.0f));
+            collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
         //
     }
 
@@ -59,11 +63,14 @@ class Scene {
     ///
     /// Init
     /// 
-    private void init() {
-        input.setPlayerInputMap(playerController.getPlayerInputMap());
-        //input.lockMouse();
-        
+    public void init() {
         set();
+        initialized = true;
+    }
+
+    public void initInput() {
+        input.setPlayerInputMap(playerController.getPlayerInputMap());
+        input.lockMouse();
     }
 
     /// 
@@ -71,6 +78,5 @@ class Scene {
     /// 
     public void render() {
         mesh.renderAll();
-        //textRenderer.renderText("Hello World!!", 1.0f, 1.0f, 1.0f, new float[]{1,1,1,1});
     }
 }

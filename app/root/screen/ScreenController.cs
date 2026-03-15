@@ -1,8 +1,8 @@
 namespace App.Root.Screen;
 using App.Root.Shaders;
-using System.Collections.Generic;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+using App.Root;
 using App.Root.Screen.Main;
+using System.Collections.Generic;
 
 class ScreenController {
     public enum SCREENS {
@@ -12,26 +12,34 @@ class ScreenController {
 
     public int screenWidth;
     public int screenHeight;
+
+    public Window window;
     public ShaderProgram shaderProgram;
+    public Scene scene = null!;
 
     public Dictionary<SCREENS, Screen> screens = new();
     public SCREENS? activeScreen = null;
     public Screen? currentScreen = null;
 
     public ScreenController(
+        Window window,
         ShaderProgram shaderProgram,
         int screenWidth,
-        int screenHeight
+        int screenHeight,
+        Scene scene
     ) {
+        this.window = window;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.shaderProgram = shaderProgram;
 
         Screen.init(
             screenWidth, 
-            screenHeight, 
+            screenHeight,
+            window, 
             shaderProgram,
-            this
+            this,
+            scene
         );
         this.init();
     }

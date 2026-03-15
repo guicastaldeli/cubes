@@ -36,7 +36,12 @@ class Main {
     public void init() {
         scene = new Scene(shaderProgram, input);
         
-        screenController = new ScreenController(shaderProgram, Window.WIDTH, Window.HEIGHT);
+        screenController = new ScreenController(
+            window,
+            shaderProgram, 
+            Window.WIDTH, Window.HEIGHT,
+            scene
+        );
         screenController.switchTo(ScreenController.SCREENS.MAIN);
         
         input.setScreenController(screenController);
@@ -74,7 +79,7 @@ class Main {
     /// Run
     /// 
     public void run() {
-        GL.Clear(ClearBufferMask.ColorBufferBit);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         window.run(() => {
             render();
             update();

@@ -1,12 +1,25 @@
+namespace App.Root.Screen.Main.Server;
 using App.Root.Screen.Main.Client;
 
-namespace App.Root.Screen.Main.Server;
-
 class ClientDialogAction {
+    public Window window;
+    public ScreenController screenController;
     public ClientDialog clientDialog;
 
-    public ClientDialogAction(ClientDialog clientDialog) {
+    public ClientDialogAction(
+        Window window,
+        ScreenController screenController, 
+        ClientDialog clientDialog
+    ) {
+        this.window = window;
+        this.screenController = screenController;
         this.clientDialog = clientDialog;
+    }
+
+    // Start
+    public void start() {
+        clientDialog.mainScreen.getScene().initInput();
+        window.queueOnRenderThread(() => clientDialog.getScene().init());
     }
 
     // Back
