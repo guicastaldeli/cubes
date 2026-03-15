@@ -22,10 +22,8 @@ class Scene {
         playerController = new PlayerController();
         collisionManager = new CollisionManager();
         mesh = new GetMesh(shaderProgram);
-        init();
         
-        textRenderer = new TextRenderer(shaderProgram, Window.WIDTH, Window.HEIGHT);
-        textRenderer.loadFont("default", "HomeVideo-BLG6G.ttf", 16.0f);
+        init();
     }
 
     ///
@@ -35,6 +33,8 @@ class Scene {
         playerController.setCollisionManager(collisionManager);
 
         mesh.setCamera(playerController.getCamera());
+
+        // Test Cube
         mesh.add("cube");
         mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
 
@@ -43,6 +43,7 @@ class Scene {
 
         collisionManager.addStaticCollider(new BoundaryObject(5.0f));
         collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
+        //
     }
 
     ///
@@ -60,7 +61,7 @@ class Scene {
     /// 
     private void init() {
         input.setPlayerInputMap(playerController.getPlayerInputMap());
-        input.lockMouse();
+        //input.lockMouse();
         
         set();
     }

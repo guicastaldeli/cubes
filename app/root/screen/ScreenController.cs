@@ -36,28 +36,9 @@ class ScreenController {
         this.init();
     }
 
-    // Handle Window Resize
-    public void handleWindowResize(int newWidth, int newHeight) {
-        this.screenWidth = newWidth;
-        this.screenHeight = newHeight;
-        foreach(var screen in screens.Values) {
-            screen.onWindowResize(newWidth, newHeight);
-        }
-    }
-
     // Screen Active
     public bool isScreenActive(SCREENS screenType) {
         return screens.TryGetValue(screenType, out var screen) && screen.isActive();
-    }
-
-    // Check Click
-    public string? checkClick(int mouseX, int mouseY) {
-        return currentScreen?.checkClick(mouseX, mouseY);
-    }
-
-    // Handle Mouse Move
-    public void handleMouseMove(int mouseX, int mouseY) {
-        currentScreen?.handleMouseMove(mouseX, mouseY);
     }
 
     // Handle Key Press
@@ -66,6 +47,17 @@ class ScreenController {
             currentScreen.handleKeyPress(key, action);
             return;
         }
+    }
+
+    ///
+    /// Mouse
+    /// 
+    public string? checkClick(int mouseX, int mouseY) {
+        return currentScreen?.checkClick(mouseX, mouseY);
+    }
+
+    public void handleMouseMove(int mouseX, int mouseY) {
+        currentScreen?.handleMouseMove(mouseX, mouseY);
     }
 
     ///
@@ -108,5 +100,14 @@ class ScreenController {
     public void init() {
         // Main
         screens[SCREENS.MAIN] = new MainScreen();
+    }
+
+    // Handle Window Resize
+    public void handleWindowResize(int newWidth, int newHeight) {
+        this.screenWidth = newWidth;
+        this.screenHeight = newHeight;
+        foreach(var screen in screens.Values) {
+            screen.onWindowResize(newWidth, newHeight);
+        }
     }
 }

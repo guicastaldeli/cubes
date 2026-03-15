@@ -116,6 +116,9 @@ class Screen : ScreenHandler {
     // Handle Key Press
     public virtual void handleKeyPress(int key, int action) {}
 
+    // Handle Action
+    public virtual void handleAction(string action) {}
+
     ///
     /// Render
     /// 

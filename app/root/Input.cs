@@ -48,6 +48,7 @@ class Input {
     /// 
     public void setMouse() {
         window.onMouseMove += (x, y) => screenController.handleMouseMove(x, y);
+        window.onMouseClick += (x, y) => screenController.checkClick(x, y);
     }
     
     public void lockMouse() {

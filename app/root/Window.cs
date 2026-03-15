@@ -13,6 +13,7 @@ class Window : NativeWindow {
     public Action<Keys>? onKeyDown;
     public Action<Keys>? onKeyUp;
     public Action<int, int>? onMouseMove;
+    public Action<int, int>? onMouseClick;
 
     public Window() : base(new NativeWindowSettings() {
         ClientSize = new Vector2i(WIDTH, HEIGHT),
@@ -23,6 +24,11 @@ class Window : NativeWindow {
         KeyDown += args => onKeyDown?.Invoke(args.Key);
         KeyUp += args => onKeyUp?.Invoke(args.Key);
         MouseMove += args => onMouseMove?.Invoke((int)args.X, (int)args.Y);
+        MouseDown += args => {
+            if(args.Button == MouseButton.Left) {
+                onMouseClick?.Invoke((int)MousePosition.X, (int)MousePosition.Y);
+            }
+        };
     }
 
     public void updateTitle(int tickCount, int fps) {

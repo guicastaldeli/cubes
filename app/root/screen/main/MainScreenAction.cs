@@ -1,5 +1,29 @@
 namespace App.Root.Screen.Main;
 
 class MainScreenAction {
-    
+    private ScreenController screenController;
+    private MainScreen mainScreen;
+
+    public MainScreenAction(ScreenController screenController, MainScreen mainScreen) {
+        this.screenController = screenController;
+        this.mainScreen = mainScreen;
+    }
+
+    ///
+    /// Open Client
+    /// 
+    public void openClient() {
+        mainScreen.resetHover();
+        mainScreen.setActive(false);
+        mainScreen.clientDialog.setActive(true);
+    }
+
+    ///
+    /// Open Server
+    /// 
+    public void openServer() {
+        mainScreen.resetHover();
+        mainScreen.setActive(false);
+        mainScreen.serverDialog.setActive(true);
+    }
 }

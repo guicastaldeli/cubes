@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <main_screen>
     <button 
-        id="startBtn" 
+        id="hostBtn" 
         x="20%" y="38%" 
         scale="1.0" 
         width="250"
         height="200"
         color="0.0, 0.0, 0.0" 
         background="1.0,1.0,1.0,1.0"
-        action="start"
+        action="host"
         hoverTextColor="0.2, 0.2, 0.2, 1.0"
         hoverBackground="0.7, 0.7, 0.7, 1.0"
         textOffset="25%, 37%"
@@ -16,14 +16,14 @@
         Host
     </button>
     <button 
-        id="loadBtn" 
+        id="joinBtn" 
         x="60%" y="38%" 
         scale="1.0" 
         width="250"
         height="200"
         color="0.0, 0.0, 0.0" 
         background="1.0,1.0,1.0,1.0"
-        action="load"
+        action="join"
         hoverTextColor="0.2, 0.2, 0.2, 1.0"
         hoverBackground="0.7, 0.7, 0.7, 1.0"
         textOffset="23%, 37%"
