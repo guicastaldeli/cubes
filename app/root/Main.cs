@@ -34,13 +34,18 @@ class Main {
     /// Init
     /// 
     public void init() {
-        scene = new Scene(shaderProgram, input);
+        scene = new Scene(
+            window, 
+            shaderProgram, 
+            input
+        );
         
         screenController = new ScreenController(
+            tick,
             window,
             shaderProgram, 
-            Window.WIDTH, Window.HEIGHT,
-            scene
+            scene,
+            Window.WIDTH, Window.HEIGHT
         );
         screenController.switchTo(ScreenController.SCREENS.MAIN);
         

@@ -9,12 +9,18 @@ class ServerDialog : Screen {
     public ServerDialog(MainScreen mainScreen) : 
     base(PATH, "server_dialog") {
         this.mainScreen = mainScreen;
-        this.serverDialogAction = new ServerDialogAction(this);
+        this.serverDialogAction = new ServerDialogAction(window, this);
     }
 
     // Handle Action
     public override void handleAction(string action) {
         switch(action) {
+            case "host":
+                serverDialogAction.hostServer();
+                break;
+            case "join":
+                serverDialogAction.joinServer();
+                break;
             case "back":
                 serverDialogAction.back();
                 break;

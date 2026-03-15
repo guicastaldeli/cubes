@@ -18,8 +18,7 @@ class ClientDialogAction {
 
     // Start
     public void start() {
-        clientDialog.mainScreen.getScene().initInput();
-        window.queueOnRenderThread(() => clientDialog.getScene().init());
+        clientDialog.mainScreen.getScene().init();
     }
 
     // Back

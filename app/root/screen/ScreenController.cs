@@ -3,6 +3,7 @@ using App.Root.Shaders;
 using App.Root;
 using App.Root.Screen.Main;
 using System.Collections.Generic;
+using App.Root.Screen.Pause;
 
 class ScreenController {
     public enum SCREENS {
@@ -13,6 +14,7 @@ class ScreenController {
     public int screenWidth;
     public int screenHeight;
 
+    public Tick tick;
     public Window window;
     public ShaderProgram shaderProgram;
     public Scene scene = null!;
@@ -20,14 +22,17 @@ class ScreenController {
     public Dictionary<SCREENS, Screen> screens = new();
     public SCREENS? activeScreen = null;
     public Screen? currentScreen = null;
+    public Screen? prevScreen = null;
 
     public ScreenController(
+        Tick tick,
         Window window,
         ShaderProgram shaderProgram,
+        Scene scene,
         int screenWidth,
-        int screenHeight,
-        Scene scene
+        int screenHeight
     ) {
+        this.tick = tick;
         this.window = window;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
@@ -36,6 +41,7 @@ class ScreenController {
         Screen.init(
             screenWidth, 
             screenHeight,
+            tick,
             window, 
             shaderProgram,
             this,
@@ -72,15 +78,22 @@ class ScreenController {
     /// Switch
     /// 
     public void switchTo(SCREENS? screenType) {
+        if(screenType == null) {
+            currentScreen = prevScreen;
+            prevScreen = null;
+            return;
+        }
+
+        prevScreen = currentScreen;
         foreach(var screen in screens.Values) screen.setActive(false);
         currentScreen = null;
         activeScreen = null;
-        if(screenType == null) return;
 
         if(screens.TryGetValue(screenType.Value, out var target)) {
             currentScreen = target;
             activeScreen = screenType;
             currentScreen.setActive(true);
+            prevScreen?.setActive(true);
         }
     }
 
@@ -88,7 +101,8 @@ class ScreenController {
     /// Render
     /// 
     public void render() {
-        if(currentScreen != null) currentScreen.render();
+        prevScreen?.render();
+        if(currentScreen != prevScreen) currentScreen?.render();
     }
 
     ///
@@ -104,6 +118,9 @@ class ScreenController {
     public void init() {
         // Main
         screens[SCREENS.MAIN] = new MainScreen();
+
+        //Pause
+        screens[SCREENS.PAUSE] = new PauseScreen();
     }
 
     // Handle Window Resize

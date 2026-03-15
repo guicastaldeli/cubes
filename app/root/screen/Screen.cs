@@ -9,6 +9,7 @@ class Screen : ScreenHandler {
     public static int screenWidth;
     public static int screenHeight;
 
+    public static Tick tick = null!;
     public static Window window = null!;
     public static ShaderProgram shaderProgram = null!;
     public static ScreenController screenController = null!;
@@ -25,11 +26,13 @@ class Screen : ScreenHandler {
     public static void init(
         int screenWidth,
         int screenHeight,
+        Tick tick,
         Window window,
         ShaderProgram shaderProgram,
         ScreenController screenController,
         Scene scene
     ) {
+        Screen.tick = tick;
         Screen.window = window;
         Screen.screenWidth = screenWidth;
         Screen.screenHeight = screenHeight;

@@ -28,7 +28,7 @@ class Input {
     private void setKeys() {
         window.onKeyDown += key => {
             if(key == Keys.Escape) {
-                onEscape();
+                onPause();
             } else {
                 playerInputMap?.setKeyState(key, true);
             }
@@ -36,11 +36,18 @@ class Input {
         window.onKeyUp += key => playerInputMap?.setKeyState(key, false);
     } 
 
-    // On Escape
-    private void onEscape() {
+    // On Pause
+    private void onPause() {
         tick.togglePause();
-        if(tick.isPaused()) unlockMouse();
-        else lockMouse();
+
+        if(tick.isPaused()) {
+            unlockMouse();
+            screenController.switchTo(ScreenController.SCREENS.PAUSE);
+        }
+        else {
+            lockMouse();
+            screenController.switchTo(null);
+        }
     }
 
     /// 

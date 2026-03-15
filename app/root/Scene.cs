@@ -8,6 +8,7 @@ using App.Root.Collider.Types;
 using App.Root.Text;
 
 class Scene {
+    private Window window;
     private ShaderProgram shaderProgram;
     private Input input;
     private PlayerController playerController;
@@ -18,12 +19,17 @@ class Scene {
 
     public bool initialized = false;
 
-    public Scene(ShaderProgram shaderProgram, Input input) {
+    public Scene(
+        Window window, 
+        ShaderProgram shaderProgram, 
+        Input input
+    ) {
+        this.window = window;
         this.shaderProgram = shaderProgram;
         this.input = input;
-        playerController = new PlayerController();
-        collisionManager = new CollisionManager();
-        mesh = new GetMesh(shaderProgram);
+        this.playerController = new PlayerController();
+        this.collisionManager = new CollisionManager();
+        this.mesh = new GetMesh(shaderProgram);
     }
 
     public bool isInit() {
@@ -50,6 +56,11 @@ class Scene {
         //
     }
 
+    private void setInput() {
+        input.setPlayerInputMap(playerController.getPlayerInputMap());
+        input.lockMouse();
+    }
+
     ///
     /// Update
     /// 
@@ -64,13 +75,10 @@ class Scene {
     /// Init
     /// 
     public void init() {
-        set();
+        setInput();
+        window.queueOnRenderThread(() => set());
+        
         initialized = true;
-    }
-
-    public void initInput() {
-        input.setPlayerInputMap(playerController.getPlayerInputMap());
-        input.lockMouse();
     }
 
     /// 
