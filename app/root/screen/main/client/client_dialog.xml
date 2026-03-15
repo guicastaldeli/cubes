@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <main_screen>
     <button 
+        id="backBtn" 
+        x="20%" y="18%" 
+        scale="1.0" 
+        width="150"
+        height="100"
+        color="0.0, 0.0, 0.0" 
+        background="1.0,1.0,1.0,1.0"
+        action="back"
+        hoverTextColor="0.2, 0.2, 0.2, 1.0"
+        hoverBackground="0.7, 0.7, 0.7, 1.0"
+        textOffset="25%, 37%"
+    >
+        Back
+    </button>
+    
+    <button 
         id="startBtn" 
         x="50%" y="38%" 
         scale="1.0" 
@@ -11,7 +27,7 @@
         action="start"
         hoverTextColor="0.2, 0.2, 0.2, 1.0"
         hoverBackground="0.7, 0.7, 0.7, 1.0"
-        textOffset="23%, 37%"
+        textOffset="25%, 37%"
     >
         Start
     </button>

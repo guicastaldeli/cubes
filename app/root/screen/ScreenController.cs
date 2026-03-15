@@ -80,18 +80,14 @@ class ScreenController {
     /// Render
     /// 
     public void render() {
-        if(currentScreen != null && currentScreen.isActive()) {
-            currentScreen.render();
-        }
+        if(currentScreen != null) currentScreen.render();
     }
 
     ///
     /// Update
     /// 
     public void update() {
-        if(currentScreen != null && currentScreen.isActive()) {
-            currentScreen.update();
-        }
+        if(currentScreen != null) currentScreen.update();
     }
 
     ///

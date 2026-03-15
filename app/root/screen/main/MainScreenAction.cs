@@ -13,7 +13,7 @@ class MainScreenAction {
     /// Open Client
     /// 
     public void openClient() {
-        mainScreen.resetHover();
+        mainScreen.show();
         mainScreen.setActive(false);
         mainScreen.clientDialog.setActive(true);
     }
@@ -22,8 +22,7 @@ class MainScreenAction {
     /// Open Server
     /// 
     public void openServer() {
-        mainScreen.resetHover();
-        mainScreen.setActive(false);
+        mainScreen.hide();
         mainScreen.serverDialog.setActive(true);
     }
 }

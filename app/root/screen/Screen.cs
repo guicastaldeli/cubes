@@ -56,6 +56,8 @@ class Screen : ScreenHandler {
     }
 
     public void setActive(bool active) {
+        resetMouse();
+        resetHover();
         this.active = active;
     }
 
@@ -84,7 +86,7 @@ class Screen : ScreenHandler {
     }
 
     // Check Click
-    public string? checkClick(int mouseX, int mouseY) {
+    public virtual string? checkClick(int mouseX, int mouseY) {
         if(!active || screenData == null) return null;
 
         var buttons = DocParser.getElementsByType(screenData, "button");
@@ -92,6 +94,7 @@ class Screen : ScreenHandler {
             if(mouseX >= button.x && mouseX <= button.x + button.width &&
                mouseY >= button.y && mouseY <= button.y + button.height
             ) {
+                handleAction(button.action);
                 return button.action;
             }
         }
@@ -118,6 +121,19 @@ class Screen : ScreenHandler {
 
     // Handle Action
     public virtual void handleAction(string action) {}
+
+    // Show
+    public void show() {
+        resetMouse();
+        resetHover();
+        active = true;
+    }
+
+    // Hide
+    public void hide() {
+        resetHover();
+        active = false;
+    }
 
     ///
     /// Render
@@ -147,8 +163,8 @@ class Screen : ScreenHandler {
     /// Window Resize
     /// 
     public virtual void onWindowResize(int width, int height) {
-        Screen.screenWidth = width;
-        Screen.screenHeight = height;
+        screenWidth = width;
+        screenHeight = height;
         textRenderer?.updateScreenSize(width, height);
 
         if(screenData != null) {
@@ -157,6 +173,21 @@ class Screen : ScreenHandler {
                 width,
                 height
             );
+        }
+    }
+
+    /// 
+    /// Reset
+    /// 
+    public void resetMouse() {
+        lastMouseX = -1;
+        lastMouseY = -1;
+    }
+
+    public void resetHover() {
+        if(screenData == null) return;
+        foreach(var el in screenData.elements) {
+            if(el.hoverable && el.isHovered) el.removeHover();
         }
     }
 }

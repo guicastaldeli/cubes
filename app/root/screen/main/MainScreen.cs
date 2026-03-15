@@ -6,13 +6,15 @@ class MainScreen : Screen {
     public static readonly String PATH = DIR + "main/main_screen.xml";
     
     public MainScreenAction mainScreenAction;
+
     public ClientDialog clientDialog;
     public ServerDialog serverDialog;
 
     public MainScreen() : 
     base(PATH, "main") {
         this.mainScreenAction = new MainScreenAction(screenController, this);
-        this.clientDialog = new ClientDialog();
+
+        this.clientDialog = new ClientDialog(this);
         this.serverDialog = new ServerDialog();
     }
 
@@ -37,10 +39,29 @@ class MainScreen : Screen {
         }
     }
 
+    // Handle Mouse Move
+    public override void handleMouseMove(int mouseX, int mouseY) {
+        if(clientDialog.isActive()) {
+            clientDialog.handleMouseMove(mouseX, mouseY);
+            return;
+        }
+        if(serverDialog.isActive()) {
+            serverDialog.handleMouseMove(mouseX, mouseY);
+            return;
+        }
+        base.handleMouseMove(mouseX, mouseY);
+    }
+
+    // Check Click
+    public override string? checkClick(int mouseX, int mouseY) {
+        if(clientDialog.isActive()) return clientDialog.checkClick(mouseX, mouseY);
+        if(serverDialog.isActive()) return serverDialog.checkClick(mouseX, mouseY);
+        return base.checkClick(mouseX, mouseY);
+    }
+
     ///
     /// Update
-    /// 
-    /// 
+    ///  
     public override void update() {
         if(clientDialog.isActive()) {
             clientDialog.update();
@@ -66,13 +87,5 @@ class MainScreen : Screen {
             return;
         }
         base.render();
-    }
-
-    // Reset Hover
-    public void resetHover() {
-        if(screenData == null) return;
-        foreach(var el in screenData.elements) {
-            if(el.hoverable && el.isHovered) el.removeHover();
-        }
     }
 }
