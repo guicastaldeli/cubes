@@ -21,7 +21,6 @@ class Input {
     
     public void setPlayerInputMap(PlayerInputMap playerInputMap) {
         this.playerInputMap = playerInputMap;
-        setKeys();
     }
 
     ///
@@ -38,11 +37,13 @@ class Input {
         if(key == Keys.Escape) {
             onPause();
         } else {
+            screenController.handleKeyPress((int)key, 1);
             playerInputMap?.setKeyState(key, true);
         }
     }
 
     private void onKeyUp(Keys key) {
+        screenController.handleKeyPress((int)key, 0);
         playerInputMap?.setKeyState(key, false);
     }
 
@@ -97,5 +98,6 @@ class Input {
     /// 
     public void init() {
         setMouse();
+        setKeys();
     }
 }

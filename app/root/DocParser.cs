@@ -476,12 +476,13 @@ class DocParser {
         }
 
         foreach(var el in screenData.elements) {
-            if(el.visible && el.type == "input" && textRenderer != null) {
-                if(!string.IsNullOrEmpty(el.text))
+            if(el.visible && el.type == "input") {
+                renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
+                if(textRenderer != null && !string.IsNullOrEmpty(el.text))
                     textRenderer.renderText(
-                        el.text, 
+                        el.text,
                         el.x + el.textOffsetX,
-                        el.y + el.textOffsetY, 
+                        el.y + el.textOffsetY,
                         el.scale, el.color, el.fontFamily
                     );
             }

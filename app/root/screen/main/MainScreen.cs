@@ -52,6 +52,19 @@ class MainScreen : Screen {
         base.handleMouseMove(mouseX, mouseY);
     }
 
+    // Handle Key Press
+    public override void handleKeyPress(int key, int action) {
+        if(clientDialog.isActive()) {
+            clientDialog.handleKeyPress(key, action);
+            return;
+        }
+        if(serverDialog.isActive()) {
+            serverDialog.handleKeyPress(key, action);
+            return;
+        }
+        base.handleKeyPress(key, action);
+    }
+
     // Check Click
     public override string? checkClick(int mouseX, int mouseY) {
         if(clientDialog.isActive()) return clientDialog.checkClick(mouseX, mouseY);
