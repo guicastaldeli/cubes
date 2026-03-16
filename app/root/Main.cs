@@ -1,6 +1,7 @@
 namespace App.Root;
 using App.Root.Screen;
 using App.Root.Shaders;
+using App.Root.ui;
 using OpenTK.Graphics.OpenGL;
 
 class Main {
@@ -11,49 +12,16 @@ class Main {
 
     private Scene scene = null!;
     private ScreenController screenController = null!;
+    private UIController uiController = null!;
 
     public Main() {
         window = new Window();
         tick = new Tick();
-        shaderProgram = new ShaderProgram(loadShaders());
+        shaderProgram = new ShaderProgram();
         input = new Input(window, tick);
 
         init();
         set();
-    }
-
-    // Load Shaders
-    private List<ShaderModule> loadShaders() {
-        return new List<ShaderModule> {
-            new ShaderModule(ShaderType.VertexShader, "vert.glsl"),
-            new ShaderModule(ShaderType.FragmentShader, "frag.glsl")
-        };
-    }
-
-    ///
-    /// Init
-    /// 
-    public void init() {
-        scene = new Scene(
-            window, 
-            shaderProgram, 
-            input
-        );
-        
-        screenController = new ScreenController(
-            tick,
-            input,
-            window,
-            shaderProgram, 
-            scene,
-            Window.WIDTH, Window.HEIGHT
-        );
-        screenController.switchTo(ScreenController.SCREENS.MAIN);
-
-        scene.setScreenController(screenController);
-        
-        input.setScreenController(screenController);
-        input.init();
     }
 
     ///
@@ -81,6 +49,37 @@ class Main {
     /// 
     private void render() {
         screenController.render();
+    }
+
+    ///
+    /// Init
+    /// 
+    public void init() {
+        scene = new Scene(
+            window, 
+            shaderProgram, 
+            input
+        );
+        
+        screenController = new ScreenController(
+            tick,
+            input,
+            window,
+            shaderProgram, 
+            scene,
+            Window.WIDTH, Window.HEIGHT
+        );
+        screenController.switchTo(ScreenController.SCREENS.MAIN);
+
+        scene.setScreenController(screenController);
+
+        uiController = new UIController(
+            shaderProgram,
+            Window.WIDTH, Window.HEIGHT
+        );
+        
+        input.setScreenController(screenController);
+        input.init();
     }
     
     ///

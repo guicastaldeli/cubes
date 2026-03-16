@@ -24,7 +24,9 @@ class Input {
         setKeys();
     }
 
-    // Set Keys
+    ///
+    /// Keys
+    /// 
     private void setKeys() {
         window.onKeyDown -= onKeyDown;
         window.onKeyUp -= onKeyUp;

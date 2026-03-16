@@ -7,7 +7,9 @@ class ShaderProgram {
     public readonly int programId;
     private Dictionary<string, int> uniformLocations = new();
 
-    public ShaderProgram(List<ShaderModule> modules) {
+    public ShaderProgram() {
+        List<ShaderModule> modules = load();
+        
         programId = GL.CreateProgram();
         if(programId == 0) throw new Exception("Could not create shader program");
 
@@ -52,6 +54,14 @@ class ShaderProgram {
 
         if(status == 0) throw new Exception("Error compiling shader: " + GL.GetShaderInfoLog(id));
         return id;
+    }
+
+    // Load
+    private List<ShaderModule> load() {
+        return new List<ShaderModule> {
+            new ShaderModule(ShaderType.VertexShader, "vert.glsl"),
+            new ShaderModule(ShaderType.FragmentShader, "frag.glsl")
+        };
     }
 
     /// 

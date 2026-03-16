@@ -19,9 +19,9 @@ class UIController {
     private bool isVisible = false;
 
     public UIController(
+        ShaderProgram shaderProgram,
         int screenWidth,
-        int screenHeight,
-        ShaderProgram shaderProgram
+        int screenHeight
     ) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
@@ -132,8 +132,8 @@ class UIController {
     /// Window Resize
     ///
     public void onWindowResize(int width, int height) {
-        this.screenWidth = width;
-        this.screenHeight = height;
+        screenWidth = width;
+        screenHeight = height;
         foreach(var ui in uis.Values) ui.onWindowResize(width, height);
     }
 }

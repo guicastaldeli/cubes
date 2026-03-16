@@ -17,6 +17,7 @@ class UI : UIHandler {
     public string uiName;
     public string filePath;
     public UIData? uiData;
+    
     public bool visible = false;
 
     public int lastMouseX = -1;
