@@ -74,7 +74,10 @@ class Atlas {
     public bool addGlyph(FontLoader fontLoader, char c) {
         Glyph? glyph = fontLoader.loadGlyph(c);
         if(glyph == null) return false;
-        if(glyph.bitmapWidth <= 0 || glyph.bitmapHeight <= 0) return false;
+        if(glyph.bitmapWidth <= 0 || glyph.bitmapHeight <= 0) {
+            glyphs.Add(glyph);
+            return true;
+        }
 
         if(cursorX + glyph.bitmapWidth > width) {
             cursorX = 0;

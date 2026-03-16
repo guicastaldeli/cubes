@@ -195,8 +195,10 @@ class TextRenderer {
             float w = glyph.bitmapWidth * scale;
             float h = glyph.bitmapHeight * scale;
 
-            updateQuad(xPos, yPos, w, h, glyph, color);
-            GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+            if(w > 0 && h > 0) {
+                updateQuad(xPos, yPos, w, h, glyph, color);
+                GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+            }
 
             cursorX += glyph.advance * scale;
             if(i < text.Length - 1 && cache.TryGetValue(text[i + 1], out var next)) {
