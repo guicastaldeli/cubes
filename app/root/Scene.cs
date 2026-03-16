@@ -16,7 +16,7 @@ class Scene {
     private CollisionManager collisionManager;
     private ScreenController screenController = null!;
 
-    private GetMesh mesh;
+    private Mesh.Mesh mesh;
     private TextRenderer textRenderer = null!;
 
     public bool initialized = false;
@@ -31,7 +31,7 @@ class Scene {
         this.input = input;
         this.playerController = new PlayerController();
         this.collisionManager = new CollisionManager();
-        this.mesh = new GetMesh(shaderProgram);
+        this.mesh = new Mesh.Mesh(shaderProgram);
     }
 
     public bool isInit() {
@@ -103,6 +103,6 @@ class Scene {
         initialized = false;
         playerController = new PlayerController();
         collisionManager = new CollisionManager();
-        mesh = new GetMesh(shaderProgram);
+        mesh = new Mesh.Mesh(shaderProgram);
     }
 }

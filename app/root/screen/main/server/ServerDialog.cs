@@ -5,7 +5,7 @@ class ServerDialog : Screen {
 
     public MainScreen mainScreen;
     private ServerDialogAction serverDialogAction;
-
+    
     public ServerDialog(MainScreen mainScreen) : 
     base(PATH, "server_dialog") {
         this.mainScreen = mainScreen;

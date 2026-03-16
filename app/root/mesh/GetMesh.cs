@@ -4,14 +4,14 @@ using App.Root.Player;
 using OpenTK.Mathematics;
 using App.Root.Collider;
 
-class GetMesh {
+class Mesh {
     public readonly ShaderProgram shaderProgram;
     private Camera? camera;
 
     private readonly Dictionary<string, MeshData> meshDataMap = new();
     private readonly Dictionary<string, MeshRenderer> meshRendererMap = new();
 
-    public GetMesh(ShaderProgram shaderProgram) {
+    public Mesh(ShaderProgram shaderProgram) {
         this.shaderProgram = shaderProgram;
     }
 
