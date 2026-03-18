@@ -45,8 +45,30 @@ class Client {
                 if(type == null) continue;
                 switch(type) {
                     case PacketType.JOIN:
-
+                        clientDataManager.getClientJoin().handle(json);
+                        break;
+                    case PacketType.WORLD:
+                        clientDataManager.getClientWorld().handle(json);
+                        break;
+                    case PacketType.PING:
+                        break;
                 }
+            } catch(Exception err) {
+                if(running) Console.Error.WriteLine("Client receive error: " + err.Message);
+            }
+        }
+    }
+
+    // Ping Loop
+    private void pingLoop() {
+        while(running) {
+            try {
+                if(connected) send(new PacketPing {
+                    playerId = playerId
+                });
+                Thread.Sleep(1000);
+            } catch(Exception err) {
+                if(running) Console.Error.WriteLine("Client ping error: " + err.Message);
             }
         }
     }
@@ -69,7 +91,48 @@ class Client {
         };
         pingThread.Start();
 
-        send(PacketJoin());
+        send(new PacketJoin());
         Console.WriteLine($"Connecting to {ip}:{port}");
+    }
+
+    ///
+    /// Send
+    /// 
+    public void send(Packet packet) {
+        try {
+            string json = packet.serialize();
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            udpClient.Send(data, data.Length, serverEndPoint);
+        } catch(Exception err) {
+            Console.Error.WriteLine("Client send error: " + err.Message);
+        }
+    }
+
+    public void sendState(
+        float x,
+        float y,
+        float z,
+        float yaw,
+        float pitch
+    ) {
+        if(!connected) return;
+        send(new PacketState {
+            playerId = playerId,
+            x = x, y = y, z = z,
+            yaw = yaw, pitch = pitch
+        });
+    }
+
+    ///
+    /// Disconnect
+    /// 
+    public void disconnect() {
+        if(connected) send(new PacketLeave {
+            playerId = playerId
+        });
+        running = false;
+        connected = false;
+        udpClient?.Close();
+        Console.WriteLine("Disconnected");
     }
 }
