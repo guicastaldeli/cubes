@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using App.Root.Env;
 using App.Root.Packets;
 using App.Root.Player;
 using App.Root.ServerData;
@@ -11,7 +12,7 @@ class Server {
     private UdpClient udpServer = null!;
     private Thread? serverThread;
     private Thread? tickThread;
-    
+
     private bool running = false;
     public int port;
 
@@ -19,12 +20,17 @@ class Server {
     public int maxPlayers;
 
     private ServerDataManager serverDataManager;
+    private EnvManager envManager = null!;
 
     public Server(int port, int maxPlayers) {
         this.port = port;
         this.maxPlayers = maxPlayers;
 
         this.serverDataManager = new ServerDataManager(this);
+    }
+
+    public void setEnvManager(EnvManager envManager) {
+        this.envManager = envManager;
     }
 
     ///
@@ -80,13 +86,45 @@ class Server {
     // Tick Loop
     private void tickLoop() {
         while(running) {
-            foreach(var (id, player) in players) {
-                if(player.isTimedOut()) {
-                    players.TryRemove(id, out _);
-                    Console.WriteLine($"Player {id} timed out");
+            try {
+                foreach(var (id, player) in players) {
+                    if(player.isTimedOut()) {
+                        players.TryRemove(id, out _);
+                        Console.WriteLine($"Player {id} timed out");
+                    }
                 }
+                if(players.Count > 0) {
+                    envManager.getWorldManager()
+                        .getWorldBroadcaster()
+                        .broadcast();
+                }
+
+                Thread.Sleep(50);
+            } catch(Exception err) {
+                if(running) Console.Error.WriteLine("Server tick error: " + err.Message);
             }
-            if(players.Count > 0) world
         }
+    }
+
+    ///
+    /// Send
+    /// 
+    public void send(Packet packet, IPEndPoint endPoint) {
+        try {
+            string json = packet.serialize();
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            udpServer.Send(data, data.Length, endPoint);
+        } catch(Exception err) {
+            Console.Error.WriteLine("Server send error: " + err.Message);
+        }
+    }
+
+    ///
+    /// Stop
+    /// 
+    public void stop() {
+        running = false;
+        udpServer?.Close();
+        Console.WriteLine("Server stopped!");
     }
 }

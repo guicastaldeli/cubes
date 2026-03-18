@@ -16,6 +16,11 @@ class PlayerState {
         set; 
     }
 
+    public float z { 
+        get; 
+        set; 
+    }
+
     public float yaw { 
         get; 
         set; 
