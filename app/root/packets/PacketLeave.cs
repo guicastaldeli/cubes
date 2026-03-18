@@ -1,7 +1,7 @@
 namespace App.Root.Packets;
 
-class Leave : Packet {
-    public Leave() {
+class PacketLeave : Packet {
+    public PacketLeave() {
         type = PacketType.LEAVE;
     }
 }

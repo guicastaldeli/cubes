@@ -1,12 +1,12 @@
 namespace App.Root.Packets;
 
-class Ping : Packet {
+class PacketPing : Packet {
     public long timestamp {
         get;
         set;
     }
 
-    public Ping() {
+    public PacketPing() {
         type = PacketType.PING;
         timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }

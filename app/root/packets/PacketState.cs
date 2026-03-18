@@ -1,6 +1,6 @@
 namespace App.Root.Packets;
 
-class State : Packet {
+class PacketState : Packet {
     public float x { 
         get; 
         set; 
@@ -26,7 +26,7 @@ class State : Packet {
         set; 
     }
 
-    public State() {
+    public PacketState() {
         type = PacketType.STATE;
     }
 }

@@ -1,12 +1,12 @@
 namespace App.Root.Packets;
 
-class Join : Packet {
+class PacketJoin : Packet {
     public string? playerName {
         get;
         set;
     }
 
-    public Join() {
+    public PacketJoin() {
         type = PacketType.JOIN;
     }
 }

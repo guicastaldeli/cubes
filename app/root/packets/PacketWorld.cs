@@ -2,13 +2,13 @@ namespace App.Root.Packets;
 using System.Collections.Generic;
 using App.Root.Player;
 
-class World : Packet {
+class PacketWorld : Packet {
     public List<PlayerState> players {
         get;
         set;
     } = new();
 
-    public World() {
+    public PacketWorld() {
         type = PacketType.WORLD;
     }
 }
