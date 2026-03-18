@@ -9,13 +9,14 @@ using App.Root.ServerData;
 
 class Server {
     private UdpClient udpServer = null!;
-    private ConcurrentDictionary<string, PlayerData> players = new();
     private Thread? serverThread;
     private Thread? tickThread;
+    
     private bool running = false;
+    public int port;
 
-    private int port;
-    private int maxPlayers;
+    public ConcurrentDictionary<string, PlayerData> players = new();
+    public int maxPlayers;
 
     private ServerDataManager serverDataManager;
 
@@ -23,7 +24,7 @@ class Server {
         this.port = port;
         this.maxPlayers = maxPlayers;
 
-        this.serverDataManager = new ServerDataManager(this, players, maxPlayers);
+        this.serverDataManager = new ServerDataManager(this);
     }
 
     ///
@@ -58,10 +59,34 @@ class Server {
                 if(type == null) continue;
                 switch(type) {
                     case PacketType.JOIN:
-                        handleJoin(json, remote);
+                        serverDataManager.getServerJoin().handle(json, remote);
                         break;
+                    case PacketType.LEAVE:
+                        serverDataManager.getServerLeave().handle(json, remote);
+                        break;
+                    case PacketType.STATE:
+                        serverDataManager.getServerState().handle(json);
+                        break;
+                    case PacketType.PING:
+                        serverDataManager.getServerPing().handle(json, remote);
+                        break;                    
+                }
+            } catch(Exception err) {
+                if(running) Console.Error.WriteLine("Server receive error!: " + err.Message);
+            }
+        }
+    }
+
+    // Tick Loop
+    private void tickLoop() {
+        while(running) {
+            foreach(var (id, player) in players) {
+                if(player.isTimedOut()) {
+                    players.TryRemove(id, out _);
+                    Console.WriteLine($"Player {id} timed out");
                 }
             }
+            if(players.Count > 0) world
         }
     }
 }

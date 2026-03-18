@@ -1,5 +1,5 @@
 namespace App.Root.Env.World;
 
-class WorldBroadcaster {
+class WorldManager {
     
 }

@@ -4,28 +4,20 @@ using System.Net;
 using App.Root.Player;
 
 class ServerDataManager {
-    private Server server;
-    private ConcurrentDictionary<string, PlayerData> players;
-    private int maxPlayers;
-
     private ServerJoin serverJoin;
     private ServerLeave serverLeave;
     private ServerPing serverPing;
     private ServerState serverState;
 
-    public ServerDataManager(
-        Server server,
-        ConcurrentDictionary<string, PlayerData> players,
-        int maxPlayers
-    ) {
-        this.server = server;
-        this.players = players;
-        this.maxPlayers = maxPlayers;
+    private Server server;
 
-        this.serverJoin = new ServerJoin(server, players, maxPlayers);
-        this.serverLeave = new ServerLeave(server, players);
-        this.serverPing = new ServerPing(server, players);
-        this.serverState = new ServerState(server, players);
+    public ServerDataManager(Server server) {
+        this.server = server;
+
+        this.serverJoin = new ServerJoin(server);
+        this.serverLeave = new ServerLeave(server);
+        this.serverPing = new ServerPing(server);
+        this.serverState = new ServerState(server);
     }
 
     // Get Server Join

@@ -1,24 +1,19 @@
-using System.Collections.Concurrent;
+namespace App.Root.ServerData;
 using System.Net;
 using App.Root.Packets;
-using App.Root.Player;
-
-namespace App.Root.ServerData;
 
 class ServerLeave {
     private Server server;
-    private ConcurrentDictionary<string, PlayerData> players;
 
-    public ServerLeave(Server server, ConcurrentDictionary<string, PlayerData> players) {
+    public ServerLeave(Server server) {
         this.server = server;
-        this.players = players;
     }
 
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketLeave>(json);
         if(packet?.playerId == null) return;
 
-        players.TryRemove(packet.playerId, out _);
+        server.players.TryRemove(packet.playerId, out _);
         Console.WriteLine($"Player {packet.playerId} left");
     }
 }
