@@ -1,6 +1,6 @@
 namespace App.Root.Screen;
-using App.Root.Shaders;
 using App.Root;
+using App.Root.Shaders;
 using App.Root.Screen.Main;
 using System.Collections.Generic;
 using App.Root.Screen.Pause;
@@ -18,7 +18,8 @@ class ScreenController {
     public Input input;
     public Window window;
     public ShaderProgram shaderProgram;
-    public Scene scene = null!;
+    public Scene? scene;
+    public Root.Main main;
 
     public Dictionary<SCREENS, Screen> screens = new();
     public SCREENS? activeScreen = null;
@@ -33,6 +34,7 @@ class ScreenController {
         Window window,
         ShaderProgram shaderProgram,
         Scene scene,
+        Root.Main main,
         int screenWidth,
         int screenHeight
     ) {
@@ -42,6 +44,7 @@ class ScreenController {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.shaderProgram = shaderProgram;
+        this.main = main;
 
         Screen.init(
             screenWidth, 

@@ -15,8 +15,8 @@ class PlayerController {
 
     private Camera camera;
     private PlayerInputMap playerInputMap;
-    private RigidBody rigidBody = null!;
-    private CollisionManager collisionManager = null!;
+    private RigidBody rigidBody;
+    private CollisionManager? collisionManager;
 
     private Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
     private Vector3 size = new Vector3(1.0f, 2.0f, 1.0f);
@@ -34,10 +34,12 @@ class PlayerController {
     private bool flyMode = false;
     private float flySpeed = 10.0f;
 
+    private NetworkPlayer? networkPlayer;
+
     public PlayerController() {
-        camera = new Camera();
-        playerInputMap = new PlayerInputMap(this);
-        rigidBody = new RigidBody(position, size);
+        this.camera = new Camera();
+        this.playerInputMap = new PlayerInputMap(this);
+        this.rigidBody = new RigidBody(position, size);
     }
 
     // Get Camera
@@ -53,6 +55,15 @@ class PlayerController {
     // Set Collision Manager
     public void setCollisionManager(CollisionManager collisionManager) {
         this.collisionManager = collisionManager;
+    }
+
+    // Network Player
+    public void setNetworkPlayer(Network network) {
+        this.networkPlayer = new NetworkPlayer(network, this);
+    }
+
+    public NetworkPlayer? getNetworkPlayer() {
+        return networkPlayer;
     }
 
     // Position

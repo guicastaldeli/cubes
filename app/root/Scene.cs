@@ -23,6 +23,8 @@ class Scene {
 
     private WorldManager worldManager;
 
+    private Network? network;
+
     public bool initialized = false;
 
     public Scene(
@@ -38,7 +40,7 @@ class Scene {
         this.collisionManager = new CollisionManager();
         this.mesh = new Mesh.Mesh(shaderProgram);
 
-        this.worldManager = new WorldManager(mesh, collisionManager);
+        this.worldManager = new WorldManager(mesh, collisionManager, playerController);
     }
 
     public bool isInit() {
@@ -47,6 +49,10 @@ class Scene {
 
     public void setScreenController(ScreenController screenController) {
         this.screenController = screenController;
+    }
+
+    public void setNetwork(Network network) {
+        this.network = network;
     }
 
     ///
@@ -58,6 +64,7 @@ class Scene {
         mesh.setCamera(playerController.getCamera());
 
         worldManager.render();
+        if(network != null) worldManager.setNetwork(network);
     }
 
     private void setInput() {
@@ -70,10 +77,14 @@ class Scene {
     /// 
     public void update() {
         input.update();
+
         playerController.update();
         playerController.getCamera().update();
+
         mesh.update();
         worldManager.update();
+
+        playerController.getNetworkPlayer()?.update();
     }
 
     ///
@@ -105,6 +116,6 @@ class Scene {
         playerController = new PlayerController();
         collisionManager = new CollisionManager();
         mesh = new Mesh.Mesh(shaderProgram);
-        worldManager = new WorldManager(mesh, collisionManager);
+        worldManager = new WorldManager(mesh, collisionManager, playerController);
     }
 }

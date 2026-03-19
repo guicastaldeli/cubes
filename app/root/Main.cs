@@ -9,6 +9,7 @@ class Main {
     private Tick tick;
     private ShaderProgram shaderProgram;
     private Input input;
+    private Network network;
 
     private Scene scene = null!;
     private ScreenController screenController = null!;
@@ -19,9 +20,14 @@ class Main {
         tick = new Tick();
         shaderProgram = new ShaderProgram();
         input = new Input(window, tick);
+        network = new Network();
 
         init();
         set();
+    }
+
+    public Network getNetwork() {
+        return network;
     }
 
     ///
@@ -60,6 +66,7 @@ class Main {
             shaderProgram, 
             input
         );
+        scene.setNetwork(network);
         
         screenController = new ScreenController(
             tick,
@@ -67,6 +74,7 @@ class Main {
             window,
             shaderProgram, 
             scene,
+            this,
             Window.WIDTH, Window.HEIGHT
         );
         screenController.switchTo(ScreenController.SCREENS.MAIN);

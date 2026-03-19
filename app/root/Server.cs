@@ -21,17 +21,14 @@ class Server {
     public int maxPlayers;
 
     private ServerDataManager serverDataManager;
-    private WorldManager worldManager = null!;
+
+    public Action? onTick;
 
     public Server(int port, int maxPlayers) {
         this.port = port;
         this.maxPlayers = maxPlayers;
 
         this.serverDataManager = new ServerDataManager(this);
-    }
-
-    public void setWorldManager(WorldManager worldManager) {
-        this.worldManager = worldManager;
     }
 
     ///
@@ -94,12 +91,7 @@ class Server {
                         Console.WriteLine($"Player {id} timed out");
                     }
                 }
-                if(players.Count > 0) {
-                    worldManager
-                        .getWorldBroadcaster()
-                        .broadcast();
-                }
-
+                if(players.Count > 0) onTick?.Invoke();
                 Thread.Sleep(50);
             } catch(Exception err) {
                 if(running) Console.Error.WriteLine("Server tick error: " + err.Message);

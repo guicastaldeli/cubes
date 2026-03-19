@@ -77,8 +77,9 @@ class Client {
     /// Connect
     /// 
     public void connect(string ip, int port) {
-        udpClient = new UdpClient();
         serverEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+        udpClient = new UdpClient();
+        udpClient.Connect(serverEndPoint);
         running = true;
 
         receiveThread = new Thread(receiveLoop) {
@@ -102,7 +103,7 @@ class Client {
         try {
             string json = packet.serialize();
             byte[] data = Encoding.UTF8.GetBytes(json);
-            udpClient.Send(data, data.Length, serverEndPoint);
+            udpClient.Send(data, data.Length);
         } catch(Exception err) {
             Console.Error.WriteLine("Client send error: " + err.Message);
         }

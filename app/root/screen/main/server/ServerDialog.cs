@@ -12,7 +12,11 @@ class ServerDialog : Screen {
     public ServerDialog(MainScreen mainScreen) : 
     base(PATH, "server_dialog") {
         this.mainScreen = mainScreen;
-        this.serverDialogAction = new ServerDialogAction(window, this);
+        this.serverDialogAction = new ServerDialogAction(
+            window, 
+            screenController, 
+            this
+        );
         this.inputField = new InputField(this);
         
         registerInputs();

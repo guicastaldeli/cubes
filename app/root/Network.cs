@@ -1,13 +1,20 @@
+namespace App.Root;
 using App.Root.Packets;
 
-namespace App.Root;
-
 class Network {
-    private Server? server;
-    private Client? client;
+    private Server server = null!;
+    private Client client = null!;
 
     public bool isConnected => client?.connected ?? false;
     public string? playerId => client?.playerId;
+
+    public Server getServer() {
+        return server;
+    }
+
+    public Client getClient() {
+        return client;
+    }
 
     // Send State
     public void sendState(
@@ -52,7 +59,7 @@ class Network {
     public void stop() {
         client?.disconnect();
         server?.stop();
-        client = null;
-        server = null;
+        client = null!;
+        server = null!;
     }
 }
