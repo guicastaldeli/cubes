@@ -1,5 +1,6 @@
 namespace App.Root;
 using App.Root.Env;
+using App.Root.Env.World;
 using App.Root.Packets;
 using App.Root.Player;
 using App.Root.ServerData;
@@ -20,7 +21,7 @@ class Server {
     public int maxPlayers;
 
     private ServerDataManager serverDataManager;
-    private EnvManager envManager = null!;
+    private WorldManager worldManager = null!;
 
     public Server(int port, int maxPlayers) {
         this.port = port;
@@ -29,8 +30,8 @@ class Server {
         this.serverDataManager = new ServerDataManager(this);
     }
 
-    public void setEnvManager(EnvManager envManager) {
-        this.envManager = envManager;
+    public void setWorldManager(WorldManager worldManager) {
+        this.worldManager = worldManager;
     }
 
     ///
@@ -94,7 +95,7 @@ class Server {
                     }
                 }
                 if(players.Count > 0) {
-                    envManager.getWorldManager()
+                    worldManager
                         .getWorldBroadcaster()
                         .broadcast();
                 }

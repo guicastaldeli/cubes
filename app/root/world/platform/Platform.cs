@@ -1,0 +1,38 @@
+namespace App.Root.World.Platform;
+using App.Root.Collider;
+using App.Root.Collider.Types;
+using App.Root.Resource;
+
+class Platform : WorldHandler {
+    private Mesh.Mesh mesh;
+    private CollisionManager collisionManager;
+
+    private BoundaryObject? boundaryObject;
+    private StaticObject? staticObject;
+    
+    public Platform(Mesh.Mesh mesh, CollisionManager collisionManager) {
+        this.mesh = mesh;
+        this.collisionManager = collisionManager;
+    } 
+
+    ///
+    /// Render
+    /// 
+    public override void render() {
+        mesh.add("cube");
+        mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
+
+        int texId = TextureLoader.load("env/test.jpg");
+        mesh.setTexture("cube", texId);
+
+        collisionManager.addStaticCollider(new BoundaryObject(5.0f));
+        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
+    }
+
+    ///
+    /// Update
+    /// 
+    public override void update() {
+        
+    }
+}

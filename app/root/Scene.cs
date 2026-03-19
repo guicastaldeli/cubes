@@ -7,6 +7,8 @@ using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Text;
 using App.Root.Screen;
+using App.Root.Env;
+using App.Root.Env.World;
 
 class Scene {
     private Window window;
@@ -19,6 +21,8 @@ class Scene {
     private Mesh.Mesh mesh;
     private TextRenderer textRenderer = null!;
 
+    private WorldManager worldManager;
+
     public bool initialized = false;
 
     public Scene(
@@ -29,9 +33,12 @@ class Scene {
         this.window = window;
         this.shaderProgram = shaderProgram;
         this.input = input;
+
         this.playerController = new PlayerController();
         this.collisionManager = new CollisionManager();
         this.mesh = new Mesh.Mesh(shaderProgram);
+
+        this.worldManager = new WorldManager(mesh, collisionManager);
     }
 
     public bool isInit() {
@@ -50,16 +57,7 @@ class Scene {
 
         mesh.setCamera(playerController.getCamera());
 
-        // Test Cube
-            mesh.add("cube");
-            mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
-
-            int texId = TextureLoader.load("env/test.jpg");
-            mesh.setTexture("cube", texId);
-
-            collisionManager.addStaticCollider(new BoundaryObject(5.0f));
-            collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
-        //
+        worldManager.render();
     }
 
     private void setInput() {
@@ -74,7 +72,9 @@ class Scene {
         input.update();
         playerController.update();
         playerController.getCamera().update();
+        worldManager.update();
         mesh.update();
+
     }
 
     ///
@@ -93,7 +93,9 @@ class Scene {
     /// 
     public void render() {
         screenController.running = true;
+
         mesh.renderAll();
+
     }
 
     ///

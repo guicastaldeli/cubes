@@ -1,7 +1,6 @@
+namespace App.Root.Env.World;
 using App.Root.Packets;
 using App.Root.Player;
-
-namespace App.Root.Env.World;
 
 class WorldBroadcaster {
     private Server server = null!;

@@ -8,7 +8,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 class Window : NativeWindow {
     public static readonly int WIDTH = 800;
     public static readonly int HEIGHT = 600;
-    public static readonly string TITLE = "build";
+    public static readonly string TITLE = "client";
 
     private volatile Action? pendingAction = null;
 
