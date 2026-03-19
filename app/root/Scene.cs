@@ -72,9 +72,8 @@ class Scene {
         input.update();
         playerController.update();
         playerController.getCamera().update();
-        worldManager.update();
         mesh.update();
-
+        worldManager.update();
     }
 
     ///
@@ -106,5 +105,6 @@ class Scene {
         playerController = new PlayerController();
         collisionManager = new CollisionManager();
         mesh = new Mesh.Mesh(shaderProgram);
+        worldManager = new WorldManager(mesh, collisionManager);
     }
 }
