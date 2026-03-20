@@ -8,30 +8,21 @@ class Network {
     public bool isConnected => client?.connected ?? false;
     public string? playerId => client?.playerId;
 
+    // Get Server
     public Server getServer() {
         return server;
     }
 
+    // Get Client
     public Client getClient() {
         return client;
-    }
+    }   
 
-    // Send State
-    public void sendState(
-        float x,
-        float y,
-        float z,
-        float yaw,
-        float pitch
-    ) {
-        client?.sendState(x, y, z, yaw, pitch);
-    }
-
-    // Poll World
-    public PacketWorld? packetWorld() {
+    // Poll Data
+    public DataSnapshot? pollData() {
         if(client == null) return null;
-        client.incomingWorld.TryDequeue(out var world);
-        return world;
+        client.incomingData.TryDequeue(out var snapshot);
+        return snapshot;
     }
 
     ///

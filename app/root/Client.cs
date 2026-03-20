@@ -25,8 +25,7 @@ class Client {
 
     private ClientDataManager clientDataManager;
 
-    public ConcurrentQueue<PacketWorld> incomingWorld = new();
-    public ConcurrentQueue<PacketWorldData> incomingWorldData = new();
+    public ConcurrentQueue<DataSnapshot> incomingData = new();
 
     private bool running = false;
 
@@ -48,11 +47,8 @@ class Client {
                     case PacketType.JOIN:
                         clientDataManager.getClientJoin().handle(json);
                         break;
-                    case PacketType.WORLD:
-                        clientDataManager.getClientWorld().handle(json);
-                        break;
-                    case PacketType.WORLD_DATA:
-                        clientDataManager.getClientWorldData().handle(json);
+                    case PacketType.DATA:
+                        clientDataManager.getClientData().handle(json);
                         break;
                     case PacketType.PING:
                         break;
@@ -111,21 +107,6 @@ class Client {
         } catch(Exception err) {
             Console.Error.WriteLine("Client send error: " + err.Message);
         }
-    }
-
-    public void sendState(
-        float x,
-        float y,
-        float z,
-        float yaw,
-        float pitch
-    ) {
-        if(!connected) return;
-        send(new PacketState {
-            playerId = playerId,
-            x = x, y = y, z = z,
-            yaw = yaw, pitch = pitch
-        });
     }
 
     ///

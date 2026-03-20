@@ -17,7 +17,7 @@ class Server {
     private bool running = false;
     public int port;
 
-    public ConcurrentDictionary<string, PlayerData> players = new();
+    public ConcurrentDictionary<string, ServerPlayer> players = new();
     public int maxPlayers;
 
     private ServerDataManager serverDataManager;
@@ -73,11 +73,11 @@ class Server {
                     case PacketType.LEAVE:
                         serverDataManager.getServerLeave().handle(json, remote);
                         break;
-                    case PacketType.STATE:
-                        serverDataManager.getServerState().handle(json);
-                        break;
                     case PacketType.PING:
                         serverDataManager.getServerPing().handle(json, remote);
+                        break;
+                    case PacketType.DATA:
+                        serverDataManager.getServerData().handle(json, remote);
                         break;                    
                 }
             } catch(Exception err) {

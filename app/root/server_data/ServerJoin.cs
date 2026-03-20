@@ -1,6 +1,6 @@
 namespace App.Root.ServerData;
-using App.Root.Player;
 using App.Root.Packets;
+using App.Root.Player;
 using System.Net;
 
 class ServerJoin {
@@ -19,22 +19,18 @@ class ServerJoin {
             return;
         }
 
-        // Player Id
+        // Player
         string id = Guid.NewGuid().ToString();
-        var player = new PlayerData(id, remote);
+        var player = new ServerPlayer(id, remote);
         server.players[id] = player;
 
-        var res = new PacketJoin {
+        server.send(new PacketJoin {
             playerId = id
-        };
-        server.send(res, remote);
+        }, remote);
 
-        // World Data
-        var worldData = server.getServerDataManager()
-            .getServerWorldData()
-            .getWorldData()
-            .get();
-        server.send(worldData, remote);
+        // Data
+        var snapshot = Data.getInstance().snapshot();
+        server.send(PacketData.fromSnapshot(snapshot), remote);
 
         Console.WriteLine($"Player {id} joined from {remote}");
     }

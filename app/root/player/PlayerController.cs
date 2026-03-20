@@ -3,7 +3,7 @@ namespace App.Root.Player;
 using App.Root.Collider;
 using OpenTK.Mathematics;
 
-class PlayerController {
+class PlayerController : DataEntry {
     public enum MovDir {
         FORWARD,
         BACKWARD,
@@ -34,12 +34,15 @@ class PlayerController {
     private bool flyMode = false;
     private float flySpeed = 10.0f;
 
-    private NetworkPlayer? networkPlayer;
+    private string id = Guid.NewGuid().ToString();
+    private Network? network;
 
     public PlayerController() {
         this.camera = new Camera();
         this.playerInputMap = new PlayerInputMap(this);
         this.rigidBody = new RigidBody(position, size);
+
+        Data.getInstance().register(DataType.PLAYER, this);
     }
 
     // Get Camera
@@ -55,15 +58,6 @@ class PlayerController {
     // Set Collision Manager
     public void setCollisionManager(CollisionManager collisionManager) {
         this.collisionManager = collisionManager;
-    }
-
-    // Network Player
-    public void setNetworkPlayer(Network network) {
-        this.networkPlayer = new NetworkPlayer(network, this);
-    }
-
-    public NetworkPlayer? getNetworkPlayer() {
-        return networkPlayer;
     }
 
     // Position
@@ -181,5 +175,39 @@ class PlayerController {
         }
 
         camera.setPosition(position);
+    }
+
+    ///
+    /// Data Entry
+    /// 
+    public string getId() {
+        return id;
+    }
+
+    public Dictionary<string, object> serialize() {
+        return new Dictionary<string, object> {
+            ["id"] = id,
+            ["x"] = position.X,
+            ["y"] = position.Y,
+            ["z"] = position.Z,
+            ["yaw"] = camera.getYaw(),
+            ["pitch"] = camera.getPitch()
+        };
+    }
+
+    ///
+    /// Network
+    /// 
+    public void setNetwork(Network network) {
+        this.network = network;
+        this.id = network.playerId ?? id;
+    }
+
+    public void sendState() {
+        if(network == null || !network.isConnected) return;
+        network.sendState(
+            position.X, position.Y, position.Z,
+            camera.getYaw(), camera.getPitch()
+        );
     }
 }

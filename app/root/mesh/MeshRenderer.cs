@@ -4,7 +4,7 @@ using App.Root.Shaders;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 
-class MeshRenderer {
+class MeshRenderer : DataEntry {
     public readonly ShaderProgram shaderProgram;
     private MeshData? meshData;
     private Camera? camera;
@@ -28,6 +28,8 @@ class MeshRenderer {
     private bool hasColors = false;
     private bool hasTex = false;
     private int texId = -1;
+
+    private string id = "";
 
     public MeshRenderer(ShaderProgram shaderProgram) {
         this.shaderProgram = shaderProgram;
@@ -260,5 +262,27 @@ class MeshRenderer {
         if(texCoordsVbo != 0) GL.DeleteBuffer(texCoordsVbo);
         if(ebo != 0) GL.DeleteBuffer(ebo);
         if(vao != 0) GL.DeleteVertexArray(vao);
+    }
+
+    ///
+    /// Data Entry
+    /// 
+    public void setId(string id) {
+        this.id = id;
+        Data.getInstance().register(Root.DataType.MESH, this);
+    }
+
+    public string getId() {
+        return id;
+    }
+
+    public Dictionary<string, object> serialize() {
+        return new Dictionary<string, object> {
+            ["id"] = id,
+            ["meshType"] = id,
+            ["x"] = position.X,
+            ["y"] = position.Y,
+            ["z"] = position.Z
+        };
     }
 }

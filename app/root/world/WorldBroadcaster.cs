@@ -1,6 +1,5 @@
 namespace App.Root.Env.World;
 using App.Root.Packets;
-using App.Root.Player;
 
 class WorldBroadcaster {
     private WorldManager worldManager;
@@ -13,19 +12,10 @@ class WorldBroadcaster {
     /// Broadcast
     /// 
     public void broadcast() {
-        var world = new PacketWorld();
+        var snapshot = Data.getInstance().snapshot();
+        var packet = PacketData.fromSnapshot(snapshot);
         foreach(var player in worldManager.getServer().players.Values) {
-            world.players.Add(new PlayerState {
-                id = player.id,
-                x = player.x,
-                y = player.y,
-                z = player.z,
-                yaw = player.yaw,
-                pitch = player.pitch
-            });
-        }
-        foreach(var player in worldManager.getServer().players.Values) {
-            worldManager.getServer().send(world, player.endPoint);
+            worldManager.getServer().send(packet, player.endPoint);
         }
     }
 
