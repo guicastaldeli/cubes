@@ -14,6 +14,10 @@ class World : WorldHandler {
         register();
     } 
 
+    public Mesh.Mesh getMesh() {
+        return mesh;
+    }
+
     ///
     /// Get
     /// 

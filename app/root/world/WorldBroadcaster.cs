@@ -9,6 +9,9 @@ class WorldBroadcaster {
         this.worldManager = worldManager;
     }
 
+    ///
+    /// Broadcast
+    /// 
     public void broadcast() {
         var world = new PacketWorld();
         foreach(var player in worldManager.getServer().players.Values) {
@@ -26,6 +29,9 @@ class WorldBroadcaster {
         }
     }
 
+    ///
+    /// Start
+    /// 
     public void start() {
         if(worldManager.getServer() != null) {
             worldManager.getServer().onTick = () => broadcast();

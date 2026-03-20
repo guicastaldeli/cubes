@@ -65,6 +65,7 @@ class Scene {
 
         worldManager.render();
         worldManager.getNetworkWorld().set();
+        worldManager.getNetworkWorld().start();
     }
 
     private void setInput() {
@@ -83,6 +84,7 @@ class Scene {
 
         mesh.update();
         worldManager.update();
+        worldManager.getNetworkWorld().consume();
 
         playerController.getNetworkPlayer()?.update();
     }

@@ -23,11 +23,12 @@ class Client {
     private Thread? receiveThread;
     private Thread? pingThread;
 
-    private bool running = false;
+    private ClientDataManager clientDataManager;
 
     public ConcurrentQueue<PacketWorld> incomingWorld = new();
+    public ConcurrentQueue<PacketWorldData> incomingWorldData = new();
 
-    private ClientDataManager clientDataManager;
+    private bool running = false;
 
     public Client() {
         this.clientDataManager = new ClientDataManager(this);
@@ -49,6 +50,9 @@ class Client {
                         break;
                     case PacketType.WORLD:
                         clientDataManager.getClientWorld().handle(json);
+                        break;
+                    case PacketType.WORLD_DATA:
+                        clientDataManager.getClientWorldData().handle(json);
                         break;
                     case PacketType.PING:
                         break;
