@@ -4,7 +4,7 @@ class PacketData : Packet {
     public Dictionary<DataType, List<Dictionary<string, object>>> data {
         get;
         set;
-    }
+    } = null!;
 
     public PacketData() {
         type = PacketType.DATA;

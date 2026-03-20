@@ -5,6 +5,8 @@ class Network {
     private Server server = null!;
     private Client client = null!;
 
+    private NetworkUpdate networkUpdate = null!;
+
     public bool isConnected => client?.connected ?? false;
     public string? playerId => client?.playerId;
 
@@ -23,6 +25,17 @@ class Network {
         if(client == null) return null;
         client.incomingData.TryDequeue(out var snapshot);
         return snapshot;
+    }
+
+    ///
+    /// Update
+    /// 
+    public void initNetworkUpdate() {
+        networkUpdate = new NetworkUpdate();
+    }
+    
+    public NetworkUpdate getNetworkUpdate() {
+        return networkUpdate;
     }
 
     ///
@@ -52,5 +65,25 @@ class Network {
         server?.stop();
         client = null!;
         server = null!;
+    }
+
+    // Send State
+    public void sendState(
+        float x, 
+        float y, 
+        float z, 
+        float yaw, 
+        float pitch
+    ) {
+        if(client == null) return;
+        var snapshot = new DataSnapshot();
+        snapshot.data[DataType.PLAYER] = new List<Dictionary<string, object>> {
+            new() {
+                ["id"] = playerId ?? "",
+                ["x"] = x, ["y"] = y, ["z"] = z,
+                ["yaw"] = yaw, ["pitch"] = pitch
+            }
+        };
+        client.send(PacketData.fromSnapshot(snapshot));
     }
 }

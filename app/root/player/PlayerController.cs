@@ -1,5 +1,4 @@
 namespace App.Root.Player;
-
 using App.Root.Collider;
 using OpenTK.Mathematics;
 
@@ -17,6 +16,7 @@ class PlayerController : DataEntry {
     private PlayerInputMap playerInputMap;
     private RigidBody rigidBody;
     private CollisionManager? collisionManager;
+    private Mesh.Mesh mesh;
 
     private Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
     private Vector3 size = new Vector3(1.0f, 2.0f, 1.0f);
@@ -36,13 +36,23 @@ class PlayerController : DataEntry {
 
     private string id = Guid.NewGuid().ToString();
     private Network? network;
+    private NetworkPlayer networkPlayer;
 
-    public PlayerController() {
+    public PlayerController(Mesh.Mesh mesh) {
+        this.mesh = mesh;
+
         this.camera = new Camera();
         this.playerInputMap = new PlayerInputMap(this);
         this.rigidBody = new RigidBody(position, size);
 
         Data.getInstance().register(DataType.PLAYER, this);
+
+        this.networkPlayer = new NetworkPlayer(this);
+    }
+
+    // Get Mesh
+    public Mesh.Mesh getMesh() {
+        return mesh;
     }
 
     // Get Camera
@@ -201,6 +211,14 @@ class PlayerController : DataEntry {
     public void setNetwork(Network network) {
         this.network = network;
         this.id = network.playerId ?? id;
+    }
+
+    public Network? getNetwork() {
+        return network;
+    }
+
+    public NetworkPlayer getNetworkPlayer() {
+        return networkPlayer;
     }
 
     public void sendState() {

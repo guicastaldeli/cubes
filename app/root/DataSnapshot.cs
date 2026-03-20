@@ -4,7 +4,7 @@ class DataSnapshot {
     public Dictionary<DataType, List<Dictionary<string, object>>> data {
         get;
         set;
-    }
+    } = null!;
 
     public DataSnapshot() {}
     public DataSnapshot(Dictionary<DataType, List<DataEntry>> entries) {
