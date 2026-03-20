@@ -5,5 +5,6 @@ enum PacketType {
     LEAVE,
     STATE,
     WORLD,
+    WORLD_DATA,
     PING
 }

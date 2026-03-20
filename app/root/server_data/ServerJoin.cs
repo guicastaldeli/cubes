@@ -19,6 +19,7 @@ class ServerJoin {
             return;
         }
 
+        // Player Id
         string id = Guid.NewGuid().ToString();
         var player = new PlayerData(id, remote);
         server.players[id] = player;
@@ -27,6 +28,13 @@ class ServerJoin {
             playerId = id
         };
         server.send(res, remote);
+
+        // World Data
+        var worldData = server.getServerDataManager()
+            .getServerWorldData()
+            .getWorldData()
+            .get();
+        server.send(worldData, remote);
 
         Console.WriteLine($"Player {id} joined from {remote}");
     }

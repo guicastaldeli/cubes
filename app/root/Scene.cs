@@ -64,7 +64,7 @@ class Scene {
         mesh.setCamera(playerController.getCamera());
 
         worldManager.render();
-        if(network != null) worldManager.setNetwork(network);
+        worldManager.getNetworkWorld().set();
     }
 
     private void setInput() {

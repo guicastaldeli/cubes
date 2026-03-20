@@ -17,6 +17,21 @@ class NetworkWorld {
     }
 
     ///
+    /// Set
+    /// 
+    public void set() {
+        if(network != null) {
+            worldManager.setNetwork(network);
+            network.getServer()
+                .getServerDataManager()
+                .getServerWorldData()
+                .setWorldManager(worldManager);
+        } else {
+            Console.Error.WriteLine("Network error!");
+        }
+    }
+
+    ///
     /// Start
     /// 
     public void start() {

@@ -6,6 +6,7 @@ using App.Root.World;
 class WorldManager {
     private World world;
     private WorldBroadcaster worldBroadcaster;
+    private WorldData worldData;
     private NetworkWorld networkWorld;
 
     private Server server = null!;
@@ -23,6 +24,7 @@ class WorldManager {
 
         this.world = new World(mesh, collisionManager);
         this.worldBroadcaster = new WorldBroadcaster(this);
+        this.worldData = new WorldData();
         this.networkWorld = new NetworkWorld(this, playerController);
     }
 
@@ -49,6 +51,16 @@ class WorldManager {
     // Get World Broadcaster
     public WorldBroadcaster getWorldBroadcaster() {
         return worldBroadcaster;
+    }
+
+    // Get World Data
+    public WorldData getWorldData() {
+        return worldData;
+    }
+
+    // Get Network World
+    public NetworkWorld getNetworkWorld() {
+        return networkWorld;
     }
 
     ///

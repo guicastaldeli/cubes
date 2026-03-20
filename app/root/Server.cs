@@ -31,6 +31,11 @@ class Server {
         this.serverDataManager = new ServerDataManager(this);
     }
 
+    // Get Server Data Manager
+    public ServerDataManager getServerDataManager() {
+        return serverDataManager;
+    }
+
     ///
     /// Start
     /// 
