@@ -4,7 +4,6 @@ enum PacketType {
     JOIN,
     LEAVE,
     STATE,
-    WORLD,
-    WORLD_DATA,
-    PING
+    PING,
+    DATA
 }
