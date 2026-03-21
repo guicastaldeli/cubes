@@ -6,6 +6,7 @@ class NetworkWorld : NetworkUpdateHandler {
 
     public NetworkWorld(WorldManager worldManager) {
         this.worldManager = worldManager;
+        NetworkUpdate.register(this);
     }
     
     public override void update() {

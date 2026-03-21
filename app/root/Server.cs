@@ -81,7 +81,7 @@ class Server {
                         break;                    
                 }
             } catch(Exception err) {
-                if(running) Console.Error.WriteLine("Server receive error!: " + err.Message);
+                if(running) Console.Error.WriteLine("Server receive error!: " + err.Message + "\n" + err.StackTrace);
             }
         }
     }

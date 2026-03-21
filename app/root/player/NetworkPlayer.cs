@@ -5,6 +5,7 @@ class NetworkPlayer : NetworkUpdateHandler {
 
     public NetworkPlayer(PlayerController playerController) {
         this.playerController = playerController;
+        NetworkUpdate.register(this);
     }
 
     public override void update() {

@@ -66,8 +66,6 @@ class Scene {
         mesh.setCamera(playerController.getCamera());
 
         worldManager.render();
-
-        if(network != null) network.initNetworkUpdate();
     }
 
     private void setInput() {
@@ -89,7 +87,7 @@ class Scene {
 
         playerController.getNetworkPlayer()?.update();
 
-        if(network != null) network.getNetworkUpdate().update();
+        NetworkUpdate.getInstance().update();
     }
 
     ///
@@ -118,9 +116,14 @@ class Scene {
     /// 
     public void reset() {
         initialized = false;
+
+        NetworkUpdate.clear();
+        Data.getInstance().clearAll();
+
         playerController = new PlayerController(mesh);
         collisionManager = new CollisionManager();
         mesh = new Mesh.Mesh(shaderProgram);
+        
         worldManager = new WorldManager(mesh, collisionManager, playerController);
     }
 }
