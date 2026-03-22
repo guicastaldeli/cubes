@@ -35,17 +35,20 @@ class Network {
 
     // Poll Data
     public DataSnapshot? pollData() {
-        if(client == null) return null;
+        if(!isConnected) return null;
         client.incomingData.TryDequeue(out var snapshot);
         return snapshot;
     }
 
     public void pollAndCache() {
+        if(!isConnected) return;
+
         DataSnapshot? latest = null;
         DataSnapshot? s;
         while(client.incomingData.TryDequeue(out s)) {
             latest = s;
         }
+        
         cachedSnapshot = latest;
     }
 

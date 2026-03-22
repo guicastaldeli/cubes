@@ -128,6 +128,9 @@ class Server {
     public void stop() {
         running = false;
         udpServer?.Close();
-        Console.WriteLine("Server stopped!");
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("--- Server stopped! ---");
+        Console.ResetColor();
     }
 }

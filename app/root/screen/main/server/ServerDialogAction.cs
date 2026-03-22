@@ -46,5 +46,7 @@ class ServerDialogAction {
     public void back() {
         serverDialog.hide();
         serverDialog.mainScreen.show();
+        
+        screenController.main.getNetwork().stop();
     }
 }

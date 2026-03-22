@@ -78,9 +78,22 @@ class Input {
     /// 
     /// Mouse
     /// 
+    private void onMouseMove(int x, int y) {
+        if(screenController.isRunning() && !pauseOverlayOpen) return;
+        screenController.handleMouseMove(x, y);
+    }
+
+    private void onMouseClick(int x, int y) {
+        if(screenController.isRunning() && !pauseOverlayOpen) return;
+        screenController.checkClick(x, y);
+    }
+
     public void setMouse() {
-        window.onMouseMove += (x, y) => screenController.handleMouseMove(x, y);
-        window.onMouseClick += (x, y) => screenController.checkClick(x, y);
+        window.onMouseMove -= onMouseMove;
+        window.onMouseClick -= onMouseClick;
+        
+        window.onMouseMove += onMouseMove;
+        window.onMouseClick += onMouseClick;
     }
     
     public void lockMouse() {

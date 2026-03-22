@@ -119,6 +119,7 @@ class Tick {
 
         if(paused) {
             deltaTime = 0.0f;
+            lastFrameTime = currentTime;
         } else {
             float ticks = ELAPSED_TIME;
             deltaTime = (currentTime - lastFrameTime) / ticks;

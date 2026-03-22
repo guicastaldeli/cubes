@@ -66,8 +66,13 @@ class Scene {
 
         mesh.setCamera(playerController.getCamera());
 
-        if(network == null || network.isHost()) worldManager.render();
-
+        if(network == null ||
+            !network.isConnected || 
+            network.isHost()
+        ) {
+            worldManager.render();
+        }
+        
         if(network != null) {
             playerController.setNetwork(network);
             worldManager.getWorldBroadcaster().set();

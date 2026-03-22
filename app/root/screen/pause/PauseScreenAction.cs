@@ -35,8 +35,12 @@ class PauseScreenAction {
     /// 
     public void backToMenu() {
         tick.setPaused(false);
+
         input.unlockMouse();
+        input.pauseOverlayOpen = false;
+        
         screenController.running = false;
+        screenController.main.getNetwork().stop();
         
         Screen.scene.reset();
         var mainSceen = (MainScreen)screenController.screens[ScreenController.SCREENS.MAIN];

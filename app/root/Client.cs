@@ -122,6 +122,9 @@ class Client {
         running = false;
         connected = false;
         udpClient?.Close();
-        Console.WriteLine("Disconnected");
+
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Client Disconnected");
+        Console.ResetColor();
     }
 }

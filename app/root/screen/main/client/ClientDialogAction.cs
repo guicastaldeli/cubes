@@ -25,5 +25,7 @@ class ClientDialogAction {
     public void back() {
         clientDialog.hide();
         clientDialog.mainScreen.show();
+        
+        screenController.main.getNetwork().stop();
     }
 }

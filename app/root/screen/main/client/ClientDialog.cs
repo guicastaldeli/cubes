@@ -31,7 +31,7 @@ class ClientDialog : Screen {
     /// 
     public override void update() {
         if(scene.isInit()) {
-            scene.update();
+            if(!tick.isPaused()) scene.update();
             return;
         }  
         base.update();  

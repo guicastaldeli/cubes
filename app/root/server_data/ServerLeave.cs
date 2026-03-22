@@ -14,6 +14,8 @@ class ServerLeave {
         if(packet?.playerId == null) return;
 
         server.players.TryRemove(packet.playerId, out _);
-        Console.WriteLine($"Player {packet.playerId} left");
+
+        string color = "\e[0;31m";
+        Console.WriteLine($"{color}Player {packet.playerId} left");
     }
 }
