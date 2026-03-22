@@ -12,11 +12,13 @@ class PlayerController : DataEntry {
         DOWN
     }
 
+    private Window window;
     private Camera camera;
     private PlayerInputMap playerInputMap;
     private RigidBody rigidBody;
     private CollisionManager? collisionManager;
     private Mesh.Mesh mesh;
+    private PlayerMesh playerMesh;
 
     private Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
     private Vector3 size = new Vector3(1.0f, 2.0f, 1.0f);
@@ -38,16 +40,23 @@ class PlayerController : DataEntry {
     private Network? network;
     private NetworkPlayer networkPlayer;
 
-    public PlayerController(Mesh.Mesh mesh) {
+    public PlayerController(Window window, Mesh.Mesh mesh) {
+        this.window = window;
         this.mesh = mesh;
 
         this.camera = new Camera();
         this.playerInputMap = new PlayerInputMap(this);
         this.rigidBody = new RigidBody(position, size);
+        this.playerMesh = new PlayerMesh(window, this, mesh);
 
         Data.getInstance().register(DataType.PLAYER, this);
 
         this.networkPlayer = new NetworkPlayer(this);
+    }
+
+    // Get Window
+    public Window getWindow() {
+        return window;
     }
 
     // Get Mesh
@@ -185,6 +194,7 @@ class PlayerController : DataEntry {
         }
 
         camera.setPosition(position);
+        playerMesh.update();
     }
 
     ///
@@ -211,6 +221,9 @@ class PlayerController : DataEntry {
     public void setNetwork(Network network) {
         this.network = network;
         this.id = network.playerId ?? id;
+
+        playerMesh.setId(id);
+        playerMesh.render(true);
     }
 
     public Network? getNetwork() {

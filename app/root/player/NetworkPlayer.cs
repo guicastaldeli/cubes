@@ -1,3 +1,5 @@
+using App.Root.Mesh;
+
 namespace App.Root.Player;
 
 class NetworkPlayer : NetworkUpdateHandler {
@@ -9,24 +11,34 @@ class NetworkPlayer : NetworkUpdateHandler {
     }
 
     public override void update() {
+        playerController.sendState();
+        
         Mesh.Mesh mesh = playerController.getMesh();
         Network? network = playerController.getNetwork();
-        if(network != null) {
-            var snapshot = network.getCachedSnapshot();
-            if(snapshot != null) {
-                Data.getInstance().apply(snapshot, DataType.PLAYER, entry => {
-                    string? id = entry["id"] as string;
-                    if(id == null || id == network.playerId) return;
+        if(network == null) return;
 
-                    string meshId = "player_" + id;
-                    if(!mesh.hasMesh(meshId)) mesh.add(meshId);
-                    mesh.setPosition(meshId,
-                        Convert.ToSingle(entry["x"]),
-                        Convert.ToSingle(entry["y"]),
-                        Convert.ToSingle(entry["z"])
-                    );
+        var snapshot = network.getCachedSnapshot();
+        if(snapshot == null) return;
+
+        Data.getInstance().apply(snapshot, DataType.PLAYER, entry => {
+            string? id = entry["id"] as string;
+            if(string.IsNullOrEmpty(id) || id == network.playerId) return;
+
+            string meshId = "player_" + id;
+            float x = Convert.ToSingle(entry["x"]);
+            float y = Convert.ToSingle(entry["y"]);
+            float z = Convert.ToSingle(entry["z"]);
+            
+            if(!mesh.hasMesh(meshId)) {
+                string capId = meshId;
+                playerController.getWindow().queueOnRenderThread(() => {
+                    MeshData data = MeshLoader.load("cube");
+                    mesh.add(capId, data);
+                    mesh.setPosition(capId, x, y, z);
                 });
-            } 
-        }
+            } else {
+                mesh.setPosition(meshId, x, y, z);
+            }
+        });
     }
 }

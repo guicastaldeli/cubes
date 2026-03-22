@@ -33,6 +33,8 @@ class MeshRenderer : DataEntry {
     private string id = "";
     private bool networkControlled = false;
 
+    private bool visible = true;
+
     public MeshRenderer(ShaderProgram shaderProgram) {
         this.shaderProgram = shaderProgram;
     }
@@ -151,6 +153,11 @@ class MeshRenderer : DataEntry {
         networkControlled = val;
     }
 
+    // Set Visible
+    public void setVisible(bool visible) {
+        this.visible = visible;
+    }
+
     // Create Buffers
     private void createBuffers() {
         if(meshData == null) return;
@@ -221,6 +228,7 @@ class MeshRenderer : DataEntry {
     /// Render
     /// 
     public void render() {
+        if(!visible) return;
         if(meshData == null || camera == null) return;
 
         modelMatrix = rotationMatrix * Matrix4.CreateTranslation(position);

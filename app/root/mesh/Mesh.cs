@@ -104,6 +104,11 @@ class Mesh {
         getMeshRenderer(id)?.setNetworkControlled(val);
     }
 
+    // Set Visible
+    public void setVisible(string id, bool visible) {
+        getMeshRenderer(id)?.setVisible(visible);
+    }
+
     // Set Color
     public void setColor(string id, string hex) {
         MeshData? data = getData(id);

@@ -41,8 +41,9 @@ class NetworkWorld : NetworkUpdateHandler {
 
         Data.getInstance().apply(snapshot, DataType.MESH, entry => {
             string? id = entry["id"] as string;
+            if(string.IsNullOrEmpty(id)) return;
+            if(id.StartsWith("player_")) return;
             //Console.WriteLine($"NetworkWorld: processing mesh id={id}");
-            if(id == null) return;
 
             float x = Convert.ToSingle(entry["x"]);
             float y = Convert.ToSingle(entry["y"]);
