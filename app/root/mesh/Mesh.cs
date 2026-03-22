@@ -90,6 +90,16 @@ class Mesh {
         getMeshRenderer(id)?.setModelMatrix(matrix);
     }
 
+    // Set Rotation Matrix
+    public void setRotationMatrix(string id, Matrix4 matrix) {
+        getMeshRenderer(id)?.setRotationMatrix(matrix);
+    }
+
+    // Set Network Controlled
+    public void setNetworkControlled(string id, bool val) {
+        getMeshRenderer(id)?.setNetworkControlled(val);
+    }
+
     // Set Color
     public void setColor(string id, string hex) {
         MeshData? data = getData(id);
@@ -147,8 +157,11 @@ class Mesh {
 
     public void addToMap(string id, MeshData data) {
         meshDataMap[id] = data;
+        
         MeshRenderer meshRenderer = new MeshRenderer(shaderProgram);
         meshRenderer.setData(data);
+        meshRenderer.setId(id);
+
         if(camera != null) meshRenderer.setCamera(camera);
         meshRendererMap[id] = meshRenderer;
     }

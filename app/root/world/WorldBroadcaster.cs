@@ -12,7 +12,7 @@ class WorldBroadcaster {
     /// Broadcast
     /// 
     public void broadcast() {
-        var snapshot = Data.getInstance().snapshot();
+        var snapshot = ServerSnapshot.getInstance().snapshot();
         var packet = PacketData.fromSnapshot(snapshot);
         foreach(var player in worldManager.getServer().players.Values) {
             worldManager.getServer().send(packet, player.endPoint);
@@ -25,6 +25,15 @@ class WorldBroadcaster {
     public void start() {
         if(worldManager.getServer() != null) {
             worldManager.getServer().onTick = () => broadcast();
+        }
+    }
+
+    // Set
+    public void set() {
+        var server = worldManager.getNetwork()?.getServer();
+        if(server != null) {
+            worldManager.setServer(server);
+            start();
         }
     }
 }

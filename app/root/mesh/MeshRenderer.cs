@@ -30,6 +30,7 @@ class MeshRenderer : DataEntry {
     private int texId = -1;
 
     private string id = "";
+    private bool networkControlled = false;
 
     public MeshRenderer(ShaderProgram shaderProgram) {
         this.shaderProgram = shaderProgram;
@@ -82,6 +83,11 @@ class MeshRenderer : DataEntry {
         return new Vector3(scale);
     }
 
+    // Rotation Matrix
+    public void setRotationMatrix(Matrix4 matrix) {
+        rotationMatrix = matrix;
+    }
+
     // Texture
     public void setTex(int id) {
         if(id > 0) {
@@ -108,6 +114,7 @@ class MeshRenderer : DataEntry {
 
     // Update Rotation
     public void updateRotation() {
+        if(networkControlled) return;
         if(meshData == null || !meshData.hasRotation()) return;
 
         string? axis = meshData.getRotationAxis();
@@ -125,6 +132,11 @@ class MeshRenderer : DataEntry {
                 rotationMatrix *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(speed * deltaTime));
                 break;
         }
+    }
+
+    // Network Controlled
+    public void setNetworkControlled(bool val) {
+        networkControlled = val;
     }
 
     // Create Buffers
@@ -270,6 +282,7 @@ class MeshRenderer : DataEntry {
     public void setId(string id) {
         this.id = id;
         Data.getInstance().register(Root.DataType.MESH, this);
+        ServerSnapshot.getInstance().register(Root.DataType.MESH, this);
     }
 
     public string getId() {
@@ -282,7 +295,10 @@ class MeshRenderer : DataEntry {
             ["meshType"] = id,
             ["x"] = position.X,
             ["y"] = position.Y,
-            ["z"] = position.Z
+            ["z"] = position.Z,
+            ["r00"] = rotationMatrix.M11, ["r01"] = rotationMatrix.M12, ["r02"] = rotationMatrix.M13,
+            ["r10"] = rotationMatrix.M21, ["r11"] = rotationMatrix.M22, ["r12"] = rotationMatrix.M23,
+            ["r20"] = rotationMatrix.M31, ["r21"] = rotationMatrix.M32, ["r22"] = rotationMatrix.M33
         };
     }
 }

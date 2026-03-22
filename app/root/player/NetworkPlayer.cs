@@ -12,7 +12,7 @@ class NetworkPlayer : NetworkUpdateHandler {
         Mesh.Mesh mesh = playerController.getMesh();
         Network? network = playerController.getNetwork();
         if(network != null) {
-            var snapshot = network.pollData();
+            var snapshot = network.getCachedSnapshot();
             if(snapshot != null) {
                 Data.getInstance().apply(snapshot, DataType.PLAYER, entry => {
                     string? id = entry["id"] as string;

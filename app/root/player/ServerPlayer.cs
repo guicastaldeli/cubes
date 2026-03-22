@@ -1,6 +1,5 @@
-using System.Net;
-
 namespace App.Root.Player;
+using System.Net;
 
 class ServerPlayer {
     public string id {

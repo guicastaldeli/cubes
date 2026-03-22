@@ -77,9 +77,14 @@ class Server {
                         serverDataManager.getServerPing().handle(json, remote);
                         break;
                     case PacketType.DATA:
-                        serverDataManager.getServerData().handle(json, remote);
+                        serverDataManager.getServerPlayerState().handle(json, remote);
                         break;                    
                 }
+            } catch(SocketException ex) when (
+                ex.SocketErrorCode == SocketError.ConnectionReset ||
+                ex.SocketErrorCode == SocketError.ConnectionAborted
+            ) {
+                Console.WriteLine($"Client disconnected {ex.Message}");
             } catch(Exception err) {
                 if(running) Console.Error.WriteLine("Server receive error!: " + err.Message + "\n" + err.StackTrace);
             }

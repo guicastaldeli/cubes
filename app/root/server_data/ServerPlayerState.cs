@@ -2,10 +2,10 @@ namespace App.Root.ServerData;
 using System.Net;
 using App.Root.Packets;
 
-class ServerData {
+class ServerPlayerState {
     private Server server;
 
-    public ServerData(Server server) {
+    public ServerPlayerState(Server server) {
         this.server = server;
     }
 

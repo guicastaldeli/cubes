@@ -4,6 +4,7 @@ using App.Root.Player;
 using App.Root.World;
 
 class WorldManager {
+    private Window window;
     private World world;
     private WorldBroadcaster worldBroadcaster;
     private NetworkWorld networkWorld;
@@ -15,10 +16,12 @@ class WorldManager {
     private PlayerController playerController;
 
     public WorldManager(
+        Window window,
         Mesh.Mesh mesh, 
         CollisionManager collisionManager,
         PlayerController playerController
     ) {
+        this.window = window;
         this.playerController = playerController;
 
         this.world = new World(mesh, collisionManager);
@@ -29,6 +32,7 @@ class WorldManager {
     // Network
     public void setNetwork(Network network) {
         this.network = network;
+        networkWorld.setNetwork(network);
     }
 
     public Network? getNetwork() {
@@ -59,6 +63,11 @@ class WorldManager {
         return networkWorld;
     }
 
+    // Get Window
+    public Window getWindow() {
+        return window;
+    }
+    
     ///
     /// Render
     /// 

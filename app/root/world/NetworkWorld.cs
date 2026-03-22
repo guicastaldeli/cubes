@@ -1,31 +1,70 @@
 namespace App.Root.World;
 using App.Root.Env.World;
+using OpenTK.Mathematics;
 
 class NetworkWorld : NetworkUpdateHandler {
     private WorldManager worldManager;
+    private Network? network;
 
     public NetworkWorld(WorldManager worldManager) {
         this.worldManager = worldManager;
         NetworkUpdate.register(this);
     }
+
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
     
     public override void update() {
-        Mesh.Mesh mesh = worldManager.getWorld().getMesh();
-        Network? network = worldManager.getNetwork();
-        if(network != null) {
-            var snapshot = network.pollData();
-            if(snapshot != null) {
-                Data.getInstance().apply(snapshot, DataType.MESH, entry => {
-                    string? id = entry["id"] as string;
-                    if(id == null) return;
-                    if(!mesh.hasMesh(id)) mesh.add(id);
-                    mesh.setPosition(id,
-                        Convert.ToSingle(entry["x"]),
-                        Convert.ToSingle(entry["y"]),
-                        Convert.ToSingle(entry["z"])
-                    );
-                });
-            }
+        if(network == null) {
+            Console.WriteLine("NetworkWorld: network is null");
+            return;
         }
+        if(network.isHost()) return;
+
+        Mesh.Mesh mesh = worldManager.getWorld().getMesh();
+
+        var snapshot = network.getCachedSnapshot();
+        if(snapshot == null) {
+            //Console.WriteLine("Snapshot: snaphot is null");
+            return;
+        }
+
+        //Console.WriteLine($"Client received snapshot with {snapshot.data.Count} types");
+        foreach(var (type, list) in snapshot.data) {
+            //Console.WriteLine($"  client type: {type}, count: {list.Count}");
+        }
+
+        Data.getInstance().apply(snapshot, DataType.MESH, entry => {
+            string? id = entry["id"] as string;
+            Console.WriteLine($"NetworkWorld: processing mesh id={id}");
+            if(id == null) return;
+
+            float x = Convert.ToSingle(entry["x"]);
+            float y = Convert.ToSingle(entry["y"]);
+            float z = Convert.ToSingle(entry["z"]);
+
+            Matrix4? rotation = null;
+            if(entry.ContainsKey("r00")) {
+                rotation = new Matrix4(
+                    Convert.ToSingle(entry["r00"]), Convert.ToSingle(entry["r01"]), Convert.ToSingle(entry["r02"]), 0,
+                    Convert.ToSingle(entry["r10"]), Convert.ToSingle(entry["r11"]), Convert.ToSingle(entry["r12"]), 0,
+                    Convert.ToSingle(entry["r20"]), Convert.ToSingle(entry["r21"]), Convert.ToSingle(entry["r22"]), 0,
+                    0, 0, 0, 1
+                );
+            }
+
+            if(!mesh.hasMesh(id)) {
+                worldManager.getWindow().queueOnRenderThread(() => {
+                    mesh.add(id);
+                    mesh.setNetworkControlled(id, true);
+                    mesh.setPosition(id, x, y, z);
+                    if(rotation.HasValue) mesh.setRotationMatrix(id, rotation.Value);
+                });
+            } else {
+                mesh.setPosition(id, x, y, z);
+                if(rotation.HasValue) mesh.setRotationMatrix(id, rotation.Value);
+            }
+        });
     }
 }

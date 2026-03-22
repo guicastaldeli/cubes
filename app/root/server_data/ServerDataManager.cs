@@ -5,14 +5,14 @@ class ServerDataManager {
     private ServerJoin serverJoin;
     private ServerLeave serverLeave;
     private ServerPing serverPing;
-    private ServerData serverData;
+    private ServerPlayerState serverPlayerState;
 
     public ServerDataManager(Server server) {
         this.server = server;
         this.serverJoin = new ServerJoin(server);
         this.serverLeave = new ServerLeave(server);
         this.serverPing = new ServerPing(server);
-        this.serverData = new ServerData(server);
+        this.serverPlayerState = new ServerPlayerState(server);
     }
 
     // Get Server Join
@@ -31,7 +31,7 @@ class ServerDataManager {
     }
 
     // Get Server Data
-    public ServerData getServerData() {
-        return serverData;
+    public ServerPlayerState getServerPlayerState() {
+        return serverPlayerState;
     }
 }

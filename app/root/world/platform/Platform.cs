@@ -10,6 +10,8 @@ class Platform : WorldHandler {
 
     private BoundaryObject? boundaryObject;
     private StaticObject? staticObject;
+
+    private float timer = 0.0f;
     
     public Platform(Mesh.Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
@@ -34,6 +36,11 @@ class Platform : WorldHandler {
     /// Update
     /// 
     public override void update() {
-        
+        timer += Tick.getDeltaTimeI();
+        if(timer >= 1.0f) {
+            timer = 0.0f;
+            var pos = mesh.getPosition("cube");
+            mesh.setPosition("cube", pos.X + 0.5f, pos.Y, pos.Z);
+        }
     }
 }

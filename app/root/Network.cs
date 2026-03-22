@@ -6,6 +6,7 @@ class Network {
     private Client client = null!;
 
     private NetworkUpdate networkUpdate = null!;
+    private DataSnapshot? cachedSnapshot = null;
 
     public bool isConnected => client?.connected ?? false;
     public string? playerId => client?.playerId;
@@ -25,6 +26,25 @@ class Network {
         if(client == null) return null;
         client.incomingData.TryDequeue(out var snapshot);
         return snapshot;
+    }
+
+    public void pollAndCache() {
+        DataSnapshot? latest = null;
+        DataSnapshot? s;
+        while(client.incomingData.TryDequeue(out s)) {
+            latest = s;
+        }
+        cachedSnapshot = latest;
+    }
+
+    // Cached Snapshot
+    public DataSnapshot? getCachedSnapshot() {
+        return cachedSnapshot;
+    }
+
+    // Is Host
+    public bool isHost() {
+        return server != null;
     }
 
     ///
@@ -63,6 +83,7 @@ class Network {
     public void stop() {
         client?.disconnect();
         server?.stop();
+        Thread.Sleep(200);
         client = null!;
         server = null!;
     }

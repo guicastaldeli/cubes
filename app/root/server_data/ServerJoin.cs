@@ -29,7 +29,7 @@ class ServerJoin {
         }, remote);
 
         // Data
-        var snapshot = Data.getInstance().snapshot();
+        var snapshot = ServerSnapshot.getInstance().snapshot();
         server.send(PacketData.fromSnapshot(snapshot), remote);
 
         Console.WriteLine($"Player {id} joined from {remote}");
