@@ -1,6 +1,4 @@
 namespace App.Root;
-using App.Root.Env;
-using App.Root.Env.World;
 using App.Root.Packets;
 using App.Root.Player;
 using App.Root.ServerData;

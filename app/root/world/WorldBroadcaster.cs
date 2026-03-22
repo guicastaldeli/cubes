@@ -1,4 +1,4 @@
-namespace App.Root.Env.World;
+namespace App.Root.World;
 using App.Root.Packets;
 
 class WorldBroadcaster {

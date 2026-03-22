@@ -1,8 +1,8 @@
 namespace App.Root.World.Platform;
-using App.Root.World;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Resource;
+using App.Root.World;
 
 class Platform : WorldHandler {
     private Mesh.Mesh mesh;
@@ -29,7 +29,7 @@ class Platform : WorldHandler {
         int texId = TextureLoader.load(texPath);
         mesh.setTexture("cube", texId, texPath);
 
-        collisionManager.addStaticCollider(new BoundaryObject(5.0f));
+        collisionManager.addStaticCollider(new BoundaryObject(World.WORLD_BOUNDARY));
         collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
     }
 

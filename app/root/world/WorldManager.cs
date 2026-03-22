@@ -1,4 +1,4 @@
-namespace App.Root.Env.World;
+namespace App.Root.World;
 using App.Root.Collider;
 using App.Root.Player;
 using App.Root.World;
@@ -22,6 +22,7 @@ class WorldManager {
         PlayerController playerController
     ) {
         this.window = window;
+        this.collisionManager = collisionManager;
         this.playerController = playerController;
 
         this.world = new World(mesh, collisionManager);
@@ -66,6 +67,11 @@ class WorldManager {
     // Get Window
     public Window getWindow() {
         return window;
+    }
+
+    // Get Collision Manager
+    public CollisionManager? getCollisionManager() {
+        return collisionManager;
     }
     
     ///

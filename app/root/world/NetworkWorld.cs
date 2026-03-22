@@ -1,11 +1,14 @@
 namespace App.Root.World;
-using App.Root.Env.World;
+using App.Root.Collider.Types;
 using App.Root.Resource;
 using OpenTK.Mathematics;
 
 class NetworkWorld : NetworkUpdateHandler {
     private WorldManager worldManager;
     private Network? network;
+
+    private BoundaryObject? boundaryObject;
+    private StaticObject? staticObject;
 
     public NetworkWorld(WorldManager worldManager) {
         this.worldManager = worldManager;
@@ -72,6 +75,10 @@ class NetworkWorld : NetworkUpdateHandler {
                             mesh.setTexture(id, texId);
                         }
                     }
+
+                    var bbox = mesh.getBBox(id);
+                    worldManager.getCollisionManager()?.addStaticCollider(new StaticObject(bbox, id));
+                    worldManager.getCollisionManager()?.addStaticCollider(new BoundaryObject(World.WORLD_BOUNDARY));
                 });
             } else {
                 mesh.setPosition(id, x, y, z);

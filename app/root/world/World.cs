@@ -1,4 +1,4 @@
-namespace App.Root.Env.World;
+namespace App.Root.World;
 using App.Root.Collider;
 using System.Reflection;
 
@@ -7,6 +7,8 @@ class World : WorldHandler {
 
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
+
+    public static float WORLD_BOUNDARY = 5.0f;
     
     public World(Mesh.Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;

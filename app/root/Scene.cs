@@ -7,8 +7,7 @@ using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Text;
 using App.Root.Screen;
-using App.Root.Env;
-using App.Root.Env.World;
+using App.Root.World;
 
 class Scene {
     private Window window;
