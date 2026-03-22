@@ -1,5 +1,4 @@
 namespace App.Root;
-using App.Root.Screen;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class InputField {

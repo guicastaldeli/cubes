@@ -1,6 +1,5 @@
-using OpenTK.Windowing.GraphicsLibraryFramework;
-
 namespace App.Root.Player;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class PlayerInputMap {
     private PlayerController playerController;

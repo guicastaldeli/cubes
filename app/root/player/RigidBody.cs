@@ -1,7 +1,6 @@
+namespace App.Root.Player;
 using App.Root.Collider;
 using OpenTK.Mathematics;
-
-namespace App.Root.Player;
 
 class RigidBody {
     private Vector3 position;

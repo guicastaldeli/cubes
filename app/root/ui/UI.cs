@@ -3,7 +3,6 @@ using App.Root.Shaders;
 using App.Root.Text;
 using App.Root.Screen;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 
 class UI : UIHandler {
     public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/ui/");

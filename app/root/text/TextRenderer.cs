@@ -1,5 +1,4 @@
 namespace App.Root.Text;
-
 using App.Root.Shaders;
 using OpenTK.Graphics.OpenGL;
 

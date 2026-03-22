@@ -1,6 +1,5 @@
-using System.Text;
-
 namespace App.Root.Shaders;
+using System.Text;
 
 class ShaderLoader {
     private static readonly Dictionary<string, string> loadedShaders = new();

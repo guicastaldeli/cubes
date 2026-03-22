@@ -1,10 +1,7 @@
 namespace App.Root;
 using App.Root.Player;
-using App.Root.Mesh;
 using App.Root.Shaders;
-using App.Root.Resource;
 using App.Root.Collider;
-using App.Root.Collider.Types;
 using App.Root.Text;
 using App.Root.Screen;
 using App.Root.World;

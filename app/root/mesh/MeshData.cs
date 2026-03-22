@@ -1,5 +1,5 @@
-using System.Numerics;
 namespace App.Root.Mesh;
+using System.Numerics;
 
 class MeshData {
     public enum DataType {

@@ -1,11 +1,10 @@
+namespace App.Root;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using App.Root.ClientData;
 using App.Root.Packets;
-
-namespace App.Root;
 
 class Client {
     public string? playerId {

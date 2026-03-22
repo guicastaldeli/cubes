@@ -1,6 +1,5 @@
-using App.Root.Packets;
-
 namespace App.Root.ClientData;
+using App.Root.Packets;
 
 class ClientJoin {
     private Client client;

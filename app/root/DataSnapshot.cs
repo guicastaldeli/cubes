@@ -1,6 +1,5 @@
-using System.Text.Json;
-
 namespace App.Root;
+using System.Text.Json;
 
 class DataSnapshot {
     public Dictionary<DataType, List<Dictionary<string, object>>> data {

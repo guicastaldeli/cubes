@@ -1,7 +1,6 @@
 namespace App.Root.World;
 using App.Root.Collider;
 using App.Root.Player;
-using App.Root.World;
 
 class WorldManager {
     private Window window;
