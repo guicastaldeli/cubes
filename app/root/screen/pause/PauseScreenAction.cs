@@ -24,9 +24,10 @@ class PauseScreenAction {
     /// Resume
     /// 
     public void resume() {
-        tick.setPaused(false);
+        if(!screenController.main.getNetwork().isConnected) tick.setPaused(false);
         input.lockMouse();
         screenController.closeOverlay();
+        input.pauseOverlayOpen = false;
     }
 
     ///

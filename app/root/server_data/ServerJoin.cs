@@ -32,6 +32,9 @@ class ServerJoin {
         var snapshot = ServerSnapshot.getInstance().snapshot();
         server.send(PacketData.fromSnapshot(snapshot), remote);
 
-        Console.WriteLine($"Player {id} joined from {remote}");
+        Console.ForegroundColor = ConsoleColor.Green;
+        string italic = "\x1b[3m";
+        Console.WriteLine($"{italic}Player {id} joined from {remote}");
+        Console.ResetColor();
     }
 }

@@ -93,7 +93,11 @@ class Client {
         pingThread.Start();
 
         send(new PacketJoin());
-        Console.WriteLine($"Connecting to {ip}:{port}");
+
+        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+        string italic = "\x1b[3m";
+        Console.WriteLine($"{italic}*** Client Connecting to {ip}:{port} ***");
+        Console.ResetColor();
     }
 
     ///

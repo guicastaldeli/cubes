@@ -28,6 +28,7 @@ class MeshRenderer : DataEntry {
     private bool hasColors = false;
     private bool hasTex = false;
     private int texId = -1;
+    private string texPath = "";
 
     private string id = "";
     private bool networkControlled = false;
@@ -90,6 +91,17 @@ class MeshRenderer : DataEntry {
 
     // Texture
     public void setTex(int id) {
+        if(id > 0) {
+            texId = id;
+            hasTex = true;
+        } else {
+            texId = -1;
+            hasTex = false;
+        }
+    }
+
+    public void setTex(int id, string path = "") {
+        this.texPath = path;
         if(id > 0) {
             texId = id;
             hasTex = true;
@@ -296,6 +308,8 @@ class MeshRenderer : DataEntry {
             ["x"] = position.X,
             ["y"] = position.Y,
             ["z"] = position.Z,
+            ["texId"] = texId,
+            ["texPath"] = texPath,
             ["r00"] = rotationMatrix.M11, ["r01"] = rotationMatrix.M12, ["r02"] = rotationMatrix.M13,
             ["r10"] = rotationMatrix.M21, ["r11"] = rotationMatrix.M22, ["r12"] = rotationMatrix.M23,
             ["r20"] = rotationMatrix.M31, ["r21"] = rotationMatrix.M32, ["r22"] = rotationMatrix.M33

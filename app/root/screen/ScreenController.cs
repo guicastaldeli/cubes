@@ -137,6 +137,7 @@ class ScreenController {
     /// Update
     /// 
     public void update() {
+        prevScreen?.update();
         if(currentScreen != null) currentScreen.update();
     }
 

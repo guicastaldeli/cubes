@@ -53,7 +53,9 @@ class Server {
         };
         tickThread.Start();
 
-        Console.WriteLine($"Server started on port {port}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"--- Server started on port {port} ---");
+        Console.ResetColor();
     }
 
     // Receive Loop

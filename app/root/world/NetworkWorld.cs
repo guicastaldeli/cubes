@@ -1,5 +1,6 @@
 namespace App.Root.World;
 using App.Root.Env.World;
+using App.Root.Resource;
 using OpenTK.Mathematics;
 
 class NetworkWorld : NetworkUpdateHandler {
@@ -32,12 +33,12 @@ class NetworkWorld : NetworkUpdateHandler {
 
         //Console.WriteLine($"Client received snapshot with {snapshot.data.Count} types");
         foreach(var (type, list) in snapshot.data) {
-            //Console.WriteLine($"  client type: {type}, count: {list.Count}");
+            //Console.WriteLine($"client type: {type}, count: {list.Count}");
         }
 
         Data.getInstance().apply(snapshot, DataType.MESH, entry => {
             string? id = entry["id"] as string;
-            Console.WriteLine($"NetworkWorld: processing mesh id={id}");
+            //Console.WriteLine($"NetworkWorld: processing mesh id={id}");
             if(id == null) return;
 
             float x = Convert.ToSingle(entry["x"]);
@@ -60,6 +61,17 @@ class NetworkWorld : NetworkUpdateHandler {
                     mesh.setNetworkControlled(id, true);
                     mesh.setPosition(id, x, y, z);
                     if(rotation.HasValue) mesh.setRotationMatrix(id, rotation.Value);
+                    if(entry.ContainsKey("texId")) {
+                        int texId = Convert.ToInt32(entry["texId"]);
+                        if(texId > 0) mesh.setTexture(id, texId);
+                    }
+                    if(entry.ContainsKey("texPath")) {
+                        string texPath = Convert.ToString(entry["texPath"]) ?? "";
+                        if(!string.IsNullOrEmpty(texPath)) {
+                            int texId = TextureLoader.load(texPath);
+                            mesh.setTexture(id, texId);
+                        }
+                    }
                 });
             } else {
                 mesh.setPosition(id, x, y, z);

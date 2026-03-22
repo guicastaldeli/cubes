@@ -25,8 +25,9 @@ class Platform : WorldHandler {
         mesh.add("cube");
         mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
 
-        int texId = TextureLoader.load("env/test.jpg");
-        mesh.setTexture("cube", texId);
+        string texPath = "env/test.jpg";
+        int texId = TextureLoader.load(texPath);
+        mesh.setTexture("cube", texId, texPath);
 
         collisionManager.addStaticCollider(new BoundaryObject(5.0f));
         collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
@@ -40,7 +41,7 @@ class Platform : WorldHandler {
         if(timer >= 1.0f) {
             timer = 0.0f;
             var pos = mesh.getPosition("cube");
-            mesh.setPosition("cube", pos.X + 0.5f, pos.Y, pos.Z);
+            //mesh.setPosition("cube", pos.X + 0.5f, pos.Y, pos.Z);
         }
     }
 }

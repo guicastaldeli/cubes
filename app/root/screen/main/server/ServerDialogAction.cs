@@ -19,14 +19,12 @@ class ServerDialogAction {
     /// Host Server
     /// 
     public void hostServer() {
-        string port = serverDialog.inputField.getText("portInput");
-        string maxPlayers = serverDialog.inputField.getText("maxPlayersInput");
-        if(string.IsNullOrEmpty(port) || string.IsNullOrEmpty(maxPlayers)) return;
+        int port = screenController.main.getNetwork().getPort().get();
 
-        screenController.main.getNetwork().host(
-            int.Parse(port),
-            int.Parse(maxPlayers)
-        );
+        string maxPlayers = serverDialog.inputField.getText("maxPlayersInput");
+        if(string.IsNullOrEmpty(maxPlayers)) return;
+
+        screenController.main.getNetwork().host(port, int.Parse(maxPlayers));
 
         serverDialog.mainScreen.getScene().init();
     }

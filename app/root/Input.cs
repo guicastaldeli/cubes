@@ -9,18 +9,28 @@ class Input {
     private Tick tick;
     private ScreenController screenController = null!;
     private PlayerInputMap? playerInputMap = null!;
+    private Network? network = null!;
+
+    public bool pauseOverlayOpen = false;
 
     public Input(Window window, Tick tick) {
         this.window = window;
         this.tick = tick;
     }
 
+    // Set Screen Controller
     public void setScreenController(ScreenController screenController) {
         this.screenController = screenController;
     }
     
+    // Set Player Input Map
     public void setPlayerInputMap(PlayerInputMap playerInputMap) {
         this.playerInputMap = playerInputMap;
+    }
+
+    // Set Network
+    public void setNetwork(Network network) {
+        this.network = network;
     }
 
     ///
@@ -51,9 +61,11 @@ class Input {
     private void onPause() {
         if(!screenController.isRunning()) return;
         
-        tick.togglePause();
+        bool isMultiplayer = network!.isConnected;
+        if(!isMultiplayer) tick.togglePause();
 
-        if(tick.isPaused()) {
+        pauseOverlayOpen = !pauseOverlayOpen;
+        if(pauseOverlayOpen) {
             unlockMouse();
             screenController.switchToOverlay(ScreenController.SCREENS.PAUSE);
         }
@@ -83,7 +95,7 @@ class Input {
     /// Update
     /// 
     public void update() {
-        if(playerInputMap == null || tick.isPaused()) return;
+        if(playerInputMap == null || tick.isPaused() || pauseOverlayOpen) return;
 
         var mouse = window.MouseState;
         float xOffset = mouse.Delta.X;

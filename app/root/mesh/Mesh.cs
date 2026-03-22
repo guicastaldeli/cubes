@@ -85,6 +85,10 @@ class Mesh {
         getMeshRenderer(id)?.setTex(texId);
     }
 
+    public void setTexture(string id, int texId, string path) {
+        getMeshRenderer(id)?.setTex(texId, path);
+    }
+
     // Set Model Matrix
     public void setModelMatrix(string id, Matrix4 matrix) {
         getMeshRenderer(id)?.setModelMatrix(matrix);

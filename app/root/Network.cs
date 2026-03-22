@@ -4,6 +4,8 @@ using App.Root.Packets;
 class Network {
     private Server server = null!;
     private Client client = null!;
+    private IPGetter ipGetter;
+    private Port port;
 
     private NetworkUpdate networkUpdate = null!;
     private DataSnapshot? cachedSnapshot = null;
@@ -11,9 +13,19 @@ class Network {
     public bool isConnected => client?.connected ?? false;
     public string? playerId => client?.playerId;
 
+    public Network() {
+        this.ipGetter = new IPGetter();
+        this.port = new Port();
+    }
+
     // Get Server
     public Server getServer() {
         return server;
+    }
+
+    // Get Port
+    public Port getPort() {
+        return port;
     }
 
     // Get Client
@@ -65,8 +77,13 @@ class Network {
         server = new Server(port, maxPlayers);
         server.start();
 
+        string localIp = ipGetter.getLocal();
+        string color = "\x1b[94m";
+        string bold = "\x1b[1m";
+        Console.WriteLine($"{color}{bold}~~~~~~~~~~ Server IP: {localIp}:{port} ~~~~~~~~~~");
+
         client = new Client();
-        client.connect("127.0.0.1", port);
+        client.connect(localIp, port);
     }
 
     ///

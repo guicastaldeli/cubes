@@ -15,6 +15,9 @@ class ClientJoin {
 
         client.playerId = packet.playerId;
         client.connected = true;
+
+        Console.ForegroundColor = ConsoleColor.DarkBlue;
         Console.WriteLine($"Connected with ID: {client.playerId}");
+        Console.ResetColor();
     }
 }
