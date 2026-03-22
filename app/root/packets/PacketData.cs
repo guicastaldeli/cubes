@@ -18,8 +18,10 @@ class PacketData : Packet {
     }
 
     public DataSnapshot toSnapshot() {
-        return new DataSnapshot {
+        var snapshot = new DataSnapshot {
             data = data
         };
+        snapshot.convertEls();
+        return snapshot;
     }
 }
