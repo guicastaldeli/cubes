@@ -117,6 +117,8 @@ class Scene {
     /// Render
     /// 
     public void render() {
+        if(!initialized) return;
+
         screenController.running = true;
 
         mesh.renderAll();
@@ -127,6 +129,7 @@ class Scene {
     /// 
     public void reset() {
         initialized = false;
+        screenController.running = false;
 
         NetworkUpdate.clear();
         Data.getInstance().clearAll();
