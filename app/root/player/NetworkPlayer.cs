@@ -10,6 +10,37 @@ class NetworkPlayer : NetworkUpdateHandler {
         NetworkUpdate.register(this);
     }
 
+    ///
+    /// Render
+    /// 
+    private void render(
+        Mesh.Mesh mesh, 
+        string id, 
+        Dictionary<string, object> entry
+    ) {
+        float x = Convert.ToSingle(entry["x"]);
+        float y = Convert.ToSingle(entry["y"]);
+        float z = Convert.ToSingle(entry["z"]);
+        
+        if(!mesh.hasMesh(id)) {
+            string meshName = PlayerMesh.PLAYER_MESH;
+            MeshRegistry.register(id);
+
+            playerController.getWindow().queueOnRenderThread(() => {
+                if(string.IsNullOrEmpty(meshName)) return;
+
+                MeshData data = MeshLoader.load(meshName);
+                mesh.add(id, data);
+                mesh.setPosition(id, x, y, z);
+            });
+        } else {
+            mesh.setPosition(id, x, y, z);
+        }
+    }
+
+    ///
+    /// Update
+    /// 
     public override void update() {
         playerController.sendState();
         
@@ -24,21 +55,7 @@ class NetworkPlayer : NetworkUpdateHandler {
             string? id = entry["id"] as string;
             if(string.IsNullOrEmpty(id) || id == network.playerId) return;
 
-            string meshId = "player_" + id;
-            float x = Convert.ToSingle(entry["x"]);
-            float y = Convert.ToSingle(entry["y"]);
-            float z = Convert.ToSingle(entry["z"]);
-            
-            if(!mesh.hasMesh(meshId)) {
-                string capId = meshId;
-                playerController.getWindow().queueOnRenderThread(() => {
-                    MeshData data = MeshLoader.load("cube");
-                    mesh.add(capId, data);
-                    mesh.setPosition(capId, x, y, z);
-                });
-            } else {
-                mesh.setPosition(meshId, x, y, z);
-            }
+            render(mesh, id, entry);
         });
     }
 }

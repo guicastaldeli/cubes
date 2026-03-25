@@ -12,6 +12,8 @@ class PlayerController : DataEntry {
         DOWN
     }
 
+    public static PlayerController? instance;
+
     private Window window;
     private Camera camera;
     private PlayerInputMap playerInputMap;
@@ -41,6 +43,8 @@ class PlayerController : DataEntry {
     private NetworkPlayer networkPlayer;
 
     public PlayerController(Window window, Mesh.Mesh mesh) {
+        instance = this;
+
         this.window = window;
         this.mesh = mesh;
 
@@ -62,6 +66,11 @@ class PlayerController : DataEntry {
     // Get Mesh
     public Mesh.Mesh getMesh() {
         return mesh;
+    }
+
+    // Get Player Mesh
+    public PlayerMesh getPlayerMesh() {
+        return playerMesh;
     }
 
     // Get Camera
@@ -142,6 +151,14 @@ class PlayerController : DataEntry {
     }
 
     ///
+    /// Render
+    /// 
+    public void set() {
+        if(network != null) id = network.playerId ?? id;
+        playerMesh.set(true);
+    }
+
+    ///
     /// Update
     /// 
     public void updatePosition(MovDir dir, bool pressed) {
@@ -200,8 +217,11 @@ class PlayerController : DataEntry {
     ///
     /// Data Entry
     /// 
-    public string getId() {
-        return id;
+    public static string getId() {
+        if(instance != null && instance.id != null) {
+            return instance.id;
+        }
+        return "";
     }
 
     public Dictionary<string, object> serialize() {
@@ -220,10 +240,6 @@ class PlayerController : DataEntry {
     /// 
     public void setNetwork(Network network) {
         this.network = network;
-        this.id = network.playerId ?? id;
-
-        playerMesh.setId(id);
-        playerMesh.render(true);
     }
 
     public Network? getNetwork() {

@@ -1,5 +1,7 @@
 namespace App.Root.World;
 using App.Root.Collider.Types;
+using App.Root.Mesh;
+using App.Root.Player;
 using App.Root.Resource;
 using OpenTK.Mathematics;
 
@@ -26,7 +28,7 @@ class NetworkWorld : NetworkUpdateHandler {
         }
         if(network.isHost()) return;
 
-        Mesh.Mesh mesh = worldManager.getWorld().getMesh();
+        Mesh mesh = worldManager.getWorld().getMesh();
 
         var snapshot = network.getCachedSnapshot();
         if(snapshot == null) {
@@ -42,7 +44,7 @@ class NetworkWorld : NetworkUpdateHandler {
         Data.getInstance().apply(snapshot, DataType.MESH, entry => {
             string? id = entry["id"] as string;
             if(string.IsNullOrEmpty(id)) return;
-            if(id.StartsWith("player_")) return;
+            if(MeshRegistry.isRuntime(id)) return;
             //Console.WriteLine($"NetworkWorld: processing mesh id={id}");
 
             float x = Convert.ToSingle(entry["x"]);
@@ -61,7 +63,7 @@ class NetworkWorld : NetworkUpdateHandler {
 
             if(!mesh.hasMesh(id)) {
                 worldManager.getWindow().queueOnRenderThread(() => {
-                    mesh.add(id);
+                    mesh.add(id, PlayerMesh.PLAYER_MESH);
                     mesh.setNetworkControlled(id, true);
                     mesh.setPosition(id, x, y, z);
                     if(rotation.HasValue) mesh.setRotationMatrix(id, rotation.Value);

@@ -76,6 +76,8 @@ class Scene {
         if(network != null) {
             playerController.setNetwork(network);
             worldManager.getWorldBroadcaster().set();
+
+            playerController.set();
         }
     }
 

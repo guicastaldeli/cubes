@@ -7,9 +7,8 @@ class PlayerMesh {
     private PlayerController playerController;
     private Mesh.Mesh mesh;
     
-    private string meshId;
-
-    private bool isLocal = false;
+    public string PLAYER_ID => PlayerController.getId();
+    public static string PLAYER_MESH = "cube";
 
     public PlayerMesh(
         Window window,
@@ -19,25 +18,17 @@ class PlayerMesh {
         this.window = window;
         this.playerController = playerController;
         this.mesh = mesh;
-
-        this.meshId = "player_" + playerController.getId();
     }
 
-    // Set Id
-    public void setId(string id) {
-        this.meshId = "player_" + id;
-    }
+    // Set 
+    public void set(bool local) {
+        MeshRegistry.register(PLAYER_ID);
 
-    ///
-    /// Render (REFACTOR THIS LATER...)
-    /// 
-    public void render(bool local) {
-        if(!mesh.hasMesh(meshId)) {
-            string capId = meshId;
+        if(!mesh.hasMesh(PLAYER_ID)) {
             window.queueOnRenderThread(() => {
-                MeshData data = MeshLoader.load("cube");
-                mesh.add(capId, data);
-                if(local) mesh.setVisible(capId, false);
+                MeshData data = MeshLoader.load(PLAYER_MESH);
+                mesh.add(PLAYER_ID, data);
+                if(local) mesh.setVisible(PLAYER_ID, false);
             });
         }
     }
@@ -46,8 +37,9 @@ class PlayerMesh {
     /// Update
     /// 
     public void update() {
-        if(!mesh.hasMesh(meshId)) return;
+        if(!mesh.hasMesh(PLAYER_ID)) return;
+
         var pos = playerController.getPosition();
-        mesh.setPosition(meshId, pos.X, pos.Y, pos.Z);
+        mesh.setPosition(PLAYER_ID, pos.X, pos.Y, pos.Z);
     }
 }

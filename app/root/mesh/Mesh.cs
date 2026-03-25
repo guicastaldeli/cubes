@@ -160,6 +160,11 @@ class Mesh {
         addToMap(id, data);
     }
 
+    public void add(string id, string meshType) {
+        MeshData data = MeshLoader.load(meshType);
+        addToMap(id, data);
+    }
+
     public void add(string id, MeshData data) {
         addToMap(id, data);
     }
