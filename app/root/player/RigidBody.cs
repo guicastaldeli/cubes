@@ -112,6 +112,7 @@ class RigidBody {
     public void update() {
         float deltaTime = Tick.getDeltaTimeI();
         deltaTime = MathF.Min(deltaTime, 0.1f);
+        
         if(gravityEnabled && !onGround) {
             applyForce(new Vector3(
                 0.0f, 

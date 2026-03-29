@@ -11,7 +11,7 @@ class Platform : WorldHandler {
     private string MESH = "cube";
 
     private float x = 0.0f;
-    private float y = -1.0f;
+    private float y = 0.0f;
     private float z = 0.0f;
     private Vector3 offset = Vector3.Zero;
     
@@ -33,16 +33,16 @@ class Platform : WorldHandler {
     // Set
     private void set() {
         setPosition();
-        height = getHeight();
 
         List<Vector3> positions = new();
         float offsetX = -(sizeX / 2.0f) * spacing + offset.X;
         float offsetZ = -(sizeZ / 2.0f) * spacing + offset.Z;
         
-        
         mesh.add(GRID_ID, MESH);
         Vector3 size = mesh.getSize(GRID_ID);
         Vector3 half = size / 2.0f;
+
+        height = getHeight();
 
         for(int x = 0; x < sizeX; x++) {
             for(int y = 0; y < sizeY; y++) {
@@ -74,7 +74,8 @@ class Platform : WorldHandler {
 
     // Height
     public Vector3 getHeight() {
-        float topY = offset.Y + (sizeY * spacing);
+        Vector3 meshSize = mesh.getSize(GRID_ID);
+        float topY = offset.Y + (sizeY * spacing) + (meshSize.Y / 2.0f);
         Vector3 res = new Vector3(offset.X, topY, offset.Z); 
         return res;
     }

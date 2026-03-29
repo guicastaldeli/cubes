@@ -6,14 +6,25 @@ using System.Reflection;
 class World : WorldHandler {
     private List<WorldHandler> el = new ();
 
+    private WorldManager worldManager;
+    private WorldBoundary worldBoundary;
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
 
     public static float WORLD_BOUNDARY = 25.0f;
     
-    public World(Mesh.Mesh mesh, CollisionManager collisionManager) {
+    public World(
+        WorldManager worldManager,
+        Mesh.Mesh mesh, 
+        CollisionManager collisionManager
+    ) {
+        this.worldManager = worldManager;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
+        this.worldBoundary = new WorldBoundary(
+            worldManager.getPlayerController(),
+            worldManager.getPlayerController().getRigidBody()
+        );
 
         register();
         setCollision();
@@ -77,5 +88,6 @@ class World : WorldHandler {
     // Update
     public override void update() {
         foreach(var e in el) e.update();
+        worldBoundary.apply();
     }
 }

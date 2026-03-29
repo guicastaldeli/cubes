@@ -1,5 +1,4 @@
 namespace App.Root.World;
-
 using App.Root.Player;
 using OpenTK.Mathematics;
 
@@ -7,8 +6,8 @@ class WorldBoundary {
     private PlayerController playerController;
     private RigidBody rigidBody;
 
-    private float floor = 10.0f;
-    private float ceiling = 10.0f; 
+    private float ceiling = 20.0f; 
+    private float floor = -10.0f;
 
     public WorldBoundary(PlayerController playerController, RigidBody rigidBody) {
         this.playerController = playerController;
@@ -26,6 +25,7 @@ class WorldBoundary {
                 spawn.Value.Y,
                 spawn.Value.Z
             );
+            return;
         }
         if(pos.Y >= ceiling) {
             pos.Y = ceiling;

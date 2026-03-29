@@ -29,9 +29,9 @@ class PlayerController : DataEntry {
     private float posZ = 0.0f;
     private Vector3 position;
     
-    private float sizeX;
-    private float sizeY;
-    private float sizeZ;
+    private float sizeX = 1.0f;
+    private float sizeY = 2.0f;
+    private float sizeZ = 1.0f;
     private Vector3 size;
     
     private float movSpeed = 5.0f;
@@ -74,6 +74,11 @@ class PlayerController : DataEntry {
     // Get Window
     public Window getWindow() {
         return window;
+    }
+
+    // Get Rigid Body
+    public RigidBody getRigidBody() {
+        return rigidBody;
     }
 
     // Get Mesh
@@ -168,9 +173,7 @@ class PlayerController : DataEntry {
         return flyMode;
     }
 
-    ///
-    /// Render
-    /// 
+    // Set
     public void set() {
         if(network != null) id = network.playerId ?? id;
         playerMesh.set(true);
@@ -217,26 +220,11 @@ class PlayerController : DataEntry {
         rigidBody.update();
 
         if(collisionManager != null) {
-            CollisionResult collision = collisionManager.checkCollision(rigidBody);
+            var collision = collisionManager.checkCollision(rigidBody);
             collisionManager.resolveCollision(rigidBody, collision);
         }
+        
         position = rigidBody.getPosition();
-
-        if(!flyMode) {
-            if(position.Y <= 0.0f) {
-                position.Y = 0.0f;
-                rigidBody.setPosition(position);
-                rigidBody.setVelocity(new Vector3(
-                    rigidBody.getVelocity().X,
-                    0.0f,
-                    rigidBody.getVelocity().Z
-                ));
-                rigidBody.setOnGround(true);
-            } else {
-                rigidBody.setOnGround(false);
-            }
-        }
-
         camera.setPosition(position);
         playerMesh.update();
     }

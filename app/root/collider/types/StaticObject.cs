@@ -101,7 +101,7 @@ class StaticObject : Collider {
         RigidBody rigidBody,
         CollisionResult collision
     ) {
-        Vector3 correction = collision.normal * (collision.depth + 0.01f);
+        Vector3 correction = collision.normal * collision.depth;
         position += correction;
         rigidBody.setPosition(position);
 

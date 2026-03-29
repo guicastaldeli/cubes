@@ -22,21 +22,22 @@ class CollisionManager {
     ///
     /// Check Collision
     /// 
-    public CollisionResult checkCollision(RigidBody rigidBody) {
+    public List<CollisionResult> checkCollision(RigidBody rigidBody) {
         BBox bodyBounds = rigidBody.getBBox();
+        List<CollisionResult> results = new();
 
         // Boundary Object
         foreach(var collider in staticColliders) {
             if(collider is BoundaryObject boundary) {
                 Vector3 position = rigidBody.getPosition();
                 if(boundary.isOutsideBoundary(position)) {
-                    return new CollisionResult(
+                    results.Add(new CollisionResult(
                         true,
                         boundary.getBoundaryNormal(position),
                         boundary.getBoundaryFar(position),
                         boundary,
                         CollisionType.STATIC_OBJECT
-                    );
+                    ));
                 }
             }
         }
@@ -46,7 +47,7 @@ class CollisionManager {
                 CollisionResult res = staticObj.checkCollision(bodyBounds);
                 if(res.collided) {
                     res.otherCollider = staticObj;
-                    return res;
+                    results.Add(res);
                 }
             }
         } 
@@ -56,50 +57,72 @@ class CollisionManager {
                 CollisionResult res = sphereObj.checkCollision(bodyBounds);
                 if(res.collided) {
                     res.otherCollider = sphereObj;
-                    return res;
+                    results.Add(res);
                 }
             }
         }
 
-        return new CollisionResult();
+        return results;
     }
 
     ///
     /// Resolve Collision
     /// 
-    public void resolveCollision(RigidBody rigidBody, CollisionResult collision) {
-        if(!collision.collided) {
+    public void resolveCollision(RigidBody rigidBody, List<CollisionResult> collisions) {
+        if(collisions.Count == 0) {
             rigidBody.setOnGround(false);
             return;
         }
+        collisions.Sort((a, b) => b.depth.CompareTo(a.depth));
 
-        Vector3 position = rigidBody.getPosition();
-        BBox bBox = rigidBody.getBBox();
+        bool groundFound = false;
 
-        // Boundary Object
-        if(collision.otherCollider is BoundaryObject boundaryObj) {
-            Vector3 newPos = new Vector3(position);
-            float dist = boundaryObj.getBoundaryDistance();
-            if(MathF.Abs(position.X) > dist) newPos.X = MathF.CopySign(dist, position.X);
-            if(MathF.Abs(position.Z) > dist) newPos.Z = MathF.CopySign(dist, position.Z);
-            rigidBody.setPosition(newPos);
+        foreach(var collision in collisions) {
+            Vector3 position = rigidBody.getPosition();
+            BBox bBox = rigidBody.getBBox();
 
-            Vector3 vel = rigidBody.getVelocity();
-            if(collision.normal.X != 0) vel.X = 0;
-            if(collision.normal.Z != 0) vel.Z = 0;
-            rigidBody.setVelocity(vel);
-            return;
+            // Boundary Object
+            if(collision.otherCollider is BoundaryObject boundaryObj) {
+                Vector3 newPos = new Vector3(position);
+                float dist = boundaryObj.getBoundaryDistance();
+                if(MathF.Abs(position.X) > dist) newPos.X = MathF.CopySign(dist, position.X);
+                if(MathF.Abs(position.Z) > dist) newPos.Z = MathF.CopySign(dist, position.Z);
+                rigidBody.setPosition(newPos);
+
+                Vector3 vel = rigidBody.getVelocity();
+                if(collision.normal.X != 0) vel.X = 0;
+                if(collision.normal.Z != 0) vel.Z = 0;
+                rigidBody.setVelocity(vel);
+                continue;
+            }
+            // Static Object
+            if(collision.otherCollider is StaticObject ||
+                collision.otherCollider is SphereObject) {
+                if(collision.depth > 0.0001f) {
+                    rigidBody.setPosition(
+                        position + 
+                        collision.normal *
+                        collision.depth
+                    );
+                }
+
+                Vector3 vel = rigidBody.getVelocity();
+                float dot = Vector3.Dot(vel, collision.normal);
+                if(dot < 0) {
+                    vel -= collision.normal * dot;
+                    rigidBody.setVelocity(vel);
+                }
+
+                if(collision.normal.Y > 0.5f) {
+                    groundFound = true;
+                    Vector3 v = rigidBody.getVelocity();
+                    v.Y = 0;
+                    rigidBody.setVelocity(v);
+                }
+            }
         }
-        // Static Object
-        if(collision.otherCollider is StaticObject staticObj) {
-            StaticObject.resolveCollision(position, bBox, rigidBody, collision);
-            return;
-        }
-        // Sphere Obj
-        if(collision.otherCollider is SphereObject sphereObj) {
-            SphereObject.resolveCollision(position, bBox, rigidBody, collision);
-            return;
-        }
+
+        rigidBody.setOnGround(groundFound);
     } 
 
     ///
@@ -110,7 +133,7 @@ class CollisionManager {
             RigidBody? rigidBody = collider.getRigidBody();
             if(rigidBody != null) {
                 rigidBody.update();
-                CollisionResult collision = checkCollision(rigidBody);
+                var collision = checkCollision(rigidBody);
                 resolveCollision(rigidBody, collision);
             }
         }
