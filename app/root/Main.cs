@@ -47,7 +47,9 @@ class Main {
     private void update() {
         tick.update();
         window.updateTitle(tick.getTickCount(), tick.getFps());
+
         screenController.update();
+        uiController.update();
     }
 
     /// 
@@ -55,6 +57,7 @@ class Main {
     /// 
     private void render() {
         screenController.render();
+        uiController.render();
     }
 
     ///

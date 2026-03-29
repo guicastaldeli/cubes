@@ -34,7 +34,7 @@ class PlayerController : DataEntry {
     private float sizeZ = 1.0f;
     private Vector3 size;
     
-    private float movSpeed = 5.0f;
+    private float movSpeed = 10.0f;
     private bool movingForward = false;
     private bool movingBackward = false;
     private bool movingLeft = false;

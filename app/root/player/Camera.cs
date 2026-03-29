@@ -2,24 +2,36 @@ namespace App.Root.Player;
 using OpenTK.Mathematics;
 
 class Camera {
+    private float posX = 0.0f;
+    private float posY = 0.0f;
+    private float posZ = 0.0f;
     private Vector3 position;
+
+    private float frontX = 0.0f;
+    private float frontY = 0.0f;
+    private float frontZ = -1.0f;
     private Vector3 front;
     private Vector3 up;
     private Vector3 right;
-    private Vector3 worldUp;
 
     private float yaw = -90.0f;
     private float pitch = 0.0f;
     private float fov = 45.0f;
 
+    private float sensv = 0.3f;
     private float targetAngle = 0.0f;
+    
+    private Vector3 worldUp;
 
     public Camera() {
-        position = new Vector3(0.0f, 0.0f, 0.0f);
+        position = new Vector3(posX, posY, posZ);
+
         worldUp = Vector3.UnitY;
-        front = new Vector3(0.0f, 0.0f, -1.0f);
+
+        front = new Vector3(frontX, frontY, frontZ);
         up = Vector3.UnitY;
         right = Vector3.UnitX;
+
         updateVectors();
     }
 
@@ -86,7 +98,6 @@ class Camera {
 
     // Handle Mouse
     public void handleMouse(float xOffset, float yOffset) {
-        float sensv = 0.1f;
         yaw += xOffset * sensv;
         pitch += yOffset * sensv;
         pitch = Math.Clamp(pitch, -89.0f, 89.0f);

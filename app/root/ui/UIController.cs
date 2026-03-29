@@ -6,7 +6,8 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 class UIController {
     public enum UIType {
         UPGRADE_MENU,
-        INFO
+        INFO,
+        CHAT
     }
 
     public int screenWidth;
@@ -125,7 +126,7 @@ class UIController {
     /// Init
     ///
     private void init() {
-    
+        uis[UIType.CHAT] = new ChatUI();
     }
 
     ///

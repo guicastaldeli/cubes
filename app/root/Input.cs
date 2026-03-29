@@ -1,4 +1,5 @@
 using App.Root;
+using App.Root.Chat;
 using App.Root.Player;
 using App.Root.Screen;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -9,7 +10,9 @@ class Input {
     private Tick tick;
     private ScreenController screenController = null!;
     private PlayerInputMap? playerInputMap = null!;
-    private Network? network = null!;
+    private Network network = null!;
+
+    private InputChat? inputChat;
 
     public bool pauseOverlayOpen = false;
 
@@ -44,12 +47,18 @@ class Input {
     } 
 
     private void onKeyDown(Keys key) {
+        if(inputChat != null) {
+            inputChat.onKeyDown(key);
+            if(ChatController.getInstance().isOpen()) return;
+        }
+
         if(key == Keys.Escape) {
             onPause();
-        } else {
-            screenController.handleKeyPress((int)key, 1);
-            playerInputMap?.setKeyState(key, true);
-        }
+            return;
+        } 
+        
+        screenController.handleKeyPress((int)key, 1);
+        playerInputMap?.setKeyState(key, true);
     }
 
     private void onKeyUp(Keys key) {
@@ -108,7 +117,11 @@ class Input {
     /// Update
     /// 
     public void update() {
-        if(playerInputMap == null || tick.isPaused() || pauseOverlayOpen) return;
+        if(playerInputMap == null || 
+            tick.isPaused() || 
+            pauseOverlayOpen ||
+            ChatController.getInstance().isOpen()
+        ) return;
 
         var mouse = window.MouseState;
         float xOffset = mouse.Delta.X;
@@ -124,5 +137,7 @@ class Input {
     public void init() {
         setMouse();
         setKeys();
+
+        inputChat = new InputChat(screenController, network);
     }
 }

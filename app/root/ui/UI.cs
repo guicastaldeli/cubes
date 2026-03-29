@@ -5,7 +5,7 @@ using App.Root.Screen;
 using System.Collections.Generic;
 
 class UI : UIHandler {
-    public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/ui/");
+    public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ui/");
 
     public static int screenWidth;
     public static int screenHeight;
@@ -28,7 +28,7 @@ class UI : UIHandler {
         ShaderProgram shaderProgram,
         UIController uiController
     ) {
-        UI.screenHeight = screenHeight;
+        UI.screenWidth = screenWidth;
         UI.screenHeight = screenHeight;
         UI.shaderProgram = shaderProgram;
         UI.uiController = uiController;
@@ -133,9 +133,9 @@ class UI : UIHandler {
     public virtual void render(UIElement element) {
         if(!element.visible || textRenderer == null) return;
 
-        if(element.type == "div" || element.type == "button")
+        if(element.type == "div" || element.type == "button") {
             DocParser.renderUIElement(element, screenWidth, screenHeight, shaderProgram);
-
+        }
         if((element.type == "button" || element.type == "label") && !string.IsNullOrEmpty(element.text)) {
             if(element.hasShadow) {
                 textRenderer.renderTextWithShadow(

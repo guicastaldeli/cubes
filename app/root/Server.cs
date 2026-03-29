@@ -78,7 +78,10 @@ class Server {
                         break;
                     case PacketType.DATA:
                         serverDataManager.getServerPlayerState().handle(json, remote);
-                        break;                    
+                        break;   
+                    case PacketType.CHAT:
+                        serverDataManager.getServerChat().handle(json, remote);
+                        break;                 
                 }
             } catch(SocketException ex) when (
                 ex.SocketErrorCode == SocketError.ConnectionReset ||

@@ -34,5 +34,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>screen\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
+    <Content Include="root\ui\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>ui\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
   </ItemGroup>
 </Project>

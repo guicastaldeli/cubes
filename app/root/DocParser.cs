@@ -564,13 +564,6 @@ class DocParser {
             if(parsed != null) color = parsed;
         }
 
-        bool hasBackground = type == "div" || type == "container" || type == "input";
-        if(element.HasAttribute("background")) {
-            hasBackground = true;
-            float[]? bg = parseColor(element.GetAttribute("background"));
-            if(bg != null) color = bg;
-        }
-
         string fontFamily = element.HasAttribute("fontFamily")
             ? element.GetAttribute("fontFamily").ToLower()
             : "arial";
@@ -593,12 +586,22 @@ class DocParser {
             text = evaluateExpression(text);
         }
 
+        bool hasBackground = type == "div" || type == "container" || type == "input";
+        float[] backgroundColor = new float[]{ 0f, 0f, 0f, 0f };
+        if(element.HasAttribute("background")) {
+            hasBackground = true;
+            float[]? bg = parseColor(element.GetAttribute("background"));
+            if(bg != null) backgroundColor = bg;
+        }
+
         UIElement uiElement = new UIElement(
             type, id, text, fontFamily,
             x, y, width, height,
             scale, color, hasBackground, action
         );
 
+        uiElement.backgroundColor = backgroundColor;
+        uiElement.originalBackgroundColor = (float[])backgroundColor.Clone();
         uiElement.borderWidth = borderWidth;
         uiElement.borderColor = borderColor;
         if(element.HasAttribute("background")) uiElement.hasBackground = true;
@@ -692,7 +695,7 @@ class DocParser {
 
     public static UIElement? getElementById(UIData uiData, string id) {
         foreach(var el in uiData.elements) {
-            if(el.id == id && el.visible) return el;
+            if(el.id == id) return el;
         }
         return null;
     }
@@ -731,13 +734,14 @@ class DocParser {
             shaderProgram.setUniform("hasTex", 0);
         }
 
-        shaderProgram.setUniform("screenSize", (float)screenWidth, (float)screenHeight);
-        shaderProgram.setUniform("uColor",
-            element.getRed(), element.getGreen(),
-            element.getBlue(), element.getAlpha()
-        );
+        float r = element.backgroundColor[0];
+        float g = element.backgroundColor[1];
+        float b = element.backgroundColor[2];
+        float a = element.backgroundColor[3];
 
-        float r = element.getRed(), g = element.getGreen(), b = element.getBlue(), a = element.getAlpha();
+        shaderProgram.setUniform("screenSize", (float)screenWidth, (float)screenHeight);
+        shaderProgram.setUniform("uColor", r, g, b, a);
+
         float[] verts = {
             x1, y1,  r, g, b, a,  0.0f, 0.0f,
             x1, y2,  r, g, b, a,  0.0f, 1.0f,
@@ -756,7 +760,7 @@ class DocParser {
 
         if(depthTest) GL.Enable(EnableCap.DepthTest);
         GL.Disable(EnableCap.Blend);
-    }
+}
 
     ///
     /// Render UI
@@ -771,15 +775,32 @@ class DocParser {
         if(uiData == null || uiData.elements.Count == 0) return;
 
         foreach(var el in uiData.elements) {
-            if(el.visible && el.type == "div")
-                renderUIElement(el, screenWidth, screenHeight, shaderProgram);
-        }
+        if(el.visible && el.type == "div") {
+            renderUIElement(el, screenWidth, screenHeight, shaderProgram);
 
+            if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
+                string[] lines = el.text.Split('\n');
+                float lineHeight = 32.0f * el.scale;
+                for(int i = 0; i < lines.Length; i++) {
+                    if(string.IsNullOrEmpty(lines[i])) continue;
+                    float lineY = el.y + (i * lineHeight);
+                    if(el.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            lines[i], el.x, lineY, el.scale, el.color,
+                            el.shadowOffsetX, el.shadowOffsetY, el.shadowBlur,
+                            el.shadowColor, el.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(lines[i], el.x, lineY, el.scale, el.color, el.fontFamily);
+                    }
+                }
+            }
+        }
+    }
         foreach(var el in uiData.elements) {
             if(el.visible && el.type == "img")
                 renderUIElement(el, screenWidth, screenHeight, shaderProgram);
         }
-
         foreach(var el in uiData.elements) {
             if(el.visible && el.type == "button") {
                 renderUIElement(el, screenWidth, screenHeight, shaderProgram);
@@ -797,7 +818,13 @@ class DocParser {
                 }
             }
         }
-
+        foreach(var el in uiData.elements) {
+            if(el.visible && el.type == "input") {
+                renderUIElement(el, screenWidth, screenHeight, shaderProgram);
+                if(textRenderer != null && !string.IsNullOrEmpty(el.text))
+                    textRenderer.renderText(el.text, el.x, el.y, el.scale, el.color, el.fontFamily);
+            }
+        }
         foreach(var el in uiData.elements) {
             if(el.visible && el.type == "label") {
                 if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {

@@ -51,6 +51,9 @@ class Client {
                         break;
                     case PacketType.PING:
                         break;
+                    case PacketType.CHAT:
+                        clientDataManager.getClientChat().handle(json);
+                        break;
                 }
             } catch(Exception err) {
                 if(running) Console.Error.WriteLine("Client receive error: " + err.Message);

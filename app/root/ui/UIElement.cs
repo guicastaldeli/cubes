@@ -12,6 +12,7 @@ class UIElement {
     public int height;
     public float scale;
     public float[] color;
+    public float[] backgroundColor;
     public string action;
     public Dictionary<string, string> attr;
     public bool visible;
@@ -35,6 +36,7 @@ class UIElement {
 
     private float[] originalColor;
     private float[] originalBorderColor;
+    public float[] originalBackgroundColor;
     private float originalScale;
 
     public int textureId = -1;
@@ -68,6 +70,8 @@ class UIElement {
         this.visible = true;
         this.borderWidth = 0.0f;
         this.borderColor = new float[]{ 1.0f, 1.0f, 1.0f, 1.0f };
+        this.backgroundColor = new float[]{ 0f, 0f, 0f, 0f };
+        this.originalBackgroundColor = new float[]{ 0f, 0f, 0f, 0f };
 
         this.originalColor = color != null ? (float[])color.Clone() : new float[]{ 1.0f, 1.0f, 1.0f, 1.0f };
         this.originalBorderColor = (float[])borderColor.Clone();
