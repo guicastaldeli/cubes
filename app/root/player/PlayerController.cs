@@ -175,7 +175,7 @@ class PlayerController : DataEntry {
         if(network != null) id = network.playerId ?? id;
         playerMesh.set(true);
 
-        Vector3? spawn = Platform.spawnPoint;
+        Vector3? spawn = Platform.height;
         if(spawn.HasValue) {
             setPosition(
                 spawn.Value.X, 

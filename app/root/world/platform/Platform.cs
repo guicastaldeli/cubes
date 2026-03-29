@@ -11,7 +11,7 @@ class Platform : WorldHandler {
     private string MESH = "cube";
 
     private float x = 0.0f;
-    private float y = -5.0f;
+    private float y = -1.0f;
     private float z = 0.0f;
     private Vector3 offset = Vector3.Zero;
     
@@ -33,6 +33,7 @@ class Platform : WorldHandler {
     // Set
     private void set() {
         setPosition();
+        height = getHeight();
 
         List<Vector3> positions = new();
         float offsetX = -(sizeX / 2.0f) * spacing + offset.X;
@@ -71,14 +72,14 @@ class Platform : WorldHandler {
         Console.WriteLine($"Platform draw calls: 1 (instanced {positions.Count} cubes)");
     }
 
-    // Spawn Point
-    public Vector3 getSpawnPoint() {
+    // Height
+    public Vector3 getHeight() {
         float topY = offset.Y + (sizeY * spacing);
         Vector3 res = new Vector3(offset.X, topY, offset.Z); 
         return res;
     }
 
-    public static Vector3? spawnPoint {
+    public static Vector3? height {
         get;
         private set;
     }
