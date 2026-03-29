@@ -43,13 +43,23 @@ class CollisionManager {
         // Static Object
         foreach(var collider in staticColliders) {
             if(collider is StaticObject staticObj) {
-                CollisionResult result = staticObj.checkCollision(bodyBounds);
-                if(result.collided) {
-                    result.otherCollider = staticObj;
-                    return result;
+                CollisionResult res = staticObj.checkCollision(bodyBounds);
+                if(res.collided) {
+                    res.otherCollider = staticObj;
+                    return res;
                 }
             }
         } 
+        // Sphere Object
+        foreach(var collider in staticColliders) {
+            if(collider is SphereObject sphereObj) {
+                CollisionResult res = sphereObj.checkCollision(bodyBounds);
+                if(res.collided) {
+                    res.otherCollider = sphereObj;
+                    return res;
+                }
+            }
+        }
 
         return new CollisionResult();
     }
@@ -83,6 +93,11 @@ class CollisionManager {
         // Static Object
         if(collision.otherCollider is StaticObject staticObj) {
             StaticObject.resolveCollision(position, bBox, rigidBody, collision);
+            return;
+        }
+        // Sphere Obj
+        if(collision.otherCollider is SphereObject sphereObj) {
+            SphereObject.resolveCollision(position, bBox, rigidBody, collision);
             return;
         }
     } 

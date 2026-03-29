@@ -22,15 +22,15 @@ class Platform : WorldHandler {
     /// Render
     /// 
     public override void render() {
-        mesh.add("cube");
-        mesh.setPosition("cube", 0.0f, 0.0f, -3.0f);
+        mesh.add("sphere");
+        mesh.setPosition("sphere", 0.0f, 0.0f, -3.0f);
 
         string texPath = "env/test.jpg";
         int texId = TextureLoader.load(texPath);
-        mesh.setTexture("cube", texId, texPath);
+        //mesh.setTexture("sphere", texId, texPath);
 
         collisionManager.addStaticCollider(new BoundaryObject(World.WORLD_BOUNDARY));
-        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
+        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("sphere"), "sphere"));
     }
 
     ///
