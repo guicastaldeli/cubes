@@ -1,5 +1,7 @@
 namespace App.Root.Player;
 using App.Root.Collider;
+using App.Root.World;
+using App.Root.World.Platform;
 using OpenTK.Mathematics;
 
 class PlayerController : DataEntry {
@@ -22,17 +24,23 @@ class PlayerController : DataEntry {
     private Mesh.Mesh mesh;
     private PlayerMesh playerMesh;
 
-    private Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
-    private Vector3 size = new Vector3(1.0f, 2.0f, 1.0f);
+    private float posX = 50.0f;
+    private float posY = 50.0f;
+    private float posZ = 0.0f;
+    private Vector3 position;
+    
+    private float sizeX;
+    private float sizeY;
+    private float sizeZ;
+    private Vector3 size;
+    
     private float movSpeed = 5.0f;
-
     private bool movingForward = false;
     private bool movingBackward = false;
     private bool movingLeft = false;
     private bool movingRight = false;
     private bool movingUp = false;
     private bool movingDown = false;
-
     private float jumpForce = 8.0f;
 
     private bool flyMode = false;
@@ -42,8 +50,13 @@ class PlayerController : DataEntry {
     private Network? network;
     private NetworkPlayer networkPlayer;
 
+    private WorldManager? worldManager = null!;
+
     public PlayerController(Window window, Mesh.Mesh mesh) {
         instance = this;
+
+        this.position = new Vector3(posX, posY, posZ);
+        this.size = new Vector3(sizeX, sizeY, sizeZ);
 
         this.window = window;
         this.mesh = mesh;
@@ -86,6 +99,11 @@ class PlayerController : DataEntry {
     // Set Collision Manager
     public void setCollisionManager(CollisionManager collisionManager) {
         this.collisionManager = collisionManager;
+    }
+
+    // Set World Manager
+    public void setWorldManager(WorldManager worldManager) {
+        this.worldManager = worldManager;
     }
 
     // Position
@@ -156,6 +174,15 @@ class PlayerController : DataEntry {
     public void set() {
         if(network != null) id = network.playerId ?? id;
         playerMesh.set(true);
+
+        Vector3? spawn = Platform.spawnPoint;
+        if(spawn.HasValue) {
+            setPosition(
+                spawn.Value.X, 
+                spawn.Value.Y, 
+                spawn.Value.Z
+            );
+        }
     }
 
     ///

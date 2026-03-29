@@ -9,22 +9,34 @@ class Platform : WorldHandler {
 
     private string GRID_ID = "grid";
     private string MESH = "cube";
+
+    private float x = 0.0f;
+    private float y = -5.0f;
+    private float z = 0.0f;
+    private Vector3 offset = Vector3.Zero;
     
     private int sizeX = 10;
     private int sizeY = 3;
     private int sizeZ = 10;
-    private float spacing = 4.0f;
+    private float spacing = 1.0f;
     
     public Platform(Mesh.Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
     } 
 
+    // Set Position
+    private void setPosition() {
+        offset = new Vector3(x, y, z);
+    }
+
     // Set
     private void set() {
+        setPosition();
+
         List<Vector3> positions = new();
-        float offsetX = -(sizeX / 2.0f) * spacing;
-        float offsetZ = -(sizeZ / 2.0f) * spacing;
+        float offsetX = -(sizeX / 2.0f) * spacing + offset.X;
+        float offsetZ = -(sizeZ / 2.0f) * spacing + offset.Z;
         
         
         mesh.add(GRID_ID, MESH);
@@ -37,7 +49,7 @@ class Platform : WorldHandler {
                     string id = $"cube_{x}_{y}_{z}";
 
                     float px = offsetX + x * spacing;
-                    float py = y * spacing;
+                    float py = (y * spacing) + offset.Y;
                     float pz = offsetZ + z * spacing;
                     positions.Add(new Vector3(px, py, pz));
 
@@ -57,6 +69,18 @@ class Platform : WorldHandler {
         }
 
         Console.WriteLine($"Platform draw calls: 1 (instanced {positions.Count} cubes)");
+    }
+
+    // Spawn Point
+    public Vector3 getSpawnPoint() {
+        float topY = offset.Y + (sizeY * spacing);
+        Vector3 res = new Vector3(offset.X, topY, offset.Z); 
+        return res;
+    }
+
+    public static Vector3? spawnPoint {
+        get;
+        private set;
     }
 
     ///

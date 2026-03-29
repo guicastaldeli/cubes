@@ -63,6 +63,7 @@ class Scene {
     /// 
     private void set() {
         playerController.setCollisionManager(collisionManager);
+        playerController.setWorldManager(worldManager);
 
         mesh.setCamera(playerController.getCamera());
 
