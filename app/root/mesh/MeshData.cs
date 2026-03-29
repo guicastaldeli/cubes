@@ -28,6 +28,17 @@ class MeshData {
         this.meshType = meshType;
     }
 
+    // Instance
+    public bool isInstanced {
+        get;
+        set;
+    }
+
+    public List<Vector3> instancePositions {
+        get;
+        set;
+    } = new();
+
     // Vertices
     public void setVertices(float[] v) {
         data[DataType.VERTICES] = v;

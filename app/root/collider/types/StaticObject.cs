@@ -4,16 +4,49 @@ using App.Root.Player;
 using OpenTK.Mathematics;
 
 class StaticObject : Collider {
-    private BBox bBox;
+    private BBox? bBox;
+    private Vector3? position;
     private string type;
+    
+    private float half;
+    private float halfX;
+    private float halfY;
+    private float halfZ;
 
     public StaticObject(BBox bBox, string type) {
         this.bBox = bBox;
         this.type = type;
     }
+    public StaticObject(Vector3 position, float half, string type) {
+        this.position = position;
+        this.halfX = half;
+        this.halfY = half;
+        this.halfZ = half;
+        this.type = type;
+    }
+    public StaticObject(
+        Vector3 position, 
+        float halfX,
+        float halfY,
+        float halfZ, 
+        string type
+    ) {
+        this.position = position;
+        this.halfX = halfX;
+        this.halfY = halfY;
+        this.halfZ = halfZ;
+        this.type = type;
+    }
 
     public BBox getBBox() {
-        return bBox;
+        if(position.HasValue) {
+            Vector3 p = position.Value;
+            return new BBox(
+                p.X - halfX, p.Y - halfY, p.Z - halfZ,
+                p.X + halfX, p.Y + halfY, p.Z + halfZ
+            );
+        }
+        return bBox!;
     }
 
     public RigidBody? getRigidBody() {
@@ -29,8 +62,9 @@ class StaticObject : Collider {
 
     // Check Collision
     public CollisionResult checkCollision(BBox bBox) {
-        if(bBox.intersects(this.bBox)) {
-            return calcCollision(bBox, this.bBox);
+        BBox self = getBBox();
+        if(bBox.intersects(self)) {
+            return calcCollision(bBox, self);
         }
         return new CollisionResult();
     }

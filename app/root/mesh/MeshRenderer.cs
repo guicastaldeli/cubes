@@ -17,6 +17,10 @@ class MeshRenderer : DataEntry {
     private int texCoordsVbo;
     private int vertexCount;
 
+    private int instanceVbo = 0;
+    private int instanceCount = 0;
+    public bool isInstanced = false;
+
     private Matrix4 modelMatrix = Matrix4.Identity;
     private Matrix4 rotationMatrix = Matrix4.Identity;
 
@@ -66,6 +70,25 @@ class MeshRenderer : DataEntry {
 
     public void setPosition(float x, float y, float z) {
         position = new Vector3(x, y, z);
+    }
+
+    public void setInstancePositions(List<Vector3> positions) {
+        instanceCount = positions.Count;
+        float[] data = new float[positions.Count * 3];
+        for(int i = 0; i < positions.Count; i++) {
+            data[i * 3 + 0] = positions[i].X;
+            data[i * 3 + 1] = positions[i].Y;
+            data[i * 3 + 2] = positions[i].Z;
+        }
+
+        instanceVbo = GL.GenBuffer();
+        GL.BindVertexArray(vao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, instanceVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float), data, BufferUsageHint.StaticDraw);
+        GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
+        GL.EnableVertexAttribArray(4);
+        GL.VertexAttribDivisor(4, 1);
+        GL.BindVertexArray(0);
     }
 
     // Scale
@@ -283,6 +306,30 @@ class MeshRenderer : DataEntry {
         shaderProgram.unbind();
     }
 
+    public void renderInstanced() {
+        if(!visible || meshData == null || camera == null) return;
+
+        shaderProgram.bind();
+        shaderProgram.setUniform("shaderType", 0);
+        shaderProgram.setUniform("uModel", Matrix4.Identity);
+        shaderProgram.setUniform("uView", camera.getView());
+        shaderProgram.setUniform("uProjection", camera.getProjection());
+        shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
+        shaderProgram.setUniform("hasTex", 0);
+        shaderProgram.setUniform("isInstanced", 1);
+
+        GL.BindVertexArray(vao);
+        int[]? indices = meshData.getIndices();
+        if(indices != null) {
+            GL.DrawElementsInstanced(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, instanceCount);
+        } else {
+            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, vertexCount, instanceCount);
+        }
+        
+        GL.BindVertexArray(0);
+        shaderProgram.unbind();
+    }
+
     // Cleanup
     public void cleanup() {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -292,6 +339,7 @@ class MeshRenderer : DataEntry {
         if(normalVbo != 0) GL.DeleteBuffer(normalVbo);
         if(colorVbo != 0) GL.DeleteBuffer(colorVbo);
         if(texCoordsVbo != 0) GL.DeleteBuffer(texCoordsVbo);
+        if(instanceVbo != 0) GL.DeleteBuffer(instanceVbo);
         if(ebo != 0) GL.DeleteBuffer(ebo);
         if(vao != 0) GL.DeleteVertexArray(vao);
     }

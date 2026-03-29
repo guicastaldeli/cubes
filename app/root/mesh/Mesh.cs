@@ -119,6 +119,42 @@ class Mesh {
         float[]? colors = data.getColors();
         if(colors != null) meshRenderer.updateColors(colors);
     }
+    
+    // Get Size
+    public Vector3 getSize(string id) {
+        MeshData? data = getData(id);
+        if(data == null) return Vector3.One;
+
+        float[]? vertices = data.getVertices();
+        if(vertices == null) return Vector3.One;
+
+        float minX = float.MaxValue;
+        float minY = float.MaxValue;
+        float minZ = float.MaxValue;
+
+        float maxX = float.MinValue;
+        float maxY = float.MinValue;
+        float maxZ = float.MinValue;
+
+        for(int i = 0; i < vertices.Length; i+= 3) {
+            float x = vertices[i];
+            float y = vertices[i+1];
+            float z = vertices[i+2];
+
+            if(x < minX) minX = x;
+            if(y < minY) minY = y;
+            if(z < minZ) minZ = z;
+            if(x > maxX) maxX = x;
+            if(y > maxY) maxY = y;
+            if(z > maxZ) maxZ = z;
+        }
+
+        return new Vector3(
+            maxX - minX,
+            maxY - minY,
+            maxZ - minZ
+        );
+    }
 
     // Get BBox
     public BBox getBBox(string id) {
@@ -212,12 +248,23 @@ class Mesh {
     /// Render
     /// 
     public void render(string id) {
-        getMeshRenderer(id)?.render();
+        var renderer = getMeshRenderer(id);
+        if(renderer == null) return;
+
+        if(renderer.isInstanced) {
+            getMeshRenderer(id)?.renderInstanced();
+        } else {
+            getMeshRenderer(id)?.render();
+        }
     }
 
     public void renderAll() {
         foreach(var entry in meshRendererMap) {
-            entry.Value.render();
+            if(entry.Value.isInstanced) {
+                entry.Value.renderInstanced();
+            } else {
+                entry.Value.render();
+            }
         }
     }
 }
