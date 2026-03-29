@@ -8,9 +8,6 @@ class Platform : WorldHandler {
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
 
-    private BoundaryObject? boundaryObject;
-    private StaticObject? staticObject;
-
     private float timer = 0.0f;
     
     public Platform(Mesh.Mesh mesh, CollisionManager collisionManager) {
@@ -30,7 +27,7 @@ class Platform : WorldHandler {
         //mesh.setTexture("sphere", texId, texPath);
 
         collisionManager.addStaticCollider(new BoundaryObject(World.WORLD_BOUNDARY));
-        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("sphere"), "sphere"));
+        collisionManager.addStaticCollider(new SphereObject(mesh, "sphere", "sphere"));
     }
 
     ///
@@ -40,8 +37,8 @@ class Platform : WorldHandler {
         timer += Tick.getDeltaTimeI();
         if(timer >= 1.0f) {
             timer = 0.0f;
-            var pos = mesh.getPosition("cube");
-            //mesh.setPosition("cube", pos.X + 0.5f, pos.Y, pos.Z);
+            var pos = mesh.getPosition("sphere");
+            //mesh.setPosition("sphere", pos.X + 0.1f, pos.Y, pos.Z);
         }
     }
 }

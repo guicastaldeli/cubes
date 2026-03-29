@@ -9,9 +9,6 @@ class NetworkWorld : NetworkUpdateHandler {
     private WorldManager worldManager;
     private Network? network;
 
-    private BoundaryObject? boundaryObject;
-    private StaticObject? staticObject;
-
     public NetworkWorld(WorldManager worldManager) {
         this.worldManager = worldManager;
         NetworkUpdate.register(this);
