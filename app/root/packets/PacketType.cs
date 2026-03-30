@@ -6,5 +6,6 @@ enum PacketType {
     STATE,
     PING,
     DATA,
-    CHAT
+    CHAT,
+    VOICE
 }
