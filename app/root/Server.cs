@@ -52,7 +52,7 @@ class Server {
         tickThread.Start();
 
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"--- Server started on port {port} ---");
+        Console.WriteLine($"--- Server started on port {port} | Max players: {maxPlayers} ---");
         Console.ResetColor();
     }
 

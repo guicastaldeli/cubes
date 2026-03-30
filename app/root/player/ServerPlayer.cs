@@ -2,6 +2,8 @@ namespace App.Root.Player;
 using System.Net;
 
 class ServerPlayer {
+    public static int SERVER_MAX_PLAYERS = 15;
+    
     public string id {
         get;
     }

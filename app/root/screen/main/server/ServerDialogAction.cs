@@ -1,3 +1,5 @@
+using App.Root.Player;
+
 namespace App.Root.Screen.Main.Server;
 
 class ServerDialogAction {
@@ -21,11 +23,12 @@ class ServerDialogAction {
     public void hostServer() {
         int port = screenController.main.getNetwork().getPort().get();
 
-        string maxPlayers = serverDialog.inputField.getText("maxPlayersInput");
-        if(string.IsNullOrEmpty(maxPlayers)) return;
+        string maxPlayersEl = serverDialog.inputField.getText("maxPlayersInput");
+        int maxPlayers = string.IsNullOrEmpty(maxPlayersEl) ?
+            ServerPlayer.SERVER_MAX_PLAYERS :
+            int.Parse(maxPlayersEl);
 
-        screenController.main.getNetwork().host(port, int.Parse(maxPlayers));
-
+        screenController.main.getNetwork().host(port, maxPlayers);
         serverDialog.mainScreen.getScene().init();
     }
 
