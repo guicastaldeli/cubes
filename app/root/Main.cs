@@ -2,6 +2,7 @@ namespace App.Root;
 using App.Root.Screen;
 using App.Root.Shaders;
 using App.Root.ui;
+using App.Root.Voip;
 using OpenTK.Graphics.OpenGL;
 
 class Main {
@@ -20,7 +21,9 @@ class Main {
         tick = new Tick();
         shaderProgram = new ShaderProgram();
         input = new Input(window, tick);
+
         network = new Network();
+        VoiceController.getInstance().setNetwork(network);
 
         init();
         set();
@@ -69,8 +72,7 @@ class Main {
             shaderProgram, 
             input
         );
-        
-        network.initNetworkSetter(input, scene);
+        scene.setNetwork(network);
         
         screenController = new ScreenController(
             tick,
@@ -89,10 +91,9 @@ class Main {
             shaderProgram,
             Window.WIDTH, Window.HEIGHT
         );
-
-        network.getNetworkSetter().set();
         
         input.setScreenController(screenController);
+        input.setNetwork(network);
         input.init();
     }
     

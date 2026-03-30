@@ -1,6 +1,5 @@
 namespace App.Root.Voip;
 using NAudio.Wave;
-using Concentus.Structs;
 using Concentus;
 
 class PlayerAudioSource {
@@ -12,7 +11,7 @@ class PlayerAudioSource {
     private WaveOutEvent waveOut;
     private VolumeWaveProvider16 volumeProvider;
 
-    private float volume = 1.0f;
+    private float volume = 0.2f;
 
     public PlayerAudioSource() {
         decoder = OpusCodecFactory.CreateDecoder(SAMPLE_RATE, 1);
@@ -42,7 +41,7 @@ class PlayerAudioSource {
 
         short[] pcmShort = new short[FRAME_SIZE];
         for(int i = 0; i < FRAME_SIZE; i++) {
-            pcmShort[i] = (short)(pcm[i] * short.MaxValue);
+            pcmShort[i] = (short)(Math.Clamp(pcm[i], -1.0f, 1.0f) * short.MaxValue);
         }
 
         byte[] bytes = new byte[pcmShort.Length * 2];

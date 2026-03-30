@@ -33,6 +33,7 @@ class VoiceController {
 
         short[] pcm = new short[e.BytesRecorded / 2];
         Buffer.BlockCopy(e.Buffer, 0, pcm, 0, e.BytesRecorded);
+        if(pcm.Length < FRAME_SIZE) return;
 
         byte[] encoded = new byte[1275];
         int len = encoder.Encode(

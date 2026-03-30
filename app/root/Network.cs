@@ -9,7 +9,6 @@ class Network {
     private DataSnapshot? cachedSnapshot = null;
 
     private NetworkUpdate networkUpdate = null!;
-    private NetworkSetter networkSetter = null!;
 
     public bool isConnected => client?.connected ?? false;
     public string? playerId => client?.playerId;
@@ -63,22 +62,15 @@ class Network {
         return server != null;
     }
 
-    /// Network Update
+    ///
+    /// Update
+    /// 
     public void initNetworkUpdate() {
         networkUpdate = new NetworkUpdate();
     }
     
     public NetworkUpdate getNetworkUpdate() {
         return networkUpdate;
-    }
-
-    // Network Setter
-    public void initNetworkSetter(Input input, Scene scene) {
-        networkSetter = new NetworkSetter(this, input, scene);
-    }
-
-    public NetworkSetter getNetworkSetter() {
-        return networkSetter;
     }
 
     ///

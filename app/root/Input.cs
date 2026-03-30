@@ -2,6 +2,7 @@ using App.Root;
 using App.Root.Chat;
 using App.Root.Player;
 using App.Root.Screen;
+using App.Root.Voip;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Window = App.Root.Window;
 
@@ -13,6 +14,7 @@ class Input {
     private Network network = null!;
 
     private InputChat? inputChat;
+    private InputVoip? inputVoip;
 
     public bool pauseOverlayOpen = false;
 
@@ -51,6 +53,9 @@ class Input {
             inputChat.onKeyDown(key);
             if(ChatController.getInstance().isOpen()) return;
         }
+        if(inputVoip != null) {
+            inputVoip.onKeyDown(key);
+        }    
 
         if(key == Keys.Escape) {
             onPause();
@@ -62,6 +67,8 @@ class Input {
     }
 
     private void onKeyUp(Keys key) {
+        if(inputVoip != null) inputVoip.onKeyUp(key);
+
         screenController.handleKeyPress((int)key, 0);
         playerInputMap?.setKeyState(key, false);
     }
@@ -139,5 +146,6 @@ class Input {
         setKeys();
 
         inputChat = new InputChat(screenController, network);
+        inputVoip = new InputVoip(screenController);
     }
 }

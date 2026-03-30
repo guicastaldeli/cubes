@@ -54,6 +54,9 @@ class Client {
                     case PacketType.CHAT:
                         clientDataManager.getClientChat().handle(json);
                         break;
+                    case PacketType.VOICE:
+                        clientDataManager.getClientVoice().handle(json);
+                        break;
                 }
             } catch(Exception err) {
                 if(running) Console.Error.WriteLine("Client receive error: " + err.Message);
