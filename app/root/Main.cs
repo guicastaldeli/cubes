@@ -69,7 +69,8 @@ class Main {
             shaderProgram, 
             input
         );
-        scene.setNetwork(network);
+        
+        network.initNetworkSetter(input, scene);
         
         screenController = new ScreenController(
             tick,
@@ -88,9 +89,10 @@ class Main {
             shaderProgram,
             Window.WIDTH, Window.HEIGHT
         );
+
+        network.getNetworkSetter().set();
         
         input.setScreenController(screenController);
-        input.setNetwork(network);
         input.init();
     }
     

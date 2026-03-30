@@ -5,6 +5,7 @@ class ClientDataManager {
     private ClientJoin clientJoin;
     private ClientData clientData;
     private ClientChat clientChat;
+    private ClientVoice clientVoice;
 
     public ClientDataManager(Client client) {
         this.client = client;
@@ -12,6 +13,7 @@ class ClientDataManager {
         this.clientJoin = new ClientJoin(client);
         this.clientData = new ClientData(client);
         this.clientChat = new ClientChat(client);
+        this.clientVoice = new ClientVoice(client);
     } 
 
     // Get Client Join
@@ -27,5 +29,10 @@ class ClientDataManager {
     // Get Client Chat
     public ClientChat getClientChat() {
         return clientChat;
+    }
+
+    // Get Client Voice
+    public ClientVoice getClientVoice() {
+        return clientVoice;
     }
 }

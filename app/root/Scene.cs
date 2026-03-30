@@ -58,6 +58,16 @@ class Scene {
         this.network = network;
     }
 
+    // Get Player Controller
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
+    // Get World Manager
+    public WorldManager getWorldManager() {
+        return worldManager;
+    }
+
     ///
     /// Set
     /// 
@@ -75,10 +85,7 @@ class Scene {
         if(isClient) worldManager.render();
         
         if(network != null) {
-            playerController.setNetwork(network);
-            worldManager.getWorldBroadcaster().set();
-
-            playerController.set();
+            network.getNetworkSetter().init(); //<-- init here
         }
     }
 
@@ -148,6 +155,6 @@ class Scene {
             collisionManager, 
             playerController
         );
-        if(network != null) worldManager.setNetwork(network);
+        if(network != null) network.getNetworkSetter().reset();
     }
 }

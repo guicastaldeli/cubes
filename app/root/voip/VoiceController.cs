@@ -1,7 +1,7 @@
 namespace App.Root.Voip;
 using App.Root.Packets;
 using NAudio.Wave;
-using Concentus.Structs;
+using Concentus;
 using Concentus.Enums;
 
 class VoiceController {
@@ -10,5 +10,93 @@ class VoiceController {
     public static VoiceController getInstance() {
         instance ??= new VoiceController();
         return instance;
+    }
+
+    private const int SAMPLE_RATE = 16000;
+    private const int CHANNELS = 1;
+    private const int FRAME_SIZE = 960;
+
+    private WaveInEvent? waveIn;
+    private IOpusEncoder? encoder;
+    private Network? network;
+
+    private Dictionary<string, PlayerAudioSource> audioSources = new();
+
+    // Set Network
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
+
+    // On Audio Captured
+    private void onAudioCaptured(object? sender, WaveInEventArgs e) {
+        if(encoder == null || network == null) return;
+
+        short[] pcm = new short[e.BytesRecorded / 2];
+        Buffer.BlockCopy(e.Buffer, 0, pcm, 0, e.BytesRecorded);
+
+        byte[] encoded = new byte[1275];
+        int len = encoder.Encode(
+            pcm.AsSpan(0, FRAME_SIZE),
+            FRAME_SIZE,
+            encoded.AsSpan(),
+            encoded.Length
+        );
+
+        network.getClient()?.send(new PacketVoice {
+            playerId = network.playerId,
+            audio = encoded[..len]
+        });
+    }
+
+    // Remove Player
+    public void removePlayer(string playerId) {
+        if(audioSources.TryGetValue(playerId, out var source)) {
+            source.dispose();
+            audioSources.Remove(playerId);
+        }
+    }
+
+    ///
+    /// Receive
+    /// 
+    public void receive(string playerId, byte[] encodedAudio) {
+        if(!audioSources.TryGetValue(playerId, out var source)) {
+            source = new PlayerAudioSource();
+            audioSources[playerId] = source;
+        }
+        source.play(encodedAudio);
+    }
+
+    ///
+    /// Start
+    /// 
+    public void start() {
+        encoder = OpusCodecFactory.CreateEncoder(
+            SAMPLE_RATE,
+            CHANNELS,
+            OpusApplication.OPUS_APPLICATION_VOIP
+        );
+
+        waveIn = new WaveInEvent();
+        waveIn.WaveFormat = new WaveFormat(SAMPLE_RATE, 16, CHANNELS);
+        waveIn.BufferMilliseconds = 60;
+        waveIn.DataAvailable += onAudioCaptured;
+        waveIn.StartRecording();
+
+        Console.WriteLine("VoiceController: capture started");
+    }
+
+    ///
+    /// Stop
+    /// 
+    public void stop() {
+        waveIn?.StopRecording();
+        waveIn?.Dispose();
+        waveIn = null;
+
+        foreach(var source in audioSources.Values) source.dispose();
+        audioSources.Clear();
+
+        Console.WriteLine("VoiceController: capture stopped");
     }
 }
