@@ -62,17 +62,17 @@ class Scene {
     /// Set
     /// 
     private void set() {
+        bool isClient = 
+            network == null ||
+            !network.isConnected || 
+            network.isHost();
+        
         playerController.setCollisionManager(collisionManager);
         playerController.setWorldManager(worldManager);
 
         mesh.setCamera(playerController.getCamera());
 
-        if(network == null ||
-            !network.isConnected || 
-            network.isHost()
-        ) {
-            worldManager.render();
-        }
+        if(isClient) worldManager.render();
         
         if(network != null) {
             playerController.setNetwork(network);

@@ -19,6 +19,11 @@ class NetworkWorld : NetworkUpdateHandler {
     public void setNetwork(Network network) {
         this.network = network;
     }
+
+    private void spawnClient() {
+        worldManager.getWorld().get<Platform.Platform>()?.setClient();
+        worldManager.getPlayerController().set();
+    }
     
     public override void update() {
         if(network == null) {
@@ -73,7 +78,9 @@ class NetworkWorld : NetworkUpdateHandler {
                         Console.WriteLine($"instancePositions unexpected type: {rawEntry?.GetType()}");
                         return;
                     }
-
+                    
+                    spawnClient();
+                    
                     worldManager.getWindow().queueOnRenderThread(() => {
                         string meshType = entry.ContainsKey("meshType") ?
                             Convert.ToString(entry["meshType"]) ?? id : id;

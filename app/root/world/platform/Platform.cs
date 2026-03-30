@@ -1,10 +1,11 @@
 namespace App.Root.World.Platform;
 using App.Root.Collider;
 using App.Root.Collider.Types;
+using App.Root.Mesh;
 using OpenTK.Mathematics;
 
 class Platform : WorldHandler {
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     private CollisionManager collisionManager;
 
     private string GRID_ID = "grid";
@@ -22,7 +23,7 @@ class Platform : WorldHandler {
 
     private bool initialized = false;
     
-    public Platform(Mesh.Mesh mesh, CollisionManager collisionManager) {
+    public Platform(Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
     } 
@@ -32,9 +33,20 @@ class Platform : WorldHandler {
         offset = new Vector3(x, y, z);
     }
 
-    // Set
-    private void set() {
+    ///
+    /// Set
+    /// 
+    private void setMesh(List<Vector3> positions) {
+        var renderer = mesh.getMeshRenderer(GRID_ID);
+        if(renderer != null) {
+            renderer.isInstanced = true;
+            renderer.setInstancePositions(positions);
+        }
+    }
+
+    private void set(bool renderMesh = true) {
         setPosition();
+        MeshRegistry.register(GRID_ID);
 
         List<Vector3> positions = new();
         float offsetX = -(sizeX / 2.0f) * spacing + offset.X;
@@ -65,13 +77,19 @@ class Platform : WorldHandler {
             }
         }
 
-        var renderer = mesh.getMeshRenderer(GRID_ID);
-        if(renderer != null) {
-            renderer.isInstanced = true;
-            renderer.setInstancePositions(positions);
+        if(renderMesh) {
+            setMesh(positions);
+            Console.WriteLine($"Platform draw calls: 1 (instanced {positions.Count} cubes)");
+        } else {
+            mesh.remove(GRID_ID);
         }
 
-        Console.WriteLine($"Platform draw calls: 1 (instanced {positions.Count} cubes)");
+        initialized = true;
+    }
+
+    public void setClient() {
+        if(initialized) return;
+        set(renderMesh: false);
     }
 
     // Height
