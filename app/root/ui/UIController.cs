@@ -112,7 +112,7 @@ class UIController {
     /// Update
     ///
     public void update() {
-        currentUI?.update();
+        foreach(var ui in uis.Values) ui.update();
     }
 
     ///

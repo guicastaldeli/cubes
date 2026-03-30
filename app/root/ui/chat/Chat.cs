@@ -22,6 +22,7 @@ class Chat : UI {
     /// 
     public override void update() {
         ChatController.getInstance().update();
+        ChatController.getInstance().show();
         base.update();
     }
 }

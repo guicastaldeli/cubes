@@ -14,10 +14,11 @@ class ChatController {
     private bool opened = false;
 
     private List<string> messages = new();
+    private bool messageAdded = false;
     private float messageTimer = 5.0f;
     private float messageDuration = 5.0f;
-    private bool boxVisible = false;
     private int maxMessages = 8;
+    private bool boxVisible = false;
 
     public static ChatController getInstance() {
         instance ??= new ChatController();
@@ -55,6 +56,8 @@ class ChatController {
 
     // Add Message
     public void addMessage(string? playerName, string message) {
+        messageAdded = true;
+
         messages.Add($"{playerName}> {message}");
         if(messages.Count > maxMessages) messages.RemoveAt(0);
 
@@ -76,7 +79,6 @@ class ChatController {
 
     public void open() {
         opened = true;
-        uiController?.show(UIController.UIType.CHAT);
 
         if(chatBox != null) chatBox.setVisible(true);
         chatInput?.setVisible(true);
@@ -108,5 +110,14 @@ class ChatController {
             boxVisible = false;
             chatBox?.setVisible(false);
         }
+    }
+
+    ///
+    /// Show
+    /// 
+    public void show() {
+        if(!opened && !messageAdded) return;
+        uiController?.show(UIController.UIType.CHAT);
+        messageAdded = false;
     }
 }

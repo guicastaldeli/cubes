@@ -8,7 +8,7 @@ class PlayerMesh {
     private Mesh.Mesh mesh;
     
     public string PLAYER_ID => PlayerController.getId();
-    public static string PLAYER_MESH = "cube";
+    public static string PLAYER_MESH = "sphere";
 
     public PlayerMesh(
         Window window,
