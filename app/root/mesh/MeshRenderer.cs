@@ -9,6 +9,8 @@ class MeshRenderer : DataEntry {
     private MeshData? meshData;
     private Camera? camera;
 
+    private string meshType = "";
+
     private int vao;
     private int vbo;
     private int ebo;
@@ -20,6 +22,7 @@ class MeshRenderer : DataEntry {
     private int instanceVbo = 0;
     private int instanceCount = 0;
     public bool isInstanced = false;
+    private List<Vector3> cachedInstancePositions = new();
 
     private Matrix4 modelMatrix = Matrix4.Identity;
     private Matrix4 rotationMatrix = Matrix4.Identity;
@@ -47,6 +50,7 @@ class MeshRenderer : DataEntry {
     public void setData(MeshData data) {
         meshData = data;
         isDynamic = data.isDynamic;
+        meshType = data.meshType;
         createBuffers();
     } 
 
@@ -73,7 +77,9 @@ class MeshRenderer : DataEntry {
     }
 
     public void setInstancePositions(List<Vector3> positions) {
+        cachedInstancePositions = positions;
         instanceCount = positions.Count;
+
         float[] data = new float[positions.Count * 3];
         for(int i = 0; i < positions.Count; i++) {
             data[i * 3 + 0] = positions[i].X;
@@ -358,17 +364,29 @@ class MeshRenderer : DataEntry {
     }
 
     public Dictionary<string, object> serialize() {
-        return new Dictionary<string, object> {
+        var dict = new Dictionary<string, object> {
             ["id"] = id,
-            ["meshType"] = id,
+            ["meshType"] = meshType,
             ["x"] = position.X,
             ["y"] = position.Y,
             ["z"] = position.Z,
             ["texId"] = texId,
             ["texPath"] = texPath,
+            ["isInstanced"] = isInstanced,
             ["r00"] = rotationMatrix.M11, ["r01"] = rotationMatrix.M12, ["r02"] = rotationMatrix.M13,
             ["r10"] = rotationMatrix.M21, ["r11"] = rotationMatrix.M22, ["r12"] = rotationMatrix.M23,
             ["r20"] = rotationMatrix.M31, ["r21"] = rotationMatrix.M32, ["r22"] = rotationMatrix.M33
         };
+        if(isInstanced && cachedInstancePositions.Count > 0) {
+            dict["instancePositions"] = cachedInstancePositions.Select(p => 
+                new Dictionary<string, object> {
+                    ["x"] = p.X, 
+                    ["y"] = p.Y, 
+                    ["z"] = p.Z
+                }
+            ).ToList();
+        }
+
+        return dict;
     }
 }

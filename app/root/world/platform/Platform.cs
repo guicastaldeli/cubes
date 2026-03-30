@@ -19,6 +19,8 @@ class Platform : WorldHandler {
     private int sizeY = 3;
     private int sizeZ = 10;
     private float spacing = 1.0f;
+
+    private bool initialized = false;
     
     public Platform(Mesh.Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
@@ -89,7 +91,10 @@ class Platform : WorldHandler {
     /// Render
     /// 
     public override void render() {
-        set();
+        if(!initialized) {
+            set();
+            initialized = true;
+        }
     }
 
     ///

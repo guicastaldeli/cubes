@@ -1,4 +1,6 @@
 namespace App.Root.World;
+
+using System.Text.Json;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
 using App.Root.Player;
@@ -43,6 +45,50 @@ class NetworkWorld : NetworkUpdateHandler {
             if(string.IsNullOrEmpty(id)) return;
             if(MeshRegistry.isRuntime(id)) return;
             //Console.WriteLine($"NetworkWorld: processing mesh id={id}");
+
+            bool instanced = entry.ContainsKey("isInstanced") && Convert.ToBoolean(entry["isInstanced"]);
+            if(instanced) {
+                if(!mesh.hasMesh(id)) {
+                    List<Vector3> positions = new();
+                    var rawEntry = entry["instancePositions"];
+                    
+                    if(rawEntry is string jsonStr) {
+                        var parsed = JsonSerializer.Deserialize<List<Dictionary<string, float>>>(jsonStr);
+                        if(parsed == null) return;
+
+                        positions = parsed.Select(p => new Vector3(
+                            p["x"], 
+                            p["y"], 
+                            p["z"]
+                        )).ToList();
+                    } else if(rawEntry is List<object> rawList) {
+                        positions = rawList
+                            .Cast<Dictionary<string, object>>()
+                            .Select(p => new Vector3(
+                                Convert.ToSingle(p["x"]),
+                                Convert.ToSingle(p["y"]),
+                                Convert.ToSingle(p["z"])
+                            )).ToList();
+                    } else {
+                        Console.WriteLine($"instancePositions unexpected type: {rawEntry?.GetType()}");
+                        return;
+                    }
+
+                    worldManager.getWindow().queueOnRenderThread(() => {
+                        string meshType = entry.ContainsKey("meshType") ?
+                            Convert.ToString(entry["meshType"]) ?? id : id;
+                        mesh.add(id, meshType);
+
+                        var renderer = mesh.getMeshRenderer(id);
+                        if(renderer != null) {
+                            renderer.isInstanced = true;
+                            renderer.setInstancePositions(positions);
+                        }
+                    });
+                }
+
+                return;
+            }
 
             float x = Convert.ToSingle(entry["x"]);
             float y = Convert.ToSingle(entry["y"]);
