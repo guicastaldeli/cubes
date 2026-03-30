@@ -1,8 +1,7 @@
+namespace App.Root.Chat;
 using App.Root.Packets;
 using App.Root.Screen;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-
-namespace App.Root.Chat;
 
 class InputChat {
     private ChatController chatController;

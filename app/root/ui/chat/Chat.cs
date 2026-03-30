@@ -1,15 +1,13 @@
 namespace App.Root.ui;
 using App.Root.Chat;
 
-class ChatUI : UI {
+class Chat : UI {
     public static readonly string PATH = DIR + "chat/chat.xml";
 
-    public ChatUI() : 
+    public Chat() : 
     base(PATH, "chat") {
+        ChatController.getInstance().setChat(this);
         ChatController.getInstance().setUIController(uiController);
-        ChatController.getInstance().setUI(this);
-
-        uiController.show(UIController.UIType.CHAT);
     }
 
     ///
@@ -23,6 +21,7 @@ class ChatUI : UI {
     /// Update
     /// 
     public override void update() {
+        ChatController.getInstance().update();
         base.update();
     }
 }

@@ -126,7 +126,7 @@ class UIController {
     /// Init
     ///
     private void init() {
-        uis[UIType.CHAT] = new ChatUI();
+        uis[UIType.CHAT] = new Chat();
     }
 
     ///
