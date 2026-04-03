@@ -22,8 +22,10 @@ class InputChat {
             }
         }
 
-        if(key == Keys.T && !chatController.isOpen() && 
-            screenController.isRunning()) {
+        if(key == Keys.T && 
+            !chatController.isOpen() && 
+            screenController.isRunning()
+        ) {
             chatController.open();
             return;
         }

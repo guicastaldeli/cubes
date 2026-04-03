@@ -1,17 +1,19 @@
 namespace App.Root.UI.Voip;
 
 class VoipUIActions {
-    public VoipUIActions() {
-        
+    private VoipUI voipUI;
+
+    public VoipUIActions(VoipUI voipUI) {
+        this.voipUI = voipUI;
     }
 
     // Activate
     public void activate() {
-        
+        voipUI.getVoiceDivElement!.visible = true;
     }
 
     // Deactivate
     public void deactivate() {
-        
+        voipUI.getVoiceDivElement!.visible = false;
     }
 }

@@ -4,7 +4,7 @@
         id="voiceDiv" 
         x="10" y="10" 
         width="30" height="30" 
-        background="0,0,0,0.5" 
+        background="2.0,3.0,0,0.5" 
         scale="0.7" 
         visible="false"
     >

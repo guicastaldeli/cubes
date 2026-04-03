@@ -34,10 +34,19 @@ class UIController {
         init();
     }
 
+    // Get
     public UI? get(UIType uiType) {
         return uis.GetValueOrDefault(uiType);
     }
 
+    public T? get<T>(UIType uiType) where T : UI {
+        if(uis.TryGetValue(uiType, out var ui)) {
+            return ui as T;
+        }
+        return null;
+    }
+
+    // Show
     public void show(UIType uiType) {
         if(active != null && active != uiType) hide();
 
@@ -50,6 +59,7 @@ class UIController {
         }
     }
 
+    // Hide
     public void hide() {
         currentUI?.onHide();
         active = null;
@@ -57,6 +67,7 @@ class UIController {
         isVisible = false;
     }
     
+    // Toggle
     public void toggle(UIType uiType) {
         if(active == uiType) hide();
         else show(uiType);

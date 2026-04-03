@@ -2,6 +2,7 @@ using App.Root;
 using App.Root.Chat;
 using App.Root.Player;
 using App.Root.Screen;
+using App.Root.UI;
 using App.Root.Voip;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Window = App.Root.Window;
@@ -9,7 +10,9 @@ using Window = App.Root.Window;
 class Input {
     private Window window;
     private Tick tick;
+
     private ScreenController screenController = null!;
+    private UIController uiController = null!;
     private PlayerInputMap? playerInputMap = null!;
     private Network network = null!;
 
@@ -26,6 +29,11 @@ class Input {
     // Set Screen Controller
     public void setScreenController(ScreenController screenController) {
         this.screenController = screenController;
+    }
+
+    // Set UI Controller
+    public void setUIController(UIController uiController) {
+        this.uiController = uiController;
     }
     
     // Set Player Input Map
@@ -146,6 +154,6 @@ class Input {
         setKeys();
 
         inputChat = new InputChat(screenController, network);
-        inputVoip = new InputVoip(screenController);
+        inputVoip = new InputVoip(screenController, uiController);
     }
 }

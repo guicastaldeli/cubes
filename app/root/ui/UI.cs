@@ -139,12 +139,22 @@ class UI : UIHandler {
         if((element.type == "button" || element.type == "label") && !string.IsNullOrEmpty(element.text)) {
             if(element.hasShadow) {
                 textRenderer.renderTextWithShadow(
-                    element.text, element.x, element.y, element.scale, element.color,
-                    element.shadowOffsetX, element.shadowOffsetY, element.shadowBlur,
-                    element.shadowColor, element.fontFamily
+                    element.text, element.x, element.y, 
+                    element.scale, 
+                    element.color,
+                    element.shadowOffsetX, element.shadowOffsetY, 
+                    element.shadowBlur,
+                    element.shadowColor, 
+                    element.fontFamily
                 );
             } else {
-                textRenderer.renderText(element.text, element.x, element.y, element.scale, element.color, element.fontFamily);
+                textRenderer.renderText(
+                    element.text, 
+                    element.x, element.y, 
+                    element.scale, 
+                    element.color, 
+                    element.fontFamily
+                );
             }
         }
     }

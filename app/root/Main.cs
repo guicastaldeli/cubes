@@ -93,6 +93,7 @@ class Main {
         );
         
         input.setScreenController(screenController);
+        input.setUIController(uiController);
         input.setNetwork(network);
         input.init();
     }
