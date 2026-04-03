@@ -5,10 +5,13 @@ using OpenTK.Mathematics;
 
 class NetworkPlayer : NetworkUpdateHandler {
     private PlayerController playerController;
+    private Dictionary<string, Vector3> namePos = new();
 
     public NetworkPlayer(PlayerController playerController) {
         this.playerController = playerController;
         NetworkUpdate.register(this);
+
+        renderName();
     }
 
     ///
@@ -37,6 +40,24 @@ class NetworkPlayer : NetworkUpdateHandler {
         } else {
             mesh.setPosition(id, x, y, z);
         }
+
+        namePos[id] = new Vector3(x, y + 1.5f, z);
+    }
+
+    private void renderName() {
+        playerController.getWindow().addPersistentAction(() => {
+            var view = playerController.getCamera().getView();
+            var projection = playerController.getCamera().getProjection();
+            
+            foreach(var (id, pos) in namePos) {
+                Screen.textRenderer?.renderTextBillboard(
+                    id, 
+                    pos, 
+                    view, 
+                    projection
+                );
+            }
+        });
     }
 
     ///

@@ -13,6 +13,7 @@ class Window : NativeWindow {
 
     private volatile Action? pendingAction = null;
     private ConcurrentQueue<Action> pendingActions = new();
+    private List<Action> persistentRenderActions = new();
 
     public Action<Keys>? onKeyDown;
     public Action<Keys>? onKeyUp;
@@ -35,27 +36,28 @@ class Window : NativeWindow {
         };
     }
 
+    // Render
     public void queueOnRenderThread(Action action) {
         pendingActions.Enqueue(action);
     }
 
-    public void updateTitle(int tickCount, int fps) {
-        Title = 
-            TITLE +
-            " / Tick: " + tickCount +
-            " / FPS: " + fps;
+    public void addPersistentAction(Action action) {
+        persistentRenderActions.Add(action);
     }
 
+    // Run
     public void run(Action renderCallback) {
         Thread thread = new Thread(() => {
             Context.MakeCurrent();
+
             while(!IsExiting) {
-                while(pendingActions.TryDequeue(out var action)) {
-                    action();
-                }
+                while(pendingActions.TryDequeue(out var action)) action();
 
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
                 renderCallback();
+
+                foreach(var action in persistentRenderActions) action();
+
                 Context.SwapBuffers();
             }
         });
@@ -64,5 +66,13 @@ class Window : NativeWindow {
         thread.Start();
         while(!IsExiting) ProcessEvents(0.016);
         thread.Join();
+    }
+
+    // Update
+    public void updateTitle(int tickCount, int fps) {
+        Title = 
+            TITLE +
+            " / Tick: " + tickCount +
+            " / FPS: " + fps;
     }
 }
