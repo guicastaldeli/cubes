@@ -106,19 +106,6 @@ class TextRenderer {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
     }
 
-    private void updateQuadBillboard(float localX, float localY, float w, float h, Glyph glyph, float[] color) {
-        float r = color[0], g = color[1], b = color[2], a = color.Length > 3 ? color[3] : 1.0f;
-        float[] verts = {
-            localX,     localY + h, glyph.texCoordX,                  glyph.texCoordY + glyph.texHeight, r, g, b, a,
-            localX,     localY,     glyph.texCoordX,                  glyph.texCoordY,                   r, g, b, a,
-            localX + w, localY,     glyph.texCoordX + glyph.texWidth, glyph.texCoordY,                   r, g, b, a,
-            localX + w, localY + h, glyph.texCoordX + glyph.texWidth, glyph.texCoordY + glyph.texHeight, r, g, b, a,
-        };
-        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-        GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, verts.Length * sizeof(float), verts);
-        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-    }
-
     public void updateScreenSize(int w, int h) {
         screenWidth = w;
         screenHeight = h;
@@ -137,6 +124,19 @@ class TextRenderer {
     ) {
         renderTextWithShadow(text, x, y, scale, color, 0, 0, 0, new float[]{ 0, 0, 0, 0 }, fontKey);
     }
+
+    private void updateQuadBillboard(float localX, float localY, float w, float h, Glyph glyph, float[] color) {
+    float r = color[0], g = color[1], b = color[2], a = color.Length > 3 ? color[3] : 1.0f;
+    float[] verts = {
+        localX,     localY,     glyph.texCoordX,                  glyph.texCoordY,                   r, g, b, a,
+        localX,     localY - h, glyph.texCoordX,                  glyph.texCoordY + glyph.texHeight, r, g, b, a,
+        localX + w, localY - h, glyph.texCoordX + glyph.texWidth, glyph.texCoordY + glyph.texHeight, r, g, b, a,
+        localX + w, localY,     glyph.texCoordX + glyph.texWidth, glyph.texCoordY,                   r, g, b, a,
+    };
+    GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+    GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, verts.Length * sizeof(float), verts);
+    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+}
 
     public void renderTextWithShadow(
         string text,
@@ -228,7 +228,7 @@ class TextRenderer {
     ) {
         if(string.IsNullOrEmpty(text)) return;
 
-        float scale = 0.05f;
+        float scale = 0.008f;
         float[] color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
         bool depthTest = GL.IsEnabled(EnableCap.DepthTest);
@@ -267,10 +267,11 @@ class TextRenderer {
             Glyph? glyph = loadGlyphToAtlas(c, currentFont);
             if(glyph == null) continue;
 
-            float localX = cursorX + glyph.leftSideBearing * scale;
-            float localY = glyph.yOffset * scale;
             float w = glyph.bitmapWidth * scale;
             float h = glyph.bitmapHeight * scale;
+
+            float localX = cursorX + glyph.leftSideBearing * scale;
+            float localY = glyph.yOffset * scale;
 
             if(w > 0 && h > 0) {
                 updateQuadBillboard(localX, localY, w, h, glyph, color);
