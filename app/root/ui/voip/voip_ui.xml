@@ -2,19 +2,16 @@
 <voip>
     <div 
         id="voiceDiv" 
-        x="10" y="10" 
-        width="30" height="30" 
+        x="2%" y="85%" 
+        width="100" height="100" 
         background="2.0,3.0,0,0.5" 
         scale="0.7" 
-        visible="false"
     >
         <img
             id="voice" 
-            src="voice.png"
+            src="player/icon/voice.png"
             x="0" y="0" 
-            width="20" height="20"
-            color="0.871, 0.580, 0.949"
-            textShadow="2,2 0 0,0,0,1.0"
+            width="100" height="100"
         />
     </div>
 </voip>

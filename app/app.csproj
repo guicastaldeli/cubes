@@ -28,6 +28,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>resource\texture\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
+    <Content Include="root\resource\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>resource\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
     <Content Include="root\resource\font\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>resource\font\%(RecursiveDir)%(Filename)%(Extension)</Link>

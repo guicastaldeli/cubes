@@ -15,15 +15,6 @@ class VoipUI : UI {
         return voipUIActions;
     }
 
-    // Elements
-    public UIElement? getVoiceDivElement {
-        get => getElementById("voiceDiv");
-    }
-
-    public UIElement? getVoiceElement {
-        get => getElementById("voice");
-    }
-
     ///
     /// Render
     /// 

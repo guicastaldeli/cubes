@@ -132,7 +132,7 @@ class UIController {
     /// Render
     /// 
     public void render() {
-        currentUI?.render();
+       foreach(var ui in uis.Values) ui.render();
     }
 
     ///

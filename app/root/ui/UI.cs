@@ -63,6 +63,7 @@ class UI : UIHandler {
         visible = false;
     }
 
+    // Get Element
     public List<UIElement> getElementsByType(string type) {
         List<UIElement>? val = 
             uiData != null ?

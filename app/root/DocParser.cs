@@ -12,7 +12,7 @@ using System.Xml;
 using OpenTK.Graphics.OpenGL;
 
 class DocParser {
-    public static readonly string IMG_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/img/");
+    public static readonly string IMG_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/");
 
     private static int uiVao = 0;
     private static int uiVbo = 0;

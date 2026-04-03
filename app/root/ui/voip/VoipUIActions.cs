@@ -9,11 +9,11 @@ class VoipUIActions {
 
     // Activate
     public void activate() {
-        voipUI.getVoiceDivElement!.visible = true;
+        voipUI.onShow();
     }
 
     // Deactivate
     public void deactivate() {
-        voipUI.getVoiceDivElement!.visible = false;
+        voipUI.onHide();
     }
 }
