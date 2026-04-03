@@ -11,7 +11,7 @@ class PlayerAudioSource {
     private WaveOutEvent waveOut;
     private VolumeWaveProvider16 volumeProvider;
 
-    private float volume = 0.2f;
+    private float volume = 1.0f;
 
     public PlayerAudioSource() {
         decoder = OpusCodecFactory.CreateDecoder(SAMPLE_RATE, 1);
@@ -32,7 +32,7 @@ class PlayerAudioSource {
     /// Play
     /// 
     public void play(byte[] encodedAudio) {
-        short[] pcm = new short[FRAME_SIZE];
+        float[] pcm = new float[FRAME_SIZE];
         decoder.Decode(
             encodedAudio.AsSpan(),
             pcm.AsSpan(),
