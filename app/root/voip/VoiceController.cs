@@ -84,7 +84,7 @@ class VoiceController {
         waveIn.DataAvailable += onAudioCaptured;
         waveIn.StartRecording();
 
-        Console.WriteLine("VoiceController: capture started");
+        Console.WriteLine("VoiceController -- capture started");
     }
 
     ///
@@ -98,6 +98,6 @@ class VoiceController {
         foreach(var source in audioSources.Values) source.dispose();
         audioSources.Clear();
 
-        Console.WriteLine("VoiceController: capture stopped");
+        Console.WriteLine("VoiceController -- capture stopped");
     }
 }

@@ -1,4 +1,4 @@
-namespace App.Root.ui;
+namespace App.Root.UI;
 using System.Collections.Generic;
 
 class UIData {

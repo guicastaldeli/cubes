@@ -1,5 +1,6 @@
-namespace App.Root.ui;
+namespace App.Root.UI;
 using App.Root.Shaders;
+using App.Root.UI.Voip;
 using System.Collections.Generic;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -7,7 +8,8 @@ class UIController {
     public enum UIType {
         UPGRADE_MENU,
         INFO,
-        CHAT
+        CHAT,
+        VOIP
     }
 
     public int screenWidth;
@@ -126,7 +128,8 @@ class UIController {
     /// Init
     ///
     private void init() {
-        uis[UIType.CHAT] = new Chat();
+        uis[UIType.CHAT] = new Chat.Chat();
+        uis[UIType.VOIP] = new VoipUI();
     }
 
     ///

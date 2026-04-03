@@ -1,4 +1,4 @@
-namespace App.Root.ui;
+namespace App.Root.UI.Chat;
 using App.Root.Chat;
 
 class Chat : UI {

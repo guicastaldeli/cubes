@@ -1,4 +1,4 @@
-namespace App.Root.ui;
+namespace App.Root.UI;
 using App.Root.Shaders;
 using App.Root.Text;
 using App.Root.Screen;

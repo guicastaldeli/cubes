@@ -1,4 +1,4 @@
-namespace App.Root.ui;
+namespace App.Root.UI;
 
 interface UIHandler {
     void render() {}

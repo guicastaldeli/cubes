@@ -2,7 +2,7 @@ namespace App.Root.Screen;
 using App.Root.Resource;
 using App.Root.Shaders;
 using App.Root.Text;
-using App.Root.ui;
+using App.Root.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;

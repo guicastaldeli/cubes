@@ -1,14 +1,13 @@
-using App.Root.Screen;
-using App.Root.ui;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-
 namespace App.Root.Chat;
+using App.Root.UI;
+using App.Root.UI.Chat;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class ChatController {
     private static ChatController? instance;
 
     private UIController? uiController;
-    private ui.Chat? chat;
+    private Chat? chat;
 
     private KeyboardInput keyboardInput = new();
     private bool opened = false;
@@ -26,7 +25,7 @@ class ChatController {
     }
 
     // Chat
-    public void setChat(ui.Chat chat) {
+    public void setChat(Chat chat) {
         this.chat = chat;
     }
 

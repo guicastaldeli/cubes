@@ -1,7 +1,7 @@
 namespace App.Root;
 using App.Root.Screen;
 using App.Root.Shaders;
-using App.Root.ui;
+using App.Root.UI;
 using App.Root.Voip;
 using OpenTK.Graphics.OpenGL;
 
