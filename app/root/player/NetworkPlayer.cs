@@ -85,20 +85,6 @@ class NetworkPlayer : NetworkUpdateHandler {
             float z = Convert.ToSingle(entry["z"]);
 
             render(mesh, id, entry);
-
-            var labelPos = new Vector3(x, y + 1.5f, z);
-            ScreenController screenController = 
-                playerController
-                .getInput()
-                .getScreenController();
-            if(screenController != null) {
-                Screen.textRenderer?.renderTextBillboard(
-                    id,
-                    labelPos,
-                    view,
-                    projection
-                );
-            }
         });
     }
 }
