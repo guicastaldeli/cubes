@@ -1,4 +1,5 @@
 namespace App.Root.Text;
+using OpenTK.Mathematics;
 using App.Root.Shaders;
 using OpenTK.Graphics.OpenGL;
 
@@ -105,6 +106,19 @@ class TextRenderer {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
     }
 
+    private void updateQuadBillboard(float localX, float localY, float w, float h, Glyph glyph, float[] color) {
+        float r = color[0], g = color[1], b = color[2], a = color.Length > 3 ? color[3] : 1.0f;
+        float[] verts = {
+            localX,     localY + h, glyph.texCoordX,                  glyph.texCoordY + glyph.texHeight, r, g, b, a,
+            localX,     localY,     glyph.texCoordX,                  glyph.texCoordY,                   r, g, b, a,
+            localX + w, localY,     glyph.texCoordX + glyph.texWidth, glyph.texCoordY,                   r, g, b, a,
+            localX + w, localY + h, glyph.texCoordX + glyph.texWidth, glyph.texCoordY + glyph.texHeight, r, g, b, a,
+        };
+        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+        GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, verts.Length * sizeof(float), verts);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+    }
+
     public void updateScreenSize(int w, int h) {
         screenWidth = w;
         screenHeight = h;
@@ -204,6 +218,78 @@ class TextRenderer {
                 cursorX += fontLoader.getKerning(glyph.glypthIndex, next.glypthIndex) * scale;
             }
         }
+    }
+
+    public void renderTextBillboard(
+        string text,
+        Vector3 worldPos,
+        Matrix4 view,
+        Matrix4 projection
+    ) {
+        if(string.IsNullOrEmpty(text)) return;
+
+        float scale = 0.05f;
+        float[] color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+        bool depthTest = GL.IsEnabled(EnableCap.DepthTest);
+        if(depthTest) GL.Disable(EnableCap.DepthTest);
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);        
+
+        shaderProgram.bind();
+        shaderProgram.setUniform("shaderType", 4);
+        shaderProgram.setUniform("hasTex", 1); 
+        shaderProgram.setUniform("uSampler", 0);
+        shaderProgram.setUniform("uView", view);
+        shaderProgram.setUniform("uProjection", projection);
+        shaderProgram.setUniform("uColor", 
+            color[0], 
+            color[1], 
+            color[2], 
+            color.Length > 3 ? color[3] : 1.0f
+        );
+
+        var model = Matrix4.CreateTranslation(worldPos);
+        shaderProgram.setUniform("uModel", model);
+
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, atlases[currentFont].getTextureId());
+        GL.BindVertexArray(vao);
+
+        float totalWidth = getTextWidth(text, scale);
+        float cursorX = -totalWidth / 2.0f;
+
+        var cache = glyphCaches[currentFont];
+        var fontLoader = fontLoaders[currentFont];
+
+        for(int i = 0; i < text.Length; i++) {
+            char c = text[i];
+            Glyph? glyph = loadGlyphToAtlas(c, currentFont);
+            if(glyph == null) continue;
+
+            float localX = cursorX + glyph.leftSideBearing * scale;
+            float localY = glyph.yOffset * scale;
+            float w = glyph.bitmapWidth * scale;
+            float h = glyph.bitmapHeight * scale;
+
+            if(w > 0 && h > 0) {
+                updateQuadBillboard(localX, localY, w, h, glyph, color);
+                GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+            }
+
+            cursorX += glyph.advance * scale;
+            if(i < text.Length - 1 && cache.TryGetValue(text[i+1], out var next)) {
+                cursorX += fontLoader.getKerning(glyph.glypthIndex, next.glypthIndex) * scale;
+            } 
+
+        }
+
+        GL.BindVertexArray(0);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        if(depthTest) GL.Enable(EnableCap.DepthTest);
+        GL.Disable(EnableCap.Blend);
+        shaderProgram.setUniform("shaderType", 0);
+        shaderProgram.unbind();
     }
 
     ///

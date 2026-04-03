@@ -1,6 +1,7 @@
-using App.Root.Mesh;
-
 namespace App.Root.Player;
+using App.Root.Mesh;
+using App.Root.Screen;
+using OpenTK.Mathematics;
 
 class NetworkPlayer : NetworkUpdateHandler {
     private PlayerController playerController;
@@ -14,7 +15,7 @@ class NetworkPlayer : NetworkUpdateHandler {
     /// Render
     /// 
     private void render(
-        Mesh.Mesh mesh, 
+        Mesh mesh, 
         string id, 
         Dictionary<string, object> entry
     ) {
@@ -44,18 +45,39 @@ class NetworkPlayer : NetworkUpdateHandler {
     public override void update() {
         playerController.sendState();
         
-        Mesh.Mesh mesh = playerController.getMesh();
+        Mesh mesh = playerController.getMesh();
         Network? network = playerController.getNetwork();
         if(network == null) return;
 
         var snapshot = network.getCachedSnapshot();
         if(snapshot == null) return;
 
+        var view = playerController.getCamera().getView();
+        var projection = playerController.getCamera().getProjection();
+
         Data.getInstance().apply(snapshot, DataType.PLAYER, entry => {
             string? id = entry["id"] as string;
             if(string.IsNullOrEmpty(id) || id == network.playerId) return;
 
+            float x = Convert.ToSingle(entry["x"]);
+            float y = Convert.ToSingle(entry["y"]);
+            float z = Convert.ToSingle(entry["z"]);
+
             render(mesh, id, entry);
+
+            var labelPos = new Vector3(x, y + 1.5f, z);
+            ScreenController screenController = 
+                playerController
+                .getInput()
+                .getScreenController();
+            if(screenController != null) {
+                Screen.textRenderer?.renderTextBillboard(
+                    id,
+                    labelPos,
+                    view,
+                    projection
+                );
+            }
         });
     }
 }

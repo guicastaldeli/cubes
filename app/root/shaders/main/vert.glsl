@@ -19,6 +19,7 @@ uniform vec2 screenSize;
 
 #include "../text/text_vert.glsl"
 #include "../ui/ui_vert.glsl"
+#include "../player/nickname.glsl"
 
 void main() {
     if(shaderType == 1) {
@@ -26,6 +27,9 @@ void main() {
     }
     else if(shaderType == 3) {
         setUIVert();
+    }
+    else if(shaderType == 4) {
+        setBillboardVert();
     }
     else {
         vec3 worldPos = aPos;

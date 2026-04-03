@@ -15,7 +15,7 @@ uniform sampler2D uSampler;
 #include "../ui/ui_frag.glsl"
 
 void main() {
-    if(shaderType == 1) {
+    if(shaderType == 1 || shaderType == 4) {
         setTextFrag();
     }
     else if(shaderType == 3) {

@@ -26,9 +26,13 @@ class Input {
         this.tick = tick;
     }
 
-    // Set Screen Controller
+    // Screen Controller
     public void setScreenController(ScreenController screenController) {
         this.screenController = screenController;
+    }
+
+    public ScreenController getScreenController() {
+        return screenController;
     }
 
     // Set UI Controller

@@ -33,7 +33,7 @@ class Scene {
         this.input = input;
 
         this.mesh = new Mesh.Mesh(shaderProgram);
-        this.playerController = new PlayerController(window, mesh);
+        this.playerController = new PlayerController(window, input, mesh);
         this.collisionManager = new CollisionManager();
 
         this.worldManager = new WorldManager(
@@ -140,7 +140,7 @@ class Scene {
 
         mesh = new Mesh.Mesh(shaderProgram);
         collisionManager = new CollisionManager();
-        playerController = new PlayerController(window, mesh);
+        playerController = new PlayerController(window, input, mesh);
         
         worldManager = new WorldManager(
             window,

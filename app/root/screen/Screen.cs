@@ -16,7 +16,7 @@ class Screen : ScreenHandler {
     public static ScreenController screenController = null!;
     public static Scene scene = null!;
 
-    public TextRenderer? textRenderer;
+    public static TextRenderer? textRenderer;
     public bool active = false;
     public string screenName;
     public ScreenData? screenData;
@@ -47,8 +47,8 @@ class Screen : ScreenHandler {
     public Screen(string filePath, string screenName) {
         this.screenName = screenName;
         try {
-            this.textRenderer = new TextRenderer(shaderProgram, screenWidth, screenHeight);
-            this.textRenderer.loadFont("arial", "arial.ttf", 16.0f);
+            textRenderer ??= new TextRenderer(shaderProgram, screenWidth, screenHeight);
+            textRenderer.loadFont("arial", "arial.ttf", 16.0f);
             this.screenData = DocParser.parseScreen(
                 filePath,
                 screenWidth,
@@ -72,6 +72,7 @@ class Screen : ScreenHandler {
         return screenName;
     }
 
+    // Active
     public void setActive(bool active) {
         resetMouse();
         resetHover();
@@ -82,6 +83,7 @@ class Screen : ScreenHandler {
         return active;
     }
 
+    // Get Element
     public ScreenElement? getElementById(string id) {
         ScreenElement? val = 
             screenData != null ? 
@@ -98,6 +100,7 @@ class Screen : ScreenHandler {
         return val;
     }
 
+    // Get Text Renderer
     public TextRenderer? getTextRenderer() {
         return textRenderer;
     }

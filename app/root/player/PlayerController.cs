@@ -18,6 +18,7 @@ class PlayerController : DataEntry {
 
     private Window window;
     private Camera camera;
+    private Input input;
     private PlayerInputMap playerInputMap;
     private RigidBody rigidBody;
     private CollisionManager? collisionManager;
@@ -52,13 +53,18 @@ class PlayerController : DataEntry {
 
     private WorldManager? worldManager = null!;
 
-    public PlayerController(Window window, Mesh.Mesh mesh) {
+    public PlayerController(
+        Window window,
+        Input input, 
+        Mesh.Mesh mesh
+    ) {
         instance = this;
 
         this.position = new Vector3(posX, posY, posZ);
         this.size = new Vector3(sizeX, sizeY, sizeZ);
 
         this.window = window;
+        this.input = input;
         this.mesh = mesh;
 
         this.camera = new Camera();
@@ -74,6 +80,11 @@ class PlayerController : DataEntry {
     // Get Window
     public Window getWindow() {
         return window;
+    }
+
+    // Get Input
+    public Input getInput() {
+        return input;
     }
 
     // Get Rigid Body

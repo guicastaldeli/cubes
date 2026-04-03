@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Collections.Concurrent;
 
 class Window : NativeWindow {
     public static readonly int WIDTH = 800;
@@ -11,6 +12,7 @@ class Window : NativeWindow {
     public static readonly string TITLE = "client";
 
     private volatile Action? pendingAction = null;
+    private ConcurrentQueue<Action> pendingActions = new();
 
     public Action<Keys>? onKeyDown;
     public Action<Keys>? onKeyUp;
@@ -34,7 +36,7 @@ class Window : NativeWindow {
     }
 
     public void queueOnRenderThread(Action action) {
-        pendingAction = action;
+        pendingActions.Enqueue(action);
     }
 
     public void updateTitle(int tickCount, int fps) {
@@ -48,8 +50,9 @@ class Window : NativeWindow {
         Thread thread = new Thread(() => {
             Context.MakeCurrent();
             while(!IsExiting) {
-                pendingAction?.Invoke();
-                pendingAction = null;
+                while(pendingActions.TryDequeue(out var action)) {
+                    action();
+                }
 
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
                 renderCallback();
