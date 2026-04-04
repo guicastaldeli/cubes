@@ -10,6 +10,11 @@ class PacketVoice : Packet {
         get;
         set;
     }
+    
+    public int sequence {
+        get;
+        set;
+    }
 
     public PacketVoice() {
         type = PacketType.VOICE;

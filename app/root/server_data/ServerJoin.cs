@@ -3,13 +3,20 @@ using App.Root.Packets;
 using App.Root.Player;
 using System.Net;
 
-class ServerJoin {
+class ServerJoin : PacketHandler {
     private Server server;
 
     public ServerJoin(Server server) {
         this.server = server;
+        PacketController.register(this, Context.SERVER);
     }
 
+    // Get Type
+    public PacketType getType() {
+        return PacketType.JOIN;
+    }
+
+    // Handle
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketJoin>(json);
         if(packet == null) return;

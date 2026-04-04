@@ -15,6 +15,8 @@ class VoiceController {
     private const int SAMPLE_RATE = 16000;
     private const int CHANNELS = 1;
     private const int FRAME_SIZE = 960;
+    
+    private int sendSequence = 0;
 
     private WaveInEvent? waveIn;
     private IOpusEncoder? encoder;
@@ -45,7 +47,8 @@ class VoiceController {
 
         network.getClient()?.send(new PacketVoice {
             playerId = network.playerId,
-            audio = encoded[..len]
+            audio = encoded[..len],
+            sequence = sendSequence++
         });
     }
 
@@ -60,12 +63,12 @@ class VoiceController {
     ///
     /// Receive
     /// 
-    public void receive(string playerId, byte[] encodedAudio) {
+    public void receive(string playerId, byte[] encodedAudio, int sequence) {
         if(!audioSources.TryGetValue(playerId, out var source)) {
             source = new PlayerAudioSource();
             audioSources[playerId] = source;
         }
-        source.play(encodedAudio);
+        source.play(encodedAudio, sequence);
     }
 
     ///

@@ -8,17 +8,16 @@ using System.Net.Sockets;
 using System.Text;
 
 class Server {
+    private ServerDataManager serverDataManager;
+
     private UdpClient udpServer = null!;
     private Thread? serverThread;
     private Thread? tickThread;
 
-    private bool running = false;
     public int port;
-
-    public ConcurrentDictionary<string, ServerPlayer> players = new();
+    private bool running = false;
     public int maxPlayers;
-
-    private ServerDataManager serverDataManager;
+    public ConcurrentDictionary<string, ServerPlayer> players = new();
 
     public Action? onTick;
 
@@ -66,25 +65,13 @@ class Server {
 
                 PacketType? type = Packet.peekType(json);
                 if(type == null) continue;
-                switch(type) {
-                    case PacketType.JOIN:
-                        serverDataManager.getServerJoin().handle(json, remote);
-                        break;
-                    case PacketType.LEAVE:
-                        serverDataManager.getServerLeave().handle(json, remote);
-                        break;
-                    case PacketType.PING:
-                        serverDataManager.getServerPing().handle(json, remote);
-                        break;
-                    case PacketType.DATA:
-                        serverDataManager.getServerPlayerState().handle(json, remote);
-                        break;   
-                    case PacketType.CHAT:
-                        serverDataManager.getServerChat().handle(json, remote);
-                        break;  
-                    case PacketType.VOICE:
-                        serverDataManager.getServerVoice().handle(json, remote);
-                        break;               
+                if(PacketController.tryGet(
+                    type.Value,
+                    Context.SERVER,
+                    out var handler
+                )) {
+                    if(handler == null) return;
+                    handler.handle(json, remote);
                 }
             } catch(SocketException ex) when (
                 ex.SocketErrorCode == SocketError.ConnectionReset ||

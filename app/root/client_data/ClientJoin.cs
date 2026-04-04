@@ -1,13 +1,20 @@
 namespace App.Root.ClientData;
 using App.Root.Packets;
 
-class ClientJoin {
+class ClientJoin : PacketHandler {
     private Client client;
 
     public ClientJoin(Client client) {
         this.client = client;
+        PacketController.register(this, Context.CLIENT);
     }
 
+    // Get Type
+    public PacketType getType() {
+        return PacketType.JOIN;
+    }
+
+    // Handle
     public void handle(string json) {
         var packet = Packet.deserialize<PacketJoin>(json);
         if(packet?.playerId == null) return;

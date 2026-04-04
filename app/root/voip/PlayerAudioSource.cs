@@ -5,6 +5,7 @@ using Concentus;
 class PlayerAudioSource {
     private const int SAMPLE_RATE = 16000;
     private const int FRAME_SIZE = 960;
+    private const int MIN_BUFFER_MS = 120;
 
     private IOpusDecoder decoder;
     private BufferedWaveProvider buffer;
@@ -12,6 +13,8 @@ class PlayerAudioSource {
     private VolumeWaveProvider16 volumeProvider;
 
     private float volume = 1.0f;
+    private int lastSequence = -1;
+    private bool playbackStarted = false;
 
     public PlayerAudioSource() {
         decoder = OpusCodecFactory.CreateDecoder(SAMPLE_RATE, 1);
@@ -25,28 +28,27 @@ class PlayerAudioSource {
 
         waveOut = new WaveOutEvent();
         waveOut.Init(volumeProvider);
-        waveOut.Play();
+        Console.WriteLine($"buffer buffered: {buffer.BufferedBytes} duration: {buffer.BufferedDuration}");
     }
 
     ///
     /// Play
     /// 
-    public void play(byte[] encodedAudio) {
-        float[] pcm = new float[FRAME_SIZE];
-        decoder.Decode(
-            encodedAudio.AsSpan(),
-            pcm.AsSpan(),
-            FRAME_SIZE
-        );
+    public void play(byte[] encodedAudio, int sequence) {
+        if(sequence <= lastSequence) return;
+        lastSequence = sequence;
 
         short[] pcmShort = new short[FRAME_SIZE];
-        for(int i = 0; i < FRAME_SIZE; i++) {
-            pcmShort[i] = (short)(Math.Clamp(pcm[i], -1.0f, 1.0f) * short.MaxValue);
-        }
+        decoder.Decode(encodedAudio.AsSpan(), pcmShort.AsSpan(), FRAME_SIZE);
 
         byte[] bytes = new byte[pcmShort.Length * 2];
         Buffer.BlockCopy(pcmShort, 0, bytes, 0, bytes.Length);
         buffer.AddSamples(bytes, 0, bytes.Length);
+
+        if(!playbackStarted && buffer.BufferDuration.TotalMilliseconds >= MIN_BUFFER_MS) {
+            waveOut.Play();
+            playbackStarted = true;
+        }
     }
 
     ///

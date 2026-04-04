@@ -5,7 +5,7 @@ class ServerDataManager {
     private ServerJoin serverJoin;
     private ServerLeave serverLeave;
     private ServerPing serverPing;
-    private ServerPlayerState serverPlayerState;
+    private ServerPlayerData serverPlayerData;
     private ServerChat serverChat;
     private ServerVoice serverVoice;
 
@@ -15,7 +15,7 @@ class ServerDataManager {
         this.serverJoin = new ServerJoin(server);
         this.serverLeave = new ServerLeave(server);
         this.serverPing = new ServerPing(server);
-        this.serverPlayerState = new ServerPlayerState(server);
+        this.serverPlayerData = new ServerPlayerData(server);
         this.serverChat = new ServerChat(server);
         this.serverVoice = new ServerVoice(server);
     }
@@ -36,8 +36,8 @@ class ServerDataManager {
     }
 
     // Get Server Data
-    public ServerPlayerState getServerPlayerState() {
-        return serverPlayerState;
+    public ServerPlayerData getServerPlayerData() {
+        return serverPlayerData;
     }
 
     // Get Server Chat

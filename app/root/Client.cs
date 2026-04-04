@@ -1,10 +1,10 @@
 namespace App.Root;
-using System.Collections.Concurrent;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using App.Root.ClientData;
 using App.Root.Packets;
+using System.Collections.Concurrent;
+using System.Net.Sockets;
+using System.Net;
+using System.Text;
 
 class Client {
     public string? playerId {
@@ -17,15 +17,14 @@ class Client {
         set;
     }
 
+    private ClientDataManager clientDataManager;
+
     private UdpClient udpClient = null!;
     private IPEndPoint serverEndPoint = null!;
     private Thread? receiveThread;
     private Thread? pingThread;
 
-    private ClientDataManager clientDataManager;
-
     public ConcurrentQueue<DataSnapshot> incomingData = new();
-
     private bool running = false;
 
     public Client() {
@@ -42,21 +41,13 @@ class Client {
 
                 PacketType? type = Packet.peekType(json);
                 if(type == null) continue;
-                switch(type) {
-                    case PacketType.JOIN:
-                        clientDataManager.getClientJoin().handle(json);
-                        break;
-                    case PacketType.DATA:
-                        clientDataManager.getClientData().handle(json);
-                        break;
-                    case PacketType.PING:
-                        break;
-                    case PacketType.CHAT:
-                        clientDataManager.getClientChat().handle(json);
-                        break;
-                    case PacketType.VOICE:
-                        clientDataManager.getClientVoice().handle(json);
-                        break;
+                if(PacketController.tryGet(
+                    type.Value,
+                    Context.CLIENT, 
+                    out var handler
+                )) {
+                    if(handler == null) return;
+                    handler.handle(json);
                 }
             } catch(Exception err) {
                 if(running) Console.Error.WriteLine("Client receive error: " + err.Message);

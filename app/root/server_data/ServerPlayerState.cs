@@ -2,13 +2,20 @@ namespace App.Root.ServerData;
 using System.Net;
 using App.Root.Packets;
 
-class ServerPlayerState {
+class ServerPlayerData : PacketHandler {
     private Server server;
 
-    public ServerPlayerState(Server server) {
+    public ServerPlayerData(Server server) {
         this.server = server;
+        PacketController.register(this, Context.SERVER);
     }
 
+    // Get Type
+    public PacketType getType() {
+        return PacketType.DATA;
+    }
+
+    // Handle
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketData>(json);
         if(packet == null) return;
