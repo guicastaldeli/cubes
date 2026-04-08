@@ -14,12 +14,12 @@ class ScreenController {
     public int screenWidth;
     public int screenHeight;
 
-    public Tick tick;
-    public Input input;
-    public Window window;
-    public ShaderProgram shaderProgram;
-    public Scene? scene;
-    public Root.Main main;
+    private Tick tick;
+    private Input input;
+    private Window window;
+    private ShaderProgram shaderProgram;
+    private Scene? scene;
+    private Network network;
 
     public Dictionary<SCREENS, Screen> screens = new();
     public SCREENS? activeScreen = null;
@@ -34,7 +34,7 @@ class ScreenController {
         Window window,
         ShaderProgram shaderProgram,
         Scene scene,
-        Root.Main main,
+        Network network,
         int screenWidth,
         int screenHeight
     ) {
@@ -44,7 +44,7 @@ class ScreenController {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.shaderProgram = shaderProgram;
-        this.main = main;
+        this.network = network;
 
         Screen.init(
             screenWidth, 
@@ -54,7 +54,8 @@ class ScreenController {
             window, 
             shaderProgram,
             this,
-            scene
+            scene,
+            network
         );
         this.init();
     }

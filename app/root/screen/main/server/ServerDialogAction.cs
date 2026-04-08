@@ -6,29 +6,32 @@ class ServerDialogAction {
     private Window window;
     private ScreenController screenController;
     private ServerDialog serverDialog;
+    private Network network;
 
     public ServerDialogAction(
         Window window,
         ScreenController screenController, 
-        ServerDialog serverDialog
+        ServerDialog serverDialog,
+        Network network
     ) {
         this.window = window;
         this.screenController = screenController;
         this.serverDialog = serverDialog;
+        this.network = network;
     }
 
     ///
     /// Host Server
     /// 
     public void hostServer() {
-        int port = screenController.main.getNetwork().getPort().get();
+        int port = network.getPort().get();
 
         string maxPlayersEl = serverDialog.inputField.getText("maxPlayersInput");
         int maxPlayers = string.IsNullOrEmpty(maxPlayersEl) ?
             ServerPlayer.SERVER_MAX_PLAYERS :
             int.Parse(maxPlayersEl);
 
-        screenController.main.getNetwork().host(port, maxPlayers);
+        network.host(port, maxPlayers);
         serverDialog.mainScreen.getScene().init();
     }
 
@@ -40,7 +43,7 @@ class ServerDialogAction {
         string port = serverDialog.inputField.getText("joinPortInput");
         if(string.IsNullOrEmpty(ip) || string.IsNullOrEmpty(port)) return;
 
-        screenController.main.getNetwork().join(ip, int.Parse(port));
+        network.join(ip, int.Parse(port));
 
         serverDialog.mainScreen.getScene().init();
     }
@@ -50,6 +53,6 @@ class ServerDialogAction {
         serverDialog.hide();
         serverDialog.mainScreen.show();
         
-        screenController.main.getNetwork().stop();
+        network.stop();
     }
 }

@@ -15,6 +15,7 @@ class Screen : ScreenHandler {
     public static ShaderProgram shaderProgram = null!;
     public static ScreenController screenController = null!;
     public static Scene scene = null!;
+    public static Network network = null!;
 
     public static TextRenderer? textRenderer;
     public bool active = false;
@@ -32,7 +33,8 @@ class Screen : ScreenHandler {
         Window window,
         ShaderProgram shaderProgram,
         ScreenController screenController,
-        Scene scene
+        Scene scene,
+        Network network
     ) {
         Screen.tick = tick;
         Screen.input = input;
@@ -42,6 +44,7 @@ class Screen : ScreenHandler {
         Screen.shaderProgram = shaderProgram;
         Screen.screenController = screenController;
         Screen.scene = scene;
+        Screen.network = network;
     }
 
     public Screen(string filePath, string screenName) {

@@ -29,6 +29,7 @@ class Main {
         set();
     }
 
+    // Get Network
     public Network getNetwork() {
         return network;
     }
@@ -78,9 +79,9 @@ class Main {
             tick,
             input,
             window,
-            shaderProgram, 
+            shaderProgram,
             scene,
-            this,
+            network,
             Window.WIDTH, Window.HEIGHT
         );
         screenController.switchTo(ScreenController.SCREENS.MAIN);

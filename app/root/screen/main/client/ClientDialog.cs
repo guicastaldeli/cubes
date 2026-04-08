@@ -11,7 +11,12 @@ class ClientDialog : Screen {
     public ClientDialog(MainScreen mainScreen) : 
     base(PATH, "client_dialog") {
         this.mainScreen = mainScreen;
-        this.clientDialogAction = new ClientDialogAction(window, screenController, this);
+        this.clientDialogAction = new ClientDialogAction(
+            window, 
+            screenController, 
+            this,
+            network
+        );
     }
 
     // Handle Action

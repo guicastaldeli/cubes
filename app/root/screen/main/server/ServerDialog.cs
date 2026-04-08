@@ -15,7 +15,8 @@ class ServerDialog : Screen {
         this.serverDialogAction = new ServerDialogAction(
             window, 
             screenController, 
-            this
+            this,
+            network
         );
         this.inputField = new InputField(this);
         

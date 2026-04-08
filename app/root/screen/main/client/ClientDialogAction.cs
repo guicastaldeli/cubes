@@ -2,18 +2,21 @@ namespace App.Root.Screen.Main.Server;
 using App.Root.Screen.Main.Client;
 
 class ClientDialogAction {
-    public Window window;
-    public ScreenController screenController;
-    public ClientDialog clientDialog;
+    private Window window;
+    private ScreenController screenController;
+    private ClientDialog clientDialog;
+    private Network network;
 
     public ClientDialogAction(
         Window window,
         ScreenController screenController, 
-        ClientDialog clientDialog
+        ClientDialog clientDialog,
+        Network network
     ) {
         this.window = window;
         this.screenController = screenController;
         this.clientDialog = clientDialog;
+        this.network = network;
     }
 
     // Start
@@ -26,6 +29,6 @@ class ClientDialogAction {
         clientDialog.hide();
         clientDialog.mainScreen.show();
         
-        screenController.main.getNetwork().stop();
+        network.stop();
     }
 }

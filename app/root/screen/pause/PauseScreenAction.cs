@@ -3,28 +3,31 @@ using App.Root.Screen.Main;
 namespace App.Root.Screen.Pause;
 
 class PauseScreenAction {
-    public Tick tick;
-    public Input input;
-    public ScreenController screenController;
-    public PauseScreen pauseScreen;
+    private Tick tick;
+    private Input input;
+    private ScreenController screenController;
+    private PauseScreen pauseScreen;
+    private Network network;
 
     public PauseScreenAction(
         Tick tick,
         Input input,
         ScreenController screenController, 
-        PauseScreen pauseScreen
+        PauseScreen pauseScreen,
+        Network network
     ) {
         this.tick = tick;
         this.input = input;
         this.screenController = screenController;
         this.pauseScreen = pauseScreen;
+        this.network = network;
     }
 
     ///
     /// Resume
     /// 
     public void resume() {
-        if(!screenController.main.getNetwork().isConnected) tick.setPaused(false);
+        if(!network.isConnected) tick.setPaused(false);
         input.lockMouse();
         screenController.closeOverlay();
         input.pauseOverlayOpen = false;
@@ -40,7 +43,7 @@ class PauseScreenAction {
         input.pauseOverlayOpen = false;
         
         screenController.running = false;
-        screenController.main.getNetwork().stop();
+        network.stop();
         
         Screen.scene.reset();
         var mainSceen = (MainScreen)screenController.screens[ScreenController.SCREENS.MAIN];
