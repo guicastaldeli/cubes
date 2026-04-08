@@ -6,5 +6,10 @@
     */
 using App.Root;
 
-Main main = new Main();
-main.run();
+/**
+
+    -- Run main program
+
+    */
+Controller controller = new Controller(args);
+controller.run();

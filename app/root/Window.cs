@@ -70,9 +70,14 @@ class Window : NativeWindow {
 
     // Update
     public void updateTitle(int tickCount, int fps) {
-        Title = 
-            TITLE +
-            " / Tick: " + tickCount +
-            " / FPS: " + fps;
+        if(Controller.getInstance(Instance.PROD)) {
+            Title = TITLE;
+        } else {
+            Title = 
+                TITLE + 
+                $" ({Controller.getCurrentName()})" +
+                " / Tick: " + tickCount +
+                " / FPS: " + fps;
+        }
     }
 }

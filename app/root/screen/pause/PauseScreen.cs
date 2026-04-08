@@ -11,7 +11,8 @@ class PauseScreen : Screen {
             tick, 
             input,
             screenController, 
-            this
+            this,
+            network
         );
     }
 

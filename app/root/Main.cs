@@ -38,7 +38,14 @@ class Main {
     /// Set
     /// 
     private void set() {
-        GL.ClearColor(0.2f, 0.3f, 0.8f, 1.0f);
+        if(Controller.getInstance(Instance.PROD)) {
+            GL.ClearColor(0.2f, 0.3f, 0.8f, 1.0f);
+        } else if(Controller.getInstance(Instance.DEV)) {
+            GL.ClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        } else if(Controller.getInstance(Instance.DEBUG)) {
+            GL.ClearColor(6.0f, 2.5f, 0.5f, 1.0f);
+        }
+        
         GL.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
         GL.Enable(EnableCap.DepthTest);
@@ -101,7 +108,7 @@ class Main {
     
     ///
     /// Run
-    /// 
+    ///
     public void run() {
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         window.run(() => {
