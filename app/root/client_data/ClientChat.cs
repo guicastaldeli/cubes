@@ -25,7 +25,8 @@ class ClientChat : PacketHandler {
 
         ChatController.getInstance().addMessage(
             username,
-            packet.message
+            packet.message,
+            packet.isServer
         );
     }
 }

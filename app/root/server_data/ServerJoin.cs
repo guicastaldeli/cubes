@@ -16,6 +16,14 @@ class ServerJoin : PacketHandler {
         return PacketType.JOIN;
     }
 
+    // Send Alert
+    private void sendAlert(ServerPlayer player) {
+        var msg = ServerMessage.get(ServerMessage.USER_JOINED, player.username);
+        foreach(var (_, p) in server.players) {
+            server.send(msg, p.endPoint);
+        }
+    }
+
     // Handle
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketJoin>(json);
@@ -53,9 +61,12 @@ class ServerJoin : PacketHandler {
         
         server.send(PacketData.fromSnapshot(serverSnapshot), remote);
 
+        // Alert
         Console.ForegroundColor = ConsoleColor.Green;
         string italic = "\x1b[3m";
         Console.WriteLine($"{italic}Player {id} joined from {remote}");
         Console.ResetColor();
+
+        sendAlert(player);
     }
 }

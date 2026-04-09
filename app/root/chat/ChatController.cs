@@ -54,10 +54,19 @@ class ChatController {
     }
 
     // Add Message
-    public void addMessage(string? username, string message) {
+    public void addMessage(
+        string? username, 
+        string message,
+        bool isServer
+    ) {
         messageAdded = true;
 
-        messages.Add($"{username}> {message}");
+        string userMsg = $"{username}> {message}";
+        string serverMsg = $"Server> {message}";
+        string line = isServer
+            ? serverMsg
+            : userMsg;
+        messages.Add(line);
         if(messages.Count > maxMessages) messages.RemoveAt(0);
 
         if(chatBox != null) {
