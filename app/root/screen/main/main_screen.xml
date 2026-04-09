@@ -32,14 +32,14 @@
         Server
     </button>
 
-    <!-- Player Menu -->
+    <!-- Custom Menu -->
     <button 
         id="customBtn" 
         x="20%" y="56%" 
         width="200" height="50"
         color="0.0,0.0,0.0" 
         background="1.0,1.0,1.0,1.0"
-        action="host" 
+        action="custom" 
         hoverBackground="0.7,0.7,0.7,1.0" 
         textOffset="25%,37%"
     >
