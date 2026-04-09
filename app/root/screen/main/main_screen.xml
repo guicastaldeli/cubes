@@ -33,14 +33,40 @@
     </button>
 
     <!-- Info -->
-    <label 
-        id="usernameInfoLabel" 
-        x="5%" y="75%" 
-        scale="1.0" 
-        color="0.0,0.0,0.0,1.0"
-    >
-        User:
-    </label>
+        <label 
+            id="usernameInfoLabel" 
+            x="5%" y="75%" 
+            scale="1.0" 
+            color="0.0,0.0,0.0,1.0"
+        >
+            User:
+        </label>
+
+        <label 
+            id="idInfoLabel" 
+            x="35%" y="75%" 
+            scale="0.6" 
+            color="0.0,0.0,0.0,1.0"
+            visible="false"
+        >
+            ID:
+        </label>
+
+        <!-- Change ID (Dev Mode) -->
+        <button 
+            id="idBtn" 
+            x="35%" y="80%" 
+            width="200" height="50"
+            color="0.0,0.0,0.0" 
+            background="1.0,1.0,1.0,1.0"
+            action="id" 
+            hoverBackground="0.7,0.7,0.7,1.0" 
+            textOffset="25%,37%"
+            visible="false"
+        >
+            -ID
+        </button>
+    <!---->
 
     <!-- Custom Menu -->
     <button 

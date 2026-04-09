@@ -354,7 +354,7 @@ class DocParser {
 
     public static ScreenElement? getElementById(ScreenData screenData, string id) {
         foreach(var el in screenData.elements) {
-            if(el.id == id && el.visible) return el;
+            if(el.id == id) return el;
         }
         return null;
     }

@@ -53,11 +53,7 @@ class PlayerController : DataEntry {
 
     private WorldManager? worldManager = null!;
 
-    private string id = 
-        InfoController.getInstance()
-            .userInfo
-            .getId();
-
+    private string id = "";
     private string username =
         InfoController.getInstance()
             .userInfo
@@ -262,7 +258,7 @@ class PlayerController : DataEntry {
 
     public Dictionary<string, object> serialize() {
         return new Dictionary<string, object> {
-            ["id"] = id,
+            ["id"] = InfoController.getInstance().userInfo.getId(),
             ["username"] = username,
             ["x"] = position.X,
             ["y"] = position.Y,

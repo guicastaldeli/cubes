@@ -8,14 +8,27 @@ class UserInfo {
         */
 
     private readonly Store store;
+    private string? tempId = null;
 
     public UserInfo(Store store) {
         this.store = store;
     }
 
-    // Get Id
+    // Id
     public string getId() {
-        return store.get(ID);
+        return tempId ?? store.get(ID);
+    }
+
+    public void switchTempId() {
+        tempId = UserValue.id();
+    }
+
+    public void clearTempId() {
+        tempId = null;
+    }
+
+    public bool hasTempId() {
+        return tempId != null;
     }
 
     // Username

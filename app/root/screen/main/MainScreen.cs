@@ -53,6 +53,9 @@ class MainScreen : Screen {
             case "custom":
                 mainScreenAction.openCustomMenu();
                 break;
+            case "id":
+                mainScreenAction.generateTempId();
+                break;
         }
     }
 
@@ -125,6 +128,7 @@ class MainScreen : Screen {
 
     private void updateScreen() {
         mainScreenAction.refreshUsername();
+        mainScreenAction.handleId();
     }
 
     ///
