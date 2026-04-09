@@ -1,3 +1,5 @@
+using App.Root.Info;
+
 namespace App.Root;
 
 class Store {
@@ -11,6 +13,10 @@ class Store {
 
     public bool has(string key) {
         return data.ContainsKey(key);
+    }
+
+    private string kv(KeyValuePair<string, string> v) {
+        return $"{v.Key}={v.Value}";
     }
 
     // Get and Set Raw
@@ -34,4 +40,27 @@ class Store {
         setRaw(field.key, field.serialize(val));
     }
     
+    ///
+    /// Load
+    /// 
+    public void load() {
+        if(!File.Exists(filePath)) return;
+        foreach(var line in File.ReadAllLines(filePath)) {
+            var idx = line.IndexOf("=");
+            if(idx < 0) continue;
+
+            var key = line[..idx].Trim();
+            var val = line[(idx+1)..].Trim();
+            
+            data[key] = val;
+        }
+    }
+
+    /// 
+    /// Save
+    /// 
+    public void save() {
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+        File.WriteAllLines(filePath, data.Select(v => kv(v)));
+    }
 }
