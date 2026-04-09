@@ -6,6 +6,7 @@
 
     */
 namespace App.Root;
+using App.Root.Info;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -47,6 +48,7 @@ class Controller {
 
     public Controller(string[] args) {
         init(args);
+        InfoController.init();
         this.main = new Main();
     }
 

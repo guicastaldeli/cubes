@@ -1,5 +1,6 @@
 namespace App.Root.Player;
 using App.Root.Collider;
+using App.Root.Info;
 using App.Root.World;
 using App.Root.World.Platform;
 using OpenTK.Mathematics;
@@ -47,11 +48,15 @@ class PlayerController : DataEntry {
     private bool flyMode = false;
     private float flySpeed = 10.0f;
 
-    private string id = Guid.NewGuid().ToString();
     private Network? network;
     private NetworkPlayer networkPlayer;
 
     private WorldManager? worldManager = null!;
+
+    private string id = 
+        InfoController.getInstance()
+            .userInfo
+            .getId();
 
     public PlayerController(
         Window window,
