@@ -1,14 +1,16 @@
 namespace App.Root.Screen.Main;
 using App.Root.Screen.Main.Client;
+using App.Root.Screen.Main.Custom;
 using App.Root.Screen.Main.Server;
 
 class MainScreen : Screen {
     public static readonly String PATH = DIR + "main/main_screen.xml";
     
-    public MainScreenAction mainScreenAction;
+    private MainScreenAction mainScreenAction;
 
-    public ClientDialog clientDialog;
-    public ServerDialog serverDialog;
+    private ClientDialog clientDialog;
+    private ServerDialog serverDialog;
+    private CustomMenu customMenu;
 
     public MainScreen() : 
     base(PATH, "main") {
@@ -16,6 +18,7 @@ class MainScreen : Screen {
 
         this.clientDialog = new ClientDialog(this);
         this.serverDialog = new ServerDialog(this);
+        this.customMenu = new CustomMenu(this);
     }
 
     // Handle Action

@@ -1,6 +1,5 @@
-using OpenTK.Windowing.GraphicsLibraryFramework;
-
 namespace App.Root.Screen.Main.Server;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class ServerDialog : Screen {
     public static readonly String PATH = DIR + "main/server/server_dialog.xml";
@@ -23,20 +22,22 @@ class ServerDialog : Screen {
         registerInputs();
     }
 
-    public override string? checkClick(int mouseX, int mouseY) {
-        inputField.handleClick(mouseX, mouseY);
-        return base.checkClick(mouseX, mouseY);
-    }
-
-    public override void handleKeyPress(int key, int action) {
-        inputField.handleKeyPress((Keys)key, action);
-    }
-
     private void registerInputs() {
         inputField.register("portInput");
         inputField.register("maxPlayersInput");
         inputField.register("ipInput");
         inputField.register("joinPortInput");
+    }
+
+    // Check Click
+    public override string? checkClick(int mouseX, int mouseY) {
+        inputField.handleClick(mouseX, mouseY);
+        return base.checkClick(mouseX, mouseY);
+    }
+
+    // Handle Key Press
+    public override void handleKeyPress(int key, int action) {
+        inputField.handleKeyPress((Keys)key, action);
     }
 
     // Handle Action
