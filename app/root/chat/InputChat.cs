@@ -34,8 +34,8 @@ class InputChat {
             string msg = chatController.getText().Trim();
             if(msg.Length > 0) {
                 network.getClient()?.send(new PacketChat {
-                    playerId = network.playerId,
-                    playerName = network.playerId,
+                    userId = network.userId,
+                    username = network.username,
                     message = msg
                 });
             }

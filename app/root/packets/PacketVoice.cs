@@ -1,7 +1,7 @@
 namespace App.Root.Packets;
 
 class PacketVoice : Packet {
-    public string? playerId {
+    public string? userId {
         get;
         set;
     }

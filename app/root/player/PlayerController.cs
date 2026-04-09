@@ -56,7 +56,7 @@ class PlayerController : DataEntry {
     private string id = "";
     private string username =
         InfoController.getInstance()
-            .userInfo
+            .getUserInfo()
             .getUsername();
 
     public PlayerController(
@@ -192,7 +192,7 @@ class PlayerController : DataEntry {
 
     // Set
     public void set() {
-        if(network != null) id = network.playerId ?? id;
+        if(network != null) id = network.userId ?? id;
         playerMesh.set(true);
 
         Vector3? spawn = Platform.height;
@@ -258,7 +258,7 @@ class PlayerController : DataEntry {
 
     public Dictionary<string, object> serialize() {
         return new Dictionary<string, object> {
-            ["id"] = network?.playerId ?? InfoController.getInstance().userInfo.getId(),
+            ["id"] = network?.userId ?? InfoController.getInstance().getUserInfo().getId(),
             ["username"] = username,
             ["x"] = position.X,
             ["y"] = position.Y,

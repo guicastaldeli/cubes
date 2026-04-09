@@ -8,7 +8,7 @@ using System.Text;
 using App.Root.Info;
 
 class Client {
-    public string? playerId {
+    public string? userId {
         get;
         set;
     }
@@ -61,7 +61,7 @@ class Client {
         while(running) {
             try {
                 if(connected) send(new PacketPing {
-                    playerId = playerId
+                    userId = userId
                 });
                 Thread.Sleep(1000);
             } catch(Exception err) {
@@ -90,13 +90,13 @@ class Client {
         pingThread.Start();
 
         send(new PacketJoin {
-            playerId = 
+            userId = 
                 InfoController.getInstance()
-                    .userInfo
+                    .getUserInfo()
                     .getId(),
             username =
                 InfoController.getInstance()
-                    .userInfo
+                    .getUserInfo()
                     .getUsername()
         });
 
@@ -124,7 +124,7 @@ class Client {
     /// 
     public void disconnect() {
         if(connected) send(new PacketLeave {
-            playerId = playerId
+            userId = userId
         });
         running = false;
         connected = false;

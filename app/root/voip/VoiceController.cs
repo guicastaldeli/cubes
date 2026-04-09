@@ -46,27 +46,27 @@ class VoiceController {
         );
 
         network.getClient()?.send(new PacketVoice {
-            playerId = network.playerId,
+            userId = network.userId,
             audio = encoded[..len],
             sequence = sendSequence++
         });
     }
 
     // Remove Player
-    public void removePlayer(string playerId) {
-        if(audioSources.TryGetValue(playerId, out var source)) {
+    public void removePlayer(string userId) {
+        if(audioSources.TryGetValue(userId, out var source)) {
             source.dispose();
-            audioSources.Remove(playerId);
+            audioSources.Remove(userId);
         }
     }
 
     ///
     /// Receive
     /// 
-    public void receive(string playerId, byte[] encodedAudio, int sequence) {
-        if(!audioSources.TryGetValue(playerId, out var source)) {
+    public void receive(string userId, byte[] encodedAudio, int sequence) {
+        if(!audioSources.TryGetValue(userId, out var source)) {
             source = new PlayerAudioSource();
-            audioSources[playerId] = source;
+            audioSources[userId] = source;
         }
         source.play(encodedAudio, sequence);
     }

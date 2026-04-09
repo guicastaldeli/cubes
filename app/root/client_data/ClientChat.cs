@@ -21,10 +21,10 @@ class ClientChat : PacketHandler {
         var packet = Packet.deserialize<PacketChat>(json);
         if(packet == null || packet.message == null) return;
 
-        string playerName = packet.playerName ?? "?"; 
+        string username = packet.username ?? "?"; 
 
         ChatController.getInstance().addMessage(
-            playerName,
+            username,
             packet.message
         );
     }

@@ -21,7 +21,7 @@ class ServerVoice : PacketHandler {
         if(packet == null || packet.audio == null) return;
 
         foreach(var (id, player) in server.players) {
-            if(id == packet.playerId) continue;
+            if(id == packet.userId) continue;
             server.send(packet, player.endPoint);
         }
     }

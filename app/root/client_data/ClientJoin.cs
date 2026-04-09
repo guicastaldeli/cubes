@@ -17,13 +17,13 @@ class ClientJoin : PacketHandler {
     // Handle
     public void handle(string json) {
         var packet = Packet.deserialize<PacketJoin>(json);
-        if(packet?.playerId == null) return;
+        if(packet?.userId == null) return;
 
-        client.playerId = packet.playerId;
+        client.userId = packet.userId;
         client.connected = true;
 
         Console.ForegroundColor = ConsoleColor.DarkBlue;
-        Console.WriteLine($"Connected with ID: {client.playerId}");
+        Console.WriteLine($"Connected with ID: {client.userId}");
         Console.ResetColor();
     }
 }

@@ -40,7 +40,9 @@ class MainScreenAction {
     public void refreshUsername() {
         var label = mainScreen.getElementById("usernameInfoLabel");
         if(label != null) {
-            string username = InfoController.getInstance().userInfo.getUsername();
+            string username = InfoController.getInstance()
+                .getUserInfo()
+                .getUsername();
             string val = $"User: {username}";
             label.text = val;
         }
@@ -57,7 +59,7 @@ class MainScreenAction {
     }
 
     public void generateTempId() {
-        InfoController.getInstance().userInfo.switchTempId();
+        InfoController.getInstance().getUserInfo().switchTempId();
         switchId();
     }
 
@@ -73,7 +75,7 @@ class MainScreenAction {
     private void switchId() {
         var label = mainScreen.getElementById("idInfoLabel");
         if(label != null) {
-            string id = InfoController.getInstance().userInfo.getId();
+            string id = InfoController.getInstance().getUserInfo().getId();
             string val = $"ID: {id}";
             label.text = val;
         }

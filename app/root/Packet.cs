@@ -8,7 +8,7 @@ class Packet {
         set;
     }
 
-    public string? playerId {
+    public string? userId {
         get;
         set;
     }

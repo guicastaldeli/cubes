@@ -14,7 +14,7 @@ class CustomMenuActions {
         var inputEl = customMenu.inputField.getText("usernameInput");
         if(string.IsNullOrWhiteSpace(inputEl)) return;
 
-        InfoController.getInstance().userInfo.setUsername(inputEl);
+        InfoController.getInstance().getUserInfo().setUsername(inputEl);
         customMenu.mainScreen.getMainScreenAction().refreshUsername();
 
         back();

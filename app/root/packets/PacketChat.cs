@@ -6,7 +6,7 @@ class PacketChat : Packet {
         set;
     }
 
-    public string? playerName {
+    public string? username {
         get;
         set;
     }

@@ -1,4 +1,6 @@
 namespace App.Root;
+
+using App.Root.Info;
 using App.Root.Packets;
 
 class Network {
@@ -11,7 +13,11 @@ class Network {
     private NetworkUpdate networkUpdate = null!;
 
     public bool isConnected => client?.connected ?? false;
-    public string? playerId => client?.playerId;
+    public string? userId => client?.userId;
+    public string? username => 
+        InfoController.getInstance()
+            .getUserInfo()
+            .getUsername();
 
     public Network() {
         this.ipGetter = new IPGetter();
@@ -120,7 +126,8 @@ class Network {
         var snapshot = new DataSnapshot();
         snapshot.data[DataType.PLAYER] = new List<Dictionary<string, object>> {
             new() {
-                ["id"] = playerId ?? "",
+                ["id"] = userId ?? "",
+                ["username"] = username ?? "",
                 ["x"] = x, ["y"] = y, ["z"] = z,
                 ["yaw"] = yaw, ["pitch"] = pitch
             }

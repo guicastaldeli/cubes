@@ -27,7 +27,7 @@ class ServerJoin : PacketHandler {
         }
 
         // Player
-        string id = packet.playerId!;
+        string id = packet.userId!;
         if(server.players.ContainsKey(id)) {
             Console.WriteLine($"Duplicate ID {id}, error {remote}");
             return;
@@ -39,7 +39,7 @@ class ServerJoin : PacketHandler {
         ServerSnapshot.getInstance().register(DataType.PLAYER, player);
 
         server.send(new PacketJoin {
-            playerId = id
+            userId = id
         }, remote);
 
         // Data

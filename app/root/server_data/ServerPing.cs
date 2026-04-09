@@ -18,8 +18,8 @@ class ServerPing : PacketHandler {
     // Handle
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketPing>(json);
-        if(packet?.playerId == null) return;
-        if(server.players.TryGetValue(packet.playerId, out var player)) player.updatePing();
+        if(packet?.userId == null) return;
+        if(server.players.TryGetValue(packet.userId, out var player)) player.updatePing();
         server.send(packet, remote);
     }
 }

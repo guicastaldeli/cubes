@@ -23,6 +23,16 @@ class InfoController {
         userInfo.ensureDefaults();
     }
 
+    // Get Store
+    public Store getStore() {
+        return store;
+    }
+
+    // Get User Info
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
     // Init
     public static void init() {
         instance = new InfoController();

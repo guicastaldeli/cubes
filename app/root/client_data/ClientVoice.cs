@@ -20,11 +20,11 @@ class ClientVoice : PacketHandler {
         var packet = Packet.deserialize<PacketVoice>(json);
         if(packet == null || 
             packet.audio == null || 
-            packet.playerId == null
+            packet.userId == null
         ) return;
 
         VoiceController.getInstance().receive(
-            packet.playerId, 
+            packet.userId, 
             packet.audio,
             packet.sequence
         );

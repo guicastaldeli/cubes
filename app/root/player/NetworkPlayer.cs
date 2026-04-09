@@ -83,7 +83,7 @@ class NetworkPlayer : NetworkUpdateHandler {
 
         Data.getInstance().apply(snapshot, DataType.PLAYER, entry => {
             string? id = entry["id"] as string;
-            if(string.IsNullOrEmpty(id) || id == network.playerId) return;
+            if(string.IsNullOrEmpty(id) || id == network.userId) return;
 
             string username = 
                 entry.TryGetValue("username", out var u) &&
