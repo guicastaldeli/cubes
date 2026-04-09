@@ -25,6 +25,7 @@ class UserInfo {
 
     public void setUsername(string val) {
         store.set(USERNAME, val);
+        store.save();
     }
 
     // Ensure Defaults

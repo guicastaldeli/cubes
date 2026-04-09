@@ -1,6 +1,5 @@
-using App.Root.Info;
-
 namespace App.Root;
+using App.Root.Info;
 
 class Store {
     private readonly string filePath;

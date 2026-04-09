@@ -14,15 +14,15 @@ class InfoField<T> {
     ) {
         this.key = key;
         this.defaultValue = defaultValue;
-        this.serialize = serialized();
-        this.deserialize = deserialized();
+        this.serialize = serialized(serialize);
+        this.deserialize = deserialized(deserialize);
     }
 
-    private Func<T, string> serialized() {
+    private static Func<T, string> serialized(Func<T, string>? serialize) {
         return serialize ?? (v => v?.ToString() ?? "");
     }
 
-    private Func<string, T> deserialized() {
+    private static Func<string, T> deserialized(Func<string, T>? deserialize) {
         return deserialize ?? (s => (T)Convert.ChangeType(s, typeof(T)));
     }
 }

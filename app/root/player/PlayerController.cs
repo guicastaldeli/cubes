@@ -58,6 +58,11 @@ class PlayerController : DataEntry {
             .userInfo
             .getId();
 
+    private string username =
+        InfoController.getInstance()
+            .userInfo
+            .getUsername();
+
     public PlayerController(
         Window window,
         Input input, 
@@ -258,6 +263,7 @@ class PlayerController : DataEntry {
     public Dictionary<string, object> serialize() {
         return new Dictionary<string, object> {
             ["id"] = id,
+            ["username"] = username,
             ["x"] = position.X,
             ["y"] = position.Y,
             ["z"] = position.Z,

@@ -6,6 +6,7 @@ using OpenTK.Mathematics;
 class NetworkPlayer : NetworkUpdateHandler {
     private PlayerController playerController;
     private Dictionary<string, Vector3> namePos = new();
+    private Dictionary<string, string> nameLabels = new();
 
     public NetworkPlayer(PlayerController playerController) {
         this.playerController = playerController;
@@ -50,8 +51,12 @@ class NetworkPlayer : NetworkUpdateHandler {
             var projection = playerController.getCamera().getProjection();
             
             foreach(var (id, pos) in namePos) {
+                string label = nameLabels.TryGetValue(id, out var username)
+                    ? username
+                    : id;
+
                 Screen.textRenderer?.renderTextBillboard(
-                    id, 
+                    label, 
                     pos, 
                     view, 
                     projection
@@ -80,9 +85,13 @@ class NetworkPlayer : NetworkUpdateHandler {
             string? id = entry["id"] as string;
             if(string.IsNullOrEmpty(id) || id == network.playerId) return;
 
-            float x = Convert.ToSingle(entry["x"]);
-            float y = Convert.ToSingle(entry["y"]);
-            float z = Convert.ToSingle(entry["z"]);
+            string username = 
+                entry.TryGetValue("username", out var u) &&
+                u is string s &&
+                !string.IsNullOrEmpty(s)
+                    ? s
+                    : id;
+            nameLabels[id] = username;
 
             render(mesh, id, entry);
         });
