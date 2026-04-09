@@ -19,7 +19,7 @@ uniform vec2 screenSize;
 
 #include "../text/text_vert.glsl"
 #include "../ui/ui_vert.glsl"
-#include "../player/nickname.glsl"
+#include "../player/username.glsl"
 
 void main() {
     if(shaderType == 1) {

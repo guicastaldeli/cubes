@@ -19,7 +19,7 @@ class CustomMenu : Screen {
     }
 
     private void registerInputs() {
-        inputField.register("nicknameInput");
+        inputField.register("usernameInput");
     }
 
     // Check Click

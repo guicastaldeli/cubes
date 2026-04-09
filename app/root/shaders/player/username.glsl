@@ -1,9 +1,9 @@
-//
-//
-// Billboard Shaders for Player's Nicknames
-// its not a minecraft copy :P ...
-//
-//
+/*
+
+    Billboard Shaders for Player's Username
+    its not a minecraft copy :P ...
+
+    */
 
 void setBillboardVert() {
     vec3 camRight = vec3(uView[0][0], uView[1][0], uView[2][0]);
