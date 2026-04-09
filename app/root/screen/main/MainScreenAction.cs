@@ -9,20 +9,22 @@ class MainScreenAction {
         this.mainScreen = mainScreen;
     }
 
-    ///
-    /// Open Client
-    /// 
+    // Open Client
     public void openClient() {
         mainScreen.show();
         mainScreen.setActive(false);
         mainScreen.clientDialog.setActive(true);
     }
 
-    ///
-    /// Open Server
-    /// 
+    // Open Server 
     public void openServer() {
         mainScreen.hide();
         mainScreen.serverDialog.setActive(true);
+    }
+
+    // Open Custom Menu
+    public void openCustomMenu() {
+        mainScreen.hide();
+        mainScreen.customMenu.setActive(true);
     }
 }

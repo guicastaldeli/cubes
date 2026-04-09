@@ -8,9 +8,9 @@ class MainScreen : Screen {
     
     private MainScreenAction mainScreenAction;
 
-    private ClientDialog clientDialog;
-    private ServerDialog serverDialog;
-    private CustomMenu customMenu;
+    public ClientDialog clientDialog;
+    public ServerDialog serverDialog;
+    public CustomMenu customMenu;
 
     public MainScreen() : 
     base(PATH, "main") {
@@ -31,6 +31,10 @@ class MainScreen : Screen {
             serverDialog.handleAction(action);
             return;
         }
+        if(customMenu.isActive()) {
+            customMenu.handleAction(action);
+            return;
+        }
         
         switch(action) {
             case "client":
@@ -38,6 +42,9 @@ class MainScreen : Screen {
                 break;
             case "server":
                 mainScreenAction.openServer();
+                break;
+            case "custom":
+                mainScreenAction.openCustomMenu();
                 break;
         }
     }
@@ -50,6 +57,10 @@ class MainScreen : Screen {
         }
         if(serverDialog.isActive()) {
             serverDialog.handleMouseMove(mouseX, mouseY);
+            return;
+        }
+        if(customMenu.isActive()) {
+            customMenu.handleMouseMove(mouseX, mouseY);
             return;
         }
         base.handleMouseMove(mouseX, mouseY);
@@ -65,13 +76,24 @@ class MainScreen : Screen {
             serverDialog.handleKeyPress(key, action);
             return;
         }
+        if(customMenu.isActive()) {
+            customMenu.handleKeyPress(key, action);
+            return;
+        }
         base.handleKeyPress(key, action);
     }
 
     // Check Click
     public override string? checkClick(int mouseX, int mouseY) {
-        if(clientDialog.isActive()) return clientDialog.checkClick(mouseX, mouseY);
-        if(serverDialog.isActive()) return serverDialog.checkClick(mouseX, mouseY);
+        if(clientDialog.isActive()) {
+            return clientDialog.checkClick(mouseX, mouseY);
+        }
+        if(serverDialog.isActive()) {
+            return serverDialog.checkClick(mouseX, mouseY);
+        }
+        if(customMenu.isActive()) {
+            return customMenu.checkClick(mouseX, mouseY);
+        }
         return base.checkClick(mouseX, mouseY);
     }
 
@@ -85,6 +107,10 @@ class MainScreen : Screen {
         }
         if(serverDialog.isActive()) {
             serverDialog.update();
+            return;
+        }
+        if(customMenu.isActive()) {
+            customMenu.update();
             return;
         }
         base.update();    
@@ -102,6 +128,10 @@ class MainScreen : Screen {
             serverDialog.render();
             return;
         }
+        if(customMenu.isActive()) {
+            customMenu.render();
+            return;
+        }
         base.render();
     }
 
@@ -109,6 +139,8 @@ class MainScreen : Screen {
     public void reset() {
         clientDialog.setActive(false);
         serverDialog.setActive(false);
+        customMenu.setActive(false);
+
         show();
     }
 }

@@ -35,7 +35,7 @@
     <!-- Custom Menu -->
     <button 
         id="customBtn" 
-        x="20%" y="56%" 
+        x="5%" y="80%" 
         width="200" height="50"
         color="0.0,0.0,0.0" 
         background="1.0,1.0,1.0,1.0"
