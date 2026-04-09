@@ -29,5 +29,6 @@ class ServerLeave : PacketHandler {
 
         string color = "\e[0;31m";
         Console.WriteLine($"{color}Player {packet.userId} left");
+        Console.ResetColor();
     }
 }

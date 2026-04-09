@@ -5,6 +5,7 @@ using App.Root.Collider;
 using App.Root.Text;
 using App.Root.Screen;
 using App.Root.World;
+using App.Root.Mesh;
 
 class Scene {
     private Window window;
@@ -137,6 +138,7 @@ class Scene {
         NetworkUpdate.clear();
         Data.getInstance().clearAll();
         ServerSnapshot.getInstance().clearAll();
+        MeshRegistry.clear();
 
         mesh = new Mesh.Mesh(shaderProgram);
         collisionManager = new CollisionManager();

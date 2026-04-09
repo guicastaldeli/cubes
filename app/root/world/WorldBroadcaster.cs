@@ -12,9 +12,17 @@ class WorldBroadcaster {
     /// Broadcast
     /// 
     public void broadcast() {
-        var worldSnapshot = ServerSnapshot.getInstance().snapshot();
+        var serverSnapshot = ServerSnapshot.getInstance().snapshot();
+        var worldSnapshot = Data.getInstance().snapshot();
 
-        var packet = PacketData.fromSnapshot(worldSnapshot);
+        foreach(var (type, list) in worldSnapshot.data) {
+            if(!serverSnapshot.data.ContainsKey(type)) {
+                serverSnapshot.data[type] = new();
+            }
+            serverSnapshot.data[type].AddRange(list);
+        }
+
+        var packet = PacketData.fromSnapshot(serverSnapshot);
         foreach(var player in worldManager.getServer()!.players.Values) {
             worldManager.getServer()!.send(packet, player.endPoint);
         }

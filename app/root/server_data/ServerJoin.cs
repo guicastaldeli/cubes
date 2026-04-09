@@ -38,13 +38,20 @@ class ServerJoin : PacketHandler {
         server.players[id] = player;
         ServerSnapshot.getInstance().register(DataType.PLAYER, player);
 
-        server.send(new PacketJoin {
-            userId = id
-        }, remote);
+        server.send(new PacketJoin { userId = id }, remote);
 
-        // Data
-        var snapshot = ServerSnapshot.getInstance().snapshot();
-        server.send(PacketData.fromSnapshot(snapshot), remote);
+        // Server
+        var serverSnapshot = ServerSnapshot.getInstance().snapshot();
+        var worldSnapshot = Data.getInstance().snapshot();
+        
+        foreach(var (type, list) in worldSnapshot.data) {
+            if(!serverSnapshot.data.ContainsKey(type)) {
+                serverSnapshot.data[type] = new();
+            }
+            serverSnapshot.data[type].AddRange(list);
+        }
+        
+        server.send(PacketData.fromSnapshot(serverSnapshot), remote);
 
         Console.ForegroundColor = ConsoleColor.Green;
         string italic = "\x1b[3m";
