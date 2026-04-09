@@ -204,7 +204,7 @@ class TextRenderer {
             if(glyph == null) continue;
 
             float xPos = cursorX + glyph.leftSideBearing * scale;
-            float yPos = baseline + glyph.yOffset;
+            float yPos = baseline + glyph.yOffset * scale; 
             float w = glyph.bitmapWidth * scale;
             float h = glyph.bitmapHeight * scale;
 
