@@ -36,6 +36,9 @@ class CustomMenu : Screen {
     // Handle Action
     public override void handleAction(string action) {
         switch(action) {
+            case "confirm":
+                customMenuActions.confirm();
+                break;
             case "back":
                 customMenuActions.back();
                 break;

@@ -1,3 +1,5 @@
+using App.Root.Info;
+
 namespace App.Root.Screen.Main;
 
 class MainScreenAction {
@@ -26,5 +28,19 @@ class MainScreenAction {
     public void openCustomMenu() {
         mainScreen.hide();
         mainScreen.customMenu.setActive(true);
+    }
+    
+    /**
+
+        Info
+
+        */
+    public void refreshUsername() {
+        var label = mainScreen.getElementById("usernameInfoLabel");
+        if(label != null) {
+            string username = InfoController.getInstance().userInfo.getUsername();
+            string val = $"User: {username}";
+            label.text = val;
+        }
     }
 }

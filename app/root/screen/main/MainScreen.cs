@@ -19,6 +19,13 @@ class MainScreen : Screen {
         this.clientDialog = new ClientDialog(this);
         this.serverDialog = new ServerDialog(this);
         this.customMenu = new CustomMenu(this);
+
+        this.updateScreen();
+    }
+
+    // Get Main Screen Actions
+    public MainScreenAction getMainScreenAction() {
+        return mainScreenAction;
     }
 
     // Handle Action
@@ -114,6 +121,10 @@ class MainScreen : Screen {
             return;
         }
         base.update();    
+    }
+
+    private void updateScreen() {
+        mainScreenAction.refreshUsername();
     }
 
     ///
