@@ -1,6 +1,6 @@
 namespace App.Root.ServerData;
-using System.Net;
 using App.Root.Packets;
+using System.Net;
 
 class ServerPlayerData : PacketHandler {
     private Server server;
@@ -31,6 +31,7 @@ class ServerPlayerData : PacketHandler {
                 player.z = Convert.ToSingle(entry["z"]);
                 player.yaw = Convert.ToSingle(entry["yaw"]);
                 player.pitch = Convert.ToSingle(entry["pitch"]);
+                if(entry.TryGetValue("username", out var u) && u is string username) player.username = username;
                 player.updatePing();
             }
         }

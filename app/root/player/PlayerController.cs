@@ -258,7 +258,7 @@ class PlayerController : DataEntry {
 
     public Dictionary<string, object> serialize() {
         return new Dictionary<string, object> {
-            ["id"] = InfoController.getInstance().userInfo.getId(),
+            ["id"] = network?.playerId ?? InfoController.getInstance().userInfo.getId(),
             ["username"] = username,
             ["x"] = position.X,
             ["y"] = position.Y,

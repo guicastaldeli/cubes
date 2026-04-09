@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
+using App.Root.Info;
 
 class Client {
     public string? playerId {
@@ -88,7 +89,16 @@ class Client {
         };
         pingThread.Start();
 
-        send(new PacketJoin());
+        send(new PacketJoin {
+            playerId = 
+                InfoController.getInstance()
+                    .userInfo
+                    .getId(),
+            username =
+                InfoController.getInstance()
+                    .userInfo
+                    .getUsername()
+        });
 
         Console.ForegroundColor = ConsoleColor.DarkMagenta;
         string italic = "\x1b[3m";

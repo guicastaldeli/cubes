@@ -22,6 +22,11 @@ class ServerLeave : PacketHandler {
 
         server.players.TryRemove(packet.playerId, out _);
 
+        ServerSnapshot.getInstance().clearAll();
+        foreach(var (_, p) in server.players) {
+            ServerSnapshot.getInstance().register(DataType.PLAYER, p);
+        }
+
         string color = "\e[0;31m";
         Console.WriteLine($"{color}Player {packet.playerId} left");
     }

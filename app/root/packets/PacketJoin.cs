@@ -1,7 +1,12 @@
 namespace App.Root.Packets;
 
 class PacketJoin : Packet {
-    public string? playerName {
+    public string? playerId {
+        get;
+        set;
+    }
+
+    public string? username {
         get;
         set;
     }

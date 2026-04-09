@@ -27,9 +27,16 @@ class ServerJoin : PacketHandler {
         }
 
         // Player
-        string id = Guid.NewGuid().ToString();
+        string id = packet.playerId!;
+        if(server.players.ContainsKey(id)) {
+            Console.WriteLine($"Duplicate ID {id}, error {remote}");
+            return;
+        }
+        
         var player = new ServerPlayer(id, remote);
+        if(!string.IsNullOrEmpty(packet.username)) player.username = packet.username;
         server.players[id] = player;
+        ServerSnapshot.getInstance().register(DataType.PLAYER, player);
 
         server.send(new PacketJoin {
             playerId = id
