@@ -33,7 +33,14 @@
     </button>
 
     <!-- Info -->
-    <label x="20%" y="24%" scale="1.0" color="1.0,1.0,1.0,1.0">User:</label>
+    <label 
+        id="usernameInfoLabel" 
+        x="5%" y="75%" 
+        scale="1.0" 
+        color="0.0,0.0,0.0,1.0"
+    >
+        User:
+    </label>
 
     <!-- Custom Menu -->
     <button 
