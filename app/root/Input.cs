@@ -134,7 +134,7 @@ class Input {
 
     ///
     /// Update
-    /// 
+    ///
     public void update() {
         if(playerInputMap == null || 
             tick.isPaused() || 

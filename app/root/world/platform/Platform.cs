@@ -2,6 +2,7 @@ namespace App.Root.World.Platform;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
+using App.Root.Resource;
 using OpenTK.Mathematics;
 
 class Platform : WorldHandler {
@@ -31,6 +32,24 @@ class Platform : WorldHandler {
     // Set Position
     private void setPosition() {
         offset = new Vector3(x, y, z);
+    }
+
+    /**
+
+        Temporary Cube to test 
+        raycaster for objects
+
+    */
+    public void set2() {
+        mesh.add("cube");
+        mesh.setPosition("cube", 0.0f, 3.0f, -3.0f);
+
+        string texPath = "env/test.jpg";
+        int texId = TextureLoader.load(texPath);
+        mesh.setTexture("cube", texId, texPath);
+
+        collisionManager.addStaticCollider(new BoundaryObject(World.WORLD_BOUNDARY));
+        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
     }
 
     ///
@@ -111,6 +130,7 @@ class Platform : WorldHandler {
     public override void render() {
         if(!initialized) {
             set();
+            set2();
             initialized = true;
         }
     }
