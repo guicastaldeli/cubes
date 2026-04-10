@@ -32,6 +32,7 @@ vertices = {
     -0.5,  0.5,  0.5,
     -0.5, -0.5,  0.5
 }
+
 --Indices
 indices = {
     0, 1, 2, 2, 3, 0,
@@ -41,6 +42,7 @@ indices = {
     16, 17, 18, 18, 19, 16,
     20, 21, 22, 22, 23, 20
 }
+
 -- Colors
 colors = {
     1.0, 0.0, 0.0, 1.0, -- Front (Red)
@@ -73,6 +75,7 @@ colors = {
     0.0, 1.0, 1.0, 1.0,
     0.0, 1.0, 1.0, 1.0
 }
+
 -- Normals
 normals = {
     0.0, 0.0, 1.0,
@@ -105,6 +108,7 @@ normals = {
     -1.0, 0.0, 0.0,
     -1.0, 0.0, 0.0
 }
+
 -- Tex Coords
 texCoords = {
     -- Front
@@ -143,8 +147,14 @@ texCoords = {
     1.0, 0.0,
     1.0, 1.0
 }
+
 -- Rotation
 rotation = {
     axis = "Y",
     speed = 0.0
+}
+
+-- Collider
+collider = {
+    shape = "cube"
 }

@@ -34,7 +34,11 @@ class MeshLoader {
         if(data["rotation"] is LuaTable rotation) {
             if(rotation["axis"] is string axis) meshData.addData(MeshData.DataType.ROTATION_AXIS, axis);
             if(rotation["speed"] is double speed) meshData.addData(MeshData.DataType.ROTATION_SPEED, (float)speed);
-        } 
+        }
+        if(data["collider"] is LuaTable collider) {
+            if(collider["shape"] is string shape) meshData.colliderShape = shape;
+            if(collider["radius"] is double radius) meshData.colliderRadius = (float)radius;
+        }
 
         return meshData;
     } 

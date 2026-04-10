@@ -89,7 +89,13 @@ normals = norms
 texCoords = texs
 colors = cols
 
+-- Rotation
 rotation = {
     axis = "Y",
-    speed = 30.0
+    speed = 0.0
+}
+
+-- Collider
+collider = {
+    shape = "sphere"
 }

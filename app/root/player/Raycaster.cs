@@ -1,7 +1,24 @@
 namespace App.Root.Player;
 
+using System.Runtime.Serialization;
 using App.Root.Collider;
 using OpenTK.Mathematics;
+
+/**
+
+    Interface of Mesh Shapes
+    to help Raycaster detect 
+    the collider type...
+
+    */
+public enum Shape {
+    [EnumMember(Value = "cube")] 
+    CUBE,
+    [EnumMember(Value = "shape")] 
+    SHAPE,
+    [EnumMember(Value = "triangle")] 
+    TRIANGLE
+}
 
 class Raycaster {
     private Camera camera;

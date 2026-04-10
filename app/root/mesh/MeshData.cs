@@ -16,11 +16,40 @@ class MeshData {
     }
 
     private readonly Dictionary<DataType, object> data = new();
-    public string meshType { get; }
-    public string id { get; }
-    public bool isDynamic { get; set; } = false;
-    public bool isTransparent { get; set; } = false;
-    public int shaderType { get; set; } = 0;
+    
+    public string meshType { 
+        get; 
+    }
+    
+    public string id { 
+        get; 
+    }
+    
+    public bool isDynamic { 
+        get; 
+        set; 
+    } = false;
+    
+    public bool isTransparent { 
+        get; 
+        set; 
+    } = false;
+
+    public int shaderType { 
+        get; 
+        set; 
+    } = 0;
+
+    public string? colliderShape {
+        get;
+        set;
+    }
+
+    public float colliderRadius {
+        get;
+        set;
+    } = 1.0f;
+
     private float[]? colors;
 
     public MeshData(string id, string meshType) {
