@@ -37,6 +37,7 @@ class MeshRenderer : DataEntry {
     private int texId = -1;
     private string texPath = "";
 
+    public bool isInteractive = false;
     public bool isHud = false;
 
     private string id = "";

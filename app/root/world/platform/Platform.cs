@@ -41,15 +41,20 @@ class Platform : WorldHandler {
 
     */
     public void set2() {
-        mesh.add("cube");
-        mesh.setPosition("cube", 0.0f, 3.0f, -3.0f);
+        string id = "cubic";
+        string mesht = "cube";
+        MeshData data = MeshLoader.load(mesht);
+        mesh.add(id, data);
+        mesh.setPosition(id, 0.0f, 3.0f, -3.0f);
+
+        var renderer = mesh.getMeshRenderer(id);
+        if(renderer != null) renderer.isInteractive = true;
 
         string texPath = "env/test.jpg";
         int texId = TextureLoader.load(texPath);
-        mesh.setTexture("cube", texId, texPath);
+        mesh.setTexture(id, texId, texPath);
 
-        collisionManager.addStaticCollider(new BoundaryObject(World.WORLD_BOUNDARY));
-        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox("cube"), "cube"));
+        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox(id), id));
     }
 
     ///

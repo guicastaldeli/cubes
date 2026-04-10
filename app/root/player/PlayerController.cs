@@ -29,6 +29,7 @@ class PlayerController : DataEntry {
     private Mesh.Mesh mesh;
     private PlayerMesh playerMesh;
     private Hud.Hud hud;
+    private Raycaster raycaster;
 
     private float posX = 50.0f;
     private float posY = 50.0f;
@@ -93,6 +94,8 @@ class PlayerController : DataEntry {
             shaderProgram, 
             mesh
         );
+
+        this.raycaster = new Raycaster(camera, mesh);
     }
 
     // Get Window
@@ -265,6 +268,8 @@ class PlayerController : DataEntry {
         playerMesh.update();
 
         hud.update();
+        
+        raycaster.update();
     }
 
     ///
