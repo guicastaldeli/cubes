@@ -36,6 +36,15 @@ class Window : NativeWindow {
         };
     }
 
+    // Width and Height 
+    public int getWidth() {
+        return WIDTH;
+    }
+
+    public int getHeight() {
+        return HEIGHT;
+    }
+
     // Render
     public void queueOnRenderThread(Action action) {
         pendingActions.Enqueue(action);

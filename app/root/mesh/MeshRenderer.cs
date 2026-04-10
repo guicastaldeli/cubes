@@ -37,6 +37,8 @@ class MeshRenderer : DataEntry {
     private int texId = -1;
     private string texPath = "";
 
+    public bool isHud = false;
+
     private string id = "";
     private bool networkControlled = false;
 
@@ -333,6 +335,50 @@ class MeshRenderer : DataEntry {
         }
         
         GL.BindVertexArray(0);
+        shaderProgram.unbind();
+    }
+
+    public void renderOrto(int screenWidth, int screenHeight) {
+        if(!visible) return;
+        if(meshData == null) return;
+
+        Matrix4 ortho = Matrix4.CreateOrthographicOffCenter(
+            0, screenWidth,
+            0, screenHeight,
+            -1.0f, 1.0f
+        );
+
+        Matrix4 model = 
+            Matrix4.CreateScale(scale) *
+            Matrix4.CreateTranslation(position);
+
+
+        shaderProgram.bind();
+        shaderProgram.setUniform("shaderType", 0);
+        shaderProgram.setUniform("uModel", model);
+        shaderProgram.setUniform("uView", Matrix4.Identity);
+        shaderProgram.setUniform("uProjection", ortho);
+        shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
+        shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
+        shaderProgram.setUniform("isInstanced", 0);
+        if(hasTex) {
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, texId);
+            shaderProgram.setUniform("uSampler", 0);
+        }
+
+        GL.BindVertexArray(vao);
+
+        int[]? indices = meshData.getIndices();
+        if(indices != null) {
+            GL.DrawElements(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, 0);
+        } else {
+            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
+        }
+
+        GL.BindVertexArray(0);
+        if(hasTex) GL.BindTexture(TextureTarget.Texture2D, 0);
+
         shaderProgram.unbind();
     }
 

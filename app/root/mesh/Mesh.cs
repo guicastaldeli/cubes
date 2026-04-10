@@ -5,13 +5,15 @@ using OpenTK.Mathematics;
 using App.Root.Collider;
 
 class Mesh {
-    public readonly ShaderProgram shaderProgram;
+    private Window window;
+    private ShaderProgram shaderProgram;
     private Camera? camera;
 
     private readonly Dictionary<string, MeshData> meshDataMap = new();
     private readonly Dictionary<string, MeshRenderer> meshRendererMap = new();
 
-    public Mesh(ShaderProgram shaderProgram) {
+    public Mesh(Window window, ShaderProgram shaderProgram) {
+        this.window = window;
         this.shaderProgram = shaderProgram;
     }
 
@@ -260,10 +262,22 @@ class Mesh {
 
     public void renderAll() {
         foreach(var entry in meshRendererMap) {
+            if(entry.Value.isHud) continue;
             if(entry.Value.isInstanced) {
                 entry.Value.renderInstanced();
             } else {
                 entry.Value.render();
+            }
+        }
+    }
+
+    public void renderAllOrto() {
+        foreach(var entry in meshRendererMap) {
+            if(entry.Value.isHud) {
+                entry.Value.renderOrto(
+                    window.getWidth(),
+                    window.getHeight()
+                );
             }
         }
     }

@@ -33,8 +33,13 @@ class Scene {
         this.shaderProgram = shaderProgram;
         this.input = input;
 
-        this.mesh = new Mesh.Mesh(shaderProgram);
-        this.playerController = new PlayerController(window, input, mesh);
+        this.mesh = new Mesh.Mesh(window, shaderProgram);
+        this.playerController = new PlayerController(
+            window, 
+            input,
+            shaderProgram, 
+            mesh
+        );
         this.collisionManager = new CollisionManager();
 
         this.worldManager = new WorldManager(
@@ -126,6 +131,7 @@ class Scene {
         screenController.running = true;
 
         mesh.renderAll();
+        mesh.renderAllOrto();
     }
 
     ///
@@ -140,9 +146,14 @@ class Scene {
         ServerSnapshot.getInstance().clearAll();
         MeshRegistry.clear();
 
-        mesh = new Mesh.Mesh(shaderProgram);
+        mesh = new Mesh.Mesh(window, shaderProgram);
         collisionManager = new CollisionManager();
-        playerController = new PlayerController(window, input, mesh);
+        playerController = new PlayerController(
+            window, 
+            input,
+            shaderProgram, 
+            mesh
+        );
         
         worldManager = new WorldManager(
             window,

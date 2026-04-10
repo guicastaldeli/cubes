@@ -1,5 +1,50 @@
 namespace App.Root.Player.Hud;
+using App.Root.Mesh;
+using App.Root.Resource;
 
-class Aim : Hud {
-    
+class Aim : HudElement {
+    private static string ID = "aim";
+    private static string TEX_PATH = "player/hud/aim.png";
+    private static string MESH = "quad"; 
+
+    private int width = 8;
+    private int height = 8;
+
+    public Aim() : base(ID) {
+    }
+
+    // Set
+    private void set() {
+        int texId = TextureLoader.load(TEX_PATH);
+
+        MeshData data = MeshLoader.load(MESH);
+        mesh.add(ID, data);
+
+        var renderer = mesh.getMeshRenderer(ID);
+        if(renderer != null) renderer.isHud = true;
+
+        mesh.setTexture(ID, texId);
+        mesh.setScale(ID, width, height, 1.0f);
+        mesh.setPosition(
+            ID,
+            screenWidth / 2.0f - width / 2.0f,
+            screenHeight / 2.0f - height / 2.0f,
+            0.0f
+        );
+    }
+
+    ///
+    /// Render
+    /// 
+    public override void render() {
+        base.render();
+    }
+
+    ///
+    /// Update
+    /// 
+    public override void update() {
+        set();
+        base.update();
+    }
 }

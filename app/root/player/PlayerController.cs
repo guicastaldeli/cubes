@@ -1,7 +1,9 @@
 namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Info;
+using App.Root.Shaders;
 using App.Root.World;
+using App.Root.Player.Hud;
 using App.Root.World.Platform;
 using OpenTK.Mathematics;
 
@@ -23,8 +25,10 @@ class PlayerController : DataEntry {
     private PlayerInputMap playerInputMap;
     private RigidBody rigidBody;
     private CollisionManager? collisionManager;
+    private ShaderProgram shaderProgram;
     private Mesh.Mesh mesh;
     private PlayerMesh playerMesh;
+    private Hud.Hud hud;
 
     private float posX = 50.0f;
     private float posY = 50.0f;
@@ -62,6 +66,7 @@ class PlayerController : DataEntry {
     public PlayerController(
         Window window,
         Input input, 
+        ShaderProgram shaderProgram,
         Mesh.Mesh mesh
     ) {
         instance = this;
@@ -71,6 +76,7 @@ class PlayerController : DataEntry {
 
         this.window = window;
         this.input = input;
+        this.shaderProgram = shaderProgram;
         this.mesh = mesh;
 
         this.camera = new Camera();
@@ -81,6 +87,12 @@ class PlayerController : DataEntry {
         Data.getInstance().register(DataType.PLAYER, this);
 
         this.networkPlayer = new NetworkPlayer(this);
+
+        this.hud = new Hud.Hud(
+            window, 
+            shaderProgram, 
+            mesh
+        );
     }
 
     // Get Window
@@ -206,6 +218,13 @@ class PlayerController : DataEntry {
     }
 
     ///
+    /// Render
+    /// 
+    public void render() {
+        hud.render();
+    }
+
+    ///
     /// Update
     /// 
     public void updatePosition(MovDir dir, bool pressed) {
@@ -244,6 +263,8 @@ class PlayerController : DataEntry {
         position = rigidBody.getPosition();
         camera.setPosition(position);
         playerMesh.update();
+
+        hud.update();
     }
 
     ///
