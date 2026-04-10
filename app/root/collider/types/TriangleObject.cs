@@ -8,7 +8,7 @@ class TriangleObject : Collider {
     private string id;
     private string type;
 
-    private BBox bBox;
+    private BBox bBox = null!;
     private List<(
         Vector3 a, 
         Vector3 b, 
