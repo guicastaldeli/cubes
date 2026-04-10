@@ -118,8 +118,8 @@ class TriangleObject : Collider {
         );
         Vector3 extents = new Vector3(
             (box.maxX - box.minX) / 2.0f,
-            (box.maxY - box.minX) / 2.0f,
-            (box.maxZ - box.maxZ) / 2.0f
+            (box.maxY - box.minY) / 2.0f,
+            (box.maxZ - box.minZ) / 2.0f
         );
 
         Vector3 v0 = a - center;
@@ -146,11 +146,73 @@ class TriangleObject : Collider {
         float minDepth = float.MaxValue;
         Vector3 bestNormal = Vector3.UnitY;
 
+        Vector3 triCenter = (a + b + c) / 3.0f;
+
         foreach(var axis in axes) {
             float f = 1e-10f;
             if(axis.LengthSquared < f) continue;
             Vector3 n = Vector3.Normalize(axis);
+
+            float p0 = Vector3.Dot(v0, n);
+            float p1 = Vector3.Dot(v1, n);
+            float p2 = Vector3.Dot(v2, n);
+            float triMin = MathF.Min(p0, MathF.Min(p1, p2));
+            float triMax = MathF.Max(p0, MathF.Max(p1, p2));
+
+            float r = 
+                extents.X * MathF.Abs(n.X) +
+                extents.Y * MathF.Abs(n.Y) +
+                extents.Z * MathF.Abs(n.Z);
+
+            if(triMin > r || triMax < -r) {
+                return new CollisionResult();
+            }
+
+            float depth = r - triMin;
+            if(depth < minDepth) {
+                minDepth = depth;
+                Vector3 dir = center - triCenter;
+                bestNormal = Vector3.Dot(n, dir) < 0 ? -n : n;
+            }
         }
 
+
+        Vector3[] faceAxes = {
+            Vector3.UnitX,
+            Vector3.UnitY,
+            Vector3.UnitZ
+        };
+        foreach(var n in faceAxes) {
+            float p0 = Vector3.Dot(v0, n);
+            float p1 = Vector3.Dot(v1, n);
+            float p2 = Vector3.Dot(v2, n);
+            float triMin = MathF.Min(p0, MathF.Min(p1, p2));
+            float triMax = MathF.Max(p0, MathF.Max(p1, p2));
+            float r = Vector3.Dot(extents,
+                new Vector3(
+                    MathF.Abs(n.X),
+                    MathF.Abs(n.Y), 
+                    MathF.Abs(n.Z)
+                )
+            );
+
+            if(triMin > r || triMax < -r) {
+                return new CollisionResult();
+            }
+
+            float depth = r - triMin;
+            if(depth < minDepth) {
+                minDepth = depth;
+                bestNormal = n;
+            }
+        }
+
+        return new CollisionResult(
+            true,
+            bestNormal,
+            minDepth,
+            this,
+            CollisionManager.CollisionType.STATIC_OBJECT
+        );
     }
 }

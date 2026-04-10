@@ -42,7 +42,7 @@ class Platform : WorldHandler {
         */
     public void set2() {
         string id = "cubic";
-        string mesht = "sphere";
+        string mesht = "triangle";
         MeshData data = MeshLoader.load(mesht);
         mesh.add(id, data);
         mesh.setPosition(id, 0.0f, 3.0f, -3.0f);
@@ -54,7 +54,7 @@ class Platform : WorldHandler {
         int texId = TextureLoader.load(texPath);
         mesh.setTexture(id, texId, texPath);
 
-        collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
+        collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
     }
 
     ///

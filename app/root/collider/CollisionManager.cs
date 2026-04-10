@@ -61,6 +61,16 @@ class CollisionManager {
                 }
             }
         }
+        // Triangle Object
+        foreach(var collider in staticColliders) {
+            if(collider is TriangleObject triObj) {
+                CollisionResult res = triObj.checkCollision(bodyBounds);
+                if(res.collided) {
+                    res.otherCollider = triObj;
+                    results.Add(res);
+                }
+            }
+        }
 
         return results;
     }
@@ -118,6 +128,42 @@ class CollisionManager {
                     Vector3 v = rigidBody.getVelocity();
                     v.Y = 0;
                     rigidBody.setVelocity(v);
+                }
+            }
+            if(collision.otherCollider is TriangleObject) {
+                float f = 0.0001f;
+                if(collision.depth > f) {
+                    Vector3 normal = collision.normal;
+
+                    float ax = MathF.Abs(normal.X);
+                    float ay = MathF.Abs(normal.Y);
+                    float az = MathF.Abs(normal.Z);
+                    if(ay >= ax && ay >= az) {
+                        normal = new Vector3(0, MathF.Sign(normal.Y), 0);
+                    } else if(ax >= ay && ax >= az) {
+                        normal = new Vector3(MathF.Sign(normal.X), 0, 0);
+                    } else {
+                        normal = new Vector3(0, 0, MathF.Sign(normal.Z));
+                    }
+
+                    rigidBody.setPosition(
+                        position + normal *
+                        collision.depth
+                    );
+
+                    Vector3 vel = rigidBody.getVelocity();
+                    float dot = Vector3.Dot(vel, normal);
+                    if(dot < 0) {
+                        vel -= normal * dot;
+                        rigidBody.setVelocity(vel);
+                    }
+
+                    if(normal.Y > 0.5f) {
+                        groundFound = true;
+                        Vector3 v = rigidBody.getVelocity();
+                        v.Y = 0;
+                        rigidBody.setVelocity(v);
+                    }
                 }
             }
         }
