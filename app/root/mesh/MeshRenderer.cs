@@ -383,6 +383,48 @@ class MeshRenderer : DataEntry {
         shaderProgram.unbind();
     }
 
+    public void renderOutline() {
+        if(!visible) return;
+        if(meshData == null || camera == null) return;
+
+        Matrix4 model = rotationMatrix * Matrix4.CreateTranslation(position);
+        if(hasColors) {
+            model *= Matrix4.CreateScale(scale);
+        } else if(meshData.hasScale()) {
+            float[]? s = meshData.getScale();
+            if(s != null) {
+                model *= Matrix4.CreateScale(
+                    s[0], 
+                    s[1], 
+                    s[2]
+                );
+            }
+        }
+
+        GL.Enable(EnableCap.CullFace);
+        GL.CullFace(CullFaceMode.Front);
+
+        shaderProgram.bind();
+        shaderProgram.setUniform("shaderType", 5);
+        shaderProgram.setUniform("uModel", model);
+        shaderProgram.setUniform("uView", camera.getView());
+        shaderProgram.setUniform("uProjection", camera.getProjection());
+
+        GL.BindVertexArray(vao);
+        int[]? indices = meshData.getIndices();
+        if(indices != null) {
+            GL.DrawElements(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, 0);
+        } else {
+            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
+        }
+        GL.BindVertexArray(0);
+
+        GL.CullFace(CullFaceMode.Back);
+        GL.Disable(EnableCap.CullFace);
+
+        shaderProgram.unbind();
+    }
+
     // Cleanup
     public void cleanup() {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
