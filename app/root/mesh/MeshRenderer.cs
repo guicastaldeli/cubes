@@ -353,7 +353,6 @@ class MeshRenderer : DataEntry {
             Matrix4.CreateScale(scale) *
             Matrix4.CreateTranslation(position);
 
-
         shaderProgram.bind();
         shaderProgram.setUniform("shaderType", 0);
         shaderProgram.setUniform("uModel", model);
@@ -388,7 +387,7 @@ class MeshRenderer : DataEntry {
         if(meshData == null || camera == null) return;
 
         Matrix4 model = rotationMatrix * Matrix4.CreateTranslation(position);
-        if(hasColors) {
+        if(hasScale) {
             model *= Matrix4.CreateScale(scale);
         } else if(meshData.hasScale()) {
             float[]? s = meshData.getScale();
@@ -401,8 +400,8 @@ class MeshRenderer : DataEntry {
             }
         }
 
-        GL.Enable(EnableCap.CullFace);
-        GL.CullFace(CullFaceMode.Front);
+        GL.Enable(EnableCap.DepthTest);
+        GL.LineWidth(1.0f);
 
         shaderProgram.bind();
         shaderProgram.setUniform("shaderType", 5);
@@ -411,17 +410,15 @@ class MeshRenderer : DataEntry {
         shaderProgram.setUniform("uProjection", camera.getProjection());
 
         GL.BindVertexArray(vao);
+
         int[]? indices = meshData.getIndices();
         if(indices != null) {
-            GL.DrawElements(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Lines, vertexCount, DrawElementsType.UnsignedInt, 0);
         } else {
-            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
+            GL.DrawArrays(PrimitiveType.Lines, 0, vertexCount);
         }
+        
         GL.BindVertexArray(0);
-
-        GL.CullFace(CullFaceMode.Back);
-        GL.Disable(EnableCap.CullFace);
-
         shaderProgram.unbind();
     }
 
