@@ -5,7 +5,7 @@
 
     */
 
-void setBillboardVert() {
+void setUsernameVert() {
     vec3 camRight = vec3(uView[0][0], uView[1][0], uView[2][0]);
     vec3 camUp = vec3(uView[0][1], uView[1][1], uView[2][1]);
 

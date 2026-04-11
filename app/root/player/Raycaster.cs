@@ -307,11 +307,7 @@ class Raycaster {
     public void update() {
         string? d = cast();
         if(d != null) {
-            /*
-            MeshData? data = mesh.getData(d);
-            string shape = data?.colliderShape ?? "unknown";
-            Console.WriteLine($"Raycaster hit: {d} | shape: {shape}");
-            */
+            mesh.renderOutline(d);
         }
     }
 }

@@ -45,7 +45,7 @@ void main() {
 
         */
     else if(shaderType == 4) {
-        setBillboardVert();
+        setUsernameVert();
     }
     /**
 

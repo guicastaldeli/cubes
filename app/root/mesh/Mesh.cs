@@ -219,25 +219,6 @@ class Mesh {
     }
 
     ///
-    /// Remove
-    /// 
-    public void remove(string id) {
-        if(meshRendererMap.TryGetValue(id, out var meshRenderer)) {
-            meshRenderer.cleanup();
-            meshRendererMap.Remove(id);
-        }
-        meshDataMap.Remove(id);
-    }
-
-    public void cleanup() {
-        foreach(var meshRenderer in meshRendererMap.Values) {
-            meshRenderer.cleanup();
-        }
-        meshRendererMap.Clear();
-        meshDataMap.Clear();
-    }
-
-    ///
     /// Update
     /// 
     public void update() {
@@ -280,5 +261,26 @@ class Mesh {
                 );
             }
         }
+    }
+
+    public void renderOutline(string id) {
+        getMeshRenderer(id)?.renderOutline();
+    }
+
+    // Remove and Cleanup
+    public void remove(string id) {
+        if(meshRendererMap.TryGetValue(id, out var meshRenderer)) {
+            meshRenderer.cleanup();
+            meshRendererMap.Remove(id);
+        }
+        meshDataMap.Remove(id);
+    }
+
+    public void cleanup() {
+        foreach(var meshRenderer in meshRendererMap.Values) {
+            meshRenderer.cleanup();
+        }
+        meshRendererMap.Clear();
+        meshDataMap.Clear();
     }
 }
