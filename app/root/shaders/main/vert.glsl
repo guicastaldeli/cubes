@@ -17,20 +17,49 @@ uniform int shaderType;
 uniform int isInstanced;
 uniform vec2 screenSize;
 
-#include "../text/text_vert.glsl"
-#include "../ui/ui_vert.glsl"
-#include "../player/username.glsl"
+#include "../text/text.vert.glsl"
+#include "../ui/ui.vert.glsl"
+#include "../player/username.vert.glsl"
+#include "outline.vert.glsl"
 
 void main() {
+    /**
+
+        Text
+
+        */
     if(shaderType == 1) {
         setTextVert();
     }
+    /**
+
+        UI
+
+        */
     else if(shaderType == 3) {
         setUIVert();
     }
+    /**
+
+        Username
+
+        */
     else if(shaderType == 4) {
         setBillboardVert();
     }
+    /**
+
+        Outline
+
+        */
+    else if(shaderType == 5) {
+        setOutlineVert();
+    }
+    /**
+
+        Main
+
+        */
     else {
         vec3 worldPos = aPos;
         if(isInstanced == 1) worldPos += aInstanceOffset;
