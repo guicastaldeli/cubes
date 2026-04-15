@@ -6,15 +6,17 @@ using OpenTK.Mathematics;
 class StaticObject : Collider {
     private BBox? bBox;
     private Vector3? position;
-    private string type;
+    private string? type;
+    private string? id;
     
     private float half;
     private float halfX;
     private float halfY;
     private float halfZ;
 
-    public StaticObject(BBox bBox, string type) {
+    public StaticObject(BBox bBox, string id, string type = "") {
         this.bBox = bBox;
+        this.id = id;
         this.type = type;
     }
     public StaticObject(Vector3 position, float half, string type) {
@@ -57,7 +59,14 @@ class StaticObject : Collider {
 
     // Get Type
     public string getType() {
-        return type;
+        string val = type ?? "no type";
+        return val;
+    }
+
+    // Get Id
+    public string getId() {
+        string val = id ?? "0";
+        return val;
     }
 
     // Check Collision

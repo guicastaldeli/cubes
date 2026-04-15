@@ -19,20 +19,32 @@ class SphereObject : Collider {
         this.type = type;
     }
 
+    // Get Type
     public string getType() {
         return type;
     }
 
+    // Get Id
+    public string getId() {
+        return id;
+    }
+
+    // Get Rigid Body
     public RigidBody? getRigidBody() {
         return null;
     }
 
+    // Get Center
     private Vector3 getCenter() {
         return mesh.getPosition(id);
     }
 
-    public void onCollision(CollisionResult coll) {}
+    // On Collision
+    public void onCollision(CollisionResult coll) {
+        
+    }
 
+    // Get BBox
     public BBox getBBox() {
         Vector3 center = getCenter();
         

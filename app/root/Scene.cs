@@ -76,6 +76,9 @@ class Scene {
         playerController.setWorldManager(worldManager);
 
         mesh.setCamera(playerController.getCamera());
+        mesh.setPlayerController(playerController);
+        mesh.setCollisionManager(collisionManager);
+        mesh.initMeshInteractionController();
 
         if(isClient) worldManager.render();
         

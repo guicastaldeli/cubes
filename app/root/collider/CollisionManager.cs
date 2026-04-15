@@ -19,6 +19,10 @@ class CollisionManager {
         staticColliders.Remove(coll);
     }
 
+    public void removeCollider(string id) {
+        staticColliders.RemoveAll(c => c.getId() == id);
+    }
+
     ///
     /// Check Collision
     /// 

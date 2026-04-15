@@ -31,6 +31,11 @@ class TriangleObject : Collider {
         return type;
     }
 
+    // Get Id
+    public string getId() {
+        return id;
+    }
+
     // Get Rigid Body
     public RigidBody? getRigidBody() {
         return null;

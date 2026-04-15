@@ -8,6 +8,7 @@ namespace App.Root.Mesh;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Player;
+using App.Root.World.Platform;
 using OpenTK.Mathematics;
 
 /**
@@ -73,7 +74,7 @@ class MeshInteractionController {
     private PlacementRaycaster placementRaycaster;
 
     private PlacedMeshDef? heldMesh = null;
-    private int placedCounter= 0;
+    private int placedCounter = 0;
 
     private Shape shape = null!;
 
@@ -86,6 +87,7 @@ class MeshInteractionController {
     ) {
         this.window = window;
         this.camera = camera;
+        this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.raycaster = raycaster;
 
@@ -97,10 +99,13 @@ class MeshInteractionController {
         );
 
         this.shape = new Shape(mesh, collisionManager);
+
+        setPlatformY();
     }
 
     // Set Platform Y
-    public void setPlatformY(float y) {
+    public void setPlatformY() {
+        float y = Platform.height!.Value.Y;
         placementRaycaster.setPlatformY(y);
     }
     
