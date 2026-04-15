@@ -14,13 +14,11 @@ class Scene {
     private PlayerController playerController;
     private CollisionManager collisionManager;
     private ScreenController screenController = null!;
-
-    private Mesh.Mesh mesh;
+    private Network? network;
     private TextRenderer textRenderer = null!;
 
+    private Mesh.Mesh mesh;
     private WorldManager worldManager;
-
-    private Network? network;
 
     public bool initialized = false;
 
