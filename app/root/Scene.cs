@@ -50,6 +50,7 @@ class Scene {
         );
     }
 
+    // Is Init
     public bool isInit() {
         return initialized;
     }

@@ -111,9 +111,7 @@ class UIElement {
         this.visible = visible;
     }
 
-    ///
-    /// Hover
-    ///
+    // Hover
     public void applyHover() {
         if(!hoverable || isHovered) return;
         
@@ -132,6 +130,7 @@ class UIElement {
         scale = originalScale;
     }
 
+    // Contains Point
     public bool containsPoint(int mouseX, int mouseY) {
         return mouseX >= x && mouseX <= x + width &&
             mouseY >= y && mouseY <= y + height;

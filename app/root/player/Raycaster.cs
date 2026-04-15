@@ -2,7 +2,6 @@ namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Mesh;
 using OpenTK.Mathematics;
-using System.Runtime.Serialization;
 
 /**
 

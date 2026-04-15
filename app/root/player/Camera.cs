@@ -2,17 +2,17 @@ namespace App.Root.Player;
 using OpenTK.Mathematics;
 
 class Camera {
+    private Vector3 position;
     private float posX = 0.0f;
     private float posY = 0.0f;
     private float posZ = 0.0f;
-    private Vector3 position;
 
-    private float frontX = 0.0f;
-    private float frontY = 0.0f;
-    private float frontZ = -1.0f;
     private Vector3 front;
     private Vector3 up;
     private Vector3 right;
+    private float frontX = 0.0f;
+    private float frontY = 0.0f;
+    private float frontZ = -1.0f;
 
     private float yaw = -90.0f;
     private float pitch = 0.0f;
@@ -35,22 +35,27 @@ class Camera {
         updateVectors();
     }
 
+    // Gte Front
     public Vector3 getFront() {
         return new Vector3(front);
     }
 
+    // Get Right
     public Vector3 getRight() {
         return new Vector3(right);
     }
 
+    // Get Up
     public Vector3 getUp() {
         return new Vector3(up);
     }
 
+    // Get Yaw
     public float getYaw() {
         return yaw;
     }
 
+    // Get Pitch
     public float getPitch() {
         return pitch;
     }

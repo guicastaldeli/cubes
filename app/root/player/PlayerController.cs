@@ -3,7 +3,6 @@ using App.Root.Collider;
 using App.Root.Info;
 using App.Root.Shaders;
 using App.Root.World;
-using App.Root.Player.Hud;
 using App.Root.World.Platform;
 using OpenTK.Mathematics;
 

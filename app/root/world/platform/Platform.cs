@@ -144,6 +144,5 @@ class Platform : WorldHandler {
     /// Update
     /// 
     public override void update() {
-        
     }
 }

@@ -33,9 +33,7 @@ class PauseScreenAction {
         input.pauseOverlayOpen = false;
     }
 
-    ///
-    /// Back to Menu
-    /// 
+    // Back to Menu
     public void backToMenu() {
         tick.setPaused(false);
 

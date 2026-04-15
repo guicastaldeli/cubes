@@ -105,9 +105,7 @@ class ScreenElement {
         return val;
     }
 
-    ///
-    /// Hover
-    /// 
+    // Hover 
     public void applyHover() {
         if(!hoverable || isHovered) return;
 
@@ -128,6 +126,7 @@ class ScreenElement {
         scale = originalScale;
     }
 
+    // Contains Point
     public bool containsPoint(int mouseX, int mouseY) {
         return mouseX >= x && mouseX <= x + width &&
             mouseY >= y && mouseY <= y + height;

@@ -5,7 +5,7 @@ using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 
 class MeshRenderer : DataEntry {
-    public readonly ShaderProgram shaderProgram;
+    public ShaderProgram shaderProgram;
     private MeshData? meshData;
     private Camera? camera;
 

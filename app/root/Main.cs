@@ -29,11 +29,6 @@ class Main {
         set();
     }
 
-    // Get Network
-    public Network getNetwork() {
-        return network;
-    }
-
     ///
     /// Set
     /// 

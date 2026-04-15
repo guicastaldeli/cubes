@@ -1,6 +1,5 @@
-using App.Root.Info;
-
 namespace App.Root.Screen.Main.Custom;
+using App.Root.Info;
 
 class CustomMenuActions {
     private CustomMenu customMenu;

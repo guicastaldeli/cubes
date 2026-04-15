@@ -2,7 +2,7 @@ namespace App.Root.Screen.Main.Server;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class ServerDialog : Screen {
-    public static readonly String PATH = DIR + "main/server/server_dialog.xml";
+    public static string PATH = DIR + "main/server/server_dialog.xml";
 
     public MainScreen mainScreen;
     private ServerDialogAction serverDialogAction;

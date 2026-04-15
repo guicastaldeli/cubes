@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 
 class Port {
-    // Get Port
     public int get() {
         var listener = new TcpListener(IPAddress.Loopback, 0);
         listener.Start();

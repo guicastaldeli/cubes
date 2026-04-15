@@ -78,9 +78,7 @@ class ScreenController {
         return running;
     }
 
-    ///
-    /// Mouse
-    /// 
+    // Mouse
     public string? checkClick(int mouseX, int mouseY) {
         return currentScreen?.checkClick(mouseX, mouseY);
     }
@@ -89,9 +87,7 @@ class ScreenController {
         currentScreen?.handleMouseMove(mouseX, mouseY);
     }
 
-    ///
-    /// Switch
-    /// 
+    // Switch 
     public void switchTo(SCREENS? screenType) {
         prevScreen = null;
         currentScreen = null;

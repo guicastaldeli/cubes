@@ -2,7 +2,7 @@ namespace App.Root.Mesh;
 using NLua;
 
 class MeshLoader {
-    private static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mesh/data/");
+    private static string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mesh/data/");
 
     private static float[] toFloatArray(LuaTable table) {
         int len = (int)(long)table.Values.Count;

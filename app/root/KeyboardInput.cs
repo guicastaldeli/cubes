@@ -5,11 +5,7 @@ class KeyboardInput {
     private string currentText = "";
     private bool capsLock = false;
     private bool shiftPressed = false;
-    private int maxLen;
-
-    public KeyboardInput() {
-        this.maxLen = 50;
-    }
+    private int maxLen = 50;
 
     // Handle Key
     public bool handleKey(Keys key, int action) {
@@ -66,18 +62,18 @@ class KeyboardInput {
         if(key == Keys.Space) return ' ';
 
         return key switch {
-            Keys.Minus         => shiftPressed ? '_' : '-',
-            Keys.Equal         => shiftPressed ? '+' : '=',
-            Keys.LeftBracket   => shiftPressed ? '{' : '[',
-            Keys.RightBracket  => shiftPressed ? '}' : ']',
-            Keys.Semicolon     => shiftPressed ? ':' : ';',
-            Keys.Apostrophe    => shiftPressed ? '"' : '\'',
-            Keys.Comma         => shiftPressed ? '<' : ',',
-            Keys.Period        => shiftPressed ? '>' : '.',
-            Keys.Slash         => shiftPressed ? '?' : '/',
-            Keys.Backslash     => shiftPressed ? '|' : '\\',
-            Keys.GraveAccent   => shiftPressed ? '~' : '`',
-            _                  => '\0'
+            Keys.Minus => shiftPressed ? '_' : '-',
+            Keys.Equal => shiftPressed ? '+' : '=',
+            Keys.LeftBracket => shiftPressed ? '{' : '[',
+            Keys.RightBracket => shiftPressed ? '}' : ']',
+            Keys.Semicolon => shiftPressed ? ':' : ';',
+            Keys.Apostrophe => shiftPressed ? '"' : '\'',
+            Keys.Comma => shiftPressed ? '<' : ',',
+            Keys.Period => shiftPressed ? '>' : '.',
+            Keys.Slash => shiftPressed ? '?' : '/',
+            Keys.Backslash => shiftPressed ? '|' : '\\',
+            Keys.GraveAccent => shiftPressed ? '~' : '`',
+            _ => '\0'
         };
     }
 
@@ -86,7 +82,9 @@ class KeyboardInput {
         currentText = text.Length <= maxLen ? text : text[..maxLen];
     }
 
-    public string getText() => currentText;
+    public string getText() {
+        return currentText;
+    }
 
     // Max Length
     public void setMaxLen(int maxLen) {

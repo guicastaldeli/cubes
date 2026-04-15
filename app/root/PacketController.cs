@@ -1,8 +1,8 @@
 /*
 
-    -- Controller to handle and register
-        all the Packets for both 
-        Client and Server...
+    Controller to handle and register
+    all the Packets for both 
+    Client and Server...
 
     */
 namespace App.Root;

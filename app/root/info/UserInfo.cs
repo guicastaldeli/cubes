@@ -6,7 +6,6 @@ class UserInfo {
         Store
 
         */
-
     private readonly Store store;
     private string? tempId = null;
 

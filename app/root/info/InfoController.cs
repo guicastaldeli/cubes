@@ -1,18 +1,16 @@
 namespace App.Root.Info;
 
 class InfoController {
-    private static readonly string INFO_DIR = Path.GetFullPath(
+    private static string INFO_DIR = Path.GetFullPath(
         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
             "..", "..", "..", "root", ".INFO-DATA")
     );
-    private static readonly string META_FILE = Path.Combine(INFO_DIR, "inf.meta.dat");
+    private static string META_FILE = Path.Combine(
+        INFO_DIR, 
+        "inf.meta.dat"
+    );
     
     private static InfoController? instance;
-    
-    public static InfoController getInstance() {
-        return instance!;
-    }
-
     private readonly Store store;
     public readonly UserInfo userInfo;
 
@@ -21,6 +19,10 @@ class InfoController {
         this.userInfo = new UserInfo(store);
         
         userInfo.ensureDefaults();
+    }
+
+    public static InfoController getInstance() {
+        return instance!;
     }
 
     // Get Store

@@ -1,6 +1,5 @@
-using App.Root.Info;
-
 namespace App.Root.Screen.Main;
+using App.Root.Info;
 
 class MainScreenAction {
     private ScreenController screenController;

@@ -9,8 +9,8 @@ class Mesh {
     private ShaderProgram shaderProgram;
     private Camera? camera;
 
-    private readonly Dictionary<string, MeshData> meshDataMap = new();
-    private readonly Dictionary<string, MeshRenderer> meshRendererMap = new();
+    private Dictionary<string, MeshData> meshDataMap = new();
+    private Dictionary<string, MeshRenderer> meshRendererMap = new();
 
     public Mesh(Window window, ShaderProgram shaderProgram) {
         this.window = window;

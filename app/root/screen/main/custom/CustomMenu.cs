@@ -2,7 +2,7 @@ namespace App.Root.Screen.Main.Custom;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class CustomMenu : Screen {
-    public static readonly String PATH = DIR + "main/custom/custom_menu.xml";
+    public static string PATH = DIR + "main/custom/custom_menu.xml";
 
     public MainScreen mainScreen;
     private CustomMenuActions customMenuActions;

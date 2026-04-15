@@ -8,13 +8,12 @@ enum DataType {
 
 class Data {
     private static Data? instance;
+    private Dictionary<DataType, List<DataEntry>> entries = new();
 
     public static Data getInstance() {
         instance ??= new Data();
         return instance;
     }
-
-    private Dictionary<DataType, List<DataEntry>> entries = new();
 
     // Register
     public void register(DataType type, DataEntry entry) {

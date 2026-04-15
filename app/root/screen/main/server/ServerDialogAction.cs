@@ -1,6 +1,5 @@
-using App.Root.Player;
-
 namespace App.Root.Screen.Main.Server;
+using App.Root.Player;
 
 class ServerDialogAction {
     private Window window;

@@ -1,9 +1,8 @@
+namespace App.Root.Screen.Main.Client;
 using App.Root.Screen.Main.Server;
 
-namespace App.Root.Screen.Main.Client;
-
 class ClientDialog : Screen {
-    public static readonly String PATH = DIR + "main/client/client_dialog.xml";
+    public static readonly string PATH = DIR + "main/client/client_dialog.xml";
 
     public MainScreen mainScreen;
     private ClientDialogAction clientDialogAction;

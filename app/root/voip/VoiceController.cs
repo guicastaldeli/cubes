@@ -6,11 +6,7 @@ using Concentus.Enums;
 
 class VoiceController {
     private static VoiceController? instance;
-    
-    public static VoiceController getInstance() {
-        instance ??= new VoiceController();
-        return instance;
-    }
+    private Dictionary<string, PlayerAudioSource> audioSources = new();
 
     private const int SAMPLE_RATE = 16000;
     private const int CHANNELS = 1;
@@ -22,7 +18,10 @@ class VoiceController {
     private IOpusEncoder? encoder;
     private Network? network;
 
-    private Dictionary<string, PlayerAudioSource> audioSources = new();
+    public static VoiceController getInstance() {
+        instance ??= new VoiceController();
+        return instance;
+    }
 
     // Set Network
     public void setNetwork(Network network) {

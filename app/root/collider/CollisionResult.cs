@@ -3,8 +3,10 @@ using OpenTK.Mathematics;
 
 class CollisionResult {
     public bool collided = false;
+
     public Vector3 normal = Vector3.Zero;
     public float depth = 0.0f;
+    
     public Collider? otherCollider = null;
     public CollisionManager.CollisionType type = CollisionManager.CollisionType.STATIC_OBJECT;
 

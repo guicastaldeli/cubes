@@ -23,6 +23,7 @@ class Packet {
         return JsonSerializer.Deserialize<T>(json);
     }
 
+    // Peek Type
     public static PacketType? peekType(string json) {
         try {
             var doc = JsonDocument.Parse(json);

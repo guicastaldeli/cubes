@@ -39,7 +39,7 @@ class Network {
         return client;
     }   
 
-    // Poll Data
+    // Poll
     public DataSnapshot? pollData() {
         if(!isConnected) return null;
         client.incomingData.TryDequeue(out var snapshot);
@@ -95,17 +95,13 @@ class Network {
         client.connect(localIp, port);
     }
 
-    ///
-    /// Join
-    /// 
+    // Join
     public void join(string ip, int port) {
         client = new Client();
         client.connect(ip, port);
     }
 
-    ///
-    /// Stop
-    /// 
+    // Stop
     public void stop() {
         client?.disconnect();
         server?.stop();

@@ -2,14 +2,13 @@ namespace App.Root;
 
 class ServerSnapshot {
     private static ServerSnapshot? instance;
+    private Dictionary<DataType, List<DataEntry>> entries = new();
 
     public static ServerSnapshot getInstance() {
         instance ??= new ServerSnapshot();
         return instance;
     }
-
-    private Dictionary<DataType, List<DataEntry>> entries = new();
-
+    
     // Register
     public void register(DataType type, DataEntry entry) {
         if(!entries.ContainsKey(type)) entries[type] = new();

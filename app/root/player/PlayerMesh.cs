@@ -1,11 +1,10 @@
-using App.Root.Mesh;
-
 namespace App.Root.Player;
+using App.Root.Mesh;
 
 class PlayerMesh {
     private Window window;
     private PlayerController playerController;
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     
     public string PLAYER_ID => PlayerController.getId();
     public static string PLAYER_MESH = "sphere";
@@ -13,7 +12,7 @@ class PlayerMesh {
     public PlayerMesh(
         Window window,
         PlayerController playerController, 
-        Mesh.Mesh mesh
+        Mesh mesh
     ) {
         this.window = window;
         this.playerController = playerController;

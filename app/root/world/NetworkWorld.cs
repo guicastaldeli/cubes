@@ -1,10 +1,9 @@
 namespace App.Root.World;
-
-using System.Text.Json;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
 using App.Root.Player;
 using App.Root.Resource;
+using System.Text.Json;
 using OpenTK.Mathematics;
 
 class NetworkWorld : NetworkUpdateHandler {
