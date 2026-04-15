@@ -17,8 +17,10 @@ class Window : NativeWindow {
 
     public Action<Keys>? onKeyDown;
     public Action<Keys>? onKeyUp;
+
     public Action<int, int>? onMouseMove;
     public Action<int, int>? onMouseClick;
+    public Action<int, bool>? onMouseButton;
 
     public Window() : base(new NativeWindowSettings() {
         ClientSize = new Vector2i(WIDTH, HEIGHT),
@@ -34,6 +36,8 @@ class Window : NativeWindow {
                 onMouseClick?.Invoke((int)MousePosition.X, (int)MousePosition.Y);
             }
         };
+        MouseDown += args => onMouseButton?.Invoke((int)args.Button, true);
+        MouseUp += args => onMouseButton?.Invoke((int)args.Button, false);
     }
 
     // Width and Height 

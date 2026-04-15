@@ -132,6 +132,11 @@ class PlayerController : DataEntry {
         return playerInputMap;
     }
 
+    // Get Raycaster
+    public Raycaster getRaycaster() {
+        return raycaster;
+    }
+
     // Set Collision Manager
     public void setCollisionManager(CollisionManager collisionManager) {
         this.collisionManager = collisionManager;

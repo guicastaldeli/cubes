@@ -57,6 +57,12 @@ class Platform : WorldHandler {
         collisionManager.addStaticCollider(new StaticObject(mesh.getBBox(id), id));
         //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
         //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
+    
+        MeshInteractionRegistry.getInstance().register(
+            id,
+            State.BREAKABLE,
+            new PlacedMeshDef("cube", "env/test.jpg", texId)
+        );
     }
 
     ///
@@ -79,6 +85,12 @@ class Platform : WorldHandler {
         float offsetZ = -(sizeZ / 2.0f) * spacing + offset.Z;
         
         mesh.add(GRID_ID, MESH);
+        MeshInteractionRegistry.getInstance().register(
+            GRID_ID,
+            State.UNBREAKABLE,
+            new PlacedMeshDef(MESH, null, -1)
+        );
+
         Vector3 size = mesh.getSize(GRID_ID);
         Vector3 half = size / 2.0f;
 

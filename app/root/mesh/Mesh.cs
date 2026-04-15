@@ -8,6 +8,9 @@ class Mesh {
     private Window window;
     private ShaderProgram shaderProgram;
     private Camera? camera;
+    private MeshInteractionController? meshInteractionController;
+    private PlayerController? playerController;
+    private CollisionManager? collisionManager;
 
     private Dictionary<string, MeshData> meshDataMap = new();
     private Dictionary<string, MeshRenderer> meshRendererMap = new();
@@ -17,12 +20,37 @@ class Mesh {
         this.shaderProgram = shaderProgram;
     }
 
-    // Camera
+    // Set Camera
     public void setCamera(Camera camera) {
         this.camera = camera;
         foreach(var meshRenderer in meshRendererMap.Values) {
             meshRenderer.setCamera(camera);
         }
+    }
+
+    // Set Player Controller
+    public void setPlayerController(PlayerController playerController) {
+        this.playerController = playerController;
+    }
+
+    // Set Collision Manager
+    public void setCollisionManager(CollisionManager collisionManager) {
+        this.collisionManager = collisionManager;
+    }
+
+    // Mesh Interaction Controller
+    public void initMeshInteractionController() {
+        this.meshInteractionController = new MeshInteractionController(
+            window,
+            camera!,
+            this,
+            collisionManager!,
+            playerController!.getRaycaster()
+        );
+    }
+
+    public MeshInteractionController getMeshInteractionController() {
+        return meshInteractionController!;
     }
 
     // Mesh Renderer

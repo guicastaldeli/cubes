@@ -1,4 +1,5 @@
 namespace App.Root.Player;
+using App.Root.Mesh;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class PlayerInputMap {
@@ -37,6 +38,15 @@ class PlayerInputMap {
             fKeyPressed = true;
         } else if(!keyPressed[(int)Keys.F]) {
             fKeyPressed = false;
+        }
+    }
+
+    // On Mouse Button
+    public void onMouseButton(int button) {
+        MeshInteractionController meshInteractionController = playerController.getMesh().getMeshInteractionController();
+        if(meshInteractionController != null) {
+            if(button == 0) meshInteractionController.onBreak();
+            if(button == 1) meshInteractionController.onPlace();
         }
     }
 }

@@ -116,12 +116,22 @@ class Input {
         screenController.checkClick(x, y);
     }
 
+    private void onMouseButton(int button, bool pressed) {
+        if(!pressed) return;
+        if(!screenController.isRunning() || pauseOverlayOpen) return;
+        if(ChatController.getInstance().isOpen()) return;
+
+        if(playerInputMap != null) playerInputMap.onMouseButton(button);
+    }
+
     public void setMouse() {
         window.onMouseMove -= onMouseMove;
         window.onMouseClick -= onMouseClick;
+        window.onMouseButton -= onMouseButton;
         
         window.onMouseMove += onMouseMove;
         window.onMouseClick += onMouseClick;
+        window.onMouseButton += onMouseButton;
     }
     
     public void lockMouse() {
