@@ -6,7 +6,7 @@ class ShaderModule {
         get;
     }
 
-    public String File {
+    public string File {
         get;
     }
 

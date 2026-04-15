@@ -1,7 +1,7 @@
 namespace App.Root.Screen.Pause;
 
 class PauseScreen : Screen {
-    public static readonly String PATH = DIR + "pause/pause_screen.xml";
+    public static readonly string PATH = DIR + "pause/pause_screen.xml";
     
     public PauseScreenAction pauseScreenAction;
 

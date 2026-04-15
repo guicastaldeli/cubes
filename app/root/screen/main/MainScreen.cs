@@ -4,7 +4,7 @@ using App.Root.Screen.Main.Custom;
 using App.Root.Screen.Main.Server;
 
 class MainScreen : Screen {
-    public static readonly String PATH = DIR + "main/main_screen.xml";
+    public static readonly string PATH = DIR + "main/main_screen.xml";
     
     private MainScreenAction mainScreenAction;
 
