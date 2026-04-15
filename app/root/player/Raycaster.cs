@@ -306,7 +306,7 @@ class Raycaster {
     public void update() {
         string? d = cast();
         if(d != null) {
-            mesh.renderOutline(d);
+            mesh.renderOutline(new List<string> { d });
         }
     }
 }

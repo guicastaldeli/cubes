@@ -210,7 +210,7 @@ class Mesh {
     public void addToMap(string id, MeshData data) {
         meshDataMap[id] = data;
         
-        MeshRenderer meshRenderer = new MeshRenderer(shaderProgram);
+        MeshRenderer meshRenderer = new MeshRenderer(window, shaderProgram);
         meshRenderer.setData(data);
         meshRenderer.setId(id);
 
@@ -263,8 +263,15 @@ class Mesh {
         }
     }
 
-    public void renderOutline(string id) {
-        getMeshRenderer(id)?.renderOutline();
+    public void renderOutline(List<string> ids) {
+        List<MeshRenderer> selected = ids
+            .Select(id => getMeshRenderer(id))
+            .Where(r => r != null)
+            .Cast<MeshRenderer>()
+            .ToList();
+        if(selected.Count == 0) return;
+
+        selected[0].renderOutline(selected);
     }
 
     // Remove and Cleanup

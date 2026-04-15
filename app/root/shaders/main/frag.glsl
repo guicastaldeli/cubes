@@ -14,6 +14,7 @@ uniform sampler2D uSampler;
 #include "../text/text.frag.glsl"
 #include "../ui/ui.frag.glsl"
 #include "../player/username.frag.glsl"
+#include "flat.frag.glsl"
 #include "outline.frag.glsl"
 
 void main() {
@@ -43,10 +44,18 @@ void main() {
     }
     /**
 
-        Outline
+        Flat
 
         */
     else if(shaderType == 5) {
+        setFlatFrag();
+    }
+    /**
+
+        Outline
+
+        */
+    else if(shaderType == 6) {
         setOutlineFrag();
     }
     /**

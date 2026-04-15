@@ -5,7 +5,8 @@ using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 
 class MeshRenderer : DataEntry {
-    public ShaderProgram shaderProgram;
+    private Window window;
+    private ShaderProgram shaderProgram;
     private MeshData? meshData;
     private Camera? camera;
 
@@ -23,6 +24,12 @@ class MeshRenderer : DataEntry {
     private int instanceCount = 0;
     public bool isInstanced = false;
     private List<Vector3> cachedInstancePositions = new();
+
+    private int stencilFbo = 0;
+    private int stencilTexture = 0;
+
+    private int quadVao = 0;
+    private int quadVbo = 0;
 
     private Matrix4 modelMatrix = Matrix4.Identity;
     private Matrix4 rotationMatrix = Matrix4.Identity;
@@ -45,7 +52,8 @@ class MeshRenderer : DataEntry {
 
     private bool visible = true;
 
-    public MeshRenderer(ShaderProgram shaderProgram) {
+    public MeshRenderer(Window window, ShaderProgram shaderProgram) {
+        this.window = window;
         this.shaderProgram = shaderProgram;
     }
 
@@ -54,7 +62,10 @@ class MeshRenderer : DataEntry {
         meshData = data;
         isDynamic = data.isDynamic;
         meshType = data.meshType;
+
         createBuffers();
+        setupStencilFramebuffer(window.getWidth(), window.getHeight());
+        setupFullscreenQuad();
     } 
 
     // Camera
@@ -190,7 +201,7 @@ class MeshRenderer : DataEntry {
         this.visible = visible;
     }
 
-    // Create Buffers
+    // Buffers
     private void createBuffers() {
         if(meshData == null) return;
 
@@ -246,6 +257,54 @@ class MeshRenderer : DataEntry {
 
         GL.BindVertexArray(0);
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+    }
+
+    public void setupStencilFramebuffer(int width, int height) {
+        if(stencilFbo != 0) GL.DeleteFramebuffer(stencilFbo);
+        if(stencilTexture != 0) GL.DeleteTexture(stencilTexture);
+
+        stencilTexture = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, stencilTexture);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, width, height, 0, PixelFormat.Red, PixelType.UnsignedByte, IntPtr.Zero);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+        stencilFbo = GL.GenFramebuffer();
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, stencilFbo);
+        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, stencilTexture, 0);
+
+        var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+        if(status != FramebufferErrorCode.FramebufferComplete) {
+            throw new Exception($"FBO setup failed!: {status}");
+        }
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+    }
+
+    public void setupFullscreenQuad() {
+        float[] verts = {
+            -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,    1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f,    0.0f, 1.0f,
+            1.0f, 1.0f, 0.0f,     1.0f, 1.0f
+        };
+
+        quadVao = GL.GenVertexArray();
+        quadVbo = GL.GenBuffer();
+    
+        GL.BindVertexArray(quadVao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, quadVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, verts.Length * sizeof(float), verts, BufferUsageHint.StaticDraw);
+
+        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+        GL.EnableVertexAttribArray(0);
+
+        GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+        GL.EnableVertexAttribArray(1);
+        GL.BindVertexArray(0);
     }
 
     ///
@@ -382,8 +441,7 @@ class MeshRenderer : DataEntry {
         shaderProgram.unbind();
     }
 
-    public void renderOutline() {
-        if(!visible) return;
+    public void renderFlat() {
         if(meshData == null || camera == null) return;
 
         Matrix4 model = rotationMatrix * Matrix4.CreateTranslation(position);
@@ -391,17 +449,8 @@ class MeshRenderer : DataEntry {
             model *= Matrix4.CreateScale(scale);
         } else if(meshData.hasScale()) {
             float[]? s = meshData.getScale();
-            if(s != null) {
-                model *= Matrix4.CreateScale(
-                    s[0], 
-                    s[1], 
-                    s[2]
-                );
-            }
+            if(s != null) model *= Matrix4.CreateScale(s[0], s[1], s[2]);
         }
-
-        GL.Enable(EnableCap.DepthTest);
-        GL.LineWidth(1.0f);
 
         shaderProgram.bind();
         shaderProgram.setUniform("shaderType", 5);
@@ -410,15 +459,49 @@ class MeshRenderer : DataEntry {
         shaderProgram.setUniform("uProjection", camera.getProjection());
 
         GL.BindVertexArray(vao);
-
         int[]? indices = meshData.getIndices();
         if(indices != null) {
-            GL.DrawElements(PrimitiveType.Lines, vertexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, 0);
         } else {
-            GL.DrawArrays(PrimitiveType.Lines, 0, vertexCount);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
         }
-        
         GL.BindVertexArray(0);
+
+        shaderProgram.unbind();
+    }
+
+    public void renderOutline(List<MeshRenderer> selectedMeshes) {
+        if(!visible) return;
+        if(meshData == null || camera == null) return;
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, stencilFbo);
+        GL.Viewport(0, 0, window.getWidth(), window.getHeight());
+        GL.ClearColor(0, 0, 0, 0);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+        foreach(var mesh in selectedMeshes) {
+            mesh.renderFlat();
+        }
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+        GL.Disable(EnableCap.DepthTest);
+
+        shaderProgram.bind();
+        shaderProgram.setUniform("shaderType", 6);
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, stencilTexture);
+        shaderProgram.setUniform("stencilTexture", 0);
+        shaderProgram.setUniform("canvasSize", (float)window.getWidth(), (float)window.getHeight());
+        shaderProgram.setUniform("outlineColor", 0.0f, 1.0f, 0.0f, 1.0f);
+        shaderProgram.setUniform("outlineSize", 4.0f);
+
+        GL.BindVertexArray(quadVao);
+        GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+        GL.BindVertexArray(0);
+
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Enable(EnableCap.DepthTest);
         shaderProgram.unbind();
     }
 

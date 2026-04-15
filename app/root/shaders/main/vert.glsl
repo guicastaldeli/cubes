@@ -20,6 +20,7 @@ uniform vec2 screenSize;
 #include "../text/text.vert.glsl"
 #include "../ui/ui.vert.glsl"
 #include "../player/username.vert.glsl"
+#include "flat.vert.glsl"
 #include "outline.vert.glsl"
 
 void main() {
@@ -49,10 +50,18 @@ void main() {
     }
     /**
 
-        Outline
+        Flat
 
         */
     else if(shaderType == 5) {
+        setFlatVert();
+    }
+    /**
+
+        Outline
+
+        */
+    else if(shaderType == 6) {
         setOutlineVert();
     }
     /**
