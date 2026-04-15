@@ -474,6 +474,9 @@ class MeshRenderer : DataEntry {
         if(!visible) return;
         if(meshData == null || camera == null) return;
 
+        float[] prevClearColor = new float[4];
+        GL.GetFloat(GetPName.ColorClearValue, prevClearColor);
+
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, stencilFbo);
         GL.Viewport(0, 0, window.getWidth(), window.getHeight());
         GL.ClearColor(0, 0, 0, 0);
@@ -485,22 +488,37 @@ class MeshRenderer : DataEntry {
 
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
+        GL.ClearColor(
+            prevClearColor[0],
+            prevClearColor[1],
+            prevClearColor[2],
+            prevClearColor[3]
+        );
+
         GL.Disable(EnableCap.DepthTest);
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
         shaderProgram.bind();
         shaderProgram.setUniform("shaderType", 6);
-        GL.ActiveTexture(TextureUnit.Texture0);
+        
+        GL.ActiveTexture(TextureUnit.Texture1);
         GL.BindTexture(TextureTarget.Texture2D, stencilTexture);
-        shaderProgram.setUniform("stencilTexture", 0);
+        
+        shaderProgram.setUniform("stencilTexture", 1);
         shaderProgram.setUniform("canvasSize", (float)window.getWidth(), (float)window.getHeight());
         shaderProgram.setUniform("outlineColor", 0.0f, 1.0f, 0.0f, 1.0f);
-        shaderProgram.setUniform("outlineSize", 4.0f);
+        shaderProgram.setUniform("outlineSize", 5.0f);
 
         GL.BindVertexArray(quadVao);
         GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
         GL.BindVertexArray(0);
 
+        GL.ActiveTexture(TextureUnit.Texture1);
         GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.ActiveTexture(TextureUnit.Texture0);
+
+        GL.Disable(EnableCap.Blend);
         GL.Enable(EnableCap.DepthTest);
         shaderProgram.unbind();
     }

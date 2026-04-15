@@ -15,6 +15,8 @@ void setOutlineFrag() {
     for(int y = -outInt; y <= outInt; y++) {
         for(int x = -outInt; x <= outInt; x++) {
             if(x*x + y*y > o2) continue;
+
+            vec2 offset = vec2(x, y) * texelSize;
             vec4 neighbor = texture(stencilTexture, texCoord + offset);
             if(neighbor.r > 0.0) {
                 fragColor = outlineColor;

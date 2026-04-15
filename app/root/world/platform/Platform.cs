@@ -36,7 +36,7 @@ class Platform : WorldHandler {
 
     /**
 
-        Temporary Cube to test 
+        Temporary Mesh to test 
         raycaster for objects
 
         */
@@ -55,6 +55,8 @@ class Platform : WorldHandler {
         mesh.setTexture(id, texId, texPath);
 
         collisionManager.addStaticCollider(new StaticObject(mesh.getBBox(id), id));
+        //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
+        //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
     }
 
     ///
