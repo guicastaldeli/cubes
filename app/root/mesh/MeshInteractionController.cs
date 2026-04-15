@@ -99,19 +99,28 @@ class MeshInteractionController {
         );
 
         this.shape = new Shape(mesh, collisionManager);
-
-        setPlatformY();
-    }
-
-    // Set Platform Y
-    public void setPlatformY() {
-        float y = Platform.height!.Value.Y;
-        placementRaycaster.setPlatformY(y);
     }
     
     // Get Held Mesh
     public PlacedMeshDef? getHeldMesh() {
         return heldMesh;
+    }
+
+    // Get Mesh Half Height
+    private float getMeshHalfHeight(MeshData data) {
+        float[]? vertices = data.getVertices();
+        if(vertices == null) return 0.5f;
+
+        float minY = float.MaxValue;
+        float maxY = float.MinValue;
+
+        for(int i = 1; i < vertices.Length; i += 3) {
+            if(vertices[i] < minY) minY = vertices[i];
+            if(vertices[i] > maxY) maxY = vertices[i];
+        }
+
+        float val = (maxY - minY) / 2.0f;
+        return val;
     }
 
     /**
@@ -146,7 +155,10 @@ class MeshInteractionController {
     public void onPlace() {
         if(heldMesh == null) return;
 
-        Vector3? point = placementRaycaster.findPlacementPoint();
+        MeshData data = MeshLoader.load(heldMesh.MeshType);
+        float halfH = getMeshHalfHeight(data);
+
+        Vector3? point = placementRaycaster.findPlacementPoint(halfH);
         if(point == null) {
             Console.WriteLine("No valid surface to place on!");
             return;

@@ -11,16 +11,23 @@ class CollisionManager {
 
     private List<Collider> staticColliders = new();
 
+    // Add Static Collider
     public void addStaticCollider(Collider coll) {
         staticColliders.Add(coll);
     }
 
+    // Remove Collider
     public void removeCollider(Collider coll) {
         staticColliders.Remove(coll);
     }
 
     public void removeCollider(string id) {
         staticColliders.RemoveAll(c => c.getId() == id);
+    }
+
+    // Get Colliders
+    public List<Collider> getColliders() {
+        return staticColliders;
     }
 
     ///

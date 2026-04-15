@@ -16,16 +16,26 @@ class BoundaryObject : Collider {
         );
     }
 
+    public string getId() {
+        return "";
+    }
+
+    // Get BBox
     public BBox getBBox() {
         return bBox;
     }
 
+    // Get Rigid Body
     public RigidBody? getRigidBody() {
         return null;
     }
 
-    public void onCollision(CollisionResult coll) {}
+    // On Collision
+    public void onCollision(CollisionResult coll) {
+        
+    }
 
+    // Is Outside Boundary
     public bool isOutsideBoundary(Vector3 position) {
         return MathF.Abs(position.X) > distance ||
             MathF.Abs(position.Z) > distance;
