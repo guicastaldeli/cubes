@@ -42,11 +42,11 @@ class Platform : WorldHandler {
         */
     public void set2() {
         string id = "cubic";
-        string mesht = "triangle";
+        string mesht = "cube";
         MeshData data = MeshLoader.load(mesht);
         mesh.add(id, data);
         mesh.setPosition(id, 0.0f, 3.0f, -3.0f);
-        mesh.setScale(id, 5.0f);
+        mesh.setScale(id, 0.2f);
 
         var renderer = mesh.getMeshRenderer(id);
         if(renderer != null) renderer.isInteractive = true;
@@ -55,8 +55,8 @@ class Platform : WorldHandler {
         int texId = TextureLoader.load(texPath);
         mesh.setTexture(id, texId, texPath);
 
-        //collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
-        collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
+        collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
+        //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
         //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
     
         MeshInteractionRegistry.getInstance().register(
@@ -80,7 +80,7 @@ class Platform : WorldHandler {
         int texId = TextureLoader.load(texPath);
         mesh.setTexture(id, texId, texPath);
 
-        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox(id), id));
+        collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
         //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
         //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
     
