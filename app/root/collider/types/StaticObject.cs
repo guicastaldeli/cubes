@@ -19,11 +19,12 @@ class StaticObject : Collider {
         this.id = id;
         this.type = type;
     }
-    public StaticObject(Vector3 position, float half, string type) {
+    public StaticObject(Vector3 position, float half, string id, string type = "") {
         this.position = position;
         this.halfX = half;
         this.halfY = half;
         this.halfZ = half;
+        this.id = id;
         this.type = type;
     }
     public StaticObject(
@@ -31,12 +32,14 @@ class StaticObject : Collider {
         float halfX,
         float halfY,
         float halfZ, 
-        string type
+        string id,
+        string type = ""
     ) {
         this.position = position;
         this.halfX = halfX;
         this.halfY = halfY;
         this.halfZ = halfZ;
+        this.id = id;
         this.type = type;
     }
 
@@ -59,13 +62,13 @@ class StaticObject : Collider {
 
     // Get Type
     public string getType() {
-        string val = type ?? "no type";
+        string val = type ?? "";
         return val;
     }
 
     // Get Id
     public string getId() {
-        string val = id ?? "0";
+        string val = id ?? "";
         return val;
     }
 

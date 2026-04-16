@@ -1,6 +1,7 @@
 namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Mesh;
+using App.Root.World.Platform;
 using OpenTK.Mathematics;
 
 /**
@@ -47,6 +48,18 @@ class Sides {
 
         var (face, dist) = getClosestFace(box, hitPoint);
         if(dist > eps) return null;
+
+        if(isGrid) {
+            if(face != Face.Top) return null;
+
+            float? topY = Platform.topSurfaceY;
+            if(!topY.HasValue) return null;
+
+            float t = 0.05f;
+            if(Math.Abs(box.maxY - topY.Value) > t) return null;
+
+            return new Vector3(hitPoint.X, box.maxY + height, hitPoint.Z);
+        }
 
         return face switch {
             Face.Top => new Vector3(hitPoint.X, box.maxY + height, hitPoint.Z),

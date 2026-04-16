@@ -116,10 +116,10 @@ class Platform : WorldHandler {
             new PlacedMeshDef(MESH, null, -1)
         );
 
+        height = getHeight();
         Vector3 size = mesh.getSize(GRID_ID);
         Vector3 half = size / 2.0f;
-
-        height = getHeight();
+        topSurfaceY = offset.Y + (sizeY - 1) * spacing + half.Y;
 
         for(int x = 0; x < sizeX; x++) {
             for(int y = 0; y < sizeY; y++) {
@@ -164,6 +164,11 @@ class Platform : WorldHandler {
     }
 
     public static Vector3? height {
+        get;
+        private set;
+    }
+
+    public static float? topSurfaceY {
         get;
         private set;
     }
