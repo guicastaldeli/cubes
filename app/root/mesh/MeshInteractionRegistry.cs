@@ -25,7 +25,8 @@ record PlacedMeshDef(
     string MeshType,
     string TexPath,
     int TexId,
-    Vector3? Scale = null
+    Vector3? Scale = null,
+    string? InstanceId = null
 );
 
 /**
@@ -97,7 +98,8 @@ class MeshInteractionRegistry {
             meshType, 
             texPath, 
             texId, 
-            scale
+            scale,
+            id
         ));
     }
 

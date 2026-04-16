@@ -1,3 +1,6 @@
+
+using App.Root.Mesh;
+
 /**
 
     Slot class for
@@ -22,6 +25,7 @@ class Slot {
 
     public bool isEmpty => count == 0 || itemId == null;
     public bool isFull => count >= maxStack;
+    public PlacedMeshDef? def = null;
 
     public Slot(
         int index,
@@ -50,9 +54,10 @@ class Slot {
     ///
     /// Add
     /// 
-    public int add(string id, int amount) {
-        if(itemId != null && itemId != id) return amount;
-        itemId = id;
+    public int add(PlacedMeshDef incomingDef, int amount) {
+        if(def != null && def.InstanceId != incomingDef.InstanceId) return amount;
+        def = incomingDef;
+        itemId = incomingDef.MeshType;
 
         int canAdd = maxStack - count;
         int adding = Math.Min(canAdd, amount);

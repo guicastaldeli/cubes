@@ -1,3 +1,6 @@
+
+using App.Root.Mesh;
+
 /**
 
     Grid class for
@@ -33,14 +36,21 @@ class Grid {
     }
 
     // Find Slot
-    public Slot? findSlot(string itemId) {
-        var partial = slots.FirstOrDefault(s => s.itemId == itemId && !s.isFull);
+    public Slot? findSlot(PlacedMeshDef def) {
+        var partial = 
+            slots.FirstOrDefault(s =>
+                s.def?.InstanceId == def.InstanceId &&
+                !s.isFull
+            );
         if(partial != null) return partial;
         return slots.FirstOrDefault(s => s.isEmpty);
     }
 
-    public Slot? findOccupiedSlot(string itemId) {
-        return slots.FirstOrDefault(s => s.itemId == itemId && s.count > 0);
+    public Slot? findOccupiedSlot(PlacedMeshDef def) {
+        return slots.FirstOrDefault(s => 
+            s.def?.InstanceId == def.InstanceId && 
+            s.count > 0
+        );
     }
 
     // Get Slot At

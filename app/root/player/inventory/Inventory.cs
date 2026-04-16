@@ -1,4 +1,5 @@
 
+using App.Root.Mesh;
 using App.Root.Screen;
 using App.Root.Shaders;
 using App.Root.Text;
@@ -70,12 +71,12 @@ class Inventory {
     }
     
     // Add Item
-    public bool addItem(string itemId) {
+    public bool addItem(PlacedMeshDef def) {
         int remaining = 1;
         while(remaining > 0) {
-            var slot = grid.findSlot(itemId);
+            var slot = grid.findSlot(def);
             if(slot == null) return false;
-            remaining = slot.add(itemId, remaining);
+            remaining = slot.add(def, remaining);
         }
         return true;
     }

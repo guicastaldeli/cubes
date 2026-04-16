@@ -137,16 +137,6 @@ class MeshInteractionController {
         PlacedMeshDef? def = MeshInteractionRegistry.getInstance().getDef(hit);
         if(def == null) return;
 
-        var renderer = mesh.getMeshRenderer(hit);
-        Vector3? currentScale = null;
-        if(renderer != null && renderer.isScaled()) {
-            currentScale = renderer.getScale();
-        }
-
-        def = def with {
-            Scale = currentScale
-        };
-
         window.queueOnRenderThread(() => {
             mesh.remove(hit);
             collisionManager.removeCollider(hit);
@@ -159,7 +149,7 @@ class MeshInteractionController {
             input.getPlayerInputMap()
             .getInventory();
         if(inventory != null) {            
-            inventory.getInventory().addItem(def.MeshType);
+            inventory.getInventory().addItem(def);
         }
 
         heldMesh = def;
@@ -171,17 +161,20 @@ class MeshInteractionController {
     
         */
     public void onPlace() {
+        Console.WriteLine($"onPlace: meshType={heldMesh?.MeshType}, scale={heldMesh?.Scale}");
         if(heldMesh == null) return;
 
         var inventoryInstance = input.getPlayerInputMap().getInventory();
         if(inventoryInstance == null) return;
 
         var inventory = inventoryInstance.getInventory();
-        var slot = inventory.grid.findOccupiedSlot(heldMesh.MeshType);
-        if(slot == null || slot.isEmpty) {
+        var slot = inventory.grid.findOccupiedSlot(heldMesh);
+        if(slot == null || slot.def == null) {
             heldMesh = null;
             return;
         }
+
+        PlacedMeshDef def = slot.def;
 
         MeshData data = MeshLoader.load(heldMesh.MeshType);
         float halfH = getMeshHalfHeight(data);
@@ -193,7 +186,6 @@ class MeshInteractionController {
         } 
 
         string newId = $"{heldMesh.MeshType}_{placedCounter++}";
-        PlacedMeshDef def = heldMesh;
         Vector3 placePos = point.Value;
 
         window.queueOnRenderThread(() => {
@@ -228,9 +220,12 @@ class MeshInteractionController {
 
         slot.remove(1);
         bool hasMore = inventory.grid.slots.Any(s => 
-            s.itemId == heldMesh.MeshType && 
+            s.def?.InstanceId == heldMesh.InstanceId && 
             s.count > 0
         );
-        if(!hasMore) heldMesh = null;
+        if(!hasMore) {
+            var nextSlot = inventory.grid.slots.FirstOrDefault(s => s.count > 0);
+            heldMesh = nextSlot?.def;
+        }
     }
 }
