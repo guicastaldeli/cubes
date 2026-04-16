@@ -31,7 +31,11 @@ class Scene {
         this.shaderProgram = shaderProgram;
         this.input = input;
 
-        this.mesh = new Mesh.Mesh(window, shaderProgram);
+        this.mesh = new Mesh.Mesh(
+            window, 
+            shaderProgram, 
+            input
+        );
         this.playerController = new PlayerController(
             window, 
             input,
@@ -148,7 +152,11 @@ class Scene {
         ServerSnapshot.getInstance().clearAll();
         MeshRegistry.clear();
 
-        mesh = new Mesh.Mesh(window, shaderProgram);
+        mesh = new Mesh.Mesh(
+            window, 
+            shaderProgram, 
+            input
+        );
         collisionManager = new CollisionManager();
         playerController = new PlayerController(
             window, 

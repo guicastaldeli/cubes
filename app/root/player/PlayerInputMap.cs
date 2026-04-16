@@ -68,12 +68,15 @@ class PlayerInputMap {
 
     // Open Inventory
     public void openInventory(Keys key) {
-        if(key == Keys.E) {
-            if(input.getUIController().getActive() == UI.UIController.UIType.INVENTORY) {
-                input.unlockMouse();
-            } else {
-                input.lockMouse();
-            }
+        if(key != Keys.E) return;
+
+        var uiController = input.getUIController();
+        uiController.toggle(UI.UIController.UIType.INVENTORY);
+
+        if(input.getUIController().getActive() == UI.UIController.UIType.INVENTORY) {
+            input.unlockMouse();
+        } else {
+            input.lockMouse();
         }
     }
 }

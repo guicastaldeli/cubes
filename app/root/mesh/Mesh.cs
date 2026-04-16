@@ -8,6 +8,7 @@ class Mesh {
     private Window window;
     private ShaderProgram shaderProgram;
     private Camera? camera;
+    private Input input;
     private MeshInteractionController? meshInteractionController;
     private PlayerController? playerController;
     private CollisionManager? collisionManager;
@@ -15,9 +16,14 @@ class Mesh {
     private Dictionary<string, MeshData> meshDataMap = new();
     private Dictionary<string, MeshRenderer> meshRendererMap = new();
 
-    public Mesh(Window window, ShaderProgram shaderProgram) {
+    public Mesh(
+        Window window, 
+        ShaderProgram shaderProgram,
+        Input input
+    ) {
         this.window = window;
         this.shaderProgram = shaderProgram;
+        this.input = input;
     }
 
     // Set Camera
@@ -44,6 +50,7 @@ class Mesh {
             window,
             camera!,
             this,
+            input,
             collisionManager!,
             playerController!.getRaycaster()
         );

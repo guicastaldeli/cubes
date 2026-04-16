@@ -1,5 +1,7 @@
 
+using App.Root.Screen;
 using App.Root.Shaders;
+using App.Root.Text;
 using App.Root.UI;
 
 /**
@@ -10,36 +12,61 @@ using App.Root.UI;
 namespace App.Root.Player.Inventory;
 
 class Inventory {
-    private ShaderProgram shaderProgram;
+    private ShaderProgram shaderProgram = null!;
+    private TextRenderer textRenderer = null!;
 
-    public Grid grid;
-    public Slot mainSlot;
+    public Grid grid = null!;
+    public Slot mainSlot = null!;
 
     private int screenWidth;
     private int screenHeight;
     private int width;
     private int height;
 
-    private const int SLOT_SIZE = 54;
-    private const int PADDING = 7;
-    private const int OFFSET = 7;
-    private const int OFFSET_Y = 7;
+    private int startX;
+    private int startY;
 
+    private int cols;
+    private int rows;
+    private float edgePaddingPct;
+    private float topPaddingPct;
+    private float gapPct;
+ 
     public Inventory(
-        ShaderProgram shaderProgram,
-        int screenWidth, 
+        int screenWidth,
         int screenHeight,
+        int startX, 
+        int startY,
         int width,
-        int height
+        int height,
+        int cols,
+        int rows,
+        float edgePaddingPct,
+        float topPaddingPct,
+        float gapPct = 0.006f
     ) {
-        this.shaderProgram = shaderProgram;
-
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.width = width;
         this.height = height;
-        
+        this.startX = startX;
+        this.startY = startY;
+        this.cols = cols;
+        this.rows = rows;
+        this.edgePaddingPct = edgePaddingPct;
+        this.topPaddingPct = topPaddingPct;
+        this.gapPct = gapPct;
         build();
+    }
+
+    // Set Shader Program
+    public void setShaderProgram(ShaderProgram shaderProgram) {
+        this.shaderProgram = shaderProgram;
+    }
+
+    // Set Text Renderer
+    public void setTextRenderer(TextRenderer textRenderer) {
+        this.textRenderer = textRenderer;
     }
     
     // Add Item
@@ -87,24 +114,14 @@ class Inventory {
 
         */
     private void build() {
-        int startX = (screenWidth - width) / 2;
-        int startY = (screenHeight - height) / 2;
-
-        float ef = 0.012f;
-        int edgePadding = (int)(width * ef);
-
-        int cols = 9;
-        int rows = 3;
-
-        float gbf = 0.006f;
-        int gapBetween = (int)(width * gbf);
-        
+        int edgePadding = (int)(width * edgePaddingPct);
+        int gapBetween = (int)(width * gapPct);
         int slotSize = 
-            (width - (edgePadding * 2) - 
-            (gapBetween * (cols - 1))) / 2;
-
-        float tpf = 0.055f;
-        int topPadding = (int)(width * tpf);
+            (width - 
+            (edgePadding * 2) - 
+            (gapBetween * (cols - 1))) / 
+            cols;
+        int topPadding = (int)(height * topPaddingPct);
 
         grid = new Grid(
             cols, rows,
@@ -143,6 +160,7 @@ class Inventory {
     }
 
     private void renderSlot(Slot slot) {
+        // Slot
         var el = new UIElement(
             "div", "", "", "arial",
             slot.x, slot.y,
@@ -153,5 +171,22 @@ class Inventory {
             ""
         );
         el.backgroundColor = new float[]{ 1.0f, 1.0f, 1.0f, 0.3f };
+        DocParser.renderUIElement(
+            el, 
+            screenWidth, screenHeight, 
+            shaderProgram
+        );
+
+        // Stack Count
+        if(slot.count > 1 && textRenderer != null) {
+            textRenderer.renderText(
+                slot.count.ToString(),
+                slot.x + slot.width - 12,
+                slot.y + slot.height - 14,
+                0.5f,
+                new float[]{ 1.0f, 1.0f, 1.0f, 1.0f },
+                "arial"
+            );
+        }
     }
 }

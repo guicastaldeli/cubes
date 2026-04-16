@@ -44,5 +44,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>ui\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
+    <Content Include="root\**\*.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+  </Content>
   </ItemGroup>
 </Project>

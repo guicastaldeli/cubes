@@ -39,6 +39,10 @@ class Grid {
         return slots.FirstOrDefault(s => s.isEmpty);
     }
 
+    public Slot? findOccupiedSlot(string itemId) {
+        return slots.FirstOrDefault(s => s.itemId == itemId && s.count > 0);
+    }
+
     // Get Slot At
     public Slot? getSlotAt(int mx, int my) {
         Slot? val = slots.FirstOrDefault(s => s.containsPoint(mx, my));

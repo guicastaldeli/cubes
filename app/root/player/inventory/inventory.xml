@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inventory>
     <img 
-        id="inventory_bg"
-        src="ui/inventory.png"
-        x="50%" y="50%"
-        anchor="center"
+        id="inventory"
+        src="texture/player/hud/inventory.png"
+        x="25%" y="50%"
+        width="60%" height="20%"
     />
     <slotconfig
         cols="9" rows="3"

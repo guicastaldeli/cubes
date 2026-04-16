@@ -155,14 +155,14 @@ class MeshInteractionController {
         MeshInteractionRegistry.getInstance().unregister(hit);
         MeshRegistry.unregister(hit);
 
-        heldMesh = def;
-
         var inventory = 
             input.getPlayerInputMap()
             .getInventory();
         if(inventory != null) {            
             inventory.getInventory().addItem(def.MeshType);
         }
+
+        heldMesh = def;
     }
 
     /**
@@ -172,6 +172,16 @@ class MeshInteractionController {
         */
     public void onPlace() {
         if(heldMesh == null) return;
+
+        var inventoryInstance = input.getPlayerInputMap().getInventory();
+        if(inventoryInstance == null) return;
+
+        var inventory = inventoryInstance.getInventory();
+        var slot = inventory.grid.findOccupiedSlot(heldMesh.MeshType);
+        if(slot == null || slot.isEmpty) {
+            heldMesh = null;
+            return;
+        }
 
         MeshData data = MeshLoader.load(heldMesh.MeshType);
         float halfH = getMeshHalfHeight(data);
@@ -216,6 +226,11 @@ class MeshInteractionController {
             );
         });
 
-        heldMesh = null;
+        slot.remove(1);
+        bool hasMore = inventory.grid.slots.Any(s => 
+            s.itemId == heldMesh.MeshType && 
+            s.count > 0
+        );
+        if(!hasMore) heldMesh = null;
     }
 }
