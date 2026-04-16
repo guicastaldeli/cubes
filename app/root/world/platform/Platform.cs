@@ -53,7 +53,7 @@ class Platform : WorldHandler {
 
         string texPath = "env/test.jpg";
         int texId = TextureLoader.load(texPath);
-        //mesh.setTexture(id, texId, texPath);
+        mesh.setTexture(id, texId, texPath);
 
         //collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
         collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
@@ -62,7 +62,7 @@ class Platform : WorldHandler {
         MeshInteractionRegistry.getInstance().register(
             id,
             State.BREAKABLE,
-            new PlacedMeshDef("triangle", "env/test.jpg", texId)
+            mesh
         );
     }
 
@@ -87,7 +87,7 @@ class Platform : WorldHandler {
         MeshInteractionRegistry.getInstance().register(
             id,
             State.BREAKABLE,
-            new PlacedMeshDef("cube", "env/test.jpg", texId)
+            mesh
         );
     }
 
@@ -114,7 +114,7 @@ class Platform : WorldHandler {
         MeshInteractionRegistry.getInstance().register(
             GRID_ID,
             State.GRID,
-            new PlacedMeshDef(MESH, null, -1)
+            mesh
         );
 
         height = getHeight();

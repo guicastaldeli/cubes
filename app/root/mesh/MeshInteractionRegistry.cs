@@ -1,3 +1,6 @@
+
+using OpenTK.Mathematics;
+
 /**
 
     Mesh Interaction Registry to
@@ -20,8 +23,9 @@ enum State {
 
 record PlacedMeshDef(
     string MeshType,
-    string? TexPath,
-    int TexId
+    string TexPath,
+    int TexId,
+    Vector3? Scale = null
 );
 
 /**
@@ -70,10 +74,32 @@ class MeshInteractionRegistry {
         Register
 
         */
-    public void register(string id, State b, PlacedMeshDef def) {
+    public void setRegister(string id, State b, PlacedMeshDef def) {
         breakMap[id] = b;
         defMap[id] = def;
     }    
+
+    public void register(string id, State state, Mesh mesh) {
+        var renderer = mesh.getMeshRenderer(id);
+        if(renderer == null) return;
+
+        var data = mesh.getData(id);
+
+        string meshType = data?.meshType ?? id;
+        string? texPath = renderer.getTexPath();
+        int texId = renderer.getTexId();
+        Vector3? scale = 
+            (renderer != null && renderer.isScaled()) ? 
+            renderer.getScale() : 
+            null;
+
+        setRegister(id, state, new PlacedMeshDef(
+            meshType, 
+            texPath, 
+            texId, 
+            scale
+        ));
+    }
 
     /**
     

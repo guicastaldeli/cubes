@@ -8,7 +8,6 @@ namespace App.Root.Mesh;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Player;
-using App.Root.World.Platform;
 using OpenTK.Mathematics;
 
 /**
@@ -135,6 +134,16 @@ class MeshInteractionController {
         PlacedMeshDef? def = MeshInteractionRegistry.getInstance().getDef(hit);
         if(def == null) return;
 
+        var renderer = mesh.getMeshRenderer(hit);
+        Vector3? currentScale = null;
+        if(renderer != null && renderer.isScaled()) {
+            currentScale = renderer.getScale();
+        }
+
+        def = def with {
+            Scale = currentScale
+        };
+
         window.queueOnRenderThread(() => {
             mesh.remove(hit);
             collisionManager.removeCollider(hit);
@@ -171,12 +180,17 @@ class MeshInteractionController {
             MeshData data = MeshLoader.load(def.MeshType);
             mesh.add(newId, data);
             mesh.setPosition(newId, placePos);
-            
+
+            if(def.Scale.HasValue) {
+                mesh.setScale(newId, def.Scale.Value);
+            }
             if(def.TexId > 0) {
+                int texId = def.TexId;
+                string texPath = def.TexPath ?? "";
                 mesh.setTexture(
                     newId, 
-                    def.TexId, 
-                    def.TexPath ?? ""
+                    texId, 
+                    texPath
                 );
             }
 
@@ -185,7 +199,7 @@ class MeshInteractionController {
 
             shape.update(data, newId);
 
-            MeshInteractionRegistry.getInstance().register(
+            MeshInteractionRegistry.getInstance().setRegister(
                 newId,
                 State.BREAKABLE,
                 def

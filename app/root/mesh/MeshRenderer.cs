@@ -160,6 +160,14 @@ class MeshRenderer : DataEntry {
         }
     }
 
+    public string getTexPath() {
+        return texPath;
+    }
+
+    public int getTexId() {
+        return texId;
+    }
+
     // Model Matrix
     public void setModelMatrix(Matrix4 m) {
         modelMatrix = m;
