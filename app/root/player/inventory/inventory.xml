@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inventory>
-    
+    <img 
+        id="inventory_bg"
+        src="ui/inventory.png"
+        x="50%" y="50%"
+        anchor="center"
+    />
+    <slotconfig
+        cols="9" rows="3"
+        edgePaddingPct="0.012"
+        topPaddingPct="0.055"
+        gapPct="0.006"
+    />
 </inventory>

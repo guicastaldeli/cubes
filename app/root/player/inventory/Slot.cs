@@ -1,3 +1,9 @@
+/**
+
+    Slot class for
+    the inventory resource slots.
+
+    */
 namespace App.Root.Player.Inventory;
 
 class Slot {

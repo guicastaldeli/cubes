@@ -1,6 +1,7 @@
 namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Info;
+using App.Root.Player.Inventory;
 using App.Root.Shaders;
 using App.Root.World;
 using App.Root.World.Platform;
@@ -80,7 +81,7 @@ class PlayerController : DataEntry {
         this.mesh = mesh;
 
         this.camera = new Camera();
-        this.playerInputMap = new PlayerInputMap(this);
+        this.playerInputMap = new PlayerInputMap(input, this);
         this.rigidBody = new RigidBody(position, size);
         this.playerMesh = new PlayerMesh(window, this, mesh);
 

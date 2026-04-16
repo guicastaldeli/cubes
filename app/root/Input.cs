@@ -35,14 +35,22 @@ class Input {
         return screenController;
     }
 
-    // Set UI Controller
+    // UI Controller
     public void setUIController(UIController uiController) {
         this.uiController = uiController;
     }
+
+    public UIController getUIController() {
+        return uiController;
+    }
     
-    // Set Player Input Map
+    // Player Input Map
     public void setPlayerInputMap(PlayerInputMap playerInputMap) {
         this.playerInputMap = playerInputMap;
+    }
+
+    public PlayerInputMap getPlayerInputMap() {
+        return playerInputMap!;
     }
 
     // Set Network
@@ -61,6 +69,7 @@ class Input {
     } 
 
     private void onKeyDown(Keys key) {
+        // Chat
         if(inputChat != null) {
             inputChat.onKeyDown(key);
             if(ChatController.getInstance().isOpen()) return;
@@ -69,18 +78,24 @@ class Input {
             inputVoip.onKeyDown(key);
         }    
 
+        // Pause
         if(key == Keys.Escape) {
             onPause();
             return;
         } 
         
+        // Screen Controller
         screenController.handleKeyPress((int)key, 1);
-        playerInputMap?.setKeyState(key, true);
+
+        // Player Input Map
+        if(playerInputMap != null) {
+            playerInputMap.openInventory(key);
+            playerInputMap.setKeyState(key, true);
+        }
     }
 
     private void onKeyUp(Keys key) {
         if(inputVoip != null) inputVoip.onKeyUp(key);
-
         screenController.handleKeyPress((int)key, 0);
         playerInputMap?.setKeyState(key, false);
     }

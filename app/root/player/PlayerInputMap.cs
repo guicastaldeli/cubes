@@ -1,14 +1,17 @@
 namespace App.Root.Player;
 using App.Root.Mesh;
+using App.Root.Player.Inventory;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class PlayerInputMap {
+    private Input input;
     private PlayerController playerController;
     
     private bool[] keyPressed = new bool[(int) Keys.LastKey + 1];
     private bool fKeyPressed = false;
 
-    public PlayerInputMap(PlayerController playerController) {
+    public PlayerInputMap(Input input, PlayerController playerController) {
+        this.input = input;
         this.playerController = playerController;
     }
 
@@ -47,6 +50,30 @@ class PlayerInputMap {
         if(meshInteractionController != null) {
             if(button == 0) meshInteractionController.onBreak();
             if(button == 1) meshInteractionController.onPlace();
+        }
+    }
+
+    /**
+    
+        Inventory
+
+        */
+    // Get Inventory
+    public InventoryUI? getInventory() {
+        InventoryUI? val = 
+            input.getUIController()
+            .get<InventoryUI>(UI.UIController.UIType.INVENTORY);
+        return val;
+    }
+
+    // Open Inventory
+    public void openInventory(Keys key) {
+        if(key == Keys.E) {
+            if(input.getUIController().getActive() == UI.UIController.UIType.INVENTORY) {
+                input.unlockMouse();
+            } else {
+                input.lockMouse();
+            }
         }
     }
 }

@@ -42,6 +42,9 @@ class UIElement {
     public int textureId = -1;
     public bool hasTexture = false;
 
+    public int imgWidth = 0;
+    public int imgHeight = 0;
+
     public UIElement(
         string type,
         string id,

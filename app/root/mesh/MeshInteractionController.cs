@@ -66,6 +66,7 @@ class Shape {
 class MeshInteractionController {
     private Window window;
     private Mesh mesh;
+    private Input input;
     private CollisionManager collisionManager;
     private Camera camera;
 
@@ -81,12 +82,14 @@ class MeshInteractionController {
         Window window,
         Camera camera,
         Mesh mesh,
+        Input input,
         CollisionManager collisionManager,
         Raycaster raycaster
     ) {
         this.window = window;
         this.camera = camera;
         this.mesh = mesh;
+        this.input = input;
         this.collisionManager = collisionManager;
         this.raycaster = raycaster;
 
@@ -153,6 +156,13 @@ class MeshInteractionController {
         MeshRegistry.unregister(hit);
 
         heldMesh = def;
+
+        var inventory = 
+            input.getPlayerInputMap()
+            .getInventory();
+        if(inventory != null) {            
+            inventory.getInventory().addItem(def.MeshType);
+        }
     }
 
     /**

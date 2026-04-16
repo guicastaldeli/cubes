@@ -3,13 +3,13 @@ using App.Root.Shaders;
 using App.Root.UI.Voip;
 using System.Collections.Generic;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using App.Root.Player.Inventory;
 
 class UIController {
     public enum UIType {
-        UPGRADE_MENU,
-        INFO,
         CHAT,
-        VOIP
+        VOIP,
+        INVENTORY
     }
 
     public int screenWidth;
@@ -81,17 +81,8 @@ class UIController {
       return active;  
     }
 
-
     // Handle Key Press
     public bool handleKeyPress(int key, int action) {
-        if(key == (int)Keys.E && action == 1) {
-            toggle(UIType.UPGRADE_MENU);
-            return true;
-        }
-        if(key == (int)Keys.Escape && action == 1 && active != null) {
-            hide();
-            return true;
-        }
         return currentUI != null && handleCurrentKeyPress(key, action);
     }
 
@@ -141,6 +132,7 @@ class UIController {
     private void init() {
         uis[UIType.CHAT] = new Chat.Chat();
         uis[UIType.VOIP] = new VoipUI();
+        uis[UIType.INVENTORY] = new InventoryUI();
     }
 
     ///

@@ -19,7 +19,21 @@ class TextureLoader {
             this.height = height;
         }
     }
+    
+    // Get Size
+    public static (int width, int height) getSize(int texId) {
+        GL.BindTexture(TextureTarget.Texture2D, texId);
+        GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int w);
+        GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int h);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        return (w, h);
+    }
 
+    /**
+    
+        Load
+    
+        */
     public static TextureData loadTexData(string fileName) {
         string path = Path.Combine(DIR, fileName);
         try {

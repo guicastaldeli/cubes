@@ -616,6 +616,10 @@ class DocParser {
                 if(texId != -1) {
                     uiElement.textureId = texId;
                     uiElement.hasTexture = true;
+
+                    var (imgW, imgH) = TextureLoader.getSize(texId);
+                    uiElement.imgWidth = imgW;
+                    uiElement.imgHeight = imgH;
                 } else {
                     Console.Error.WriteLine("Failed to load texture: " + fullPath);
                 }
