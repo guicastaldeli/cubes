@@ -1,4 +1,4 @@
-/*
+/**
 
     Billboard Shaders for Player's Username
     its not a minecraft copy :P ...

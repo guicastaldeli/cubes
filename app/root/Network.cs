@@ -1,5 +1,4 @@
 namespace App.Root;
-
 using App.Root.Info;
 using App.Root.Packets;
 

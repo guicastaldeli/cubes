@@ -1,4 +1,4 @@
-/*
+/**
 
     Global controller for main
     configurations of the program
