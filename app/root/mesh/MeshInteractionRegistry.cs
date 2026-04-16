@@ -14,7 +14,8 @@ namespace App.Root.Mesh;
     */
 enum State {
     BREAKABLE,
-    UNBREAKABLE
+    UNBREAKABLE,
+    GRID
 }
 
 record PlacedMeshDef(
@@ -45,6 +46,14 @@ class MeshInteractionRegistry {
             breakMap.TryGetValue(id, out var b) &&
             b == State.BREAKABLE;
         return val; 
+    }
+
+    // Is Grid
+    public bool isGrid(string id) {
+        if(!breakMap.TryGetValue(id, out var b)) {
+            return true;
+        }
+        return b == State.GRID;
     }
 
     // Get Def

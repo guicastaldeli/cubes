@@ -92,8 +92,7 @@ class MeshInteractionController {
         this.raycaster = raycaster;
 
         this.placementRaycaster = new PlacementRaycaster(
-            camera, 
-            mesh, 
+            camera,
             collisionManager, 
             raycaster
         );

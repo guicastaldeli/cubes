@@ -9,7 +9,7 @@ class Platform : WorldHandler {
     private Mesh mesh;
     private CollisionManager collisionManager;
 
-    private string GRID_ID = "grid";
+    public string GRID_ID = "grid";
     private string MESH = "cube";
 
     private float x = 0.0f;
@@ -65,6 +65,31 @@ class Platform : WorldHandler {
         );
     }
 
+    public void set3() {
+        string id = "cubic2";
+        string mesht = "cube";
+        MeshData data = MeshLoader.load(mesht);
+        mesh.add(id, data);
+        mesh.setPosition(id, 4.0f, 3.0f, -3.0f);
+
+        var renderer = mesh.getMeshRenderer(id);
+        if(renderer != null) renderer.isInteractive = true;
+
+        string texPath = "env/test.jpg";
+        int texId = TextureLoader.load(texPath);
+        mesh.setTexture(id, texId, texPath);
+
+        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox(id), id));
+        //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
+        //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
+    
+        MeshInteractionRegistry.getInstance().register(
+            id,
+            State.BREAKABLE,
+            new PlacedMeshDef("cube", "env/test.jpg", texId)
+        );
+    }
+
     ///
     /// Set
     /// 
@@ -87,7 +112,7 @@ class Platform : WorldHandler {
         mesh.add(GRID_ID, MESH);
         MeshInteractionRegistry.getInstance().register(
             GRID_ID,
-            State.UNBREAKABLE,
+            State.GRID,
             new PlacedMeshDef(MESH, null, -1)
         );
 
@@ -150,6 +175,7 @@ class Platform : WorldHandler {
         if(!initialized) {
             set();
             set2();
+            set3();
             initialized = true;
         }
     }
