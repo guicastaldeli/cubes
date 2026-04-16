@@ -9,11 +9,12 @@ class TriangleObject : Collider {
     private string type;
 
     private BBox bBox = null!;
-    private List<(
-        Vector3 a, 
-        Vector3 b, 
-        Vector3 c
-    )> triangles = new();
+
+    private float[] verts = null!;
+    private Vector3 scale = Vector3.One;
+    private List<(Vector3 a, Vector3 b, Vector3 c)> tri = new();
+
+    private bool built = false;
 
     public TriangleObject(
         Mesh.Mesh mesh, 
@@ -23,7 +24,6 @@ class TriangleObject : Collider {
         this.mesh = mesh;
         this.id = id;
         this.type = type;
-        build();
     }
 
     // Get Type
@@ -42,10 +42,13 @@ class TriangleObject : Collider {
     }
 
     // On Collision
-    public void onCollision(CollisionResult coll) {}
+    public void onCollision(CollisionResult coll) {
+        
+    }
 
     // Get BBox
     public BBox getBBox() {
+        bBox = mesh.getBBox(id);
         return bBox;
     }
 
@@ -54,24 +57,29 @@ class TriangleObject : Collider {
         var data = mesh.getData(id);
         if(data == null) return;
 
-        float[]? verts = data.getVertices();
+        verts = data.getVertices()!;
         int[]? indices = data.getIndices();
-        Vector3 pos = mesh.getPosition(id);
         if(verts == null) return;
 
-        Vector3 getVert(int i) {
-            return new Vector3(
-                verts[i*3+0] + pos.X,
-                verts[i*3+1] + pos.Y,
-                verts[i*3+2] + pos.Z
-            );
-        }   
+        var renderer = mesh.getMeshRenderer(id);
+        if(renderer != null && renderer.isScaled()) {
+            scale = renderer.getScale();
+        } else if(data.hasScale()) {
+            float[]? s = data.getScale();
+            if(s != null) scale = new Vector3(s[0], s[1], s[2]);
+        }
 
-        triangles.Clear();
+        tri.Clear();
+
+        Vector3 getVert(int i) => new Vector3(
+            verts[i*3+0] * scale.X,
+            verts[i*3+1] * scale.Y,
+            verts[i*3+2] * scale.Z
+        );
 
         if(indices != null) {
             for(int i = 0; i < indices.Length; i += 3) {
-                triangles.Add((
+                tri.Add((
                     getVert(indices[i]),
                     getVert(indices[i+1]),
                     getVert(indices[i+2])
@@ -80,7 +88,7 @@ class TriangleObject : Collider {
         } else {
             int count = verts.Length / 3;
             for(int i = 0; i < count; i += 3) {
-                triangles.Add((
+                tri.Add((
                     getVert(i),
                     getVert(i+1),
                     getVert(i+2)
@@ -93,13 +101,19 @@ class TriangleObject : Collider {
 
     // Check Collision
     public CollisionResult checkCollision(BBox box) {
+        bBox = mesh.getBBox(id);
         if(!box.intersects(bBox)) return new CollisionResult();
 
+        Vector3 currentPos = mesh.getPosition(id);
         CollisionResult best = new CollisionResult();
         float bestDepth = 0;
 
-        foreach(var (a, b, c) in triangles) {
-            var result = checkAABB(box, a, b, c);
+        foreach(var (a, b, c) in tri) {
+            var result = checkAABB(box, 
+                a + currentPos,
+                b + currentPos,
+                c + currentPos
+            );
             if(result.collided && result.depth > bestDepth) {
                 bestDepth = result.depth;
                 best = result;

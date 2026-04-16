@@ -129,6 +129,10 @@ class MeshRenderer : DataEntry {
         return new Vector3(scale);
     }
 
+    public bool isScaled() {
+        return hasScale;
+    }
+
     // Rotation Matrix
     public void setRotationMatrix(Matrix4 matrix) {
         rotationMatrix = matrix;
@@ -315,20 +319,38 @@ class MeshRenderer : DataEntry {
         if(meshData.hasRotation() == true) updateRotation();
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */
+    // Main
     public void render() {
         if(!visible) return;
         if(meshData == null || camera == null) return;
 
-        modelMatrix = rotationMatrix * Matrix4.CreateTranslation(position);
         if(!isDynamic) {
             if(hasScale) {
-                modelMatrix *= Matrix4.CreateScale(scale);
+                modelMatrix =
+                    Matrix4.CreateScale(scale) *
+                    rotationMatrix *
+                    Matrix4.CreateTranslation(position);
             } else if(meshData.hasScale()) {
                 float[]? s = meshData.getScale();
-                if(s != null) modelMatrix *= Matrix4.CreateScale(s[0], s[1], s[2]);
+                if(s != null) {
+                    modelMatrix =
+                        Matrix4.CreateScale(s[0], s[1], s[2]) *
+                        rotationMatrix *
+                        Matrix4.CreateTranslation(position);
+                } else {
+                    modelMatrix =
+                        rotationMatrix *
+                        Matrix4.CreateTranslation(position);
+                }
+            } else {
+                modelMatrix =
+                    rotationMatrix *
+                    Matrix4.CreateTranslation(position);
             }
         }
 
@@ -374,6 +396,7 @@ class MeshRenderer : DataEntry {
         shaderProgram.unbind();
     }
 
+    // Instanced Meshes
     public void renderInstanced() {
         if(!visible || meshData == null || camera == null) return;
 
@@ -398,6 +421,7 @@ class MeshRenderer : DataEntry {
         shaderProgram.unbind();
     }
 
+    // Orthographic
     public void renderOrto(int screenWidth, int screenHeight) {
         if(!visible) return;
         if(meshData == null) return;
@@ -441,15 +465,31 @@ class MeshRenderer : DataEntry {
         shaderProgram.unbind();
     }
 
+    // Flat Meshes
     public void renderFlat() {
         if(meshData == null || camera == null) return;
 
-        Matrix4 model = rotationMatrix * Matrix4.CreateTranslation(position);
+        Matrix4 model;
         if(hasScale) {
-            model *= Matrix4.CreateScale(scale);
+            model =
+                Matrix4.CreateScale(scale) *
+                rotationMatrix *
+                Matrix4.CreateTranslation(position);
         } else if(meshData.hasScale()) {
             float[]? s = meshData.getScale();
-            if(s != null) model *= Matrix4.CreateScale(s[0], s[1], s[2]);
+            if(s != null) {
+                model = Matrix4.CreateScale(s[0], s[1], s[2]) *
+                rotationMatrix *
+                Matrix4.CreateTranslation(position);
+            } else {
+                model = 
+                    rotationMatrix *
+                    Matrix4.CreateTranslation(position);
+            }
+        } else {
+            model =
+                rotationMatrix *
+                Matrix4.CreateTranslation(position);
         }
 
         shaderProgram.bind();
@@ -470,6 +510,7 @@ class MeshRenderer : DataEntry {
         shaderProgram.unbind();
     }
 
+    // Outline
     public void renderOutline(List<MeshRenderer> selectedMeshes) {
         if(!visible) return;
         if(meshData == null || camera == null) return;
@@ -537,9 +578,11 @@ class MeshRenderer : DataEntry {
         if(vao != 0) GL.DeleteVertexArray(vao);
     }
 
-    ///
-    /// Data Entry
-    /// 
+    /**
+    
+        Data Entry
+    
+        */ 
     public void setId(string id) {
         this.id = id;
         Data.getInstance().register(Root.DataType.MESH, this);

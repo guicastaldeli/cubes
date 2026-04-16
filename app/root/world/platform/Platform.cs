@@ -42,26 +42,27 @@ class Platform : WorldHandler {
         */
     public void set2() {
         string id = "cubic";
-        string mesht = "cube";
+        string mesht = "triangle";
         MeshData data = MeshLoader.load(mesht);
         mesh.add(id, data);
         mesh.setPosition(id, 0.0f, 3.0f, -3.0f);
+        mesh.setScale(id, 5.0f);
 
         var renderer = mesh.getMeshRenderer(id);
         if(renderer != null) renderer.isInteractive = true;
 
         string texPath = "env/test.jpg";
         int texId = TextureLoader.load(texPath);
-        mesh.setTexture(id, texId, texPath);
+        //mesh.setTexture(id, texId, texPath);
 
-        collisionManager.addStaticCollider(new StaticObject(mesh.getBBox(id), id));
-        //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
+        //collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
+        collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
         //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
     
         MeshInteractionRegistry.getInstance().register(
             id,
             State.BREAKABLE,
-            new PlacedMeshDef("cube", "env/test.jpg", texId)
+            new PlacedMeshDef("triangle", "env/test.jpg", texId)
         );
     }
 

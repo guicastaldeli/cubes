@@ -62,9 +62,11 @@ class ServerPlayer : DataEntry {
         return date;
     }
 
-    ///
-    /// Data Entry
-    /// 
+    /**
+    
+        Data Entry
+
+        */
     public Dictionary<string, object> serialize() {
         return new Dictionary<string, object> {
             ["id"] = id,

@@ -59,6 +59,21 @@ class Shape {
         this.dist = dist;
         this.hit = hit;
     }
+    
+    // Get Scaled Radius
+    private static float getScaledRadius(Mesh mesh, string id) {
+        Vector3 size = mesh.getSize(id);
+        float baseRadius = Math.Max(size.X, Math.Max(size.Y, size.Z)) / 2.0f;
+
+        var renderer = mesh.getMeshRenderer(id);
+        if(renderer != null && renderer.isScaled()) {
+            Vector3 scale = renderer.getScale();
+            return baseRadius *
+                Math.Max(scale.X, Math.Max(scale.Y, scale.Z));
+        }
+
+        return baseRadius;
+    }
 
     /**
 
@@ -71,7 +86,8 @@ class Shape {
         switch(data.colliderShape) {
             case Types.SPHERE:
                 Vector3 center = mesh.getPosition(id);
-                hit = raycaster.intersectsSphere(origin, dir, center, data.colliderRadius, out dist);
+                float r = getScaledRadius(mesh, id);
+                hit = raycaster.intersectsSphere(origin, dir, center, r, out dist);
                 break;
             case Types.TRIANGLE:
                 BBox tBox = mesh.getBBox(id);
@@ -93,6 +109,11 @@ class Shape {
     }
 }
 
+/**
+
+    Main Raycaster class.
+
+    */
 class Raycaster {
     private Camera camera;
     private Mesh mesh;
@@ -214,11 +235,21 @@ class Raycaster {
         int[]? indices = data.getIndices();
         if(verts == null) return false;
 
+        var renderer = mesh.getMeshRenderer(id);
+
         Vector3 pos = mesh.getPosition(id);
+        Vector3 scale = Vector3.One;
+        if(renderer != null && renderer.isScaled()) {
+            scale = renderer.getScale();
+        } else if(data.hasScale()) {
+            float[]? s = data.getScale();
+            if(s != null) scale = new Vector3(s[0], s[1], s[2]);
+        }
+
         Vector3 getVert(int i) => new Vector3(
-            verts[i*3+0] + pos.X,
-            verts[i*3+1] + pos.Y,
-            verts[i*3+2] + pos.Z
+            verts[i*3+0] * scale.X + pos.X,
+            verts[i*3+1] * scale.Y + pos.Y,
+            verts[i*3+2] * scale.Z + pos.Z
         );
 
         void t(Vector3 a, Vector3 b, Vector3 c) {

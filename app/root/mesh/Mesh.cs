@@ -190,26 +190,29 @@ class Mesh {
     public BBox getBBox(string id) {
         Vector3 pos = getPosition(id);
         MeshData? meshData = getData(id);
+        MeshRenderer? meshRenderer = getMeshRenderer(id);
 
         float sizeX = 1.0f;
         float sizeY = 1.0f;
         float sizeZ = 1.0f;
 
-        if(meshData != null && meshData.hasScale()) {
+        if(meshRenderer != null && meshRenderer.isScaled()) {
+            Vector3 scale = meshRenderer.getScale();
+            sizeX = scale.X;
+            sizeY = scale.Y;
+            sizeZ = scale.Z;
+        } else if(meshData != null && meshData.hasScale()) {
             float[]? scale = meshData.getScale();
             if(scale != null) {
                 sizeX = scale[0];
                 sizeY = scale[1];
                 sizeZ = scale[2];
             }    
-        } else {
-            MeshRenderer? meshRenderer = getMeshRenderer(id);
-            if(meshRenderer != null) {
-                Vector3 scale = meshRenderer.getScale();
-                sizeX = scale.X;
-                sizeY = scale.Y;
-                sizeZ = scale.Z;
-            }
+        } else if(meshRenderer != null) {
+            Vector3 scale = meshRenderer.getScale();
+            sizeX = scale.X;
+            sizeY = scale.Y;
+            sizeZ = scale.Z;
         }
 
         return new BBox(

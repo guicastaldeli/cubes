@@ -276,9 +276,11 @@ class PlayerController : DataEntry {
         raycaster.update();
     }
 
-    ///
-    /// Data Entry
-    /// 
+    /**
+    
+        Data Entry
+
+        */
     public static string getId() {
         if(instance != null && instance.id != null) {
             return instance.id;
