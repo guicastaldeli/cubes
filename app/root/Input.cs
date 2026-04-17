@@ -129,15 +129,19 @@ class Input {
     }
 
     private void onMouseClick(int x, int y) {
+        uiController.handleMouseClick(x, y, 0, 1);
         if(screenController.isRunning() && !pauseOverlayOpen) return;
         screenController.checkClick(x, y);
     }
 
     private void onMouseButton(int button, bool pressed) {
         if(!pressed) return;
+
         if(!screenController.isRunning() || pauseOverlayOpen) return;
+        
         if(ChatController.getInstance().isOpen()) return;
 
+        if(playerInputMap != null && playerInputMap.isInventoryOpen()) return;
         if(playerInputMap != null) playerInputMap.onMouseButton(button);
     }
 

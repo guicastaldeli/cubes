@@ -116,6 +116,9 @@ class UI : UIHandler {
         }
     }
 
+    // Handle Mouse Click
+    public virtual void handleMouseClick(int x, int y) {}
+
     ///
     /// Render
     ///

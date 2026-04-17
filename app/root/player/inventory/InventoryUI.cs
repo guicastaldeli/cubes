@@ -43,6 +43,13 @@ class InventoryUI : UI.UI {
         inventory.handleMouseMove(mouseX, mouseY);
     }
 
+    // Handle Mouse Click
+    public override void handleMouseClick(int mouseX, int mouseY) {
+        base.handleMouseClick(mouseX, mouseY);
+        if(!visible) return;
+        inventory.handleMouseClick(mouseX, mouseY);
+    }
+
     ///
     /// Render 
     /// 

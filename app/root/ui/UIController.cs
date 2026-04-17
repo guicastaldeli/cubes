@@ -101,6 +101,9 @@ class UIController {
                 currentUI.handleAction(clicked);
                 return true;
             }
+
+            currentUI.handleMouseClick(mouseX, mouseY);
+            return true;
         }
         return false;
     }

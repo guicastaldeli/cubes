@@ -112,6 +112,23 @@ class Inventory {
             if(over && !s.el.isHovered) s.el.applyHover();
             else if(!over && s.el.isHovered) s.el.removeHover();
         }
+
+        if(!slot.isEmpty) {
+            slot.x = mouseX - slot.width / 2;
+            slot.y = mouseY - slot.height / 2;
+            slot.el.x = slot.x;
+            slot.el.y = slot.y;
+        }
+    }
+
+    // Handle Mouse Click
+    public void handleMouseClick(int mouseX, int mouseY) {
+        var clicked = grid.getSlotAt(mouseX, mouseY);
+        if(clicked == null) return;
+
+        (slot.itemId, clicked.itemId) = (clicked.itemId, slot.itemId);
+        (slot.count, clicked.count) = (clicked.count, slot.count);
+        (slot.def, clicked.def) = (clicked.def, slot.def);
     }
 
     /**
