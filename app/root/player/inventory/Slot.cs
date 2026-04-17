@@ -84,7 +84,10 @@ class Slot {
         int removing = Math.Min(count, amount);
         count -= removing;
 
-        if(count == 0) itemId = null;
+        if(count == 0) {
+            itemId = null;
+            def = null;
+        }
 
         return removing;
     }

@@ -161,21 +161,16 @@ class MeshInteractionController {
     
         */
     public void onPlace() {
-        if(heldMesh == null) return;
-
         var inventoryInstance = input.getPlayerInputMap().getInventory();
         if(inventoryInstance == null) return;
 
         var inventory = inventoryInstance.getInventory();
-        var slot = inventory.grid.findOccupiedSlot(heldMesh);
-        if(slot == null || slot.def == null) {
-            heldMesh = null;
-            return;
-        }
+        var mainSlot = inventory.getActiveSlot();
+        if(mainSlot.isEmpty || mainSlot.def == null) return;
 
-        PlacedMeshDef def = slot.def;
+        PlacedMeshDef def = mainSlot.def;
 
-        MeshData data = MeshLoader.load(heldMesh.MeshType);
+        MeshData data = MeshLoader.load(def.MeshType);
         float halfH = getMeshHalfHeight(data);
 
         Vector3? point = placementRaycaster.findPlacementPoint(halfH);
@@ -184,7 +179,7 @@ class MeshInteractionController {
             return;
         } 
 
-        string newId = $"{heldMesh.MeshType}_{placedCounter++}";
+        string newId = $"{def.MeshType}_{placedCounter++}";
         Vector3 placePos = point.Value;
 
         window.queueOnRenderThread(() => {
@@ -217,14 +212,10 @@ class MeshInteractionController {
             );
         });
 
-        slot.remove();
-        bool hasMore = inventory.grid.slots.Any(s => 
-            s.def?.InstanceId == heldMesh.InstanceId && 
-            s.count > 0
-        );
-        if(!hasMore) {
-            var nextSlot = inventory.grid.slots.FirstOrDefault(s => s.count > 0);
-            heldMesh = nextSlot?.def;
-        }
+        mainSlot.remove();
+        heldMesh = 
+            mainSlot.isEmpty ? 
+            null : 
+            mainSlot.def;
     }
 }

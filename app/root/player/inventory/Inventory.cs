@@ -3,7 +3,6 @@ using App.Root.Mesh;
 using App.Root.Screen;
 using App.Root.Shaders;
 using App.Root.Text;
-using App.Root.UI;
 
 /**
 
@@ -34,6 +33,8 @@ class Inventory {
     private float edgePaddingPct;
     private float topPaddingPct;
     private float gapPct;
+    
+    private int activeSlotIndex = -1;
  
     public Inventory(
         int screenWidth,
@@ -129,6 +130,23 @@ class Inventory {
         (slot.itemId, clicked.itemId) = (clicked.itemId, slot.itemId);
         (slot.count, clicked.count) = (clicked.count, slot.count);
         (slot.def, clicked.def) = (clicked.def, slot.def);
+    }
+
+    // Active Slot
+    public Slot getActiveSlot() {
+        int startIndex = (rows - 1) * cols;
+        int slotIndex = 
+            activeSlotIndex >= 0 ? 
+            activeSlotIndex : 
+            startIndex;
+        if(slotIndex >= 0 && slotIndex < grid.slots.Count) {
+            return grid.slots[slotIndex];
+        }
+        return grid.slots[startIndex];
+    }
+
+    public void setActiveSlot(int index) {
+        activeSlotIndex = index;
     }
 
     /**
