@@ -20,6 +20,8 @@ class Grid {
         int slotWidth, int slotHeight,
         int padding
     ) {
+        this.cols = cols;
+        this.rows = rows;
         int index = 0;
         for(int r = 0; r < rows; r++) {
             for(int c = 0; c < cols; c++) {
@@ -32,13 +34,19 @@ class Grid {
 
     // Find Slot
     public Slot? findSlot(PlacedMeshDef def) {
-        var partial = 
-            slots.FirstOrDefault(s =>
-                s.def?.StackId== def.StackId &&
-                !s.isFull
-            );
-        if(partial != null) return partial;
-        return slots.FirstOrDefault(s => s.isEmpty);
+        for(int r = rows - 1; r >= 0; r--) {
+            for(int c = 0; c < cols; c++) {
+                var s = slots[r * cols + c];
+                if(s.def?.StackId == def.StackId && !s.isFull) return s;
+            }
+        }
+        for(int r = rows - 1; r >= 0; r--) {
+            for(int c = 0; c < cols; c++) {
+                var s = slots[r * cols + c];
+                if(s.isEmpty) return s;
+            }
+        }
+        return null;
     }
 
     public Slot? findOccupiedSlot(PlacedMeshDef def) {

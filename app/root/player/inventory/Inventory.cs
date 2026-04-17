@@ -107,10 +107,10 @@ class Inventory {
 
     // Handle Mouse Move
     public void handleMouseMove(int mouseX, int mouseY) {
-        foreach(var slot in grid.slots) {
-            bool over = slot.el.containsPoint(mouseX, mouseY);
-            if(over && !slot.el.isHovered) slot.el.applyHover();
-            else if(!over && slot.el.isHovered) slot.el.removeHover();
+        foreach(var s in grid.slots) {
+            bool over = s.el.containsPoint(mouseX, mouseY);
+            if(over && !s.el.isHovered) s.el.applyHover();
+            else if(!over && s.el.isHovered) s.el.removeHover();
         }
     }
 
@@ -150,8 +150,8 @@ class Inventory {
     
         */
     public void render() {
-        foreach(var slot in grid.slots) {
-            renderSlot(slot);
+        foreach(var s in grid.slots) {
+            renderSlot(s);
         }
         if(!slot.isEmpty) {
             renderSlot(slot);
