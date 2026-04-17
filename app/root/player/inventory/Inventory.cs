@@ -17,7 +17,7 @@ class Inventory {
     private TextRenderer textRenderer = null!;
 
     public Grid grid = null!;
-    public Slot mainSlot = null!;
+    public Slot slot = null!;
 
     private int screenWidth;
     private int screenHeight;
@@ -87,16 +87,6 @@ class Inventory {
         return true;
     }
 
-    // Remove Item from Main Slot
-    public string? removeFromMain() {
-        if(mainSlot.isEmpty) return null;
-
-        string id = mainSlot.itemId!;
-        mainSlot.remove(1);
-
-        return id;
-    }
-
     // Select
     public void selectSlot(int index) {
         if(index < 0 || index >= grid.slots.Count) return;
@@ -104,8 +94,8 @@ class Inventory {
         var src = grid.slots[index];
         if(src.isEmpty) return;
 
-        (mainSlot.itemId, src.itemId) = (src.itemId, mainSlot.itemId);
-        (mainSlot.count, src.count) = (src.count, mainSlot.count);
+        (slot.itemId, src.itemId) = (src.itemId, slot.itemId);
+        (slot.count, src.count) = (src.count, slot.count);
     }
 
     // On Resize
@@ -146,7 +136,7 @@ class Inventory {
         );
 
         int mainY = startY + topPadding + rows * (slotHeight + gapBetween) + gapBetween;
-        mainSlot = new Slot(
+        slot = new Slot(
             -1, -1, -1,
             startX + edgePadding,
             mainY,
@@ -163,8 +153,8 @@ class Inventory {
         foreach(var slot in grid.slots) {
             renderSlot(slot);
         }
-        if(!mainSlot.isEmpty) {
-            renderSlot(mainSlot);
+        if(!slot.isEmpty) {
+            renderSlot(slot);
         }
     }
 

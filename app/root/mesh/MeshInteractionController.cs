@@ -161,7 +161,6 @@ class MeshInteractionController {
     
         */
     public void onPlace() {
-        Console.WriteLine($"onPlace: meshType={heldMesh?.MeshType}, scale={heldMesh?.Scale}");
         if(heldMesh == null) return;
 
         var inventoryInstance = input.getPlayerInputMap().getInventory();
@@ -218,7 +217,7 @@ class MeshInteractionController {
             );
         });
 
-        slot.remove(1);
+        slot.remove();
         bool hasMore = inventory.grid.slots.Any(s => 
             s.def?.InstanceId == heldMesh.InstanceId && 
             s.count > 0

@@ -80,12 +80,16 @@ class Slot {
     ///
     /// Remove
     /// 
-    public int remove(int amount) {
+    public int setRemove(int amount) {
         int removing = Math.Min(count, amount);
         count -= removing;
 
         if(count == 0) itemId = null;
 
         return removing;
+    }
+
+    public void remove() {
+        setRemove(1);
     }
 }
