@@ -53,9 +53,6 @@ class Platform : WorldHandler {
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;
 
-            int texId = TextureLoader.load(texPath);
-            mesh.setTexture(id, texId, texPath);
-
             collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
             MeshInteractionRegistry.getInstance().register(id, State.BREAKABLE, mesh, stackId);
         }
