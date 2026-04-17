@@ -1,4 +1,5 @@
 namespace App.Root.Player.Inventory;
+using System.Globalization;
 
 class InventoryUI : UI.UI {
     public static string INVENTORY_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "player/inventory/");
@@ -25,10 +26,21 @@ class InventoryUI : UI.UI {
         base.onHide();
     }
 
+    // Is Open
+    public bool isOpen() {
+        return visible;
+    }
+
     // On Window Resize
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
         inventory.onResize(width, height);
+    }
+
+    // Handle Mouse Move
+    public override void handleMouseMove(int mouseX, int mouseY) {
+        base.handleMouseMove(mouseX, mouseY);
+        inventory.handleMouseMove(mouseX, mouseY);
     }
 
     ///
@@ -54,34 +66,36 @@ class InventoryUI : UI.UI {
         Build
     
         */
-    private Inventory? build() {
-        int cols = 9;
-        int rows = 3;
-
-        float edgePct = 0.012f; 
-        float topPct = 0.055f; 
-        float gapPct = 0.006f;
-        
-        // Bg El
+    private Inventory? build() {        
         var bgEl = getElementById("inventory");
         if(bgEl == null) return null;
-        
-        // Slot El
+
         var slotEl = getElementById("slotconfig");
-        if(slotEl != null) {
-            if(slotEl.attr.TryGetValue("cols", out var c)) cols = int.Parse(c);
-            if(slotEl.attr.TryGetValue("rows", out var r)) rows = int.Parse(r);
-            if(slotEl.attr.TryGetValue("edgePaddingPct", out var ep)) edgePct = float.Parse(ep);
-            if(slotEl.attr.TryGetValue("topPaddingPct", out var tp)) topPct = float.Parse(tp);
-            if(slotEl.attr.TryGetValue("gapPct", out var gp)) gapPct = float.Parse(gp);
-        }
+        if(slotEl == null) return null;
+
+        if(!slotEl.attr.TryGetValue("cols", out var c)) return null;
+        if(!slotEl.attr.TryGetValue("rows", out var r)) return null;
+        if(!slotEl.attr.TryGetValue("edgePaddingPct", out var ep)) return null;
+        if(!slotEl.attr.TryGetValue("topPaddingPct", out var tp)) return null;
+        if(!slotEl.attr.TryGetValue("gapPct", out var gp)) return null;
+        if(!slotEl.attr.TryGetValue("slotWidthPct", out var swp)) return null;
+        if(!slotEl.attr.TryGetValue("slotHeightPct", out var shp)) return null;
+
+        int cols = int.Parse(c, CultureInfo.InvariantCulture);
+        int rows = int.Parse(r, CultureInfo.InvariantCulture);
+        float edgePct = float.Parse(ep, CultureInfo.InvariantCulture);
+        float topPct = float.Parse(tp, CultureInfo.InvariantCulture);
+        float gapPct = float.Parse(gp, CultureInfo.InvariantCulture);
+        float slotWidthPct = float.Parse(swp, System.Globalization.CultureInfo.InvariantCulture);
+        float slotHeightPct = float.Parse(shp, System.Globalization.CultureInfo.InvariantCulture);
 
         return new Inventory(
             screenWidth, screenHeight,
             bgEl.x, bgEl.y,
-            bgEl.imgWidth, bgEl.imgHeight,
+            bgEl.width, bgEl.height,
             cols, rows,
-            edgePct, topPct, gapPct
+            edgePct, topPct, gapPct,
+            slotWidthPct, slotHeightPct
         );
     }
 }

@@ -15,22 +15,17 @@ class Grid {
     public int rows;
 
     public Grid(
-        int cols,
-        int rows,
-        int startX,
-        int startY,
-        int slotSize,
+        int cols, int rows,
+        int startX, int startY,
+        int slotWidth, int slotHeight,
         int padding
     ) {
-        this.cols = cols;
-        this.rows = rows;
-
         int index = 0;
         for(int r = 0; r < rows; r++) {
             for(int c = 0; c < cols; c++) {
-                int x = startX + c * (slotSize + padding);
-                int y = startY + r * (slotSize + padding);
-                slots.Add(new Slot(index++, r, c, x, y, slotSize, slotSize));
+                int x = startX + c * (slotWidth + padding);
+                int y = startY + r * (slotHeight + padding);
+                slots.Add(new Slot(index++, r, c, x, y, slotWidth, slotHeight));
             }
         }
     }
@@ -39,7 +34,7 @@ class Grid {
     public Slot? findSlot(PlacedMeshDef def) {
         var partial = 
             slots.FirstOrDefault(s =>
-                s.def?.InstanceId == def.InstanceId &&
+                s.def?.StackId== def.StackId &&
                 !s.isFull
             );
         if(partial != null) return partial;
@@ -48,7 +43,7 @@ class Grid {
 
     public Slot? findOccupiedSlot(PlacedMeshDef def) {
         return slots.FirstOrDefault(s => 
-            s.def?.InstanceId == def.InstanceId && 
+            s.def?.StackId == def.StackId && 
             s.count > 0
         );
     }

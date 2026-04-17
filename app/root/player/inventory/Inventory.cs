@@ -23,6 +23,8 @@ class Inventory {
     private int screenHeight;
     private int width;
     private int height;
+    private float slotWidthPct;
+    private float slotHeightPct;
 
     private int startX;
     private int startY;
@@ -44,7 +46,9 @@ class Inventory {
         int rows,
         float edgePaddingPct,
         float topPaddingPct,
-        float gapPct = 0.006f
+        float gapPct,
+        float slotWidthPct,
+        float slotHeightPct
     ) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
@@ -57,6 +61,8 @@ class Inventory {
         this.edgePaddingPct = edgePaddingPct;
         this.topPaddingPct = topPaddingPct;
         this.gapPct = gapPct;
+        this.slotWidthPct = slotWidthPct;
+        this.slotHeightPct = slotHeightPct;
         build();
     }
 
@@ -109,6 +115,15 @@ class Inventory {
         build();
     }
 
+    // Handle Mouse Move
+    public void handleMouseMove(int mouseX, int mouseY) {
+        foreach(var slot in grid.slots) {
+            bool over = slot.el.containsPoint(mouseX, mouseY);
+            if(over && !slot.el.isHovered) slot.el.applyHover();
+            else if(!over && slot.el.isHovered) slot.el.removeHover();
+        }
+    }
+
     /**
 
         Build
@@ -116,32 +131,26 @@ class Inventory {
         */
     private void build() {
         int edgePadding = (int)(width * edgePaddingPct);
-        int gapBetween = (int)(width * gapPct);
-        int slotSize = 
-            (width - 
-            (edgePadding * 2) - 
-            (gapBetween * (cols - 1))) / 
-            cols;
         int topPadding = (int)(height * topPaddingPct);
+        int slotWidth = (int)(width * slotWidthPct);
+        int slotHeight = (int)(height * slotHeightPct);
+        int gapBetween = (int)(width * gapPct);
 
         grid = new Grid(
             cols, rows,
             startX + edgePadding,
             startY + topPadding,
-            slotSize,
+            slotWidth,
+            slotHeight,
             gapBetween
         );
 
-        int mainY = 
-            startY + 
-            topPadding + 
-            rows * (slotSize + gapBetween) + 
-            gapBetween;
+        int mainY = startY + topPadding + rows * (slotHeight + gapBetween) + gapBetween;
         mainSlot = new Slot(
             -1, -1, -1,
             startX + edgePadding,
             mainY,
-            slotSize, slotSize
+            slotWidth, slotHeight
         );
     }
 
@@ -152,7 +161,6 @@ class Inventory {
         */
     public void render() {
         foreach(var slot in grid.slots) {
-            if(slot.isEmpty) continue;
             renderSlot(slot);
         }
         if(!mainSlot.isEmpty) {
@@ -161,32 +169,20 @@ class Inventory {
     }
 
     private void renderSlot(Slot slot) {
-        // Slot
-        var el = new UIElement(
-            "div", "", "", "arial",
-            slot.x, slot.y,
-            slot.width, slot.height,
-            1.0f,
-            new float[]{ 1.0f, 1.0f, 1.0f, 1.0f },
-            true,
-            ""
-        );
-        el.backgroundColor = new float[]{ 1.0f, 1.0f, 1.0f, 0.3f };
-        DocParser.renderUIElement(
-            el, 
-            screenWidth, screenHeight, 
-            shaderProgram
-        );
+        if(!slot.el.isHovered && slot.isEmpty) return;
 
-        // Stack Count
+        if(!slot.isEmpty) {
+            slot.el.backgroundColor = new float[]{ 0.0f, 1.0f, 1.0f, 0.5f };
+        }
+
+        DocParser.renderUIElement(slot.el, screenWidth, screenHeight, shaderProgram);
+
         if(slot.count > 1 && textRenderer != null) {
             textRenderer.renderText(
                 slot.count.ToString(),
                 slot.x + slot.width - 12,
                 slot.y + slot.height - 14,
-                0.5f,
-                new float[]{ 1.0f, 1.0f, 1.0f, 1.0f },
-                "arial"
+                0.5f, new float[]{ 1f, 1f, 1f, 1f }, "arial"
             );
         }
     }

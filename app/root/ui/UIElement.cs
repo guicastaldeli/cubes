@@ -32,6 +32,7 @@ class UIElement {
     public float[]? hoverColor = null;
     public float[]? hoverTextColor = null;
     public float[]? hoverBorderColor = null;
+    public float[]? hoverBackgroundColor = null;
     public float hoverScale = 1.0f;
 
     private float[] originalColor;
@@ -122,6 +123,7 @@ class UIElement {
         if(hoverColor != null) color = hoverColor;
         if(hoverBorderColor != null) borderColor = hoverBorderColor;
         if(hoverScale > 0) scale = hoverScale;
+        if(hoverBackgroundColor != null) backgroundColor = hoverBackgroundColor;
     }
 
     public void removeHover() {
@@ -131,6 +133,7 @@ class UIElement {
         color = (float[])originalColor.Clone();
         borderColor = (float[])originalBorderColor.Clone();
         scale = originalScale;
+        backgroundColor = (float[])originalBackgroundColor.Clone();
     }
 
     // Contains Point

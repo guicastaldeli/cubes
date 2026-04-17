@@ -27,6 +27,8 @@ class Slot {
     public bool isFull => count >= maxStack;
     public PlacedMeshDef? def = null;
 
+    public UI.UIElement el;
+
     public Slot(
         int index,
         int row,
@@ -43,6 +45,15 @@ class Slot {
         this.y = y;
         this.width = width;
         this.height = height;
+
+        el = new UI.UIElement(
+            "div", "", "", "arial",
+            x, y, width, height,
+            1.0f, new float[]{ 1f, 1f, 1f, 1f },
+            true, ""
+        );
+        el.hoverable = true;
+        el.hoverBackgroundColor = new float[]{ 1f, 1f, 1f, 0.5f };
     }
 
     // Contains Point
@@ -55,10 +66,10 @@ class Slot {
     /// Add
     /// 
     public int add(PlacedMeshDef incomingDef, int amount) {
-        if(def != null && def.InstanceId != incomingDef.InstanceId) return amount;
-        def = incomingDef;
+        if(def != null && def.StackId != incomingDef.StackId) return amount;
+        if(def == null) def = incomingDef;
         itemId = incomingDef.MeshType;
-
+        
         int canAdd = maxStack - count;
         int adding = Math.Min(canAdd, amount);
         count += adding;

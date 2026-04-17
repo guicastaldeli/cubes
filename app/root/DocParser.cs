@@ -649,7 +649,7 @@ class DocParser {
 
         if(element.HasAttribute("hoverBackground")) {
             float[]? hbg = parseColor(element.GetAttribute("hoverBackground"));
-            // IMPLEMENT UI HOVER BACKGROUND LATER... if(hbg != null) screenElement.hoverBackgroundColor = hbg;
+            if(hbg != null) uiElement.hoverBackgroundColor = hbg;
         }
 
         if(element.HasAttribute("hoverScale"))

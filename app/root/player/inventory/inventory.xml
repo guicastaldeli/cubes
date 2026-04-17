@@ -7,9 +7,12 @@
         width="60%" height="20%"
     />
     <slotconfig
-        cols="9" rows="3"
-        edgePaddingPct="0.012"
-        topPaddingPct="0.055"
-        gapPct="0.006"
+        id="slotconfig"
+        cols="12" rows="3"
+        edgePaddingPct="0.03"
+        topPaddingPct="0.05"
+        slotWidthPct="0.065"
+        slotHeightPct="0.25"
+        gapPct="0.015"
     />
 </inventory>

@@ -26,7 +26,8 @@ record PlacedMeshDef(
     string TexPath,
     int TexId,
     Vector3? Scale = null,
-    string? InstanceId = null
+    string? InstanceId = null,
+    string? StackId = null
 );
 
 /**
@@ -80,7 +81,12 @@ class MeshInteractionRegistry {
         defMap[id] = def;
     }    
 
-    public void register(string id, State state, Mesh mesh) {
+    public void register(
+        string id,
+        State state, 
+        Mesh mesh,
+        string? stackId = null
+    ) {
         var renderer = mesh.getMeshRenderer(id);
         if(renderer == null) return;
 
@@ -99,7 +105,8 @@ class MeshInteractionRegistry {
             texPath, 
             texId, 
             scale,
-            id
+            id,
+            stackId
         ));
     }
 

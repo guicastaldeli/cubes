@@ -79,4 +79,11 @@ class PlayerInputMap {
             input.lockMouse();
         }
     }
+
+    // Is Inventory Open
+    public bool isInventoryOpen() {
+        var uiController = input.getUIController();
+        var inventoryUI = uiController.get<InventoryUI>(UI.UIController.UIType.INVENTORY);
+        return inventoryUI!.isOpen();
+    }
 }

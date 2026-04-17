@@ -36,60 +36,100 @@ class Platform : WorldHandler {
 
     /**
 
-        Temporary Mesh to test 
+        Temporary Meshes to test 
         raycaster for objects
 
         */
-    public void set2() {
-        string id = "cubic";
-        string mesht = "cube";
-        MeshData data = MeshLoader.load(mesht);
-        mesh.add(id, data);
-        mesh.setPosition(id, 0.0f, 3.0f, -3.0f);
-        mesh.setScale(id, 0.2f);
+        private int spawnCounter = 0;
 
-        var renderer = mesh.getMeshRenderer(id);
-        if(renderer != null) renderer.isInteractive = true;
+        private void spawnMesh(string meshType, Vector3 position, float scale, string texPath, string stackId) {
+            string id = $"{meshType}_{spawnCounter++}";
 
-        string texPath = "env/test.jpg";
-        int texId = TextureLoader.load(texPath);
-        mesh.setTexture(id, texId, texPath);
+            MeshData data = MeshLoader.load(meshType);
+            mesh.add(id, data);
+            mesh.setPosition(id, position);
+            if(scale != 1.0f) mesh.setScale(id, scale);
 
-        collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
-        //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
-        //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
-    
-        MeshInteractionRegistry.getInstance().register(
-            id,
-            State.BREAKABLE,
-            mesh
-        );
-    }
+            var renderer = mesh.getMeshRenderer(id);
+            if(renderer != null) renderer.isInteractive = true;
 
-    public void set3() {
-        string id = "cubic2";
-        string mesht = "cube";
-        MeshData data = MeshLoader.load(mesht);
-        mesh.add(id, data);
-        mesh.setPosition(id, 4.0f, 3.0f, -3.0f);
+            int texId = TextureLoader.load(texPath);
+            mesh.setTexture(id, texId, texPath);
 
-        var renderer = mesh.getMeshRenderer(id);
-        if(renderer != null) renderer.isInteractive = true;
+            collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
+            MeshInteractionRegistry.getInstance().register(id, State.BREAKABLE, mesh, stackId);
+        }
 
-        string texPath = "env/test.jpg";
-        int texId = TextureLoader.load(texPath);
-        mesh.setTexture(id, texId, texPath);
+        private void spawnGrid(string meshType, Vector3 origin, int cols, int rows, float scale = 1.0f, float spacing = 1.0f, string texPath = "env/test.jpg") {
+            string stackId = $"{meshType}_wall";
 
-        collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
-        //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
-        //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
-    
-        MeshInteractionRegistry.getInstance().register(
-            id,
-            State.BREAKABLE,
-            mesh
-        );
-    }
+            for(int r = 0; r < rows; r++) {
+                for(int c = 0; c < cols; c++) {
+                    float px = origin.X + c * spacing;
+                    float py = origin.Y + r * spacing;
+                    spawnMesh(meshType, new Vector3(px, py, origin.Z), scale, texPath, stackId);
+                }
+            }
+        }
+
+        public void set2() {
+            string id = "cubic";
+            string stackId = "cubic_stack";
+            string mesht = "cube";
+            MeshData data = MeshLoader.load(mesht);
+            mesh.add(id, data);
+            mesh.setPosition(id, 0.0f, 3.0f, -3.0f);
+            mesh.setScale(id, 0.2f);
+
+            var renderer = mesh.getMeshRenderer(id);
+            if(renderer != null) renderer.isInteractive = true;
+
+            string texPath = "env/test.jpg";
+            int texId = TextureLoader.load(texPath);
+            mesh.setTexture(id, texId, texPath);
+
+            collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
+            //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
+            //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
+        
+            MeshInteractionRegistry.getInstance().register(
+                id,
+                State.BREAKABLE,
+                mesh,
+                stackId
+            );
+        }
+
+        public void set3() {
+            string id = "cubic2";
+            string mesht = "cube";
+            MeshData data = MeshLoader.load(mesht);
+            mesh.add(id, data);
+            mesh.setPosition(id, 4.0f, 3.0f, -3.0f);
+
+            var renderer = mesh.getMeshRenderer(id);
+            if(renderer != null) renderer.isInteractive = true;
+
+            string texPath = "env/test.jpg";
+            int texId = TextureLoader.load(texPath);
+            mesh.setTexture(id, texId, texPath);
+
+            collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
+            //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
+            //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
+        
+            MeshInteractionRegistry.getInstance().register(
+                id,
+                State.BREAKABLE,
+                mesh
+            );
+        }
+    /**
+        ****
+        ****
+        ****
+
+        */
 
     ///
     /// Set
@@ -182,6 +222,7 @@ class Platform : WorldHandler {
             set();
             set2();
             set3();
+            spawnGrid("cube", new Vector3(4f, 3f, -3f), 5, 3);
             initialized = true;
         }
     }
@@ -190,5 +231,6 @@ class Platform : WorldHandler {
     /// Update
     /// 
     public override void update() {
+        
     }
 }

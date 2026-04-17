@@ -4,6 +4,7 @@ using App.Root.Player;
 using App.Root.Screen;
 using App.Root.UI;
 using App.Root.Voip;
+using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Window = App.Root.Window;
 
@@ -122,6 +123,7 @@ class Input {
     /// Mouse
     /// 
     private void onMouseMove(int x, int y) {
+        uiController.handleMouseMove(x, y);
         if(screenController.isRunning() && !pauseOverlayOpen) return;
         screenController.handleMouseMove(x, y);
     }
@@ -150,29 +152,35 @@ class Input {
     }
     
     public void lockMouse() {
-        window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
+        window.CursorState = CursorState.Grabbed;
     }
 
     public void unlockMouse() {
-        window.CursorState = OpenTK.Windowing.Common.CursorState.Normal;
+        window.CursorState = CursorState.Normal;
     }
 
     ///
     /// Update
     ///
     public void update() {
-        if(playerInputMap == null || 
-            tick.isPaused() || 
-            pauseOverlayOpen ||
-            ChatController.getInstance().isOpen()
-        ) return;
+        if(pauseUpdate()) return;
 
         var mouse = window.MouseState;
         float xOffset = mouse.Delta.X;
         float yOffset = -mouse.Delta.Y;
 
-        playerInputMap.handleMouse(xOffset, yOffset);
-        playerInputMap.keyboardCallback();
+        playerInputMap?.handleMouse(xOffset, yOffset);
+        playerInputMap?.keyboardCallback();
+    }
+
+    private bool pauseUpdate() {
+        bool val = playerInputMap == null || 
+            tick.isPaused() || 
+            pauseOverlayOpen ||
+            ChatController.getInstance().isOpen() ||
+            playerInputMap.isInventoryOpen();
+
+        return val;
     }
 
     ///
