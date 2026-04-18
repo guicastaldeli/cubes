@@ -7,6 +7,18 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
+/**
+
+
+    !!! IMPORTANT REMINDER !!!
+
+    Fix the multiplayer, the chunks,
+    the meshes, the player falling when enter
+    everyhting etc...
+
+
+    */
+
 class Server {
     private ServerDataManager serverDataManager;
 
