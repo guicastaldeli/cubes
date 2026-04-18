@@ -109,6 +109,32 @@ class Updater {
 
 /**
 
+    Helper to check collision for 
+    each type of collider.
+
+    */
+class CollisionChecker {
+    public CollisionResult update(Collider collider, BBox bbox) {
+        CollisionResult result = new CollisionResult();
+        
+        switch(collider) {
+            case StaticObject staticObj:
+                result = staticObj.checkCollision(bbox);
+                break;
+            case SphereObject sphereObj:
+                result = sphereObj.checkCollision(bbox);
+                break;
+            case TriangleObject triangleObject:
+                result = triangleObject.checkCollision(bbox);
+                break;
+        }
+
+        return result;
+    }
+}
+
+/**
+
     Main Physics Registry
     class.
 
@@ -136,7 +162,9 @@ class PhysicsRegistry {
     private Mesh? mesh;
     private MeshData? data;
     private CollisionManager? collisionManager;
+
     private Updater? updater;
+    private CollisionChecker collisionChecker;
 
     private Dictionary<string, Entry> entries = new();
 
@@ -144,6 +172,8 @@ class PhysicsRegistry {
         this.mesh = null;
         this.data = null;
         this.collisionManager = null;
+
+        this.collisionChecker = new CollisionChecker();
     }
 
     public static PhysicsRegistry getInstance() {
@@ -204,11 +234,11 @@ class PhysicsRegistry {
     }
 
     // Check Collision with Receivers
-    public List<CollisionResult> checkCollisionWithReceivers(BBox dynamicBBox) {
+    public List<CollisionResult> checkCollisionWithReceivers(BBox bbox) {
         List<CollisionResult> results = new();
         foreach(var receiver in getReceivers()) {
             if(receiver.collider != null) {
-                var result = receiver.collider.checkCollision(dynamicBBox);
+                var result = collisionChecker.update(receiver.collider, bbox);
                 if(result.collided) results.Add(result);
             }
         }
@@ -228,12 +258,12 @@ class PhysicsRegistry {
     }
 
     // Check Collision with Dynamic Objects
-    public List<CollisionResult> checkCollisionWithDynamic(string excludeId, BBox dynamicBBox) {
+    public List<CollisionResult> checkCollisionWithDynamic(string excludeId, BBox bbox) {
         List<CollisionResult> results = new();
         foreach(var other in getDynamicObjects()) {
             if(other.id == excludeId) continue;
             if(other.collider != null) {
-                var result = other.collider.checkCollision(dynamicBBox);
+                var result = collisionChecker.update(other.collider, bbox);
                 if(result.collided) results.Add(result);
             }
         }

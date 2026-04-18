@@ -91,7 +91,7 @@ class CollisionManager {
     /// 
     public void resolveCollision(RigidBody rigidBody, List<CollisionResult> collisions) {
         if(collisions.Count == 0) {
-            rigidBody.setOnGround(false);
+            rigidBody.setOnSurface(false);
             return;
         }
         collisions.Sort((a, b) => b.depth.CompareTo(a.depth));
@@ -179,7 +179,7 @@ class CollisionManager {
             }
         }
 
-        rigidBody.setOnGround(groundFound);
+        rigidBody.setOnSurface(groundFound);
     } 
 
     ///

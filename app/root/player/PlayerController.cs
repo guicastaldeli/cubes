@@ -193,11 +193,11 @@ class PlayerController : DataEntry {
     }
 
     public void jump() {
-        if(rigidBody.isOnGround()) {
+        if(rigidBody.isOnSurface()) {
             Vector3 vel = rigidBody.getVelocity();
             vel.Y = jumpForce;
             rigidBody.setVelocity(vel);
-            rigidBody.setOnGround(false);
+            rigidBody.setOnSurface(false);
         }
     }
 

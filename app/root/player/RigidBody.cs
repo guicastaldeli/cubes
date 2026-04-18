@@ -9,7 +9,7 @@ class RigidBody {
     private Vector3 size;
 
     private float mass = 1.0f;
-    private bool onGround = false;
+    private bool onSurface = false;
     
     private bool gravityEnabled = true;
     private float gravity = -20.0f;
@@ -56,12 +56,12 @@ class RigidBody {
     }
 
     // On Ground
-    public void setOnGround(bool onGround) {
-        this.onGround = onGround;
+    public void setOnSurface(bool onSurface) {
+        this.onSurface = onSurface;
     }
 
-    public bool isOnGround() {
-        return onGround;
+    public bool isOnSurface() {
+        return onSurface;
     }
 
     // Mass
@@ -113,7 +113,7 @@ class RigidBody {
         float deltaTime = Tick.getDeltaTimeI();
         deltaTime = MathF.Min(deltaTime, 0.1f);
         
-        if(gravityEnabled && !onGround) {
+        if(gravityEnabled && !onSurface) {
             applyForce(new Vector3(
                 0.0f, 
                 gravity * mass * gravityScale, 

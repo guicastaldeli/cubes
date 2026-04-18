@@ -135,7 +135,7 @@ class StaticObject : Collider {
             vel -= collision.normal * dot;
             if(collision.normal.Y > 0.5f) {
                 vel.Y = 0;
-                rigidBody.setOnGround(true);
+                rigidBody.setOnSurface(true);
             }
         }
         rigidBody.setVelocity(vel);
