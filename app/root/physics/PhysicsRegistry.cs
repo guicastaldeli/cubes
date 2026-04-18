@@ -1,4 +1,3 @@
-
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
@@ -155,17 +154,98 @@ class PhysicsRegistry {
         return instance;
     }
 
-    ///
-    /// Init
-    /// 
-    public void init(Mesh.Mesh mesh, MeshData data, CollisionManager collisionManager) {
-        this.mesh = mesh;
-        this.collisionManager = collisionManager;
+    // Resolve Collisions
+    public void resolveCollisins(Entry entry, List<CollisionResult> collisions) {
+        if(entry.physicsBody == null) return;
+
+        collisions.Sort((a, b) => b.depth.CompareTo(a.depth));
+
+        bool found = false;
+
+        foreach(var collision in collisions) {
+            if(mesh == null) return;
+
+            float f = 0.0001f;
+            if(collision.depth < f) continue;
+
+            Vector3 position = entry.physicsBody.getPosition();
+            position += collision.normal * collision.depth;
+            entry.physicsBody.setPostion(position);
+            mesh.setPosition(entry.id, position);
+
+            Vector3 vel = entry.physicsBody.getVelocity();
+            float dot = Vector3.Dot(vel, collision.normal);
+            if(dot < 0) {
+                vel -= collision.normal * dot;
+                entry.physicsBody.setVelocity(vel);
+            }
+
+            if(collision.normal.Y > 0.5f) {
+                found = true;
+
+                Vector3 v = entry.physicsBody.getVelocity();
+                v.Y = 0;
+                entry.physicsBody.setVelocity(v);
+            }
+        }
+
+        entry.physicsBody.set(found);
     }
 
-    ///
-    /// Register
-    /// 
+    /**
+    
+        Receivers
+    
+        */
+    // Get All Receivers
+    public List<Entry> getReceivers() {
+        return entries.Values
+            .Where(e => e.type == Type.RECEIVER)
+            .ToList();
+    }
+
+    // Check Collision with Receivers
+    public List<CollisionResult> checkCollisionWithReceivers(BBox dynamicBBox) {
+        List<CollisionResult> results = new();
+        foreach(var receiver in getReceivers()) {
+            if(receiver.collider != null) {
+                var result = receiver.collider.checkCollision(dynamicBBox);
+                if(result.collided) results.Add(result);
+            }
+        }
+        return results;
+    }
+
+    /**
+    
+        Dynamic
+    
+        */
+    // Get All Dynamic Objects
+    public List<Entry> getDynamicObjects() {
+        return entries.Values
+            .Where(e => e.type == Type.DYNAMIC)
+            .ToList();
+    }
+
+    // Check Collision with Dynamic Objects
+    public List<CollisionResult> checkCollisionWithDynamic(string excludeId, BBox dynamicBBox) {
+        List<CollisionResult> results = new();
+        foreach(var other in getDynamicObjects()) {
+            if(other.id == excludeId) continue;
+            if(other.collider != null) {
+                var result = other.collider.checkCollision(dynamicBBox);
+                if(result.collided) results.Add(result);
+            }
+        }
+        return results;
+    }
+
+    /**
+    
+        Register
+    
+        */
     public void register(string id, Type type) {
         if(entries.ContainsKey(id)) {
             Console.WriteLine($"PhysicsRegistry: {id} already registered");
@@ -174,6 +254,78 @@ class PhysicsRegistry {
 
         Entry entry = new Entry(id, type);
         
-        updater = new Updater(type, mesh, data, entry, collisionManager);
+        updater = new Updater(type, mesh!, data!, entry, collisionManager!);
+        updater.update(id);
+
+        entries[id] = entry;
+        Console.WriteLine($"PhysicsRegistry: Registered {id} as {type}");
+    }
+
+    /**
+    
+        Unregister
+    
+        */
+    public void unregister(string id) {
+        if(entries.TryGetValue(id, out var entry)) {
+            if(collisionManager != null && entry.collider != null) {
+                collisionManager.removeCollider(entry.collider);
+            }
+            entries.Remove(id);
+            Console.WriteLine($"PhysicsRegistry: Unregistered {id}");
+        }
+    }
+
+    ///
+    /// Init
+    /// 
+    public void init(Mesh.Mesh mesh, MeshData data, CollisionManager collisionManager) {
+        this.mesh = mesh;
+        this.data = data;
+        this.collisionManager = collisionManager;
+    }
+
+    ///
+    /// Update
+    /// 
+    public void update() {
+        float deltaTime = Tick.getDeltaTimeI();
+        
+        foreach(var entry in getDynamicObjects()) {
+            if(mesh == null) return;
+            if(entry.physicsBody == null) continue;
+
+            entry.physicsBody.applyGravity(deltaTime);
+            entry.physicsBody.update(deltaTime);
+
+            Vector3 newPos = entry.physicsBody.getPosition();
+            mesh.setPosition(entry.id, newPos);
+
+            BBox bBox = mesh.getBBox(entry.id);
+
+            var receiverColls = checkCollisionWithReceivers(bBox);
+            var dynamicColls = checkCollisionWithDynamic(entry.id, bBox);
+
+            var allColls = new List<CollisionResult>();
+            allColls.AddRange(receiverColls);
+            allColls.AddRange(dynamicColls);
+            if(allColls.Count > 0) {
+                receiverColls(entry, allColls);
+            } else {
+                entry.physicsBody.set(false);
+            }
+        }
+    }
+
+    ///
+    /// Cleanup
+    /// 
+    public void cleanup() {
+        foreach(var entry in entries.Values) {
+            if(collisionManager != null && entry.collider != null) {
+                collisionManager.removeCollider(entry.collider);
+            }
+        }
+        entries.Clear();
     }
 }
