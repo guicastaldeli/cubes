@@ -21,6 +21,8 @@ class Server {
 
     public Action? onTick;
 
+    private PacketReassember reassember = new PacketReassember();
+
     public Server(int port, int maxPlayers) {
         this.port = port;
         this.maxPlayers = maxPlayers;
@@ -37,7 +39,11 @@ class Server {
     /// Start
     /// 
     public void start() {
+        int bufferSize = 65536;
         udpServer = new UdpClient(port);
+        udpServer.Client.SendBufferSize = bufferSize;
+        udpServer.Client.ReceiveBufferSize = bufferSize;
+        
         running = true;
 
         serverThread = new Thread(receiveLoop) {
@@ -65,6 +71,18 @@ class Server {
 
                 PacketType? type = Packet.peekType(json);
                 if(type == null) continue;
+
+                if(type == PacketType.CHUNK) {
+                    var chunk = Packet.deserialize<PacketChunk>(json);
+                    if(chunk == null) continue;
+
+                    string? reassembled = reassember.tryReassemble(chunk);
+                    if(reassembled == null) continue;
+
+                    json = reassembled;
+                    type = Packet.peekType(json);
+                    if(type == null) continue;
+                }
                 if(PacketController.tryGet(
                     type.Value,
                     Context.SERVER,
@@ -86,6 +104,8 @@ class Server {
 
     // Tick Loop
     private void tickLoop() {
+        int cleanupCounter = 0;
+
         while(running) {
             try {
                 foreach(var (id, player) in players) {
@@ -98,6 +118,12 @@ class Server {
                         Console.WriteLine($"Player {id} timed out");
                     }
                 }
+
+                if(++cleanupCounter >= 200) {
+                    reassember.cleanupStale();
+                    cleanupCounter = 0;
+                }
+
                 if(players.Count > 0) onTick?.Invoke();
                 Thread.Sleep(50);
             } catch(Exception err) {
@@ -111,9 +137,22 @@ class Server {
     /// 
     public void send(Packet packet, IPEndPoint endPoint) {
         try {
-            string json = packet.serialize();
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            udpServer.Send(data, data.Length, endPoint);
+            var packets = PacketChuncking.chunk(packet);
+            foreach(var p in packets) {
+                string json = p.serialize();
+                byte[] data = Encoding.UTF8.GetBytes(json);
+                int limit = 1400;
+                if(data.Length > limit) {
+                    Console.Error.WriteLine($"WARNING: Packet fragment still too large: {data.Length} bytes");
+                    continue;
+                }
+
+                udpServer.Send(data, data.Length, endPoint);
+
+                if(packets.Count > 1) {
+                    Thread.Sleep(2);
+                }
+            }
         } catch(Exception err) {
             Console.Error.WriteLine("Server send error: " + err.Message);
         }

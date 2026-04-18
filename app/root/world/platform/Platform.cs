@@ -102,7 +102,7 @@ class Platform : WorldHandler {
             string mesht = "cube";
             MeshData data = MeshLoader.load(mesht);
             mesh.add(id, data);
-            mesh.setPosition(id, 4.0f, 3.0f, -3.0f);
+            mesh.setPosition(id, 2.0f, 3.0f, -3.0f);
 
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;
