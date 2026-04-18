@@ -1,8 +1,3 @@
-using App.Root.Collider;
-using App.Root.Collider.Types;
-using App.Root.Mesh;
-using OpenTK.Mathematics;
-
 /**
 
     Physics registry to
@@ -11,6 +6,10 @@ using OpenTK.Mathematics;
 
     */
 namespace App.Root.Physics;
+using App.Root.Collider;
+using App.Root.Collider.Types;
+using App.Root.Mesh;
+using OpenTK.Mathematics;
 
 /**
 
@@ -25,13 +24,13 @@ static class MeshType {
 }
 
 class Shape {
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     private MeshData data;
     private PhysicsRegistry.Entry entry;
     private CollisionManager collisionManager;
 
     public Shape(
-        Mesh.Mesh mesh, 
+        Mesh mesh, 
         MeshData data, 
         PhysicsRegistry.Entry entry,
         CollisionManager collisionManager
@@ -75,7 +74,7 @@ enum Type {
 
 class Updater {
     private Type type;
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     private MeshData data;
     private PhysicsRegistry.Entry entry;
     private CollisionManager collisionManager;
@@ -84,7 +83,7 @@ class Updater {
 
     public Updater(
         Type type, 
-        Mesh.Mesh mesh,
+        Mesh mesh,
         MeshData data,
         PhysicsRegistry.Entry entry,
         CollisionManager collisionManager
@@ -124,7 +123,7 @@ class PhysicsRegistry {
         public string id;
         public Type type;
         public PhysicsBody? physicsBody;
-        public Collider.Collider? collider;
+        public Collider? collider;
 
         public Entry(string id, Type type) {
             this.id = id;
@@ -134,7 +133,7 @@ class PhysicsRegistry {
 
     private static PhysicsRegistry? instance;
 
-    private Mesh.Mesh? mesh;
+    private Mesh? mesh;
     private MeshData? data;
     private CollisionManager? collisionManager;
     private Updater? updater;
@@ -155,12 +154,12 @@ class PhysicsRegistry {
     }
 
     // Resolve Collisions
-    public void resolveCollisins(Entry entry, List<CollisionResult> collisions) {
+    public void resolveCollisions(Entry entry, List<CollisionResult> collisions) {
         if(entry.physicsBody == null) return;
 
         collisions.Sort((a, b) => b.depth.CompareTo(a.depth));
 
-        bool found = false;
+        bool foundSurface = false;
 
         foreach(var collision in collisions) {
             if(mesh == null) return;
@@ -170,7 +169,7 @@ class PhysicsRegistry {
 
             Vector3 position = entry.physicsBody.getPosition();
             position += collision.normal * collision.depth;
-            entry.physicsBody.setPostion(position);
+            entry.physicsBody.setPosition(position);
             mesh.setPosition(entry.id, position);
 
             Vector3 vel = entry.physicsBody.getVelocity();
@@ -181,7 +180,7 @@ class PhysicsRegistry {
             }
 
             if(collision.normal.Y > 0.5f) {
-                found = true;
+                foundSurface = true;
 
                 Vector3 v = entry.physicsBody.getVelocity();
                 v.Y = 0;
@@ -189,7 +188,7 @@ class PhysicsRegistry {
             }
         }
 
-        entry.physicsBody.set(found);
+        entry.physicsBody.setOnSurface(foundSurface);
     }
 
     /**
@@ -279,7 +278,7 @@ class PhysicsRegistry {
     ///
     /// Init
     /// 
-    public void init(Mesh.Mesh mesh, MeshData data, CollisionManager collisionManager) {
+    public void init(Mesh mesh, MeshData data, CollisionManager collisionManager) {
         this.mesh = mesh;
         this.data = data;
         this.collisionManager = collisionManager;
@@ -310,9 +309,9 @@ class PhysicsRegistry {
             allColls.AddRange(receiverColls);
             allColls.AddRange(dynamicColls);
             if(allColls.Count > 0) {
-                receiverColls(entry, allColls);
+                resolveCollisions(entry, allColls);
             } else {
-                entry.physicsBody.set(false);
+                entry.physicsBody.setOnSurface(false);
             }
         }
     }
