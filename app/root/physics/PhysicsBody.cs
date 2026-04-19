@@ -15,7 +15,7 @@ class PhysicsBody {
 
     private const float GRAVITY = -20.0f;
     private const float DAMPING = 0.98f;
-    private const float MIN_VELOCITY = 0.001f;
+    private const float MIN_VELOCITY = 0.01f;
 
     public PhysicsBody(Vector3 position) {
         this.position = position;
@@ -59,7 +59,7 @@ class PhysicsBody {
     }
 
     public void setOnSurface(bool val) {
-        this.onSurface = val;
+        onSurface = val;
     }
 
     ///
@@ -84,10 +84,10 @@ class PhysicsBody {
     public void update(float deltaTime) {
         velocity *= DAMPING;
 
-        if(MathF.Abs(position.X) < MIN_VELOCITY) velocity.X = 0;
-        if(MathF.Abs(position.Y) < MIN_VELOCITY) velocity.Y = 0;
-        if(MathF.Abs(position.Z) < MIN_VELOCITY) velocity.Z = 0;
-    
+        if(MathF.Abs(velocity.X) < MIN_VELOCITY) velocity.X = 0;
+        if(MathF.Abs(velocity.Y) < MIN_VELOCITY) velocity.Y = 0;
+        if(MathF.Abs(velocity.Z) < MIN_VELOCITY) velocity.Z = 0;
+        
         position += velocity * deltaTime;
     }
 }

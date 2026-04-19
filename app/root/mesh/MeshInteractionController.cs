@@ -208,7 +208,7 @@ class MeshInteractionController {
             shape.update(data, newId);
 
             PhysicsRegistry physicsRegistry = PhysicsRegistry.getInstance();
-            if(physicsRegistry.has(newId)) {
+            if(!physicsRegistry.has(newId)) {
                 physicsRegistry.register(newId, data, Type.DYNAMIC);
             }
             MeshInteractionRegistry.getInstance().setRegister(

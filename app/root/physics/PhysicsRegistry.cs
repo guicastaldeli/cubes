@@ -216,7 +216,9 @@ class PhysicsRegistry {
                 foundSurface = true;
 
                 Vector3 v = entry.physicsBody.getVelocity();
+                v.X = 0;
                 v.Y = 0;
+                v.Z = 0;
                 entry.physicsBody.setVelocity(v);
             }
         }
@@ -239,12 +241,24 @@ class PhysicsRegistry {
     // Check Collision with Receivers
     public List<CollisionResult> checkCollisionWithReceivers(BBox bbox) {
         List<CollisionResult> results = new();
+        
         foreach(var receiver in getReceivers()) {
             if(receiver.collider != null) {
                 var result = collisionChecker.update(receiver.collider, bbox);
                 if(result.collided) results.Add(result);
             }
         }
+
+        if(collisionManager != null) {
+            var dynamicIds = getDynamicObjects().Select(e => e.id).ToHashSet();
+            foreach(var collider in collisionManager.getColliders()) {
+                if(dynamicIds.Contains(collider.getId())) continue;
+
+                var result = collisionChecker.update(collider, bbox);
+                if(result.collided) results.Add(result);
+            }
+        }
+
         return results;
     }
 
@@ -263,6 +277,7 @@ class PhysicsRegistry {
     // Check Collision with Dynamic Objects
     public List<CollisionResult> checkCollisionWithDynamic(string excludeId, BBox bbox) {
         List<CollisionResult> results = new();
+
         foreach(var other in getDynamicObjects()) {
             if(other.id == excludeId) continue;
             if(other.collider != null) {
@@ -270,6 +285,7 @@ class PhysicsRegistry {
                 if(result.collided) results.Add(result);
             }
         }
+
         return results;
     }
 
@@ -324,8 +340,9 @@ class PhysicsRegistry {
         
         foreach(var entry in getDynamicObjects()) {
             if(mesh == null) return;
-            if(entry.physicsBody == null) continue;
 
+            if(entry.physicsBody == null) continue;
+            
             entry.physicsBody.applyGravity(deltaTime);
             entry.physicsBody.update(deltaTime);
 
