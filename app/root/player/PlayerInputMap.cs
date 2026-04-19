@@ -21,6 +21,10 @@ class PlayerInputMap {
         if(idx >= 0 && idx < keyPressed.Length) {
             keyPressed[idx] = pressed;
         }
+
+        if(pressed) {
+            setMode(key);
+        }
     }
 
     // Handle Mouse
@@ -46,10 +50,17 @@ class PlayerInputMap {
 
     // On Mouse Button
     public void onMouseButton(int button) {
-        MeshInteractionController meshInteractionController = playerController.getMesh().getMeshInteractionController();
-        if(meshInteractionController != null) {
-            if(button == 0) meshInteractionController.onBreak();
-            if(button == 1) meshInteractionController.onPlace();
+        Mode mode = playerController.getMode();
+        
+        if(mode.getCurrent() == Modes.GETTER) {
+            MeshInteractionController meshInteractionController = playerController.getMesh().getMeshInteractionController();
+            if(meshInteractionController != null) {
+                if(button == 0) meshInteractionController.onBreak();
+                if(button == 1) meshInteractionController.onPlace();
+                mode.executeAction();
+            }
+            
+            return;
         }
     }
 
@@ -68,7 +79,7 @@ class PlayerInputMap {
 
     // Open Inventory
     public void openInventory(Keys key) {
-        if(key != Keys.E) return;
+        if(key != Keys.I) return;
 
         var uiController = input.getUIController();
         uiController.toggle(UI.UIController.UIType.INVENTORY);
@@ -85,5 +96,21 @@ class PlayerInputMap {
         var uiController = input.getUIController();
         var inventoryUI = uiController.get<InventoryUI>(UI.UIController.UIType.INVENTORY);
         return inventoryUI!.isOpen();
+    }
+
+    /**
+    
+        Mode
+
+        */
+    private void setMode(Keys key) {
+        Mode mode = playerController.getMode();
+        
+        if(key == Keys.Q) {
+            mode.handleInput(Slot.LEFT);
+        }
+        else if(key == Keys.E) {
+            mode.handleInput(Slot.RIGHT);
+        }
     }
 }

@@ -31,6 +31,8 @@ class PlayerController : DataEntry {
     private Hud.Hud hud;
     private Raycaster raycaster;
 
+    private Mode mode;
+
     private float posX = 50.0f;
     private float posY = 50.0f;
     private float posZ = 0.0f;
@@ -96,11 +98,18 @@ class PlayerController : DataEntry {
         );
 
         this.raycaster = new Raycaster(camera, mesh);
+
+        this.mode = new Mode(window, camera, mesh, this);
     }
 
     // Get Window
     public Window getWindow() {
         return window;
+    }
+
+    // Get Mode
+    public Mode getMode() {
+        return mode;
     }
 
     // Get Input
@@ -300,6 +309,8 @@ class PlayerController : DataEntry {
         hud.update();
         
         raycaster.update();
+
+        mode.update();
     }
 
     /**
