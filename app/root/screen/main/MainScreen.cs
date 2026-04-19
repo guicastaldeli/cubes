@@ -107,9 +107,26 @@ class MainScreen : Screen {
         return base.checkClick(mouseX, mouseY);
     }
 
-    ///
-    /// Update
-    ///  
+    /**
+    
+        On Window Resize
+
+        */
+    public override void onWindowResize(int width, int height) {
+        base.onWindowResize(width, height);
+
+        updateScreen();
+
+        clientDialog.onWindowResize(width, height);
+        serverDialog.onWindowResize(width, height);
+        customMenu.onWindowResize(width, height);
+    }
+
+    /**
+    
+        Update
+
+        */ 
     public override void update() {
         if(clientDialog.isActive()) {
             clientDialog.update();
@@ -131,9 +148,11 @@ class MainScreen : Screen {
         mainScreenAction.handleId();
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */
     public override void render() {
         if(clientDialog.isActive()) {
             clientDialog.render();
@@ -150,7 +169,11 @@ class MainScreen : Screen {
         base.render();
     }
 
-    // Reset
+    /**
+    
+        Reset
+
+        */
     public void reset() {
         clientDialog.setActive(false);
         serverDialog.setActive(false);

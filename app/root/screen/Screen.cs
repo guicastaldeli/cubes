@@ -22,6 +22,8 @@ class Screen : ScreenHandler {
     public string screenName;
     public ScreenData? screenData;
 
+    private string filePath;
+
     public int lastMouseX = -1;
     public int lastMouseY = -1;
 
@@ -48,7 +50,9 @@ class Screen : ScreenHandler {
     }
 
     public Screen(string filePath, string screenName) {
+        this.filePath = filePath;
         this.screenName = screenName;
+
         try {
             textRenderer ??= new TextRenderer(shaderProgram, screenWidth, screenHeight);
             textRenderer.loadFont("arial", "arial.ttf", 16.0f);
@@ -192,7 +196,7 @@ class Screen : ScreenHandler {
 
         if(screenData != null) {
             screenData = DocParser.parseScreen(
-                screenData.screenType,
+                filePath,
                 width,
                 height
             );

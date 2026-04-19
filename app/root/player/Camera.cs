@@ -23,6 +23,10 @@ class Camera {
     
     private Vector3 worldUp;
 
+    private float aspectRatio;
+    private float nearPlane = 0.1f;
+    private float farPlane = 100.0f;
+
     public Camera() {
         position = new Vector3(posX, posY, posZ);
 
@@ -31,6 +35,8 @@ class Camera {
         front = new Vector3(frontX, frontY, frontZ);
         up = Vector3.UnitY;
         right = Vector3.UnitX;
+        
+        aspectRatio = (float)Window.WIDTH / Window.HEIGHT;
 
         updateVectors();
     }
@@ -60,7 +66,11 @@ class Camera {
         return pitch;
     }
 
-    // Position
+    /**
+    
+        Position
+    
+        */
     public void setPosition(float x, float y, float z) {
         position = new Vector3(x, y, z);
     }
@@ -82,9 +92,9 @@ class Camera {
     public Matrix4 getProjection() {
         return Matrix4.CreatePerspectiveFieldOfView(
             MathHelper.DegreesToRadians(fov),
-            (float)Window.WIDTH / Window.HEIGHT,
-            0.1f,
-            100.0f
+            aspectRatio,
+            nearPlane,
+            farPlane
         );
     }
 
@@ -109,9 +119,11 @@ class Camera {
         updateVectors();
     }
 
-    ///
-    /// Update 
-    ///
+    /**
+    
+        Update
+    
+        */
     private void updateVectors() {
         float yawRad = MathHelper.DegreesToRadians(yaw);
         float pitchRad = MathHelper.DegreesToRadians(pitch);
@@ -133,6 +145,10 @@ class Camera {
             MathF.Sin(MathHelper.DegreesToRadians(yaw)) * MathF.Cos(MathHelper.DegreesToRadians(pitch))
         ));
     } 
+
+    public void updateAspectRatio(int width, int height) {
+        aspectRatio = (float)width / height;
+    }
 
     private void updateRotationTarget(Vector3 target) {
         float targetRadius = 5.0f;

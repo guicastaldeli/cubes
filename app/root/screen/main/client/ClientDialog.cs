@@ -30,9 +30,20 @@ class ClientDialog : Screen {
         }
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        On Window Resize
+
+        */
+    public override void onWindowResize(int width, int height) {
+        base.onWindowResize(width, height);
+    }
+
+    /**
+    
+        Update
+
+        */
     public override void update() {
         if(scene.isInit()) {
             if(!tick.isPaused()) scene.update();
@@ -41,9 +52,11 @@ class ClientDialog : Screen {
         base.update();  
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */
     public override void render() {
         if(scene.isInit()) {
             scene.render();

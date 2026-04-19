@@ -67,9 +67,21 @@ class Scene {
         this.network = network;
     }
 
-    ///
-    /// Set
-    /// 
+    // Get Player Controller
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
+    // Get Camera
+    public Camera getCamera() {
+        return playerController.getCamera();
+    }
+
+    /**
+    
+        Set
+    
+        */
     private void set() {
         bool isClient = 
             network == null ||
@@ -99,9 +111,11 @@ class Scene {
         input.lockMouse();
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+    
+        */
     public void update() {
         input.update();
 
@@ -117,9 +131,11 @@ class Scene {
         NetworkUpdate.getInstance().update();
     }
 
-    ///
-    /// Init
-    /// 
+    /**
+    
+        Init
+    
+        */
     public void init() {
         reset();
         setInput();
@@ -128,9 +144,11 @@ class Scene {
         initialized = true;
     }
 
-    /// 
-    /// Render
-    /// 
+    /**
+    
+        Render
+    
+        */
     public void render() {
         if(!initialized) return;
 

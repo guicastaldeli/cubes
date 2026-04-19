@@ -150,7 +150,7 @@ class ScreenController {
     }
 
     // Handle Window Resize
-    public void handleWindowResize(int newWidth, int newHeight) {
+    public void onWindowResize(int newWidth, int newHeight) {
         this.screenWidth = newWidth;
         this.screenHeight = newHeight;
         foreach(var screen in screens.Values) {

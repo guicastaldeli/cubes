@@ -7,9 +7,9 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Collections.Concurrent;
 
 class Window : NativeWindow {
-    public static readonly int WIDTH = 800;
-    public static readonly int HEIGHT = 600;
-    public static readonly string TITLE = "client";
+    public static int WIDTH = 800;
+    public static int HEIGHT = 600;
+    public static string TITLE = "client";
 
     private volatile Action? pendingAction = null;
     private ConcurrentQueue<Action> pendingActions = new();
@@ -22,14 +22,20 @@ class Window : NativeWindow {
     public Action<int, int>? onMouseClick;
     public Action<int, bool>? onMouseButton;
 
+    public Action<int, int>? onResize;
+
     public Window() : base(new NativeWindowSettings() {
         ClientSize = new Vector2i(WIDTH, HEIGHT),
         Title = TITLE,
         API = ContextAPI.OpenGL
     }) {
         Context.MakeCurrent();
+        
+        // Key
         KeyDown += args => onKeyDown?.Invoke(args.Key);
         KeyUp += args => onKeyUp?.Invoke(args.Key);
+        
+        // Mouse
         MouseMove += args => onMouseMove?.Invoke((int)args.X, (int)args.Y);
         MouseDown += args => {
             if(args.Button == MouseButton.Left) {
@@ -38,6 +44,16 @@ class Window : NativeWindow {
         };
         MouseDown += args => onMouseButton?.Invoke((int)args.Button, true);
         MouseUp += args => onMouseButton?.Invoke((int)args.Button, false);
+    
+        // Window
+        Resize += args => {
+            WIDTH = args.Width;
+            HEIGHT = args.Height;
+            queueOnRenderThread(() => {
+                GL.Viewport(0, 0, WIDTH, HEIGHT);
+                onResize?.Invoke(WIDTH, HEIGHT);
+            });
+        };
     }
 
     // Width and Height 
@@ -49,7 +65,11 @@ class Window : NativeWindow {
         return HEIGHT;
     }
 
-    // Render
+    /**
+    
+        Render
+    
+        */
     public void queueOnRenderThread(Action action) {
         pendingActions.Enqueue(action);
     }
@@ -58,7 +78,11 @@ class Window : NativeWindow {
         persistentRenderActions.Add(action);
     }
 
-    // Run
+    /**
+    
+        Run
+    
+        */
     public void run(Action renderCallback) {
         Thread thread = new Thread(() => {
             Context.MakeCurrent();
@@ -81,7 +105,11 @@ class Window : NativeWindow {
         thread.Join();
     }
 
-    // Update
+    /**
+    
+        Update
+    
+        */
     public void updateTitle(int tickCount, int fps) {
         if(Controller.getInstance(Instance.PROD)) {
             Title = TITLE;

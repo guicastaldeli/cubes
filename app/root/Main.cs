@@ -25,8 +25,19 @@ class Main {
         network = new Network();
         VoiceController.getInstance().setNetwork(network);
 
+        window.onResize = handleResize;
+
         init();
         set();
+    }
+
+    // Handle Resize
+    public void handleResize(int width, int height) {
+        GL.Viewport(0, 0, width, height);
+
+        scene?.getCamera().updateAspectRatio(width, height);
+        uiController.onWindowResize(width, height);
+        screenController.onWindowResize(width, height);
     }
 
     ///
@@ -47,9 +58,11 @@ class Main {
         GL.Disable(EnableCap.CullFace);
     }
     
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     private void update() {
         tick.update();
         window.updateTitle(tick.getTickCount(), tick.getFps());
@@ -58,17 +71,21 @@ class Main {
         uiController.update();
     }
 
-    /// 
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */ 
     private void render() {
         screenController.render();
         uiController.render();
     }
 
-    ///
-    /// Init
-    /// 
+    /**
+    
+        Init
+
+        */
     public void init() {
         scene = new Scene(
             window, 
@@ -101,9 +118,11 @@ class Main {
         input.init();
     }
     
-    ///
-    /// Run
-    ///
+    /**
+    
+        Run
+
+        */
     public void run() {
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         window.run(() => {

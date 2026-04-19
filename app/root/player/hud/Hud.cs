@@ -1,8 +1,8 @@
 namespace App.Root.Player.Hud;
-
-using System.Reflection;
 using App.Root.Mesh;
 using App.Root.Shaders;
+using System.Reflection;
+
 /**
 
     Main HUD Element Handler

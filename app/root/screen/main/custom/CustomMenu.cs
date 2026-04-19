@@ -45,16 +45,32 @@ class CustomMenu : Screen {
         }
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        On Window Resize
+
+        */
+    public override void onWindowResize(int width, int height) {
+        base.onWindowResize(width, height);
+
+        inputField = new InputField(this);
+        registerInputs();
+    }
+
+    /**
+    
+        Update
+
+        */
     public override void update() {
         base.update();    
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */
     public override void render() {
         base.render();
     }
