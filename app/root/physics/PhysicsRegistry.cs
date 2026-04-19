@@ -193,12 +193,19 @@ class PhysicsRegistry {
         collisions.Sort((a, b) => b.depth.CompareTo(a.depth));
 
         bool foundSurface = false;
+        const float MIN_CORRECTION_DEPTH = 0.001f;
 
         foreach(var collision in collisions) {
             if(mesh == null) return;
 
-            float f = 0.0001f;
-            if(collision.depth < f) continue;
+            float f = 0.5f;
+
+            if(collision.depth < MIN_CORRECTION_DEPTH) {
+                if(collision.normal.Y > f) {
+                    foundSurface = true;
+                }
+                continue;
+            }
 
             Vector3 position = entry.physicsBody.getPosition();
             position += collision.normal * collision.depth;
@@ -212,14 +219,8 @@ class PhysicsRegistry {
                 entry.physicsBody.setVelocity(vel);
             }
 
-            if(collision.normal.Y > 0.5f) {
+            if(collision.normal.Y > f) {
                 foundSurface = true;
-
-                Vector3 v = entry.physicsBody.getVelocity();
-                v.X = 0;
-                v.Y = 0;
-                v.Z = 0;
-                entry.physicsBody.setVelocity(v);
             }
         }
 
@@ -324,17 +325,21 @@ class PhysicsRegistry {
         }
     }
 
-    ///
-    /// Init
-    /// 
+    /**
+    
+        Init
+    
+        */
     public void init(Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+    
+        */
     public void update() {
         float deltaTime = Tick.getDeltaTimeI();
         
@@ -365,9 +370,11 @@ class PhysicsRegistry {
         }
     }
 
-    ///
-    /// Cleanup
-    /// 
+    /**
+    
+        Cleanup
+    
+        */
     public void cleanup() {
         foreach(var entry in entries.Values) {
             if(collisionManager != null && entry.collider != null) {
