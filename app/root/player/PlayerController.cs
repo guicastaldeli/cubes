@@ -148,7 +148,20 @@ class PlayerController : DataEntry {
         this.worldManager = worldManager;
     }
 
-    // Position
+    /**
+
+        On Window Resize
+
+        */
+    public void onWindowResize(int width, int height) {
+        hud.onWindowResize(width, height);
+    }
+
+    /**
+
+        Position
+
+        */
     public void setPosition(float x, float y, float z) {
         position = new Vector3(x, y, z);
         rigidBody.setPosition(position);
@@ -159,7 +172,11 @@ class PlayerController : DataEntry {
         return new Vector3(position);
     }
 
-    // Movement
+    /**
+
+        Movement
+
+        */
     private void applyMov() {
         Vector3 front = camera.getFront();
         Vector3 right = camera.getRight();
@@ -210,7 +227,11 @@ class PlayerController : DataEntry {
         return flyMode;
     }
 
-    // Set
+    /**
+
+        Set
+
+        */
     public void set() {
         if(network != null) id = network.userId ?? id;
         playerMesh.set(true);
@@ -225,16 +246,20 @@ class PlayerController : DataEntry {
         }
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+
+        Render
+
+        */
     public void render() {
         hud.render();
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+
+        Update
+
+        */
     public void updatePosition(MovDir dir, bool pressed) {
         switch(dir) {
             case MovDir.FORWARD:
@@ -278,8 +303,33 @@ class PlayerController : DataEntry {
     }
 
     /**
+
+        Network
+
+        */
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
+
+    public Network? getNetwork() {
+        return network;
+    }
+
+    public NetworkPlayer getNetworkPlayer() {
+        return networkPlayer;
+    }
+
+    public void sendState() {
+        if(network == null || !network.isConnected) return;
+        network.sendState(
+            position.X, position.Y, position.Z,
+            camera.getYaw(), camera.getPitch()
+        );
+    }
+
+    /**
     
-        Data Entry
+        --- Data Entry ---
 
         */
     public static string getId() {
@@ -299,28 +349,5 @@ class PlayerController : DataEntry {
             ["yaw"] = camera.getYaw(),
             ["pitch"] = camera.getPitch()
         };
-    }
-
-    ///
-    /// Network
-    /// 
-    public void setNetwork(Network network) {
-        this.network = network;
-    }
-
-    public Network? getNetwork() {
-        return network;
-    }
-
-    public NetworkPlayer getNetworkPlayer() {
-        return networkPlayer;
-    }
-
-    public void sendState() {
-        if(network == null || !network.isConnected) return;
-        network.sendState(
-            position.X, position.Y, position.Z,
-            camera.getYaw(), camera.getPitch()
-        );
     }
 }

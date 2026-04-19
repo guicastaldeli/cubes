@@ -64,7 +64,7 @@ class ServerPlayer : DataEntry {
 
     /**
     
-        Data Entry
+        --- Data Entry ---
 
         */
     public Dictionary<string, object> serialize() {

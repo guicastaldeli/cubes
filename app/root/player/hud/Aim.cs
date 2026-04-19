@@ -74,7 +74,10 @@ class Aim : HudElement {
     
         */
     public override void update() {
-        if(!initialized) set();
+        if(!initialized) {
+            set();
+            initialized = true;
+        }
         base.update();
     }
 }

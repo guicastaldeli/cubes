@@ -84,6 +84,7 @@ class Scene {
         */
     public void onWindowResize(int width, int height) {
         getCamera().updateAspectRatio(width, height);
+        playerController.onWindowResize(width, height);
         mesh.onWindowResize(width, height);
     }
 

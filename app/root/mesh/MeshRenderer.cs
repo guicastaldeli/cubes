@@ -605,7 +605,7 @@ class MeshRenderer : DataEntry {
 
     /**
     
-        Data Entry
+        --- Data Entry ---
     
         */ 
     public void setId(string id) {
