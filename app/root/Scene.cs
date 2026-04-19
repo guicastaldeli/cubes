@@ -79,6 +79,16 @@ class Scene {
 
     /**
     
+        On Window Resize
+    
+        */
+    public void onWindowResize(int width, int height) {
+        getCamera().updateAspectRatio(width, height);
+        mesh.onWindowResize(width, height);
+    }
+
+    /**
+    
         Set
     
         */

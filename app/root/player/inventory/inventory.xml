@@ -4,7 +4,7 @@
         id="inventory"
         src="texture/player/hud/inventory.png"
         x="25%" y="50%"
-        width="60%" height="20%"
+        width="40%" height="20%"
     />
     <slotconfig
         id="slotconfig"

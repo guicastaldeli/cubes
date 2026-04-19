@@ -181,28 +181,6 @@ class MeshRenderer : DataEntry {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
     } 
 
-    // Update Rotation
-    public void updateRotation() {
-        if(networkControlled) return;
-        if(meshData == null || !meshData.hasRotation()) return;
-
-        string? axis = meshData.getRotationAxis();
-        float speed = meshData.getRotationSpeed();
-        float deltaTime = Tick.getDeltaTimeI();
-
-        switch(axis?.ToLower()) {
-            case "x":
-                rotationMatrix *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(speed * deltaTime));
-                break;
-            case "y":
-                rotationMatrix *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(speed * deltaTime));
-                break;
-            case "z":
-                rotationMatrix *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(speed * deltaTime));
-                break;
-        }
-    }
-
     // Network Controlled
     public void setNetworkControlled(bool val) {
         networkControlled = val;
@@ -213,7 +191,21 @@ class MeshRenderer : DataEntry {
         this.visible = visible;
     }
 
-    // Buffers
+    /**
+    
+        On Window Resize
+
+        */
+    public void onWindowResize(int width, int height) {
+        setupStencilFramebuffer(width, height);
+    }
+
+    /**
+    
+        Buffers
+
+        */
+    // Main Buffers
     private void createBuffers() {
         if(meshData == null) return;
 
@@ -271,6 +263,7 @@ class MeshRenderer : DataEntry {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
     }
 
+    // Stencil Buffer
     public void setupStencilFramebuffer(int width, int height) {
         if(stencilFbo != 0) GL.DeleteFramebuffer(stencilFbo);
         if(stencilTexture != 0) GL.DeleteTexture(stencilTexture);
@@ -296,6 +289,7 @@ class MeshRenderer : DataEntry {
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
+    // Quad Buffers
     public void setupFullscreenQuad() {
         float[] verts = {
             -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
@@ -319,12 +313,35 @@ class MeshRenderer : DataEntry {
         GL.BindVertexArray(0);
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     public void update() {
         if(meshData == null) return;
         if(meshData.hasRotation() == true) updateRotation();
+    }
+
+    public void updateRotation() {
+        if(networkControlled) return;
+        if(meshData == null || !meshData.hasRotation()) return;
+
+        string? axis = meshData.getRotationAxis();
+        float speed = meshData.getRotationSpeed();
+        float deltaTime = Tick.getDeltaTimeI();
+
+        switch(axis?.ToLower()) {
+            case "x":
+                rotationMatrix *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(speed * deltaTime));
+                break;
+            case "y":
+                rotationMatrix *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(speed * deltaTime));
+                break;
+            case "z":
+                rotationMatrix *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(speed * deltaTime));
+                break;
+        }
     }
 
     /**

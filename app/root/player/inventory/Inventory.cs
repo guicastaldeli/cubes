@@ -1,15 +1,13 @@
-
-using App.Root.Mesh;
-using App.Root.Screen;
-using App.Root.Shaders;
-using App.Root.Text;
-
 /**
 
     Main Inventory class.
 
     */
 namespace App.Root.Player.Inventory;
+using App.Root.Mesh;
+using App.Root.Screen;
+using App.Root.Shaders;
+using App.Root.Text;
 
 class Inventory {
     private ShaderProgram shaderProgram = null!;

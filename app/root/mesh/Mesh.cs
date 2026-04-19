@@ -1,8 +1,8 @@
 namespace App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.Player;
-using OpenTK.Mathematics;
 using App.Root.Collider;
+using OpenTK.Mathematics;
 
 class Mesh {
     private Window window;
@@ -228,9 +228,22 @@ class Mesh {
         );
     }
 
-    ///
-    /// Add
-    /// 
+    /**
+    
+        On Window Resize
+
+        */
+    public void onWindowResize(int width, int height) {
+        foreach(var renderer in meshRendererMap.Values) {
+            renderer.onWindowResize(width, height);
+        }
+    }
+
+    /**
+    
+        Add
+
+        */
     public void add(string id) {
         MeshData data = MeshLoader.load(id);
         addToMap(id, data);
@@ -256,18 +269,22 @@ class Mesh {
         meshRendererMap[id] = meshRenderer;
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     public void update() {
         foreach(var meshRenderer in meshRendererMap.Values) {
             meshRenderer.update();
         }
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */
     public void render(string id) {
         var renderer = getMeshRenderer(id);
         if(renderer == null) return;

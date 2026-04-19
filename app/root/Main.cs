@@ -35,7 +35,8 @@ class Main {
     public void handleResize(int width, int height) {
         GL.Viewport(0, 0, width, height);
 
-        scene?.getCamera().updateAspectRatio(width, height);
+        scene?.onWindowResize(width, height);
+        
         uiController.onWindowResize(width, height);
         screenController.onWindowResize(width, height);
     }
