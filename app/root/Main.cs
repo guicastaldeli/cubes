@@ -41,9 +41,11 @@ class Main {
         screenController.onWindowResize(width, height);
     }
 
-    ///
-    /// Set
-    /// 
+    /**
+    
+        Set
+
+        */
     private void set() {
         if(Controller.getInstance(Instance.PROD)) {
             GL.ClearColor(0.2f, 0.3f, 0.8f, 1.0f);
