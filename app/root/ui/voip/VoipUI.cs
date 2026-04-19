@@ -15,16 +15,29 @@ class VoipUI : UI {
         return voipUIActions;
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        On Window Resize
+
+        */
+    public override void onWindowResize(int width, int height) {
+        base.onWindowResize(width, height);
+    }
+
+    /**
+    
+        Render
+
+        */
     public override void render() {
         base.render();
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     public override void update() {
         base.update();
     }

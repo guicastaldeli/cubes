@@ -99,13 +99,6 @@ class Inventory {
         (slot.count, src.count) = (src.count, slot.count);
     }
 
-    // On Resize
-    public void onResize(int w, int h) {
-        screenWidth = w;
-        screenHeight = h;
-        build();
-    }
-
     // Handle Mouse Move
     public void handleMouseMove(int mouseX, int mouseY) {
         foreach(var s in grid.slots) {

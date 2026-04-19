@@ -31,12 +31,6 @@ class InventoryUI : UI.UI {
         return visible;
     }
 
-    // On Window Resize
-    public override void onWindowResize(int width, int height) {
-        base.onWindowResize(width, height);
-        inventory.onResize(width, height);
-    }
-
     // Handle Mouse Move
     public override void handleMouseMove(int mouseX, int mouseY) {
         base.handleMouseMove(mouseX, mouseY);
@@ -50,18 +44,35 @@ class InventoryUI : UI.UI {
         inventory.handleMouseClick(mouseX, mouseY);
     }
 
-    ///
-    /// Render 
-    /// 
+    /**
+
+        On Window Resize
+    
+        */
+    public override void onWindowResize(int width, int height) {
+        base.onWindowResize(width, height);
+
+        inventory = build()!;
+        inventory.setShaderProgram(shaderProgram);
+        inventory.setTextRenderer(textRenderer!);
+    }
+
+    /**
+
+        Render
+    
+        */
     public override void render() {
         if(!visible) return;
         base.render();
         inventory.render();
     }
 
-    ///
-    /// Init
-    /// 
+    /**
+
+        Init
+    
+        */
     private void init() {
         inventory = build()!;
         inventory.setShaderProgram(shaderProgram);
