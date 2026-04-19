@@ -7,6 +7,7 @@
 namespace App.Root.Mesh;
 using App.Root.Collider;
 using App.Root.Collider.Types;
+using App.Root.Physics;
 using App.Root.Player;
 using OpenTK.Mathematics;
 
@@ -142,6 +143,7 @@ class MeshInteractionController {
             collisionManager.removeCollider(hit);
         });
 
+        PhysicsRegistry.getInstance().unregister(hit);
         MeshInteractionRegistry.getInstance().unregister(hit);
         MeshRegistry.unregister(hit);
 
@@ -205,6 +207,10 @@ class MeshInteractionController {
 
             shape.update(data, newId);
 
+            PhysicsRegistry physicsRegistry = PhysicsRegistry.getInstance();
+            if(physicsRegistry.has(newId)) {
+                physicsRegistry.register(newId, data, Type.DYNAMIC);
+            }
             MeshInteractionRegistry.getInstance().setRegister(
                 newId,
                 State.BREAKABLE,

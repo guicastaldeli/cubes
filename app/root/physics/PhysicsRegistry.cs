@@ -181,6 +181,11 @@ class PhysicsRegistry {
         return instance;
     }
 
+    // Has
+    public bool has(string id) {
+        return entries.ContainsKey(id);
+    }
+
     // Resolve Collisions
     public void resolveCollisions(Entry entry, List<CollisionResult> collisions) {
         if(entry.physicsBody == null) return;

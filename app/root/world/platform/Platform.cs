@@ -76,8 +76,8 @@ class Platform : WorldHandler {
             string mesht = "cube";
             MeshData data = MeshLoader.load(mesht);
             mesh.add(id, data);
-            mesh.setPosition(id, 0.0f, 3.0f, -3.0f);
-            mesh.setScale(id, 0.2f);
+            mesh.setPosition(id, 0.0f, 10.0f, -3.0f);
+            //mesh.setScale(id, 0.2f);
 
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;
@@ -105,7 +105,7 @@ class Platform : WorldHandler {
             string mesht = "cube";
             MeshData data = MeshLoader.load(mesht);
             mesh.add(id, data);
-            mesh.setPosition(id, 2.0f, 3.0f, -3.0f);
+            mesh.setPosition(id, 2.0f, 10.0f, -3.0f);
 
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;
@@ -148,8 +148,6 @@ class Platform : WorldHandler {
         setPosition();
         MeshRegistry.register(GRID_ID);
 
-        MeshData data = MeshLoader.load(GRID_ID);
-
         List<Vector3> positions = new();
         float offsetX = -(sizeX / 2.0f) * spacing + offset.X;
         float offsetZ = -(sizeZ / 2.0f) * spacing + offset.Z;
@@ -185,7 +183,10 @@ class Platform : WorldHandler {
             }
         }
 
-        PhysicsRegistry.getInstance().register(GRID_ID, data, Type.RECEIVER);
+        MeshData? data = mesh.getData(GRID_ID);
+        if(data != null) {
+            PhysicsRegistry.getInstance().register(GRID_ID, data, Type.RECEIVER);
+        }
 
         if(renderMesh) {
             setMesh(positions);

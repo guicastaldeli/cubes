@@ -1,6 +1,3 @@
-
-using OpenTK.Mathematics;
-
 /**
 
     Mesh Interaction Registry to
@@ -8,6 +5,7 @@ using OpenTK.Mathematics;
 
     */
 namespace App.Root.Mesh;
+using OpenTK.Mathematics;
 
 /**
 
