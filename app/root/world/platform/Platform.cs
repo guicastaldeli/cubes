@@ -2,6 +2,7 @@ namespace App.Root.World.Platform;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
+using App.Root.Physics;
 using App.Root.Resource;
 using OpenTK.Mathematics;
 
@@ -95,6 +96,8 @@ class Platform : WorldHandler {
                 mesh,
                 stackId
             );
+
+            PhysicsRegistry.getInstance().register(id, data, Type.DYNAMIC);
         }
 
         public void set3() {
@@ -120,6 +123,8 @@ class Platform : WorldHandler {
                 State.BREAKABLE,
                 mesh
             );
+
+            PhysicsRegistry.getInstance().register(id, data, Type.DYNAMIC);
         }
     /**
         ****
@@ -142,6 +147,8 @@ class Platform : WorldHandler {
     private void set(bool renderMesh = true) {
         setPosition();
         MeshRegistry.register(GRID_ID);
+
+        MeshData data = MeshLoader.load(GRID_ID);
 
         List<Vector3> positions = new();
         float offsetX = -(sizeX / 2.0f) * spacing + offset.X;
@@ -177,6 +184,8 @@ class Platform : WorldHandler {
                 }
             }
         }
+
+        PhysicsRegistry.getInstance().register(GRID_ID, data, Type.RECEIVER);
 
         if(renderMesh) {
             setMesh(positions);

@@ -23,12 +23,20 @@ class RigidBody {
         this.acceleration = Vector3.Zero;
     }
 
-    // Apply Force
+    /**
+
+        Apply Force
+    
+        */
     public void applyForce(Vector3 force) {
         acceleration += force / mass;
     }
 
-    // Position
+    /**
+
+        Position
+    
+        */
     public void setPosition(Vector3 position) {
         this.position = new Vector3(position);
     }
@@ -37,7 +45,11 @@ class RigidBody {
         return new Vector3(position);
     }
 
-    // Velocity
+    /**
+
+        Velocity
+    
+        */
     public void setVelocity(Vector3 velocity) { 
         this.velocity = new Vector3(velocity);
     }
@@ -46,7 +58,11 @@ class RigidBody {
         return new Vector3(velocity);
     }
 
-    // Size
+    /**
+
+        Size
+    
+        */
     public void setSize(Vector3 size) {
         this.size = new Vector3(size);
     }
@@ -55,7 +71,11 @@ class RigidBody {
         return new Vector3(size);
     }
 
-    // On Ground
+    /**
+
+        On Surface
+    
+        */
     public void setOnSurface(bool onSurface) {
         this.onSurface = onSurface;
     }
@@ -64,7 +84,11 @@ class RigidBody {
         return onSurface;
     }
 
-    // Mass
+    /**
+
+        Mass
+    
+        */
     public void setMass(float mass) {
         this.mass = mass;
     }
@@ -73,7 +97,11 @@ class RigidBody {
         return mass;
     }
 
-    // Gravity
+    /**
+
+        Gravity
+    
+        */
     public float getGravity() {
         return gravity;
     }
@@ -94,7 +122,11 @@ class RigidBody {
         return gravityEnabled;
     }
 
-    // BBox
+    /**
+
+        BBox
+    
+        */
     public BBox getBBox() {
         return new BBox(
             position.X - size.X / 2,

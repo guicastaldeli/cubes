@@ -160,7 +160,6 @@ class PhysicsRegistry {
     private static PhysicsRegistry? instance;
 
     private Mesh? mesh;
-    private MeshData? data;
     private CollisionManager? collisionManager;
 
     private Updater? updater;
@@ -170,7 +169,6 @@ class PhysicsRegistry {
 
     private PhysicsRegistry() {
         this.mesh = null;
-        this.data = null;
         this.collisionManager = null;
 
         this.collisionChecker = new CollisionChecker();
@@ -275,7 +273,7 @@ class PhysicsRegistry {
         Register
     
         */
-    public void register(string id, Type type) {
+    public void register(string id, MeshData data, Type type) {
         if(entries.ContainsKey(id)) {
             Console.WriteLine($"PhysicsRegistry: {id} already registered");
             return;
@@ -308,9 +306,8 @@ class PhysicsRegistry {
     ///
     /// Init
     /// 
-    public void init(Mesh mesh, MeshData data, CollisionManager collisionManager) {
+    public void init(Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
-        this.data = data;
         this.collisionManager = collisionManager;
     }
 

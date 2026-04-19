@@ -1,6 +1,7 @@
 namespace App.Root.World;
 using App.Root.Collider;
 using App.Root.Collider.Types;
+using App.Root.Physics;
 using System.Reflection;
 
 class World : WorldHandler {
@@ -26,6 +27,8 @@ class World : WorldHandler {
             worldManager.getPlayerController().getRigidBody()
         );
 
+        PhysicsRegistry.getInstance().init(mesh, collisionManager);
+
         register();
         setCollision();
     } 
@@ -34,16 +37,20 @@ class World : WorldHandler {
         return mesh;
     }
 
-    ///
-    /// Get
-    /// 
+    /**
+
+        Get
+    
+        */ 
     public T? get<T>() where T : WorldHandler {
         return el.OfType<T>().FirstOrDefault();
     }
 
-    ///
-    /// Register
-    /// 
+    /**
+
+        Register
+    
+        */ 
     private void register() {
         var baseType = typeof(WorldHandler);
         var excluded = new[] {
@@ -89,5 +96,7 @@ class World : WorldHandler {
     public override void update() {
         foreach(var e in el) e.update();
         worldBoundary.apply();
+
+        PhysicsRegistry.getInstance().update();
     }
 }
