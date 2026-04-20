@@ -177,24 +177,28 @@ class Mode {
     // Show Preview
     private void showPreview(Slot slot, PlacedMeshDef def) {
         string previewId = getPreviewId(slot);
-        if(!mesh.hasMesh(previewId)) {
-            window.queueOnRenderThread(() => {
-                MeshData data = MeshLoader.load(def.MeshType);
+        
+        window.queueOnRenderThread(() => {
+            if(mesh.hasMesh(previewId)) {
+                var existingData = mesh.getData(previewId);
+                mesh.remove(previewId);
+            }
+
+            MeshData data = MeshLoader.load(def.MeshType);
+            mesh.add(previewId, data);
+
+            if(def.Scale.HasValue) {
+                mesh.setScale(previewId, def.Scale.Value);
+            } else {
+                mesh.setScale(previewId, mesh.getDefaultScale(data));
+            }
+            mesh.setTexture(previewId, def.TexId, def.TexPath);
                 
-                mesh.add(previewId, data);
-                if(def.Scale.HasValue) mesh.setScale(previewId, def.Scale.Value);
-                mesh.setTexture(previewId, def.TexId, def.TexPath);
-                
-                updatePreviewPosition(slot, previewId);
-                mesh.setVisible(previewId, true);
-                previewMeshIds[slot] = previewId;   
-            });
-        } else {
             updatePreviewPosition(slot, previewId);
             mesh.setVisible(previewId, true);
-
-            previewMeshIds[slot] = previewId;
-        }
+            previewMeshIds[slot] = previewId;   
+        });
+        
     }
 
     // Hide Preview

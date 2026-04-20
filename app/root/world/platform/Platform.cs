@@ -102,7 +102,7 @@ class Platform : WorldHandler {
 
         public void set3() {
             string id = "cubic2";
-            string mesht = "cube";
+            string mesht = "sphere";
             MeshData data = MeshLoader.load(mesht);
             mesh.add(id, data);
             mesh.setPosition(id, 2.0f, 10.0f, -3.0f);

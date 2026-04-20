@@ -191,6 +191,8 @@ class MeshInteractionController {
 
             if(def.Scale.HasValue) {
                 mesh.setScale(newId, def.Scale.Value);
+            } else {
+                mesh.setScale(newId, mesh.getDefaultScale(data));
             }
             if(def.TexId > 0) {
                 int texId = def.TexId;
