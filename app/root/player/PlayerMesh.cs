@@ -30,9 +30,11 @@ static class SlotExtensions {
 
     */
 class Arm {
+    private Camera camera;
     private Mesh mesh;
 
-    public Arm(Mesh mesh) {
+    public Arm(Camera camera, Mesh mesh) {
+        this.camera = camera;
         this.mesh = mesh;
     }
 
@@ -45,9 +47,8 @@ class Arm {
                 offset = new Vector3(-1.5f, -1.0f, 5.0f);
                 rotationMatrix = 
                     Matrix4.CreateRotationX(0.0f) *
-                    Matrix4.CreateRotationY(5.0f) *
+                    Matrix4.CreateRotationY(-5.0f) *
                     Matrix4.CreateRotationZ(0.0f);
-
                 break;
             case Slot.RIGHT:
                 offset = new Vector3(1.5f, -1.0f, 5.0f); 
@@ -55,18 +56,27 @@ class Arm {
                     Matrix4.CreateRotationX(0.0f) *
                     Matrix4.CreateRotationY(5.0f) *
                     Matrix4.CreateRotationZ(0.0f);
-
                 break;
             case Slot.CENTER:
                 rotationMatrix = 
                     Matrix4.CreateRotationX(1.0f) *
                     Matrix4.CreateRotationY(1.0f) *
                     Matrix4.CreateRotationZ(1.0f);
-
                 break;
         }
 
-        mesh.setRotationMatrix(id, rotationMatrix);
+        Vector3 forward = camera.getFront();
+        Vector3 right = camera.getRight();
+        Vector3 up = camera.getUp();
+        Matrix4 cameraRotation = new Matrix4(
+            new Vector4(right, 0.0f),
+            new Vector4(up, 0.0f),
+            new Vector4(-forward, 0.0f),
+            new Vector4(0, 0, 0, 1.0f)
+        );
+
+        Matrix4 rotation = rotationMatrix * cameraRotation;
+        mesh.setRotationMatrix(id, rotation);
         return offset;
     }
 }
@@ -101,7 +111,7 @@ class PlayerMesh {
         this.playerController = playerController;
         this.mesh = mesh;
 
-        this.arm = new Arm(mesh);
+        this.arm = new Arm(camera, mesh);
     }
 
     // Get Arm Id

@@ -35,22 +35,55 @@ public enum Slot {
     Position class helper.
 
     */
-static class Position {
-    public static Vector3 set(Slot slot) {
+class Position {
+    private Camera camera;
+    private Mesh.Mesh mesh;
+
+    public Position(Camera camera, Mesh.Mesh mesh) {
+        this.camera = camera;
+        this.mesh = mesh;
+    }    
+
+    public Vector3 set(string id, Slot slot) {
         Vector3 offset = Vector3.Zero;
+        Matrix4 rotationMatrix = Matrix4.Identity;
 
         switch(slot) {
             case Slot.LEFT:
                 offset = new Vector3(-1.5f, 0.0f, 5.0f);
+                rotationMatrix = 
+                    Matrix4.CreateRotationX(0.0f) *
+                    Matrix4.CreateRotationY(5.0f) *
+                    Matrix4.CreateRotationZ(0.0f);
                 break;
             case Slot.RIGHT:
-                offset = new Vector3(1.5f, 0.0f, 5.0f); 
+                offset = new Vector3(1.5f, 0.0f, 5.0f);
+                rotationMatrix = 
+                    Matrix4.CreateRotationX(0.0f) *
+                    Matrix4.CreateRotationY(5.0f) *
+                    Matrix4.CreateRotationZ(0.0f); 
                 break;
             case Slot.CENTER:
                 offset = new Vector3(0.0f, 0.0f, 5.0f);
+                rotationMatrix = 
+                    Matrix4.CreateRotationX(0.0f) *
+                    Matrix4.CreateRotationY(0.0f) *
+                    Matrix4.CreateRotationZ(0.0f);
                 break;
         }
 
+        Vector3 forward = camera.getFront();
+        Vector3 right = camera.getRight();
+        Vector3 up = camera.getUp();
+        Matrix4 cameraRotation = new Matrix4(
+            new Vector4(right, 0.0f),
+            new Vector4(up, 0.0f),
+            new Vector4(-forward, 0.0f),
+            new Vector4(0, 0, 0, 1.0f)
+        );
+
+        Matrix4 rotation = rotationMatrix * cameraRotation;
+        mesh.setRotationMatrix(id, rotation);
         return offset;
     }
 }
@@ -66,6 +99,8 @@ class Mode {
     private Camera camera;
     private Mesh.Mesh mesh;
     private PlayerController playerController;
+
+    private Position position;
 
     private Modes currentMode = Modes.NORMAL;
     private Dictionary<Slot, string?> previewMeshIds = new();
@@ -86,6 +121,8 @@ class Mode {
         this.camera = camera;
         this.mesh = mesh;
         this.playerController = playerController;
+        
+        this.position = new Position(camera, mesh);
     }
 
     // Get Current Mode
@@ -160,7 +197,7 @@ class Mode {
 
     // Update Preview Position
     private void updatePreviewPosition(Slot slot, string previewId) {
-        Vector3 offset = Position.set(slot);
+        Vector3 offset = position.set(previewId, slot);
 
         Vector3 forward = camera.getFront();
         Vector3 right = camera.getRight();
