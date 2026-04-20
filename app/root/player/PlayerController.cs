@@ -85,7 +85,7 @@ class PlayerController : DataEntry {
         this.camera = new Camera();
         this.playerInputMap = new PlayerInputMap(input, this);
         this.rigidBody = new RigidBody(position, size);
-        this.playerMesh = new PlayerMesh(window, this, mesh);
+        this.playerMesh = new PlayerMesh(window, camera, this, mesh);
 
         Data.getInstance().register(DataType.PLAYER, this);
 

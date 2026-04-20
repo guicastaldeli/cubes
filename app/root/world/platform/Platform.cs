@@ -77,7 +77,7 @@ class Platform : WorldHandler {
             MeshData data = MeshLoader.load(mesht);
             mesh.add(id, data);
             mesh.setPosition(id, 0.0f, 10.0f, -3.0f);
-            //mesh.setScale(id, 0.2f);
+            mesh.setScale(id, 0.5f);
 
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;

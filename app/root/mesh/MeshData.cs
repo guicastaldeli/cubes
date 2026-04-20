@@ -57,7 +57,11 @@ class MeshData {
         this.meshType = meshType;
     }
 
-    // Instance
+    /**
+    
+        Instance
+
+        */
     public bool isInstanced {
         get;
         set;
@@ -68,7 +72,11 @@ class MeshData {
         set;
     } = new();
 
-    // Vertices
+    /**
+    
+        Vertices
+
+        */
     public void setVertices(float[] v) {
         data[DataType.VERTICES] = v;
     }
@@ -88,7 +96,11 @@ class MeshData {
         return val;
     }
 
-    // Indices
+    /**
+    
+        Indices
+
+        */
     public void setIndices(int[] i) {
         data[DataType.INDICES] = i;
     }
@@ -108,7 +120,11 @@ class MeshData {
         return val;
     }
 
-    // Colors
+    /**
+    
+        Colors
+
+        */
     public void setColors(float[] c) {
         colors = c;
         data[DataType.COLORS] = c;
@@ -148,7 +164,11 @@ class MeshData {
         setColor(r, b, g, a);
     }
 
-    // Normals
+    /**
+    
+        Normals
+
+        */
     public void setNormals(float[] norm) {
         data[DataType.NORMALS] = norm;
     }
@@ -162,7 +182,11 @@ class MeshData {
         return val;
     }
 
-    // Tex Coords
+    /**
+    
+        Tex Coords
+
+        */
     public void setTexCoords(float[] t) {
         data[DataType.TEX_COORDS] = t;
     }
@@ -176,7 +200,11 @@ class MeshData {
         return val;
     }
 
-    // Position
+    /**
+    
+        Position
+
+        */
     public void setPosition(Vector3 p) {
         data[DataType.POSITION] = p;
     }
@@ -190,7 +218,11 @@ class MeshData {
         return val; 
     }
 
-    // Scale
+    /**
+    
+        Scale
+
+        */
     public void setScale(float[] s) {
         data[DataType.SCALE] = s;
     }
@@ -217,7 +249,11 @@ class MeshData {
         return val;
     }
 
-    // Rotation
+    /**
+    
+        Rotation
+    
+        */
     public void setRotation(Vector3 r) {
         data[DataType.ROTATION] = r;
     }
@@ -257,7 +293,11 @@ class MeshData {
         return val;
     }
 
-    // Data
+    /**
+    
+        Data
+
+        */
     public bool hasData(DataType type) {
         bool val = data.ContainsKey(type);
         return val;

@@ -26,7 +26,33 @@ public enum Modes {
     */
 public enum Slot {
     LEFT,
-    RIGHT
+    RIGHT,
+    CENTER
+}
+
+/**
+
+    Position class helper.
+
+    */
+static class Position {
+    public static Vector3 set(Slot slot) {
+        Vector3 offset = Vector3.Zero;
+
+        switch(slot) {
+            case Slot.LEFT:
+                offset = new Vector3(-1.5f, 0.0f, 5.0f);
+                break;
+            case Slot.RIGHT:
+                offset = new Vector3(1.5f, 0.0f, 5.0f); 
+                break;
+            case Slot.CENTER:
+                offset = new Vector3(0.0f, 0.0f, 5.0f);
+                break;
+        }
+
+        return offset;
+    }
 }
 
 /**
@@ -43,7 +69,12 @@ class Mode {
 
     private Modes currentMode = Modes.NORMAL;
     private Dictionary<Slot, string?> previewMeshIds = new();
+    
     private Slot? activeSlot = null;
+    private Slot? prevSlot = null;
+
+    private bool leftPressed = false;
+    private bool rightPressed = false;
 
     public Mode(
         Window window,
@@ -58,8 +89,13 @@ class Mode {
     }
 
     // Get Current Mode
-    public Modes getCurrent() {
+    public Modes getCurrentMode() {
         return currentMode;
+    }
+
+    // Get Current Slot
+    public Slot? getCurrentSlot() {
+        return activeSlot;
     }
 
     // On Enter Getter Mode
@@ -115,7 +151,7 @@ class Mode {
             var inv = invInstance.getInventory();
             var mainSlot = inv.getActiveSlot();
             if(!mainSlot.isEmpty && mainSlot.def != null) {
-                showPreview(slot, mainSlot.def.MeshType);
+                showPreview(slot, mainSlot.def);
             } else {
                 hidePreview(slot);
             }
@@ -124,12 +160,7 @@ class Mode {
 
     // Update Preview Position
     private void updatePreviewPosition(Slot slot, string previewId) {
-        Vector3 leftSlot = new Vector3(-0.4f, -0.3f, -0.6f);
-        Vector3 rightSlot = new Vector3(0.4f, -0.3f, -0.6f); 
-        Vector3 offset = 
-            slot == Slot.LEFT ?
-                leftSlot :
-                rightSlot;
+        Vector3 offset = Position.set(slot);
 
         Vector3 forward = camera.getFront();
         Vector3 right = camera.getRight();
@@ -144,19 +175,20 @@ class Mode {
     }
 
     // Show Preview
-    private void showPreview(Slot slot, string meshType) {
+    private void showPreview(Slot slot, PlacedMeshDef def) {
         string previewId = getPreviewId(slot);
         if(!mesh.hasMesh(previewId)) {
             window.queueOnRenderThread(() => {
-                MeshData data = MeshLoader.load(meshType);
+                MeshData data = MeshLoader.load(def.MeshType);
+                
                 mesh.add(previewId, data);
-                mesh.setScale(previewId, 0.5f);
+                if(def.Scale.HasValue) mesh.setScale(previewId, def.Scale.Value);
+                mesh.setTexture(previewId, def.TexId, def.TexPath);
                 
                 updatePreviewPosition(slot, previewId);
                 mesh.setVisible(previewId, true);
+                previewMeshIds[slot] = previewId;   
             });
-
-            previewMeshIds[slot] = previewId;   
         } else {
             updatePreviewPosition(slot, previewId);
             mesh.setVisible(previewId, true);
@@ -179,20 +211,68 @@ class Mode {
         Handle Input
 
         */
-    public void handleInput(Slot slot) {
+    public void handleInput(Slot slot, bool pressed) {
+        if(slot == Slot.LEFT) leftPressed = pressed;
+        if(slot == Slot.RIGHT) rightPressed = pressed;
+
+        PlayerMesh playerMesh = playerController.getPlayerMesh();
+
+        bool bothHeld = leftPressed && rightPressed;
+        if(bothHeld) {
+            if(activeSlot != Slot.CENTER) {
+                prevSlot = activeSlot;
+
+                if(activeSlot.HasValue) {
+                    hidePreview(activeSlot.Value);
+                    playerMesh.hideArms(activeSlot.Value);
+                }
+
+                activeSlot = Slot.CENTER;
+                if(currentMode == Modes.NORMAL) {
+                    set(Modes.GETTER, Slot.CENTER);
+                } else {
+                    updatePreview(Slot.CENTER);
+                    playerMesh.updateArms(Slot.CENTER);
+                }
+            }
+
+            return;
+        }
+
+        if(activeSlot == Slot.CENTER && !bothHeld) {
+            hidePreview(Slot.CENTER);
+
+            Slot targetSlot = prevSlot ?? Slot.RIGHT;
+            
+            activeSlot = targetSlot;
+            updatePreview(targetSlot);
+            playerMesh.updateArms(targetSlot);
+
+            prevSlot = null;
+            return;
+        }
+
+        if(!pressed) return;
+
+        
         if(currentMode == Modes.NORMAL) {
             set(Modes.GETTER, slot);
+            playerMesh.updateArms(slot);
             return;
         }
         if(activeSlot == slot) {
             set(Modes.NORMAL, slot);
+            playerMesh.hideArms(slot);
             return;
         }
         if(activeSlot.HasValue) {
             hidePreview(activeSlot.Value);
-        }
+            playerMesh.hideArms(activeSlot.Value);
 
-        set(Modes.GETTER, slot);
+            activeSlot = slot;
+            updatePreview(slot);
+            playerMesh.updateArms(slot);
+        }
     }
 
     /**
@@ -203,9 +283,15 @@ class Mode {
     public void update() {
         if(currentMode != Modes.GETTER) return;
 
+        PlayerMesh playerMesh = playerController.getPlayerMesh();
+
         foreach(var kvp in previewMeshIds) {
             if(kvp.Value == null) continue;
             updatePreviewPosition(kvp.Key, kvp.Value);
+        }
+        foreach(var kvp in playerMesh.armMeshIds) {
+            if(kvp.Value == null) continue;
+            playerMesh.updateArmPosition(kvp.Key, kvp.Value);
         }
     }
 

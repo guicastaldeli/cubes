@@ -22,9 +22,7 @@ class PlayerInputMap {
             keyPressed[idx] = pressed;
         }
 
-        if(pressed) {
-            setMode(key);
-        }
+        setMode(key, pressed);
     }
 
     // Handle Mouse
@@ -52,14 +50,14 @@ class PlayerInputMap {
     public void onMouseButton(int button) {
         Mode mode = playerController.getMode();
         
-        if(mode.getCurrent() == Modes.GETTER) {
+        if(mode.getCurrentMode() == Modes.GETTER) {
             MeshInteractionController meshInteractionController = playerController.getMesh().getMeshInteractionController();
             if(meshInteractionController != null) {
                 if(button == 0) meshInteractionController.onBreak();
                 if(button == 1) meshInteractionController.onPlace();
                 mode.executeAction();
             }
-            
+
             return;
         }
     }
@@ -103,14 +101,14 @@ class PlayerInputMap {
         Mode
 
         */
-    private void setMode(Keys key) {
+    private void setMode(Keys key, bool pressed) {
         Mode mode = playerController.getMode();
         
         if(key == Keys.Q) {
-            mode.handleInput(Slot.LEFT);
+            mode.handleInput(Slot.LEFT, pressed);
         }
         else if(key == Keys.E) {
-            mode.handleInput(Slot.RIGHT);
+            mode.handleInput(Slot.RIGHT, pressed);
         }
     }
 }
