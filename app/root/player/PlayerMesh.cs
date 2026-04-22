@@ -148,6 +148,9 @@ class PlayerMesh {
                 mesh.add(ARM_ID, data);
                 mesh.setScale(ARM_ID, 0.5f, 0.5f, 0.5f);
 
+                var renderer = mesh.getMeshRenderer(ARM_ID);
+                if(renderer != null) renderer.renderOnTop = true;
+
                 updateArmPosition(slot, ARM_ID);
                 mesh.setVisible(ARM_ID, true);
                 armMeshIds[slot] = ARM_ID;

@@ -27,9 +27,16 @@ class MeshRenderer : DataEntry {
 
     private int stencilFbo = 0;
     private int stencilTexture = 0;
+    private int stencilDepthTexture = 0;
+
+    private int sceneDepthFbo = 0;
+    private int sceneDepthTexture = 0;
+    private int sceneColorTexture = 0;
 
     private int quadVao = 0;
     private int quadVbo = 0;
+
+    public bool renderOnTop = false;
 
     private Matrix4 modelMatrix = Matrix4.Identity;
     private Matrix4 rotationMatrix = Matrix4.Identity;
@@ -267,6 +274,7 @@ class MeshRenderer : DataEntry {
     public void setupStencilFramebuffer(int width, int height) {
         if(stencilFbo != 0) GL.DeleteFramebuffer(stencilFbo);
         if(stencilTexture != 0) GL.DeleteTexture(stencilTexture);
+        if(stencilDepthTexture != 0) GL.DeleteTexture(stencilDepthTexture);
 
         stencilTexture = GL.GenTexture();
         GL.BindTexture(TextureTarget.Texture2D, stencilTexture);
@@ -276,14 +284,57 @@ class MeshRenderer : DataEntry {
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
+        stencilDepthTexture = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, stencilDepthTexture);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24, width, height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
         stencilFbo = GL.GenFramebuffer();
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, stencilFbo);
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, stencilTexture, 0);
+        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, stencilDepthTexture, 0);
 
         var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
         if(status != FramebufferErrorCode.FramebufferComplete) {
             throw new Exception($"FBO setup failed!: {status}");
         }
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+    }
+
+    // Scene Buffers
+    public void setupSceneFramebuffer(int width, int height) {
+        if(sceneDepthFbo != 0) GL.DeleteFramebuffer(sceneDepthFbo);
+        if(sceneDepthTexture != 0) GL.DeleteFramebuffer(sceneDepthTexture);
+        if(sceneColorTexture != 0) GL.DeleteTexture(sceneColorTexture);
+
+        sceneDepthTexture = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, sceneDepthTexture);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24, width, height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+        sceneColorTexture = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, sceneColorTexture);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+        sceneDepthFbo = GL.GenFramebuffer();
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, sceneDepthFbo);
+        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, sceneColorTexture, 0);
+        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, sceneDepthTexture, 0);
+
+        var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+        if(status != FramebufferErrorCode.FramebufferComplete) {
+            throw new Exception($"Scene FBO setup failed!: {status}");
+        }    
 
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -353,6 +404,10 @@ class MeshRenderer : DataEntry {
     public void render() {
         if(!visible) return;
         if(meshData == null || camera == null) return;
+        if(renderOnTop) {
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.DepthRange(0.0, 0.1);
+        }
 
         if(!isDynamic) {
             if(hasScale) {
@@ -419,6 +474,7 @@ class MeshRenderer : DataEntry {
         if(hasTex) GL.BindTexture(TextureTarget.Texture2D, 0);
 
         shaderProgram.unbind();
+        if(renderOnTop) GL.DepthRange(0.0, 1.0);
     }
 
     // Instanced Meshes
@@ -561,7 +617,6 @@ class MeshRenderer : DataEntry {
             prevClearColor[3]
         );
 
-        GL.Disable(EnableCap.DepthTest);
         GL.Enable(EnableCap.Blend);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
@@ -570,8 +625,16 @@ class MeshRenderer : DataEntry {
         
         GL.ActiveTexture(TextureUnit.Texture1);
         GL.BindTexture(TextureTarget.Texture2D, stencilTexture);
-        
         shaderProgram.setUniform("stencilTexture", 1);
+
+        GL.ActiveTexture(TextureUnit.Texture2);
+        GL.BindTexture(TextureTarget.Texture2D, stencilDepthTexture);
+        shaderProgram.setUniform("stencilDepthTexture", 2);
+
+        GL.ActiveTexture(TextureUnit.Texture3);
+        GL.BindTexture(TextureTarget.Texture2D, sceneDepthTexture);
+        shaderProgram.setUniform("sceneDepthTexture", 3);
+
         shaderProgram.setUniform("canvasSize", (float)window.getWidth(), (float)window.getHeight());
         shaderProgram.setUniform("outlineColor", 0.0f, 1.0f, 0.0f, 1.0f);
         shaderProgram.setUniform("outlineSize", 5.0f);
@@ -585,11 +648,32 @@ class MeshRenderer : DataEntry {
         GL.ActiveTexture(TextureUnit.Texture0);
 
         GL.Disable(EnableCap.Blend);
+        GL.DepthMask(true);
         GL.Enable(EnableCap.DepthTest);
         shaderProgram.unbind();
     }
 
-    // Cleanup
+    // Render Scene
+    public void renderScene() {
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, sceneDepthFbo);
+        GL.Viewport(0, 0, window.getWidth(), window.getHeight());
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+        GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, sceneDepthFbo);
+        GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+        GL.BlitFramebuffer(
+            0, 0, window.getWidth(), window.getHeight(),
+            0, 0, window.getWidth(), window.getHeight(),
+            ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit,
+            BlitFramebufferFilter.Nearest
+        );
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    }
+
+    /// 
+    /// Cleanup
+    /// 
     public void cleanup() {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);

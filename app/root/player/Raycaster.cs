@@ -331,9 +331,11 @@ class Raycaster {
         return closest;
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+    
+        */
     public void update() {
         string? d = cast();
         if(d != null) {
