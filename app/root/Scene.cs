@@ -150,7 +150,10 @@ class Scene {
     public void init() {
         reset();
         setInput();
-        window.queueOnRenderThread(() => set());
+        window.queueOnRenderThread(() => {
+            mesh.init();
+            set();
+        });
         
         initialized = true;
     }
@@ -165,8 +168,7 @@ class Scene {
 
         screenController.running = true;
 
-        mesh.renderAll();
-        mesh.renderAllOrto();
+        mesh.render();
     }
 
     ///

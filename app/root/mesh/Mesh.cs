@@ -3,6 +3,7 @@ using App.Root.Shaders;
 using App.Root.Player;
 using App.Root.Collider;
 using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL;
 
 class Mesh {
     private Window window;
@@ -12,6 +13,7 @@ class Mesh {
     private MeshInteractionController? meshInteractionController;
     private PlayerController? playerController;
     private CollisionManager? collisionManager;
+    private MeshRenderer? meshRenderer;
 
     private Dictionary<string, MeshData> meshDataMap = new();
     private Dictionary<string, MeshRenderer> meshRendererMap = new();
@@ -29,8 +31,8 @@ class Mesh {
     // Set Camera
     public void setCamera(Camera camera) {
         this.camera = camera;
-        foreach(var meshRenderer in meshRendererMap.Values) {
-            meshRenderer.setCamera(camera);
+        foreach(var r in meshRendererMap.Values) {
+            r.setCamera(camera);
         }
     }
 
@@ -42,6 +44,24 @@ class Mesh {
     // Set Collision Manager
     public void setCollisionManager(CollisionManager collisionManager) {
         this.collisionManager = collisionManager;
+    }
+
+    /**
+    
+        Mesh Renderer
+    
+        */
+    public MeshRenderer? getMeshRenderer(string id) {
+        MeshRenderer? val = 
+            meshRendererMap.TryGetValue(id, out var r) ?
+            r :
+            null;
+        
+        return val;
+    }
+
+    public Dictionary<string, MeshRenderer> getMeshRendererMap() {
+        return meshRendererMap;
     }
 
     /**
@@ -62,24 +82,6 @@ class Mesh {
 
     public MeshInteractionController getMeshInteractionController() {
         return meshInteractionController!;
-    }
-
-    /**
-    
-        Mesh Renderer
-    
-        */
-    public MeshRenderer? getMeshRenderer(string id) {
-        MeshRenderer? val = 
-            meshRendererMap.TryGetValue(id, out var r) ?
-            r :
-            null;
-        
-        return val;
-    }
-
-    public Dictionary<string, MeshRenderer> getMeshRendererMap() {
-        return meshRendererMap;
     }
 
     /**
@@ -207,12 +209,12 @@ class Mesh {
         */
     public void setColor(string id, string hex) {
         MeshData? data = getData(id);
-        MeshRenderer? meshRenderer = getMeshRenderer(id);
-        if(data == null || meshRenderer == null) return;
+        MeshRenderer? renderer = getMeshRenderer(id);
+        if(data == null || renderer == null) return;
 
         data.setColorHex(hex);
         float[]? colors = data.getColors();
-        if(colors != null) meshRenderer.updateColors(colors);
+        if(colors != null) renderer.updateColors(colors);
     }
     
     /**
@@ -263,14 +265,14 @@ class Mesh {
     public BBox getBBox(string id) {
         Vector3 pos = getPosition(id);
         MeshData? meshData = getData(id);
-        MeshRenderer? meshRenderer = getMeshRenderer(id);
+        MeshRenderer? renderer = getMeshRenderer(id);
 
         float sizeX = 1.0f;
         float sizeY = 1.0f;
         float sizeZ = 1.0f;
 
-        if(meshRenderer != null && meshRenderer.isScaled()) {
-            Vector3 scale = meshRenderer.getScale();
+        if(renderer != null && renderer.isScaled()) {
+            Vector3 scale = renderer.getScale();
             sizeX = scale.X;
             sizeY = scale.Y;
             sizeZ = scale.Z;
@@ -281,8 +283,8 @@ class Mesh {
                 sizeY = scale[1];
                 sizeZ = scale[2];
             }    
-        } else if(meshRenderer != null) {
-            Vector3 scale = meshRenderer.getScale();
+        } else if(renderer != null) {
+            Vector3 scale = renderer.getScale();
             sizeX = scale.X;
             sizeY = scale.Y;
             sizeZ = scale.Z;
@@ -300,6 +302,10 @@ class Mesh {
 
         */
     public void onWindowResize(int width, int height) {
+        if(meshRenderer != null) {
+            meshRenderer.setupSceneFramebuffer(width, height);
+        }
+
         foreach(var renderer in meshRendererMap.Values) {
             renderer.onWindowResize(width, height);
         }
@@ -327,12 +333,12 @@ class Mesh {
     public void addToMap(string id, MeshData data) {
         meshDataMap[id] = data;
         
-        MeshRenderer meshRenderer = new MeshRenderer(window, shaderProgram);
-        meshRenderer.setData(data);
-        meshRenderer.setId(id);
+        MeshRenderer renderer = new MeshRenderer(window, shaderProgram, this);
+        renderer.setData(data);
+        renderer.setId(id);
 
-        if(camera != null) meshRenderer.setCamera(camera);
-        meshRendererMap[id] = meshRenderer;
+        if(camera != null) renderer.setCamera(camera);
+        meshRendererMap[id] = renderer;
     }
 
     /**
@@ -341,8 +347,8 @@ class Mesh {
 
         */
     public void update() {
-        foreach(var meshRenderer in meshRendererMap.Values) {
-            meshRenderer.update();
+        foreach(var r in meshRendererMap.Values) {
+            r.update();
         }
     }
 
@@ -351,14 +357,10 @@ class Mesh {
         Render
 
         */
-    public void render(string id) {
-        var renderer = getMeshRenderer(id);
-        if(renderer == null) return;
-
-        if(renderer.isInstanced) {
-            getMeshRenderer(id)?.renderInstanced();
-        } else {
-            getMeshRenderer(id)?.render();
+    public void render() {
+        if(meshRenderer != null) {
+            meshRenderer.render();
+            renderOrto();
         }
     }
 
@@ -373,7 +375,18 @@ class Mesh {
         }
     }
 
-    public void renderAllOrto() {
+    public void renderId(string id) {
+        var renderer = getMeshRenderer(id);
+        if(renderer == null) return;
+
+        if(renderer.isInstanced) {
+            getMeshRenderer(id)?.renderInstanced();
+        } else {
+            getMeshRenderer(id)?.render();
+        }
+    }
+
+    public void renderOrto() {
         foreach(var entry in meshRendererMap) {
             if(entry.Value.isHud) {
                 entry.Value.renderOrto(
@@ -395,7 +408,19 @@ class Mesh {
         selected[0].renderOutline(selected);
     }
 
-    // Remove and Cleanup
+    /**
+    
+        Init
+    
+        */
+    public void init() {
+        meshRenderer = new MeshRenderer(window, shaderProgram, this);
+        meshRenderer.setupSceneFramebuffer(window.getWidth(), window.getHeight());
+    }
+
+    ///
+    /// Remove and Cleanup
+    /// 
     public void remove(string id) {
         if(meshRendererMap.TryGetValue(id, out var meshRenderer)) {
             meshRenderer.cleanup();
@@ -405,8 +430,8 @@ class Mesh {
     }
 
     public void cleanup() {
-        foreach(var meshRenderer in meshRendererMap.Values) {
-            meshRenderer.cleanup();
+        foreach(var r in meshRendererMap.Values) {
+            r.cleanup();
         }
         meshRendererMap.Clear();
         meshDataMap.Clear();

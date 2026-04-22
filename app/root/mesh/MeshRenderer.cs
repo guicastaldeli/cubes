@@ -7,6 +7,7 @@ using OpenTK.Graphics.OpenGL;
 class MeshRenderer : DataEntry {
     private Window window;
     private ShaderProgram shaderProgram;
+    private Mesh mesh;
     private MeshData? meshData;
     private Camera? camera;
 
@@ -29,9 +30,9 @@ class MeshRenderer : DataEntry {
     private int stencilTexture = 0;
     private int stencilDepthTexture = 0;
 
-    private int sceneDepthFbo = 0;
-    private int sceneDepthTexture = 0;
-    private int sceneColorTexture = 0;
+    private static int sceneDepthFbo = 0;
+    private static int sceneDepthTexture = 0;
+    private static int sceneColorTexture = 0;
 
     private int quadVao = 0;
     private int quadVbo = 0;
@@ -59,9 +60,10 @@ class MeshRenderer : DataEntry {
 
     private bool visible = true;
 
-    public MeshRenderer(Window window, ShaderProgram shaderProgram) {
+    public MeshRenderer(Window window, ShaderProgram shaderProgram, Mesh mesh) {
         this.window = window;
         this.shaderProgram = shaderProgram;
+        this.mesh = mesh;
     }
 
     // Set Data
@@ -402,6 +404,38 @@ class MeshRenderer : DataEntry {
         */
     // Main
     public void render() {
+        if(mesh == null) {
+            Console.Error.WriteLine("Mesh is null!");
+            return;
+        }
+        
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, sceneDepthFbo);
+        GL.Viewport(0, 0, window.getWidth(), window.getHeight());
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+        foreach(var entry in mesh.getMeshRendererMap()) {
+            if(entry.Value.isHud) continue;
+            if(entry.Value.isInstanced) {
+                entry.Value.renderInstanced();
+            } else {
+                entry.Value.renderMesh();
+            }
+        }
+
+        GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, sceneDepthFbo);
+        GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+        GL.BlitFramebuffer(
+            0, 0, window.getWidth(), window.getHeight(),
+            0, 0, window.getWidth(), window.getHeight(),
+            ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit,
+            BlitFramebufferFilter.Nearest
+        );
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    }
+
+    // Mesh
+    public void renderMesh() {
         if(!visible) return;
         if(meshData == null || camera == null) return;
         if(renderOnTop) {
@@ -596,6 +630,12 @@ class MeshRenderer : DataEntry {
         if(!visible) return;
         if(meshData == null || camera == null) return;
 
+        /*
+        Console.WriteLine($"Stencil Texture: {stencilTexture}");
+        Console.WriteLine($"Stencil Depth Texture: {stencilDepthTexture}");
+        Console.WriteLine($"Scene Depth Texture: {sceneDepthTexture}");
+        */
+
         float[] prevClearColor = new float[4];
         GL.GetFloat(GetPName.ColorClearValue, prevClearColor);
 
@@ -651,24 +691,6 @@ class MeshRenderer : DataEntry {
         GL.DepthMask(true);
         GL.Enable(EnableCap.DepthTest);
         shaderProgram.unbind();
-    }
-
-    // Render Scene
-    public void renderScene() {
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, sceneDepthFbo);
-        GL.Viewport(0, 0, window.getWidth(), window.getHeight());
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-        GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, sceneDepthFbo);
-        GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-        GL.BlitFramebuffer(
-            0, 0, window.getWidth(), window.getHeight(),
-            0, 0, window.getWidth(), window.getHeight(),
-            ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit,
-            BlitFramebufferFilter.Nearest
-        );
-
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
     /// 
