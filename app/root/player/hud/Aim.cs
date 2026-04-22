@@ -65,7 +65,7 @@ class Aim : HudElement {
     
         */
     public override void render() {
-        base.render();
+        //base.render();
     }
 
     /**

@@ -112,10 +112,16 @@ class NetworkWorld : NetworkUpdateHandler {
 
             if(!mesh.hasMesh(id)) {
                 worldManager.getWindow().queueOnRenderThread(() => {
-                    mesh.add(id, PlayerMesh.PLAYER_MESH);
+                    string meshType = 
+                        entry.ContainsKey("meshType") ?
+                        Convert.ToString(entry["meshType"]) ?? 
+                        id : id;
+                    
+                    mesh.add(id, meshType);
                     mesh.setNetworkControlled(id, true);
                     mesh.setPosition(id, x, y, z);
                     if(rotation.HasValue) mesh.setRotationMatrix(id, rotation.Value);
+                    
                     if(entry.ContainsKey("texId")) {
                         int texId = Convert.ToInt32(entry["texId"]);
                         if(texId > 0) mesh.setTexture(id, texId);
