@@ -324,6 +324,8 @@ class Mode {
     public void update() {
         if(currentMode != Modes.GETTER) return;
 
+        if(activeSlot.HasValue) updatePreview(activeSlot.Value);
+
         PlayerMesh playerMesh = playerController.getPlayerMesh();
 
         foreach(var kvp in previewMeshIds) {
