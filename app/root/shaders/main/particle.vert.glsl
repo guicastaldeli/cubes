@@ -32,16 +32,16 @@ void setParticleVert() {
 
     finalPos = 
         (camRight * scaledVert.x) + 
-        (cameraUp * scaledVert.x);
+        (camUp * scaledVert.x);
     finalPos += particleCenter;
 
-    vec4 worldPos = vec4(finalPos, 1.0);
-    worldPos = worldPos.xyz;
+    vec3 worldPos = finalPos;
 
-    uColor = aColor;
-    texCoord = aTexCoord;
+    vColor = aColor;
+    vTexCoord = aTexCoord;
 
-    vec4 uViewPos = uView * worldPos;
+    vec4 uViewPos = uView * vec4(worldPos, 1.0);
     fragDist = length(uViewPos.xyz);
-    gl_Position = projection * uViewPos;
+
+    gl_Position = uProjection * uViewPos;
 }

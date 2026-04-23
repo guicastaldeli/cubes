@@ -8,6 +8,7 @@ layout(location = 4) in vec3 aInstanceOffset;
 
 out vec4 vColor;
 out vec2 vTexCoord;
+out float fragDist;
 
 uniform mat4 uModel;
 uniform mat4 uView;
@@ -22,6 +23,7 @@ uniform vec2 screenSize;
 #include "../player/username.vert.glsl"
 #include "flat.vert.glsl"
 #include "outline.vert.glsl"
+#include "particle.vert.glsl"
 
 void main() {
     /**
@@ -66,15 +68,28 @@ void main() {
     }
     /**
 
+        Particle
+
+        */
+    else if(shaderType == 7) {
+        setParticleVert();
+    }
+    /**
+ 
         Main
 
         */
     else {
-        vec3 worldPos = aPos;
-        if(isInstanced == 1) worldPos += aInstanceOffset;
+        vec3 pos = aPos;
+        if(isInstanced == 1) pos += aInstanceOffset;
 
-        gl_Position = uProjection * uView * uModel * vec4(worldPos, 1.0);
-        vColor = uHasColors == 1 ? aColor : vec4(1.0); 
+        vec4 worldPos = uModel * vec4(pos, 1.0);
+        vec4 viewPos = uView * worldPos;
+
+        gl_Position = uProjection * viewPos;
+
+        vColor = uHasColors == 1 ? aColor : vec4(1.0);
         vTexCoord = aTexCoord;
+        fragDist = length(viewPos.xyz);
     }
 }

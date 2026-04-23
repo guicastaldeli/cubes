@@ -2,6 +2,7 @@
 
 in vec4 vColor;
 in vec2 vTexCoord;
+in float fragDist;
 
 out vec4 fragColor;
 
@@ -16,6 +17,7 @@ uniform sampler2D uSampler;
 #include "../player/username.frag.glsl"
 #include "flat.frag.glsl"
 #include "outline.frag.glsl"
+#include "particle.frag.glsl"
 
 void main() {
     /**
@@ -57,6 +59,14 @@ void main() {
         */
     else if(shaderType == 6) {
         setOutlineFrag();
+    }
+    /**
+
+        Particle
+
+        */
+    else if(shaderType == 7) {
+        setParticleFrag();
     }
     /**
 
