@@ -162,7 +162,7 @@ class Platform : WorldHandler {
 
             Vector3 position = new Vector3(0.0f, 10.0f, -3.0f);
             Vector3 color = new Vector3(1.0f, 1.0f, 1.0f); 
-            int amount = 20;
+            int amount = 5;
             float size = 0.1f;
             float speed = 0.3f;
             float lifetime = 2.5f;
@@ -178,8 +178,11 @@ class Platform : WorldHandler {
                     lifetime,
                     velNum,
                     () => {
-                        float c = random.NextSingle();
-                        return new Vector3(c, c, c);
+                        return new Vector3(
+                            random.NextSingle(),
+                            random.NextSingle(),
+                            random.NextSingle()
+                        );
                     }
                 );
             } else {
@@ -187,8 +190,11 @@ class Platform : WorldHandler {
                     new Vector3(0.0f, 10.0f, -3.0f),
                     true,
                     () => {
-                        float c = random.NextSingle();
-                        return new Vector3(c, c, c);
+                        return new Vector3(
+                            random.NextSingle(),
+                            random.NextSingle(),
+                            random.NextSingle()
+                        );
                     }
                 );
             }
@@ -288,7 +294,7 @@ class Platform : WorldHandler {
     public override void update() {
         frameCounter++;
 
-        if(frameCounter % 2 == 0) {
+        if(frameCounter % 10 == 0) {
             emitParticle();
         }
     }
