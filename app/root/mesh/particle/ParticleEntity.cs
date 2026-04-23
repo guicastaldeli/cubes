@@ -1,15 +1,21 @@
+/**
+
+    Main particle entity mesh
+    generator.
+
+    */
 namespace App.Root.Mesh.Particle;
-using App.Root.Mesh;
 using Particle = Data.Particle;
+using App.Root.Mesh;
 using OpenTK.Mathematics;
 
-public class ParticleEntity {
+class ParticleEntity {
     private const string MESH_TYPE = "quad";
 
     private const float GRAVITY_VEL = 9.8f;
 
-    private readonly Mesh mesh;
-    private readonly Random random;
+    private Mesh mesh;
+    private Random random;
 
     public List<Particle> particles;
     private string id = "";
@@ -30,7 +36,7 @@ public class ParticleEntity {
     private float swayFrequency;
 
     private Vector3 RotationScratch = Vector3.Zero;
-    private readonly float[] ColorBuffer = new float[16];
+    private float[] ColorBuffer = new float[16];
 
     public ParticleEntity(Mesh mesh) {
         this.mesh = mesh;
@@ -192,7 +198,7 @@ public class ParticleEntity {
 
             MeshData? data = mesh.getData(particle.id);
             if(data != null) {
-                data.setShaderType(7);
+                data.shaderType = 7;
 
                 float[] colors = new float[16];
                 for(int i = 0; i < 16; i += 4) {

@@ -1,6 +1,5 @@
-using OpenTK.Mathematics;
-
 namespace App.Root.Mesh;
+using OpenTK.Mathematics;
 
 class MeshData {
     public enum DataType {

@@ -7,7 +7,7 @@
 namespace App.Root.Mesh.Data;
 using OpenTK.Mathematics;
 
-public class Particle {
+class Particle {
     public string id = "";
     public MeshData? cachedMeshData;
 
