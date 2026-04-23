@@ -28,25 +28,32 @@ class ParticleController {
 
     /**
     
-        Create
+        Emit
     
         */
-    public void create(
+    public ParticleEntity emit(
         Vector3 position,
         Vector3 color,
         int amount,
         float size,
         float speed,
-        float lifetime
+        float lifetime,
+        Vector3? velNum = null,
+        Func<Vector3>? colorSupplier = null
     ) {
-        particleEntity = new ParticleEntity(mesh);
+        ParticleEntity entity = new ParticleEntity(mesh);
         
-        particleEntity.setColor(color);
-        particleEntity.setSize(size);
-        particleEntity.setSpeed(speed);
-        particleEntity.setLifetime(lifetime);
+        entity.setColor(color);
+        entity.setAmount(amount);
+        entity.setSize(size);
+        entity.setSpeed(speed);
+        entity.setLifetime(lifetime);
+        if(velNum.HasValue) entity.setVelNum(velNum.Value);
 
-        particleEntities.Add(particleEntity);
+        entity.set(position, velNum.HasValue, colorSupplier);
+
+        particleEntities.Add(entity);
+        return entity;
     }
 
     /**

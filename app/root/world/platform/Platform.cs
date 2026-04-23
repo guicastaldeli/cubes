@@ -2,6 +2,7 @@ namespace App.Root.World.Platform;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
+using App.Root.Mesh.Particle;
 using App.Root.Physics;
 using App.Root.Resource;
 using OpenTK.Mathematics;
@@ -28,11 +29,35 @@ class Platform : WorldHandler {
     public Platform(Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
+    }
+
+    // Set Client
+    public void setClient() {
+        if(initialized) return;
+        set(renderMesh: false);
     } 
 
     // Set Position
     private void setPosition() {
         offset = new Vector3(x, y, z);
+    }
+
+    // Height
+    public Vector3 getHeight() {
+        Vector3 meshSize = mesh.getSize(GRID_ID);
+        float topY = offset.Y + (sizeY * spacing) + (meshSize.Y / 2.0f);
+        Vector3 res = new Vector3(offset.X, topY, offset.Z); 
+        return res;
+    }
+
+    public static Vector3? height {
+        get;
+        private set;
+    }
+
+    public static float? topSurfaceY {
+        get;
+        private set;
     }
 
     /**
@@ -124,6 +149,50 @@ class Platform : WorldHandler {
                 Type.DYNAMIC
             );
         }
+
+        ///
+        /// Particles
+        /// 
+        private int frameCounter = 0;
+        private ParticleEntity? particleEntity = null;
+
+        private void emitParticle() {
+            ParticleController particleController = mesh.getParticleController()!;
+            Random random = new Random();
+
+            Vector3 position = new Vector3(0.0f, 10.0f, -3.0f);
+            Vector3 color = new Vector3(1.0f, 1.0f, 1.0f); 
+            int amount = 20;
+            float size = 0.1f;
+            float speed = 0.3f;
+            float lifetime = 2.5f;
+            Vector3 velNum = new Vector3(5.0f, 5.0f, 5.0f);
+
+            if(particleEntity == null) {
+                particleEntity = particleController.emit(
+                    position,
+                    color,
+                    amount,
+                    size,
+                    speed,
+                    lifetime,
+                    velNum,
+                    () => {
+                        float c = random.NextSingle();
+                        return new Vector3(c, c, c);
+                    }
+                );
+            } else {
+                particleEntity.set(
+                    new Vector3(0.0f, 10.0f, -3.0f),
+                    true,
+                    () => {
+                        float c = random.NextSingle();
+                        return new Vector3(c, c, c);
+                    }
+                );
+            }
+        }
     /**
         ****
         ****
@@ -131,9 +200,11 @@ class Platform : WorldHandler {
 
         */
 
-    ///
-    /// Set
-    /// 
+    /**
+    
+        Set
+
+        */ 
     private void setMesh(List<Vector3> positions) {
         var renderer = mesh.getMeshRenderer(GRID_ID);
         if(renderer != null) {
@@ -192,46 +263,33 @@ class Platform : WorldHandler {
         initialized = true;
     }
 
-    public void setClient() {
-        if(initialized) return;
-        set(renderMesh: false);
-    }
+    /**
+    
+        Render
 
-    // Height
-    public Vector3 getHeight() {
-        Vector3 meshSize = mesh.getSize(GRID_ID);
-        float topY = offset.Y + (sizeY * spacing) + (meshSize.Y / 2.0f);
-        Vector3 res = new Vector3(offset.X, topY, offset.Z); 
-        return res;
-    }
-
-    public static Vector3? height {
-        get;
-        private set;
-    }
-
-    public static float? topSurfaceY {
-        get;
-        private set;
-    }
-
-    ///
-    /// Render
-    /// 
+        */  
     public override void render() {
         if(!initialized) {
             set();
+
             set2();
             set3();
             spawnGrid("cube", new Vector3(4f, 3f, -3f), 5, 3);
+            
             initialized = true;
         }
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */ 
     public override void update() {
-        
+        frameCounter++;
+
+        if(frameCounter % 2 == 0) {
+            emitParticle();
+        }
     }
 }

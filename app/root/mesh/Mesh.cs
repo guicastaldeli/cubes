@@ -458,9 +458,11 @@ class Mesh {
         meshRenderer.setupSceneFramebuffer(window.getWidth(), window.getHeight());
     }
 
-    ///
-    /// Remove and Cleanup
-    /// 
+    /**
+    
+        Remove and Cleanup
+    
+        */
     public void remove(string id) {
         if(meshRendererMap.TryGetValue(id, out var meshRenderer)) {
             meshRenderer.cleanup();

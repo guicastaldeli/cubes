@@ -5,6 +5,7 @@ layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec4 aColor;
 layout(location = 3) in vec2 aTexCoord;
 layout(location = 4) in vec3 aInstanceOffset;
+layout(location = 5) in vec4 aInstanceColor;
 
 out vec4 vColor;
 out vec2 vTexCoord;

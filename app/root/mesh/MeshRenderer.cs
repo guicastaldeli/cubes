@@ -37,6 +37,9 @@ class MeshRenderer : DataEntry {
     private int quadVao = 0;
     private int quadVbo = 0;
 
+    private int instanceColorVbo;
+    private List<float[]> cachedInstanceColors = new();
+
     public bool renderOnTop = false;
 
     private Matrix4 modelMatrix = Matrix4.Identity;
@@ -66,17 +69,6 @@ class MeshRenderer : DataEntry {
         this.mesh = mesh;
     }
 
-    // Set Data
-    public void setData(MeshData data) {
-        meshData = data;
-        isDynamic = data.isDynamic;
-        meshType = data.meshType;
-
-        createBuffers();
-        setupStencilFramebuffer(window.getWidth(), window.getHeight());
-        setupFullscreenQuad();
-    } 
-
     // Camera
     public void setCamera(Camera camera) {
         this.camera = camera;
@@ -84,40 +76,6 @@ class MeshRenderer : DataEntry {
 
     public Camera? getCamera() {
         return camera;
-    }
-
-    // Position
-    public Vector3 getPosition() {
-        return new Vector3(position);
-    }
-
-    public void setPosition(Vector3 position) {
-        this.position = position;
-    }
-
-    public void setPosition(float x, float y, float z) {
-        position = new Vector3(x, y, z);
-    }
-
-    public void setInstancePositions(List<Vector3> positions) {
-        cachedInstancePositions = positions;
-        instanceCount = positions.Count;
-
-        float[] data = new float[positions.Count * 3];
-        for(int i = 0; i < positions.Count; i++) {
-            data[i * 3 + 0] = positions[i].X;
-            data[i * 3 + 1] = positions[i].Y;
-            data[i * 3 + 2] = positions[i].Z;
-        }
-
-        instanceVbo = GL.GenBuffer();
-        GL.BindVertexArray(vao);
-        GL.BindBuffer(BufferTarget.ArrayBuffer, instanceVbo);
-        GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float), data, BufferUsageHint.StaticDraw);
-        GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
-        GL.EnableVertexAttribArray(4);
-        GL.VertexAttribDivisor(4, 1);
-        GL.BindVertexArray(0);
     }
 
     // Scale
@@ -207,6 +165,102 @@ class MeshRenderer : DataEntry {
         */
     public void onWindowResize(int width, int height) {
         setupStencilFramebuffer(width, height);
+    }
+
+    /**
+    
+        Data
+    
+        */
+    public void setData(MeshData data) {
+        meshData = data;
+        isDynamic = data.isDynamic;
+        meshType = data.meshType;
+
+        createBuffers();
+        setupStencilFramebuffer(window.getWidth(), window.getHeight());
+        setupFullscreenQuad();
+    } 
+
+    public void setInstanceData(List<Vector3> positions, List<float[]>? colors = null) {
+        if(positions.Count == 0) return;
+
+        cachedInstancePositions = positions;
+        if(colors != null) cachedInstanceColors = colors;
+        instanceCount = positions.Count;
+
+        GL.BindVertexArray(vao);
+
+        float[] posData = new float[positions.Count * 3];
+        for(int i = 0; i < positions.Count; i++) {
+            posData[i*3+0] = positions[i].X;
+            posData[i*3+1] = positions[i].Y;
+            posData[i*3+2] = positions[i].Z;
+        }
+
+        if(instanceVbo == 0) instanceVbo = GL.GenBuffer();
+        GL.BindBuffer(BufferTarget.ArrayBuffer, instanceVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, posData.Length * sizeof(float), posData, BufferUsageHint.DynamicDraw);
+        GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
+        GL.EnableVertexAttribArray(4);
+        GL.VertexAttribDivisor(4, 1);
+
+        if(colors != null && colors.Count == positions.Count) {
+            float[] colorData = new float[colors.Count * 4];
+            for(int i = 0; i < colors.Count; i++) {
+                colorData[i*4+0] = colors[i][0];
+                colorData[i*4+1] = colors[i][1];
+                colorData[i*4+2] = colors[i][2];
+                colorData[i*4+3] = colors[i][3];
+            }
+
+            if(instanceColorVbo == 0) instanceColorVbo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, instanceColorVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, colorData.Length * sizeof(float), colorData, BufferUsageHint.DynamicDraw);
+            GL.VertexAttribPointer(5, 4, VertexAttribPointerType.Float, false, 0, 0);
+            GL.EnableVertexAttribArray(5);
+            GL.VertexAttribDivisor(5, 1);
+        }
+
+        GL.BindVertexArray(0);
+    }
+
+    /**
+    
+        Position
+    
+        */
+    public Vector3 getPosition() {
+        return new Vector3(position);
+    }
+
+    public void setPosition(Vector3 position) {
+        this.position = position;
+    }
+
+    public void setPosition(float x, float y, float z) {
+        position = new Vector3(x, y, z);
+    }
+
+    public void setInstancePositions(List<Vector3> positions) {
+        cachedInstancePositions = positions;
+        instanceCount = positions.Count;
+
+        float[] data = new float[positions.Count * 3];
+        for(int i = 0; i < positions.Count; i++) {
+            data[i * 3 + 0] = positions[i].X;
+            data[i * 3 + 1] = positions[i].Y;
+            data[i * 3 + 2] = positions[i].Z;
+        }
+
+        instanceVbo = GL.GenBuffer();
+        GL.BindVertexArray(vao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, instanceVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float), data, BufferUsageHint.StaticDraw);
+        GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
+        GL.EnableVertexAttribArray(4);
+        GL.VertexAttribDivisor(4, 1);
+        GL.BindVertexArray(0);
     }
 
     /**
@@ -511,9 +565,36 @@ class MeshRenderer : DataEntry {
     public void renderInstanced() {
         if(!visible || meshData == null || camera == null) return;
 
+        if(hasScale) {
+            modelMatrix =
+                Matrix4.CreateScale(scale) *
+                rotationMatrix *
+                Matrix4.CreateTranslation(position);
+        } else if(meshData.hasScale()) {
+            float[]? s = meshData.getScale();
+            if(s != null) {
+                modelMatrix =
+                    Matrix4.CreateScale(s[0], s[1], s[2]) *
+                    rotationMatrix *
+                    Matrix4.CreateTranslation(position);
+            } else {
+                modelMatrix =
+                    rotationMatrix *
+                    Matrix4.CreateTranslation(position);
+            }
+        } else {
+            modelMatrix =
+                rotationMatrix *
+                Matrix4.CreateTranslation(position);
+        }
+
         shaderProgram.bind();
-        shaderProgram.setUniform("shaderType", 0);
-        shaderProgram.setUniform("uModel", Matrix4.Identity);
+        if(meshData.shaderType != 0) {
+            shaderProgram.setUniform("shaderType", meshData.shaderType);
+        } else {
+            shaderProgram.setUniform("shaderType", 0);
+        }
+        shaderProgram.setUniform("uModel", modelMatrix);
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());
         shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
@@ -689,9 +770,11 @@ class MeshRenderer : DataEntry {
         shaderProgram.unbind();
     }
 
-    /// 
-    /// Cleanup
-    /// 
+    /**
+    
+        Cleanup
+    
+        */
     public void cleanup() {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
@@ -701,6 +784,7 @@ class MeshRenderer : DataEntry {
         if(colorVbo != 0) GL.DeleteBuffer(colorVbo);
         if(texCoordsVbo != 0) GL.DeleteBuffer(texCoordsVbo);
         if(instanceVbo != 0) GL.DeleteBuffer(instanceVbo);
+        if(instanceColorVbo != 0) GL.DeleteBuffer(instanceColorVbo);
         if(ebo != 0) GL.DeleteBuffer(ebo);
         if(vao != 0) GL.DeleteVertexArray(vao);
     }

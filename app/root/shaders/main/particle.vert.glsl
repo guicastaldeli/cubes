@@ -16,13 +16,8 @@ void setParticleVert() {
         uView[2][1]
     );
 
+    vec3 particleCenter = aInstanceOffset;
     vec3 finalPos = aPos;
-
-    vec3 particleCenter = vec3(
-        uModel[3][0],
-        uModel[3][1],
-        uModel[3][2]
-    );
 
     vec3 scaledVert = finalPos * vec3(
         uModel[0][0],
@@ -32,12 +27,12 @@ void setParticleVert() {
 
     finalPos = 
         (camRight * scaledVert.x) + 
-        (camUp * scaledVert.x);
+        (camUp * scaledVert.y);
     finalPos += particleCenter;
 
     vec3 worldPos = finalPos;
 
-    vColor = aColor;
+    vColor = aInstanceColor;
     vTexCoord = aTexCoord;
 
     vec4 uViewPos = uView * vec4(worldPos, 1.0);
