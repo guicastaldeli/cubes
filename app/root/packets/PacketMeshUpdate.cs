@@ -1,12 +1,12 @@
 namespace App.Root.Packets;
 
-enum Action {
-    PLACE,
+enum MeshAction {
+    ADD,
     REMOVE
 }
 
 class PacketMeshUpdate : Packet {
-    public Action action {
+    public MeshAction action {
         get;
         set;
     }

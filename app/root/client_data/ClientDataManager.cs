@@ -2,10 +2,12 @@ namespace App.Root.ClientData;
 
 class ClientDataManager {
     private Client client;
+
     private ClientJoin clientJoin;
     private ClientData clientData;
     private ClientChat clientChat;
     private ClientVoice clientVoice;
+    private ClientMeshUpdate clientMeshUpdate;
 
     public ClientDataManager(Client client) {
         this.client = client;
@@ -14,6 +16,7 @@ class ClientDataManager {
         this.clientData = new ClientData(client);
         this.clientChat = new ClientChat(client);
         this.clientVoice = new ClientVoice(client);
+        this.clientMeshUpdate = new ClientMeshUpdate(client);
     } 
 
     // Get Client Join
@@ -34,5 +37,10 @@ class ClientDataManager {
     // Get Client Voice
     public ClientVoice getClientVoice() {
         return clientVoice;
+    }
+
+    // Get Client Mesh Update
+    public ClientMeshUpdate getClientMeshUpdate() {
+        return clientMeshUpdate;
     }
 }

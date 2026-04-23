@@ -64,9 +64,9 @@ class WorldUpdater {
     
         */
     ///
-    /// Place
+    /// Add
     /// 
-    public void placeMesh(
+    public void addMesh(
         string id,
         string meshType,
         Vector3 position,
@@ -74,10 +74,10 @@ class WorldUpdater {
         int texId,
         string texPath
     ) {
-        applyPlaceMesh(id, meshType, position, scale, texId, texPath);
+        applyAddMesh(id, meshType, position, scale, texId, texPath);
 
         var packet = new PacketMeshUpdate {
-            action = Action.PLACE,
+            action = MeshAction.ADD,
             meshId = id,
             meshType = meshType,
             x = position.X, y = position.Y, z = position.Z,
@@ -89,7 +89,7 @@ class WorldUpdater {
         broadcast(packet);
     }
 
-    public void applyPlaceMesh(
+    public void applyAddMesh(
         string id,
         string meshType,
         Vector3 position,
@@ -131,7 +131,7 @@ class WorldUpdater {
         applyRemoveMesh(id);
 
         var packet = new PacketMeshUpdate {
-            action = Action.REMOVE,
+            action = MeshAction.REMOVE,
             meshId = id
         };
 

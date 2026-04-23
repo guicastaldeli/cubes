@@ -6,8 +6,8 @@
     */
 namespace App.Root.Mesh;
 using App.Root.Collider;
-using App.Root.Physics;
 using App.Root.Player;
+using App.Root.World;
 using OpenTK.Mathematics;
 
 /**
@@ -88,15 +88,6 @@ class MeshInteractionController {
         PlacedMeshDef? def = MeshInteractionRegistry.getInstance().getDef(hit);
         if(def == null) return;
 
-        window.queueOnRenderThread(() => {
-            mesh.remove(hit);
-            collisionManager.removeCollider(hit);
-        });
-
-        PhysicsRegistry.getInstance().unregister(hit);
-        MeshInteractionRegistry.getInstance().unregister(hit);
-        MeshRegistry.unregister(hit);
-
         var inventory = 
             input.getPlayerInputMap()
             .getInventory();
@@ -105,6 +96,8 @@ class MeshInteractionController {
         }
 
         heldMesh = def;
+
+        WorldUpdater.getInstance().removeMesh(hit);
     }
 
     /**
@@ -132,43 +125,15 @@ class MeshInteractionController {
         } 
 
         string newId = $"{def.MeshType}_{placedCounter++}";
-        Vector3 placePos = point.Value;
-
-        window.queueOnRenderThread(() => {
-            MeshData data = MeshLoader.load(def.MeshType);
-            mesh.add(newId, data);
-            mesh.setPosition(newId, placePos);
-
-            if(def.Scale.HasValue) {
-                mesh.setScale(newId, def.Scale.Value);
-            } else {
-                mesh.setScale(newId, mesh.getDefaultScale(data));
-            }
-            if(def.TexId > 0) {
-                int texId = def.TexId;
-                string texPath = def.TexPath ?? "";
-                mesh.setTexture(
-                    newId, 
-                    texId, 
-                    texPath
-                );
-            }
-
-            var renderer = mesh.getMeshRenderer(newId);
-            if(renderer != null) renderer.isInteractive = true;
-
-            MeshCollider.update(data, newId);
-
-            PhysicsRegistry physicsRegistry = PhysicsRegistry.getInstance();
-            if(!physicsRegistry.has(newId)) {
-                physicsRegistry.register(newId, data, Type.DYNAMIC);
-            }
-            MeshInteractionRegistry.getInstance().setRegister(
-                newId,
-                State.BREAKABLE,
-                def
-            );
-        });
+        
+        WorldUpdater.getInstance().addMesh(
+            newId, 
+            def.MeshType, 
+            point.Value, 
+            def.Scale!.Value, 
+            def.TexId, 
+            def.TexPath
+        );
 
         mainSlot.remove();
         heldMesh = 

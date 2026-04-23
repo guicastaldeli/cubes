@@ -30,8 +30,8 @@ class ServerMeshUpdate : PacketHandler {
         var updater = WorldUpdater.getInstance();
 
         switch(packet.action) {
-            case Action.PLACE:
-                updater.applyPlaceMesh(
+            case MeshAction.ADD:
+                updater.applyAddMesh(
                     packet.meshId,
                     packet.meshType,
                     new Vector3(packet.x, packet.y, packet.z),
@@ -40,7 +40,7 @@ class ServerMeshUpdate : PacketHandler {
                     packet.texPath
                 );
                 break;
-            case Action.REMOVE:
+            case MeshAction.REMOVE:
                 updater.applyRemoveMesh(packet.meshId);
                 break;
         }

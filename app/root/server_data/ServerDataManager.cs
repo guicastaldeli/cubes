@@ -2,12 +2,14 @@ namespace App.Root.ServerData;
 
 class ServerDataManager {
     private Server server;
+
     private ServerJoin serverJoin;
     private ServerLeave serverLeave;
     private ServerPing serverPing;
     private ServerPlayerData serverPlayerData;
     private ServerChat serverChat;
     private ServerVoice serverVoice;
+    private ServerMeshUpdate serverMeshUpdate;
 
     public ServerDataManager(Server server) {
         this.server = server;
@@ -18,6 +20,7 @@ class ServerDataManager {
         this.serverPlayerData = new ServerPlayerData(server);
         this.serverChat = new ServerChat(server);
         this.serverVoice = new ServerVoice(server);
+        this.serverMeshUpdate = new ServerMeshUpdate(server);
     }
 
     // Get Server Join
@@ -48,5 +51,10 @@ class ServerDataManager {
     // Get Server Voice
     public ServerVoice getServerVoice() {
         return serverVoice;
+    }
+
+    // Get Server Mesh Update
+    public ServerMeshUpdate getServerMeshUpdate() {
+        return serverMeshUpdate;
     }
 }
