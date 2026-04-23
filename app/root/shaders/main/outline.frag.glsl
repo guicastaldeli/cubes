@@ -6,6 +6,12 @@ uniform vec2 canvasSize;
 uniform vec4 outlineColor;
 uniform float outlineSize;
 
+/**
+
+    Outline frag shader
+    for mesh outline
+
+    */
 void setOutlineFrag() {
     vec2 texelSize = 1.0 / canvasSize;
     vec2 texCoord = gl_FragCoord.xy / canvasSize;

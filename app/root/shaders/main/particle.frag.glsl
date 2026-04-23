@@ -1,3 +1,9 @@
+/**
+
+    Particle frag shader
+    for mesh general particles.
+
+    */
 void setParticleFrag() {
     fragColor = uColor;
 

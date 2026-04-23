@@ -1,27 +1,33 @@
+/**
+
+    Particle vertex shader
+    for mesh general particles.
+
+    */
 void setParticleVert() {
     vec3 camRight = vec3(
-        view[0][0],
-        view[1][0],
-        view[2][0]
+        uView[0][0],
+        uView[1][0],
+        uView[2][0]
     );
     vec3 camUp = vec3(
-        view[0][1],
-        view[1][1],
-        view[2][1]
+        uView[0][1],
+        uView[1][1],
+        uView[2][1]
     );
 
-    vec3 finalPos = inPos;
+    vec3 finalPos = aPos;
 
     vec3 particleCenter = vec3(
-        model[3][0],
-        model[3][1],
-        model[3][2]
+        uModel[3][0],
+        uModel[3][1],
+        uModel[3][2]
     );
 
     vec3 scaledVert = finalPos * vec3(
-        model[0][0],
-        model[1][1],
-        model[2][2]
+        uModel[0][0],
+        uModel[1][1],
+        uModel[2][2]
     );
 
     finalPos = 
@@ -30,12 +36,12 @@ void setParticleVert() {
     finalPos += particleCenter;
 
     vec4 worldPos = vec4(finalPos, 1.0);
-    worldPos = worldPosition.xyz;
+    worldPos = worldPos.xyz;
 
     uColor = aColor;
     texCoord = aTexCoord;
 
-    vec4 viewPos = view * worldPos;
-    fragDist = length(viewPos.xyz);
-    gl_Position = projection * viewPos;
+    vec4 uViewPos = uView * worldPos;
+    fragDist = length(uViewPos.xyz);
+    gl_Position = projection * uViewPos;
 }
