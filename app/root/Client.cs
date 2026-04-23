@@ -84,9 +84,11 @@ class Client {
         }
     }
 
-    ///
-    /// Connect
-    /// 
+    /**
+    
+        Connect
+    
+        */
     public void connect(string ip, int port) {
         serverEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
         udpClient = new UdpClient();
@@ -120,9 +122,29 @@ class Client {
         Console.ResetColor();
     }
 
-    ///
-    /// Send
-    /// 
+    /**
+    
+        Disconnect
+    
+        */
+    public void disconnect() {
+        if(connected) send(new PacketLeave {
+            userId = userId
+        });
+        running = false;
+        connected = false;
+        udpClient?.Close();
+
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Client Disconnected");
+        Console.ResetColor();
+    }
+
+    /**
+    
+        Send
+    
+        */
     public void send(Packet packet) {
         try {
             packet.userId = userId;
@@ -136,21 +158,5 @@ class Client {
         } catch(Exception err) {
             Console.Error.WriteLine("Client send error: " + err.Message);
         }
-    }
-
-    ///
-    /// Disconnect
-    /// 
-    public void disconnect() {
-        if(connected) send(new PacketLeave {
-            userId = userId
-        });
-        running = false;
-        connected = false;
-        udpClient?.Close();
-
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("Client Disconnected");
-        Console.ResetColor();
     }
 }

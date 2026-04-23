@@ -8,5 +8,6 @@ enum PacketType {
     DATA,
     CHAT,
     VOICE,
-    CHUNK
+    CHUNK,
+    MESH_UPDATE
 }
