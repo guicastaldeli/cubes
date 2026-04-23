@@ -45,6 +45,8 @@ class WorldUpdater {
         this.window = window;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
+
+        MeshCollider.init(mesh, collisionManager);
     }
 
     // Set Client
@@ -109,7 +111,7 @@ class WorldUpdater {
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInstanced = true;
 
-            addCollider(data, id);
+            MeshCollider.update(data, id);
 
             if(!PhysicsRegistry.getInstance().has(id)) {
                 PhysicsRegistry.getInstance().register(id, data, Type.DYNAMIC);
@@ -152,7 +154,18 @@ class WorldUpdater {
 
     /**
     
-        Mesh
+        Broadcast
     
         */
+    public void broadcast(PacketMeshUpdate packet) {
+        if(server != null) {
+            foreach(var player in server.players.Values) {
+                server.send(packet, player.endPoint);
+            }
+        } else {
+            if(client != null) {
+                client.send(packet);
+            }
+        }
+    }
 }

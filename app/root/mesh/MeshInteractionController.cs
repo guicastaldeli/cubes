@@ -6,57 +6,9 @@
     */
 namespace App.Root.Mesh;
 using App.Root.Collider;
-using App.Root.Collider.Types;
 using App.Root.Physics;
 using App.Root.Player;
 using OpenTK.Mathematics;
-
-/**
-
-    Helper Shape class of Meshes
-    to help Controller detect 
-    the collider type...
-
-    */
-static class Types {
-    public const string CUBE = "cube";
-    public const string SPHERE = "sphere";
-    public const string TRIANGLE = "triangle";
-}
-
-class Shape {
-    public Mesh mesh = null!;
-    public MeshData data = null!;
-    public CollisionManager collisionManager = null!;
-
-    public Shape(Mesh mesh, CollisionManager collisionManager) {
-        this.mesh = mesh;
-        this.collisionManager = collisionManager; 
-    }
-
-    /**
-
-        Update
-
-        */
-    public Shape update(MeshData data, string id) {
-        if(data == null) return this;
-
-        switch(data.colliderShape) {
-            case Types.CUBE:
-                collisionManager.addStaticCollider(new StaticObject(mesh.getBBox(id), id));
-                break;
-            case Types.SPHERE:
-                collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
-                break;
-            case Types.TRIANGLE:
-                collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
-                break;
-        }
-
-        return this;
-    }
-}
 
 /**
 
@@ -76,8 +28,6 @@ class MeshInteractionController {
 
     private PlacedMeshDef? heldMesh = null;
     private int placedCounter = 0;
-
-    private Shape shape = null!;
 
     public MeshInteractionController(
         Window window,
@@ -100,7 +50,7 @@ class MeshInteractionController {
             raycaster
         );
 
-        this.shape = new Shape(mesh, collisionManager);
+        MeshCollider.init(mesh, collisionManager);
     }
     
     // Get Held Mesh
@@ -207,7 +157,7 @@ class MeshInteractionController {
             var renderer = mesh.getMeshRenderer(newId);
             if(renderer != null) renderer.isInteractive = true;
 
-            shape.update(data, newId);
+            MeshCollider.update(data, newId);
 
             PhysicsRegistry physicsRegistry = PhysicsRegistry.getInstance();
             if(!physicsRegistry.has(newId)) {
