@@ -1,3 +1,4 @@
+namespace App.Root.Chat;
 using App.Root.Packets;
 
 static class ServerMessage {

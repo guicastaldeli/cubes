@@ -3,7 +3,6 @@ using App.Root.Shaders;
 using App.Root.Player;
 using App.Root.Collider;
 using OpenTK.Mathematics;
-using OpenTK.Graphics.OpenGL;
 
 class Mesh {
     private Window window;

@@ -1,4 +1,4 @@
-using App.Root;
+namespace App.Root;
 using App.Root.Chat;
 using App.Root.Player;
 using App.Root.Screen;
@@ -6,7 +6,6 @@ using App.Root.UI;
 using App.Root.Voip;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Window = App.Root.Window;
 
 class Input {
     private Window window;

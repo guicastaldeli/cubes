@@ -1,6 +1,6 @@
 namespace App.Root;
-using System.Text.Json;
 using App.Root.Packets;
+using System.Text.Json;
 
 class Packet {
     public PacketType type {

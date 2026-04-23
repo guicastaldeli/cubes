@@ -1,7 +1,7 @@
 namespace App.Root;
+using App.Root.Packets;
 using System.Collections.Concurrent;
 using System.Text;
-using App.Root.Packets;
 
 class PacketReassember {
     private class ChunkBuffer {

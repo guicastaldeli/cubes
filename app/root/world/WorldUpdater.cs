@@ -1,13 +1,12 @@
 
 
+namespace App.Root.World;
 using App.Root;
 using App.Root.Collider;
 using App.Root.Mesh;
 using App.Root.Packets;
 using App.Root.Physics;
 using OpenTK.Mathematics;
-using Action = App.Root.Packets.Action;
-using Type = App.Root.Physics.Type;
 
 /**
 

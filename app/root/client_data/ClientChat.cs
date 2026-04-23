@@ -1,7 +1,6 @@
+namespace App.Root.ClientData;
 using App.Root.Chat;
 using App.Root.Packets;
-
-namespace App.Root.ClientData;
 
 class ClientChat : PacketHandler {
     private Client client;

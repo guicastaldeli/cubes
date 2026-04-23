@@ -2,7 +2,6 @@ namespace App.Root.UI;
 using App.Root.Shaders;
 using App.Root.UI.Voip;
 using System.Collections.Generic;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using App.Root.Player.Inventory;
 
 class UIController {
