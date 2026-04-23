@@ -49,8 +49,6 @@ class MeshInteractionController {
             collisionManager, 
             raycaster
         );
-
-        MeshCollider.init(mesh, collisionManager);
     }
     
     // Get Held Mesh
@@ -117,6 +115,7 @@ class MeshInteractionController {
 
         MeshData data = MeshLoader.load(def.MeshType);
         float halfH = getMeshHalfHeight(data);
+        Vector3 scale = def.Scale ?? mesh.getDefaultScale(data);
 
         Vector3? point = placementRaycaster.findPlacementPoint(halfH);
         if(point == null) {
@@ -130,9 +129,10 @@ class MeshInteractionController {
             newId, 
             def.MeshType, 
             point.Value, 
-            def.Scale!.Value, 
+            scale, 
             def.TexId, 
-            def.TexPath
+            def.TexPath,
+            def.PhysicsType
         );
 
         mainSlot.remove();

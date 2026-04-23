@@ -7,21 +7,27 @@ using System.Reflection;
 class World : WorldHandler {
     private List<WorldHandler> el = new ();
 
-    private WorldManager worldManager;
-    private WorldBoundary worldBoundary;
+    private Window window;
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
+
+    private WorldManager worldManager;
+    private WorldBoundary worldBoundary;
 
     public static float WORLD_BOUNDARY = 25.0f;
     
     public World(
-        WorldManager worldManager,
+        Window window,
         Mesh.Mesh mesh, 
+        WorldManager worldManager,
         CollisionManager collisionManager
     ) {
-        this.worldManager = worldManager;
+        this.window = window;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
+
+        this.worldManager = worldManager;
+        WorldUpdater.getInstance().init(window, mesh, collisionManager);
         this.worldBoundary = new WorldBoundary(
             worldManager.getPlayerController(),
             worldManager.getPlayerController().getRigidBody()

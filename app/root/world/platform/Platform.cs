@@ -94,10 +94,9 @@ class Platform : WorldHandler {
                 id,
                 State.BREAKABLE,
                 mesh,
+                Type.DYNAMIC,
                 stackId
             );
-
-            PhysicsRegistry.getInstance().register(id, data, Type.DYNAMIC);
         }
 
         public void set3() {
@@ -121,10 +120,9 @@ class Platform : WorldHandler {
             MeshInteractionRegistry.getInstance().register(
                 id,
                 State.BREAKABLE,
-                mesh
+                mesh,
+                Type.DYNAMIC
             );
-
-            PhysicsRegistry.getInstance().register(id, data, Type.DYNAMIC);
         }
     /**
         ****
@@ -156,7 +154,8 @@ class Platform : WorldHandler {
         MeshInteractionRegistry.getInstance().register(
             GRID_ID,
             State.GRID,
-            mesh
+            mesh,
+            Type.RECEIVER
         );
 
         height = getHeight();
@@ -181,11 +180,6 @@ class Platform : WorldHandler {
                     ));
                 }
             }
-        }
-
-        MeshData? data = mesh.getData(GRID_ID);
-        if(data != null) {
-            PhysicsRegistry.getInstance().register(GRID_ID, data, Type.RECEIVER);
         }
 
         if(renderMesh) {

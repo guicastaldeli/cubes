@@ -5,6 +5,7 @@ using App.Root.Player;
 class WorldManager {
     private Window window;
     private Server? server;
+    private Client? client;
     private Mesh.Mesh? mesh;
     private CollisionManager? collisionManager;
     private Network? network;
@@ -24,7 +25,7 @@ class WorldManager {
         this.collisionManager = collisionManager;
         this.playerController = playerController;
 
-        this.world = new World(this, mesh, collisionManager);
+        this.world = new World(window, mesh, this, collisionManager);
         this.worldBroadcaster = new WorldBroadcaster(this);
         this.networkWorld = new NetworkWorld(this);
     }
@@ -51,6 +52,15 @@ class WorldManager {
 
     public Server? getServer() {
         return server;
+    }
+
+    // Client
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public Client? getClient() {
+        return client;        
     }
 
     // Get World

@@ -60,5 +60,9 @@ class PacketMeshUpdate : Packet {
         get;
         set;
     } = "";
+
+    public PacketMeshUpdate() {
+        type = PacketType.MESH_UPDATE;
+    }
 }
 

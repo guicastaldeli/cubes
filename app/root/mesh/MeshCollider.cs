@@ -1,8 +1,7 @@
 /**
 
-    Helper Shape class of Meshes
-    to help Controller detect 
-    the collider type...
+    Helper Mesh Collider class of Meshes
+    to help detect the collider type...
 
     */
 namespace App.Root.Mesh;

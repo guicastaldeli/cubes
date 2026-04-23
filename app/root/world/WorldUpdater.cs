@@ -72,9 +72,10 @@ class WorldUpdater {
         Vector3 position,
         Vector3 scale,
         int texId,
-        string texPath
+        string texPath,
+        Type? physicsType = null
     ) {
-        applyAddMesh(id, meshType, position, scale, texId, texPath);
+        applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType);
 
         var packet = new PacketMeshUpdate {
             action = MeshAction.ADD,
@@ -95,7 +96,8 @@ class WorldUpdater {
         Vector3 position,
         Vector3 scale,
         int texId,
-        string texPath
+        string texPath,
+        Type? physicsType = null
     ) {
         if(window == null || mesh == null || collisionManager == null) return;
 
@@ -108,18 +110,15 @@ class WorldUpdater {
             if(texId > 0) mesh.setTexture(id, texId, texPath);
 
             var renderer = mesh.getMeshRenderer(id);
-            if(renderer != null) renderer.isInstanced = true;
+            if(renderer != null) renderer.isInteractive = true;
 
             MeshCollider.update(data, id);
-
-            if(!PhysicsRegistry.getInstance().has(id)) {
-                PhysicsRegistry.getInstance().register(id, data, Type.DYNAMIC);
-            }
 
             MeshInteractionRegistry.getInstance().register(
                 id,
                 State.BREAKABLE,
-                mesh
+                mesh,
+                physicsType
             );
         });
     }
@@ -159,6 +158,7 @@ class WorldUpdater {
     public void broadcast(PacketMeshUpdate packet) {
         if(server != null) {
             foreach(var player in server.players.Values) {
+                if(player.id == packet.userId) continue;
                 server.send(packet, player.endPoint);
             }
         } else {

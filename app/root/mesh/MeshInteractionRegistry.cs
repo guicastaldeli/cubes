@@ -5,6 +5,8 @@
 
     */
 namespace App.Root.Mesh;
+
+using App.Root.Physics;
 using OpenTK.Mathematics;
 
 /**
@@ -25,7 +27,8 @@ record PlacedMeshDef(
     int TexId,
     Vector3? Scale = null,
     string? InstanceId = null,
-    string? StackId = null
+    string? StackId = null,
+    Type? PhysicsType = null
 );
 
 /**
@@ -83,14 +86,16 @@ class MeshInteractionRegistry {
         string id,
         State state, 
         Mesh mesh,
+        Type? physicsType = null,
         string? stackId = null
     ) {
         var renderer = mesh.getMeshRenderer(id);
         if(renderer == null) return;
 
         var data = mesh.getData(id);
+        if(data == null) return;
 
-        string meshType = data?.meshType ?? id;
+        string meshType = data.meshType ?? id;
         string? texPath = renderer.getTexPath();
         int texId = renderer.getTexId();
         Vector3? scale = 
@@ -98,14 +103,36 @@ class MeshInteractionRegistry {
             renderer.getScale() : 
             null;
 
+        if(physicsType != null) {
+            MeshPhysics.update(data, id, physicsType);
+        }
+
         setRegister(id, state, new PlacedMeshDef(
             meshType, 
             texPath, 
             texId, 
             scale,
             id,
-            stackId
+            stackId,
+            physicsType
         ));
+    }
+
+    public void register(
+        string id,
+        State state, 
+        Mesh mesh,
+        string? stackId = null
+    ) {
+        register(id, state, mesh, null, stackId);
+    }
+
+    public void register(
+        string id,
+        State state, 
+        Mesh mesh
+    ) {
+        register(id, state, mesh, null, null);
     }
 
     /**

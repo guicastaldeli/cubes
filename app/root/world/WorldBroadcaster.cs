@@ -15,8 +15,11 @@ class WorldBroadcaster {
         */
     public void set() {
         var server = worldManager.getNetwork()?.getServer();
-        if(server != null) {
+        var client = worldManager.getNetwork()?.getClient();
+        
+        if(server != null && client != null) {
             worldManager.setServer(server);
+            worldManager.setClient(client);
             start();
         }
     }
