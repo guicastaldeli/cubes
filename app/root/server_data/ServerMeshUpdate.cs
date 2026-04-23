@@ -10,6 +10,7 @@ class ServerMeshUpdate : PacketHandler {
 
     public ServerMeshUpdate(Server server) {
         this.server = server;
+        PacketController.register(this, Context.SERVER);
     } 
 
     // Get Type
@@ -17,7 +18,11 @@ class ServerMeshUpdate : PacketHandler {
         return PacketType.MESH_UPDATE;
     }
 
-    // Handle
+    /**
+    
+        Handle
+
+        */
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketMeshUpdate>(json);
         if(packet == null) return;

@@ -1,4 +1,5 @@
 namespace App.Root.ServerData;
+using App.Root.Chat;
 using App.Root.Packets;
 using App.Root.Player;
 using System.Net;
@@ -24,7 +25,11 @@ class ServerLeave : PacketHandler {
         }
     }
 
-    // Handle
+    /**
+    
+        Handle
+
+        */
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketLeave>(json);
         if(packet?.userId == null) return;

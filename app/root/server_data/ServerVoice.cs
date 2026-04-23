@@ -15,7 +15,11 @@ class ServerVoice : PacketHandler {
         return PacketType.VOICE;
     }
 
-    // Handle
+    /**
+    
+        Handle
+
+        */
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketVoice>(json);
         if(packet == null || packet.audio == null) return;

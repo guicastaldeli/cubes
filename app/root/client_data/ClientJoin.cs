@@ -14,7 +14,11 @@ class ClientJoin : PacketHandler {
         return PacketType.JOIN;
     }
 
-    // Handle
+    /**
+    
+        Handle
+
+        */
     public void handle(string json) {
         var packet = Packet.deserialize<PacketJoin>(json);
         if(packet?.userId == null) return;
