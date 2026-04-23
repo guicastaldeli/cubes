@@ -4,6 +4,7 @@ using App.Root.Player;
 using App.Root.Collider;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.ES11;
+using App.Root.Mesh.Particle;
 
 class Mesh {
     private Window window;
@@ -14,6 +15,7 @@ class Mesh {
     private PlayerController? playerController;
     private CollisionManager? collisionManager;
     private MeshRenderer? meshRenderer;
+    private ParticleController? particleController;
 
     private Dictionary<string, MeshData> meshDataMap = new();
     private Dictionary<string, MeshRenderer> meshRendererMap = new();
@@ -26,6 +28,8 @@ class Mesh {
         this.window = window;
         this.shaderProgram = shaderProgram;
         this.input = input;
+
+        this.particleController = new ParticleController(this);
     }
 
     // Set Camera
@@ -44,6 +48,11 @@ class Mesh {
     // Set Collision Manager
     public void setCollisionManager(CollisionManager collisionManager) {
         this.collisionManager = collisionManager;
+    }
+
+    // Get Particle Controller
+    public ParticleController? getParticleController() {
+        return particleController;
     }
 
     /**
@@ -347,6 +356,10 @@ class Mesh {
 
         */
     public void update() {
+        if(particleController != null) {
+            particleController.update();
+        }
+
         foreach(var r in meshRendererMap.Values) {
             r.update();
         }
@@ -359,6 +372,10 @@ class Mesh {
         */
     // Main
     public void render() {
+        if(particleController != null) {
+            particleController.render();
+        }
+
         if(meshRenderer != null) {
             meshRenderer.render();
 
@@ -369,6 +386,10 @@ class Mesh {
 
     // All
     public void renderAll() {
+        if(particleController != null) {
+            particleController.render();
+        }
+
         foreach(var entry in meshRendererMap) {
             if(entry.Value.isHud) continue;
             if(entry.Value.isInstanced) {
@@ -449,6 +470,10 @@ class Mesh {
     }
 
     public void cleanup() {
+        if(particleController != null) {
+            particleController.cleanup();
+        }
+
         foreach(var r in meshRendererMap.Values) {
             r.cleanup();
         }

@@ -15,29 +15,47 @@ class Data {
         return instance;
     }
 
-    // Register
+    /**
+    
+        Register
+
+        */
     public void register(DataType type, DataEntry entry) {
         if(!entries.ContainsKey(type)) entries[type] = new();
         entries[type].Add(entry);
     }
 
-    // Unregister
+    /**
+    
+        Unregister
+
+        */
     public void unregister(DataType type, DataEntry entry) {
         if(entries.TryGetValue(type, out var list)) list.Remove(entry);
     }
 
-    // Get
+    /**
+    
+        Get
+
+        */
     public List<DataEntry> get(DataType type) {
         return entries.TryGetValue(type, out var list) ?
             list :
             new();
     }
 
+    /**
+    
+        Snapshot
+
+        */
     // Snapshot
     public DataSnapshot snapshot() {
         return new DataSnapshot(entries);
     }
 
+    // Apply
     public void apply(
         DataSnapshot snapshot,
         DataType type,
@@ -48,7 +66,11 @@ class Data {
         }
     }
 
-    // Clear
+    /**
+    
+        Clear
+
+        */
     public void clear(DataType type) {
         if(entries.ContainsKey(type)) entries[type].Clear();
     }

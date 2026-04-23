@@ -1,3 +1,8 @@
+/**
+    
+    Main Data entry interface
+
+    */
 namespace App.Root;
 
 interface DataEntry {
