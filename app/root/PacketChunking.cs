@@ -15,6 +15,17 @@ class PacketChuncking {
     private const int HEADER_OVERHEAD = 300;
     private const int MAX_PAYLOAD_SIZE = MAX_CHUNK_SIZE - HEADER_OVERHEAD;
 
+    // Needs Chunking
+    public static bool needsChunking(string json) {
+        bool val = Encoding.UTF8.GetByteCount(json) > MAX_PAYLOAD_SIZE;
+        return val;
+    }
+    
+    /*
+    
+        Chunk
+    
+        */
     public static List<Packet> chunk(Packet packet) {
         string json = packet.serialize();
         byte[] data = Encoding.UTF8.GetBytes(json);
@@ -22,7 +33,7 @@ class PacketChuncking {
             return new List<Packet> { packet };
         }
 
-        Console.WriteLine($"Chunking {packet.type} packet: {data.Length} bytes into {Math.Ceiling((double)data.Length / MAX_PAYLOAD_SIZE)} chunks");
+        //Console.WriteLine($"Chunking {packet.type} packet: {data.Length} bytes into {Math.Ceiling((double)data.Length / MAX_PAYLOAD_SIZE)} chunks");
 
         var chunks = new List<Packet>();
         string packetId = Guid.NewGuid().ToString();
@@ -45,10 +56,5 @@ class PacketChuncking {
         }
 
         return chunks;
-    }
-
-    public static bool needsChunking(string json) {
-        bool val = Encoding.UTF8.GetByteCount(json) > MAX_PAYLOAD_SIZE;
-        return val;
     }
 }

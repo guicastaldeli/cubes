@@ -132,10 +132,6 @@ class Client {
                 string json = p.serialize();
                 byte[] data = Encoding.UTF8.GetBytes(json);
                 udpClient.Send(data, data.Length);
-
-                if(packets.Count > 1) {
-                    Thread.Sleep(2);
-                }
             }
         } catch(Exception err) {
             Console.Error.WriteLine("Client send error: " + err.Message);

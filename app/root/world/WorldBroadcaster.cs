@@ -8,9 +8,24 @@ class WorldBroadcaster {
         this.worldManager = worldManager;
     }
 
-    ///
-    /// Broadcast
-    /// 
+    /**
+    
+        Set
+
+        */
+    public void set() {
+        var server = worldManager.getNetwork()?.getServer();
+        if(server != null) {
+            worldManager.setServer(server);
+            start();
+        }
+    }
+
+    /**
+    
+        Broadcast
+
+        */
     public void broadcast() {
         var serverSnapshot = ServerSnapshot.getInstance().snapshot();
         var worldSnapshot = Data.getInstance().snapshot();
@@ -28,21 +43,14 @@ class WorldBroadcaster {
         }
     }
 
-    ///
-    /// Start
-    /// 
+    /**
+    
+        Start
+
+        */
     public void start() {
         if(worldManager.getServer() != null) {
             worldManager.getServer()!.onTick = () => broadcast();
-        }
-    }
-
-    // Set
-    public void set() {
-        var server = worldManager.getNetwork()?.getServer();
-        if(server != null) {
-            worldManager.setServer(server);
-            start();
         }
     }
 }

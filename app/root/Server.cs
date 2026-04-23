@@ -165,10 +165,6 @@ class Server {
                 }
 
                 udpServer.Send(data, data.Length, endPoint);
-
-                if(packets.Count > 1) {
-                    Thread.Sleep(2);
-                }
             }
         } catch(Exception err) {
             Console.Error.WriteLine("Server send error: " + err.Message);

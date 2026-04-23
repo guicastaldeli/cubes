@@ -35,7 +35,7 @@ class PacketReassember {
             buffers.TryRemove(chunk.packetId, out _);
 
             string reassembled = Encoding.UTF8.GetString(ordered);
-            Console.WriteLine($"Reassembled {chunk.originalType} packet from {chunk.totalChunks} chunks");
+            //Console.WriteLine($"Reassembled {chunk.originalType} packet from {chunk.totalChunks} chunks");
             return reassembled;
         }
 
