@@ -415,6 +415,7 @@ class MeshRenderer : DataEntry {
 
         foreach(var entry in mesh.getMeshRendererMap()) {
             if(entry.Value.isHud) continue;
+            if(entry.Value.renderOnTop) continue;
             if(entry.Value.isInstanced) {
                 entry.Value.renderInstanced();
             } else {
@@ -438,10 +439,6 @@ class MeshRenderer : DataEntry {
     public void renderMesh() {
         if(!visible) return;
         if(meshData == null || camera == null) return;
-        if(renderOnTop) {
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.DepthRange(0.0, 0.1);
-        }
 
         if(!isDynamic) {
             if(hasScale) {
@@ -508,7 +505,6 @@ class MeshRenderer : DataEntry {
         if(hasTex) GL.BindTexture(TextureTarget.Texture2D, 0);
 
         shaderProgram.unbind();
-        if(renderOnTop) GL.DepthRange(0.0, 1.0);
     }
 
     // Instanced Meshes

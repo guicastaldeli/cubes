@@ -7,8 +7,8 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Collections.Concurrent;
 
 class Window : NativeWindow {
-    public static int WIDTH = 800;
-    public static int HEIGHT = 600;
+    public static int WIDTH = 1280;
+    public static int HEIGHT = 720;
     public static string TITLE = "client";
 
     private volatile Action? pendingAction = null;

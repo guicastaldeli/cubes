@@ -3,6 +3,7 @@ using App.Root.Shaders;
 using App.Root.Player;
 using App.Root.Collider;
 using OpenTK.Mathematics;
+using OpenTK.Graphics.ES11;
 
 class Mesh {
     private Window window;
@@ -356,13 +357,17 @@ class Mesh {
         Render
 
         */
+    // Main
     public void render() {
         if(meshRenderer != null) {
             meshRenderer.render();
+
             renderOrto();
+            renderOnTopMeshes();
         }
     }
 
+    // All
     public void renderAll() {
         foreach(var entry in meshRendererMap) {
             if(entry.Value.isHud) continue;
@@ -374,6 +379,7 @@ class Mesh {
         }
     }
 
+    // By Id
     public void renderId(string id) {
         var renderer = getMeshRenderer(id);
         if(renderer == null) return;
@@ -385,6 +391,7 @@ class Mesh {
         }
     }
 
+    // Orto
     public void renderOrto() {
         foreach(var entry in meshRendererMap) {
             if(entry.Value.isHud) {
@@ -395,7 +402,20 @@ class Mesh {
             }
         }
     }
+    
+    // On Top Meshes
+    private void renderOnTopMeshes() {
+        foreach(var entry in getMeshRendererMap()) {
+            if(entry.Value.renderOnTop && !entry.Value.isHud) {
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                GL.DepthRange(0.0f, 0.1f);
+                entry.Value.renderMesh();
+                GL.DepthRange(0.0f, 1.0f);
+            }
+        }
+    }
 
+    // Outline
     public void renderOutline(List<string> ids) {
         List<MeshRenderer> selected = ids
             .Select(id => getMeshRenderer(id))
