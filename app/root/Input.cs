@@ -113,11 +113,13 @@ class Input {
     
         */
     private void onPause() {
+        // Screen Controller
         if(!screenController.isRunning()) return;
 
         // Inventory
         if(playerInputMap != null && playerInputMap.isInventoryOpen()) {
-            getUIController().hide();
+            var uiController = getUIController();
+            uiController.hide();
         }
         
         // Multiplayer

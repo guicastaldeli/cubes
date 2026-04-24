@@ -33,7 +33,6 @@ class Shape {
         to handle different initializations
 
         */
-
     // Main Variables
     public Shape(
         Mesh mesh, 
@@ -120,6 +119,8 @@ class Raycaster {
 
     private float maxDist = 50.0f;
 
+    private bool isActive = true;
+
     public Raycaster(Camera camera, Mesh mesh) {
         this.camera = camera;
         this.mesh = mesh;
@@ -132,9 +133,17 @@ class Raycaster {
         return (origin, dir);
     }
 
-    ///
-    /// Intersects
-    /// 
+    // Set Active
+    public void setActive(bool active) {
+        isActive = active;
+    }
+
+    /**
+    
+        Intersects
+    
+        */
+    // Main
     public bool intersects(
         Vector3 origin,
         Vector3 dir,
@@ -194,6 +203,7 @@ class Raycaster {
         return true;
     }
 
+    // Sphere
     public bool intersectsSphere(
         Vector3 origin,
         Vector3 dir,
@@ -218,6 +228,7 @@ class Raycaster {
         return true;
     }
 
+    // Triangle
     public bool intersectsTriangle(
         Vector3 origin,
         Vector3 dir,
@@ -298,8 +309,14 @@ class Raycaster {
         return hit;
     }
 
-    // Cast
+    /**
+    
+        Cast
+    
+        */
     public string? cast() {
+        if(!isActive) return null;
+
         var (origin, dir) = getRay();
 
         string? closest = null;
@@ -337,6 +354,8 @@ class Raycaster {
     
         */
     public void update() {
+        if(!isActive) return;
+
         string? d = cast();
         if(d != null) {
             mesh.renderOutline(new List<string> { d });

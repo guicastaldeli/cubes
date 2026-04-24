@@ -90,6 +90,10 @@ class PlayerInputMap {
             uiController.toggle(UI.UIController.UIType.INVENTORY);
 
             bool isActive = uiController.getActive() == UI.UIController.UIType.INVENTORY;
+            
+            var raycaster = playerController.getRaycaster();
+            if(raycaster != null) raycaster.setActive(!isActive);
+            
             Action action = isActive ? () =>
                 input.unlockMouse() : () =>
                 input.lockMouse();
