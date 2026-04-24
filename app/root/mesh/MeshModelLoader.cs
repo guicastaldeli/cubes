@@ -6,9 +6,10 @@
 
     */
 namespace App.Root.Mesh;
+using OpenTK.Mathematics;
 using System.Globalization;
-using System.Numerics;
 using NLua;
+using App.Root.Utils;
 
 /**
 
@@ -40,6 +41,59 @@ class ModelData {
 class MeshModelLoader {
     private static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "");
 
+    // Generate Normals
+    private static float[] generateNormals(float[] verts, int[] indices) {
+        float[] norms = new float[verts.Length];
+
+        for(int i = 0; i < indices.Length; i++) {
+            int i0 = indices[i] * 3;
+            int i1 = indices[i+1] * 3;
+            int i2 = indices[i+2] * 3;
+
+            Vector3 v0 = new Vector3(
+                verts[i0],
+                verts[i0+1],
+                verts[i0+2]
+            );
+            Vector3 v1 = new Vector3(
+                verts[i1],
+                verts[i1+1],
+                verts[i1+2]
+            );
+            Vector3 v2 = new Vector3(
+                verts[i2],
+                verts[i2+1],
+                verts[i2+2]
+            );
+
+            Vector3 edge1 = v1 - v0;
+            Vector3 edge2 = v2 - v0;
+            Vector3 norm = Vector3.Cross(edge1, edge2);
+            norm.Normalize();
+
+            for(int j = 0; j < 3; j++) {
+                int idx = indices[i+j] * 3;
+                norms[idx] += norm.X;
+                norms[idx+1] += norm.Y;
+                norms[idx+2] += norm.Z;
+            }
+        }
+
+        for(int i = 0; i < norms.Length; i += 3) {
+            Vector3 n = new Vector3(
+                norms[i],
+                norms[i+1],
+                norms[i+2]
+            );
+            n.Normalize();
+            norms[i] = n.X;
+            norms[i+1] = n.Y;
+            norms[i+2] = n.Z;
+        }
+
+        return norms;
+    }
+
     /**
     
         Parse
@@ -53,7 +107,7 @@ class MeshModelLoader {
         if(table["texture"] is string texture) data.texPath = texture;
 
         if(table["scale"] is LuaTable scaleTable) {
-            data.scale = toFloatArray(scaleTable);
+            data.scale = ToFloatArray.C(scaleTable);
         } else if(table["scale"] is double scaleVal){
             float s = (float)scaleVal;
             data.scale = new float[] { s, s, s };
@@ -80,7 +134,7 @@ class MeshModelLoader {
         if(file["texture"] is string texture) data.texPath = texture;
 
         if(file["scale"] is LuaTable scaleTable) {
-            data.scale = toFloatArray(scaleTable);
+            data.scale = ToFloatArray.C(scaleTable);
         } else if(file["scale"] is double scaleVal){
             float s = (float)scaleVal;
             data.scale = new float[] { s, s, s };
@@ -96,6 +150,7 @@ class MeshModelLoader {
             if(colliderTable["radius"] is double radius) data.colliderRadius = (float)radius; 
         }
 
+        return data;
     }
     /**
     
