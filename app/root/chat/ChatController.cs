@@ -24,7 +24,11 @@ class ChatController {
         return instance;
     }
 
-    // Chat
+    /**
+    
+        Chat
+    
+        */
     public void setChat(Chat chat) {
         this.chat = chat;
     }
@@ -78,9 +82,11 @@ class ChatController {
         messageTimer = messageDuration;
     }
 
-    ///
-    /// Open
-    /// 
+    /**
+    
+        Open
+    
+        */
     public bool isOpen() {
         return opened;
     }
@@ -92,9 +98,11 @@ class ChatController {
         chatInput?.setVisible(true);
     }
 
-    ///
-    /// Close
-    /// 
+    /**
+    
+        Close
+    
+        */
     public void close() {
         opened = false;
         keyboardInput.clear();
@@ -106,9 +114,11 @@ class ChatController {
         if(chatInput != null) chatInput.text = "";
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+    
+        */
     public void update() {
         if(!boxVisible || opened) return;
 
@@ -120,9 +130,11 @@ class ChatController {
         }
     }
 
-    ///
-    /// Show
-    /// 
+    /**
+    
+        Show
+    
+        */
     public void show() {
         if(!opened && !messageAdded) return;
         uiController?.show(UIController.UIType.CHAT);

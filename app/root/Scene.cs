@@ -6,6 +6,7 @@ using App.Root.Text;
 using App.Root.Screen;
 using App.Root.World;
 using App.Root.Mesh;
+using App.Root.UI;
 
 class Scene {
     private Window window;
@@ -13,12 +14,14 @@ class Scene {
     private Input input;
     private PlayerController playerController;
     private CollisionManager collisionManager;
-    private ScreenController screenController = null!;
     private Network? network;
-    private TextRenderer textRenderer = null!;
-
+    
     private Mesh.Mesh mesh;
     private WorldManager worldManager;
+
+    private TextRenderer textRenderer = null!;
+    private ScreenController screenController = null!;
+    private UIController uiController = null!;
 
     public bool initialized = false;
 
@@ -60,6 +63,11 @@ class Scene {
     // Set Screen Controller
     public void setScreenController(ScreenController screenController) {
         this.screenController = screenController;
+    }
+
+    // Set UI Controller
+    public void setUIController(UIController uiController) {
+        this.uiController = uiController;
     }
 
     // Set Network

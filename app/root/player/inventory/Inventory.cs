@@ -62,6 +62,7 @@ class Inventory {
         this.gapPct = gapPct;
         this.slotWidthPct = slotWidthPct;
         this.slotHeightPct = slotHeightPct;
+        
         build();
     }
 

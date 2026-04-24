@@ -49,6 +49,7 @@ class UI : UIHandler {
         }        
     }
 
+    // Get Text Renderer
     public TextRenderer? getTextRenderer() {
         return textRenderer;
     }

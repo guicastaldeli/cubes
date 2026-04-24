@@ -16,6 +16,16 @@ class PauseScreen : Screen {
         );
     }
 
+    // Check Click
+    public override string? checkClick(int mouseX, int mouseY) {
+        return base.checkClick(mouseX, mouseY);
+    }
+
+    /**
+    
+        Handle
+    
+        */  
     // Handle Action
     public override void handleAction(string action) {
         switch(action) {
@@ -33,21 +43,20 @@ class PauseScreen : Screen {
         base.handleMouseMove(mouseX, mouseY);
     }
 
-    // Check Click
-    public override string? checkClick(int mouseX, int mouseY) {
-        return base.checkClick(mouseX, mouseY);
-    }
-
-    ///
-    /// Update
-    ///  
+    /**
+    
+        Update
+    
+        */  
     public override void update() {
         base.update();    
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+    
+        */  
     public override void render() {
         base.render();
     }

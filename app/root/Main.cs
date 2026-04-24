@@ -119,6 +119,8 @@ class Main {
         input.setUIController(uiController);
         input.setNetwork(network);
         input.init();
+
+        scene.setUIController(uiController);
     }
     
     /**

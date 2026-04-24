@@ -58,9 +58,16 @@ class Input {
         this.network = network;
     }
 
-    ///
-    /// Keys
-    /// 
+    // On Pause Overlay Open
+    public bool onPauseOverlayOpen() {
+        return pauseOverlayOpen;
+    }
+
+    /**
+    
+        Keys
+    
+        */
     private void setKeys() {
         window.onKeyDown -= onKeyDown;
         window.onKeyUp -= onKeyUp;
@@ -100,27 +107,39 @@ class Input {
         playerInputMap?.setKeyState(key, false);
     }
 
-    // On Pause
+    /**
+    
+        On Pause
+    
+        */
     private void onPause() {
         if(!screenController.isRunning()) return;
+
+        // Inventory
+        if(playerInputMap != null && playerInputMap.isInventoryOpen()) {
+            getUIController().hide();
+        }
         
+        // Multiplayer
         bool isMultiplayer = network!.isConnected;
         if(!isMultiplayer) tick.togglePause();
 
+        // Pause Screen
         pauseOverlayOpen = !pauseOverlayOpen;
         if(pauseOverlayOpen) {
             unlockMouse();
             screenController.switchToOverlay(ScreenController.SCREENS.PAUSE);
-        }
-        else {
+        } else {
             lockMouse();
             screenController.closeOverlay();
         }
     }
 
-    /// 
-    /// Mouse
-    /// 
+    /**
+    
+        Mouse
+    
+        */
     private void onMouseMove(int x, int y) {
         uiController.handleMouseMove(x, y);
         if(screenController.isRunning() && !pauseOverlayOpen) return;
@@ -162,9 +181,12 @@ class Input {
         window.CursorState = CursorState.Normal;
     }
 
-    ///
-    /// Update
-    ///
+
+    /**
+    
+        Update
+    
+        */
     public void update() {
         if(pauseUpdate()) return;
 
@@ -186,9 +208,11 @@ class Input {
         return val;
     }
 
-    ///
-    /// Init
-    /// 
+    /**
+    
+        Init
+    
+        */
     public void init() {
         setMouse();
         setKeys();

@@ -1,4 +1,6 @@
 namespace App.Root.Player;
+
+using App.Root.Chat;
 using App.Root.Mesh;
 using App.Root.Player.Inventory;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -77,15 +79,22 @@ class PlayerInputMap {
 
     // Open Inventory
     public void openInventory(Keys key) {
-        if(key != Keys.I) return;
+        if(ChatController.getInstance().isOpen()) return;
+        
+        bool pauseOverlay = input.onPauseOverlayOpen();
+        if(pauseOverlay) return;
 
-        var uiController = input.getUIController();
-        uiController.toggle(UI.UIController.UIType.INVENTORY);
+        bool kv = key == Keys.I;
+        if(kv) {
+            var uiController = input.getUIController();
+            uiController.toggle(UI.UIController.UIType.INVENTORY);
 
-        if(input.getUIController().getActive() == UI.UIController.UIType.INVENTORY) {
-            input.unlockMouse();
-        } else {
-            input.lockMouse();
+            bool isActive = uiController.getActive() == UI.UIController.UIType.INVENTORY;
+            Action action = isActive ? () =>
+                input.unlockMouse() : () =>
+                input.lockMouse();
+            action();
+
         }
     }
 

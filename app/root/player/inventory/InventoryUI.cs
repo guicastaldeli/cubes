@@ -104,8 +104,8 @@ class InventoryUI : UI.UI {
         float edgePct = float.Parse(ep, CultureInfo.InvariantCulture);
         float topPct = float.Parse(tp, CultureInfo.InvariantCulture);
         float gapPct = float.Parse(gp, CultureInfo.InvariantCulture);
-        float slotWidthPct = float.Parse(swp, System.Globalization.CultureInfo.InvariantCulture);
-        float slotHeightPct = float.Parse(shp, System.Globalization.CultureInfo.InvariantCulture);
+        float slotWidthPct = float.Parse(swp, CultureInfo.InvariantCulture);
+        float slotHeightPct = float.Parse(shp, CultureInfo.InvariantCulture);
 
         return new Inventory(
             screenWidth, screenHeight,

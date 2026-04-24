@@ -23,9 +23,11 @@ class PauseScreenAction {
         this.network = network;
     }
 
-    ///
-    /// Resume
-    /// 
+    /**
+    
+        Resume
+    
+        */
     public void resume() {
         if(!network.isConnected) tick.setPaused(false);
         input.lockMouse();
@@ -33,7 +35,11 @@ class PauseScreenAction {
         input.pauseOverlayOpen = false;
     }
 
-    // Back to Menu
+    /**
+    
+        Back to Menu
+    
+        */
     public void backToMenu() {
         tick.setPaused(false);
 
