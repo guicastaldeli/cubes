@@ -1,7 +1,6 @@
 namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Info;
-using App.Root.Player.Inventory;
 using App.Root.Shaders;
 using App.Root.World;
 using App.Root.World.Platform;

@@ -48,27 +48,35 @@ class Position {
         Vector3 offset = Vector3.Zero;
         Matrix4 rotationMatrix = Matrix4.Identity;
 
+        (float a, float b) posX = (1.5f, 0.0f);
+        float posY = 0.0f;
+        float posZ = 3.0f;
+
+        (float a, float b) rotationX = (0.0f, 0.0f);
+        (float a, float b) rotationY = (5.0f, 0.0f);
+        (float a, float b) rotationZ = (0.0f, 0.0f);
+
         switch(slot) {
             case Slot.LEFT:
-                offset = new Vector3(-1.5f, 0.0f, 5.0f);
+                offset = new Vector3(-posX.a, posY, posZ);
                 rotationMatrix = 
-                    Matrix4.CreateRotationX(0.0f) *
-                    Matrix4.CreateRotationY(5.0f) *
-                    Matrix4.CreateRotationZ(0.0f);
+                    Matrix4.CreateRotationX(rotationX.a) *
+                    Matrix4.CreateRotationY(rotationY.a) *
+                    Matrix4.CreateRotationZ(rotationZ.a);
                 break;
             case Slot.RIGHT:
-                offset = new Vector3(1.5f, 0.0f, 5.0f);
+                offset = new Vector3(posX.a, posY, posZ);
                 rotationMatrix = 
-                    Matrix4.CreateRotationX(0.0f) *
-                    Matrix4.CreateRotationY(5.0f) *
-                    Matrix4.CreateRotationZ(0.0f); 
+                    Matrix4.CreateRotationX(rotationX.a) *
+                    Matrix4.CreateRotationY(rotationY.a) *
+                    Matrix4.CreateRotationZ(rotationZ.a); 
                 break;
             case Slot.CENTER:
-                offset = new Vector3(0.0f, 0.0f, 5.0f);
+                offset = new Vector3(posX.b, posY, posZ);
                 rotationMatrix = 
-                    Matrix4.CreateRotationX(0.0f) *
-                    Matrix4.CreateRotationY(0.0f) *
-                    Matrix4.CreateRotationZ(0.0f);
+                    Matrix4.CreateRotationX(rotationX.b) *
+                    Matrix4.CreateRotationY(rotationY.b) *
+                    Matrix4.CreateRotationZ(rotationZ.b);
                 break;
         }
 
@@ -104,9 +112,11 @@ class Mode {
 
     private Modes currentMode = Modes.NORMAL;
     private Dictionary<Slot, string?> previewMeshIds = new();
+    private readonly object previewLock = new object();
     
     private Slot? activeSlot = null;
     private Slot? prevSlot = null;
+    private PlacedMeshDef? lastPreviewedDef = null;
 
     private bool leftPressed = false;
     private bool rightPressed = false;
@@ -211,14 +221,37 @@ class Mode {
         mesh.setPosition(previewId, pos);
     }
 
+    // Update Active Preview
+    public void updateActivePreview() {
+        if(currentMode != Modes.GETTER || !activeSlot.HasValue) return;
+        updatePreview(activeSlot.Value);
+    }
+
     // Show Preview
     private void showPreview(Slot slot, PlacedMeshDef def) {
         string previewId = getPreviewId(slot);
         
         window.queueOnRenderThread(() => {
+            if(activeSlot != slot) {
+                if(mesh.hasMesh(previewId)) {
+                    mesh.setVisible(previewId, false);
+                }
+            }
+
             if(mesh.hasMesh(previewId)) {
                 var existingData = mesh.getData(previewId);
-                mesh.remove(previewId);
+                if(existingData != null && existingData.meshType != def.MeshType) {
+                    mesh.remove(previewId);
+                } else {
+                    if(def.Scale.HasValue) mesh.setScale(previewId, def.Scale.Value);
+                    mesh.setTexture(previewId, def.TexId, def.TexPath);
+                    
+                    updatePreviewPosition(slot, previewId);
+                    mesh.setVisible(previewId, true);
+                    previewMeshIds[slot] = previewId;
+
+                    return;
+                }
             }
 
             MeshData data = MeshLoader.load(def.MeshType);
@@ -241,9 +274,13 @@ class Mode {
     // Hide Preview
     public void hidePreview(Slot slot) {
         string previewId = getPreviewId(slot);
-        if(mesh.hasMesh(previewId)) {
-            mesh.setVisible(previewId, false);
-        }
+        
+        window.queueOnRenderThread(() => {
+            if(mesh.hasMesh(previewId)) {
+                mesh.setVisible(previewId, false);
+            }
+        });
+
         previewMeshIds[slot] = null;
     }
 
@@ -261,14 +298,15 @@ class Mode {
         bool bothHeld = leftPressed && rightPressed;
         if(bothHeld) {
             if(activeSlot != Slot.CENTER) {
-                prevSlot = activeSlot;
-
                 if(activeSlot.HasValue) {
-                    hidePreview(activeSlot.Value);
+                    Slot prevSlotValue = activeSlot.Value;
+                    hidePreview(prevSlotValue);
                     playerMesh.hideArms(activeSlot.Value);
                 }
 
+                prevSlot = activeSlot;
                 activeSlot = Slot.CENTER;
+                
                 if(currentMode == Modes.NORMAL) {
                     set(Modes.GETTER, Slot.CENTER);
                 } else {
@@ -285,16 +323,18 @@ class Mode {
 
             Slot targetSlot = prevSlot ?? Slot.RIGHT;
             
-            activeSlot = targetSlot;
-            updatePreview(targetSlot);
-            playerMesh.updateArms(targetSlot);
+            if(activeSlot != targetSlot) {
+                activeSlot = targetSlot;
+                lastPreviewedDef = null;
+                updatePreview(targetSlot);
+                playerMesh.updateArms(targetSlot);
+            }
 
             prevSlot = null;
             return;
         }
 
         if(!pressed) return;
-
         
         if(currentMode == Modes.NORMAL) {
             set(Modes.GETTER, slot);
@@ -307,10 +347,13 @@ class Mode {
             return;
         }
         if(activeSlot.HasValue) {
-            hidePreview(activeSlot.Value);
-            playerMesh.hideArms(activeSlot.Value);
+            Slot prevSlot = activeSlot.Value;
+            hidePreview(prevSlot);
+            playerMesh.hideArms(prevSlot);
 
             activeSlot = slot;
+            lastPreviewedDef = null;
+
             updatePreview(slot);
             playerMesh.updateArms(slot);
         }
@@ -324,17 +367,35 @@ class Mode {
     public void update() {
         if(currentMode != Modes.GETTER) return;
 
-        if(activeSlot.HasValue) updatePreview(activeSlot.Value);
+        if(activeSlot.HasValue) {
+            var invInstance = playerController.getPlayerInputMap().getInventory();
+            if(invInstance != null) {
+                var slot = invInstance.getInventory().getActiveSlot();
+                if(slot.def != lastPreviewedDef) {
+                    updatePreview(activeSlot.Value);
+                    lastPreviewedDef = slot.def;
+                }
+            }
+        }
+
+        if(activeSlot.HasValue) {
+            string previewId = getPreviewId(activeSlot.Value);
+            if(previewMeshIds.ContainsKey(activeSlot.Value) && 
+                previewMeshIds[activeSlot.Value] != null) {
+                updatePreviewPosition(activeSlot.Value, previewId);
+            }
+        }
 
         PlayerMesh playerMesh = playerController.getPlayerMesh();
-
-        foreach(var kvp in previewMeshIds) {
-            if(kvp.Value == null) continue;
-            updatePreviewPosition(kvp.Key, kvp.Value);
-        }
         foreach(var kvp in playerMesh.armMeshIds) {
             if(kvp.Value == null) continue;
             playerMesh.updateArmPosition(kvp.Key, kvp.Value);
+        }
+
+        foreach(var slot in Enum.GetValues<Slot>()) {
+            if(slot != activeSlot && previewMeshIds.ContainsKey(slot) && previewMeshIds[slot] != null) {
+                hidePreview(slot);
+            }
         }
     }
 

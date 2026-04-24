@@ -16,7 +16,7 @@ class Camera {
 
     private float yaw = -90.0f;
     private float pitch = 0.0f;
-    private float fov = 45.0f;
+    private float fov = 90.0f;
 
     private float sensv = 0.3f;
     private float targetAngle = 0.0f;

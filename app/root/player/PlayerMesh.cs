@@ -42,26 +42,34 @@ class Arm {
         Vector3 offset = Vector3.Zero;
         Matrix4 rotationMatrix = Matrix4.Identity;
 
+        float posX = 1.5f;
+        float posY = 1.0f;
+        float posZ = 3.0f;
+
+        (float a, float b) rotationX = (0.0f, 1.0f);
+        (float a, float b) rotationY = (5.0f, 1.0f);
+        (float a, float b) rotationZ = (0.0f, 1.0f);
+
         switch(slot) {
             case Slot.LEFT:
-                offset = new Vector3(-1.5f, -1.0f, 5.0f);
+                offset = new Vector3(-posX, -posY, posZ);
                 rotationMatrix = 
-                    Matrix4.CreateRotationX(0.0f) *
-                    Matrix4.CreateRotationY(-5.0f) *
-                    Matrix4.CreateRotationZ(0.0f);
+                    Matrix4.CreateRotationX(rotationX.a) *
+                    Matrix4.CreateRotationY(-rotationY.a) *
+                    Matrix4.CreateRotationZ(rotationZ.a);
                 break;
             case Slot.RIGHT:
-                offset = new Vector3(1.5f, -1.0f, 5.0f); 
+                offset = new Vector3(posX, -posY, posZ); 
                 rotationMatrix = 
-                    Matrix4.CreateRotationX(0.0f) *
-                    Matrix4.CreateRotationY(5.0f) *
-                    Matrix4.CreateRotationZ(0.0f);
+                    Matrix4.CreateRotationX(rotationX.a) *
+                    Matrix4.CreateRotationY(rotationY.a) *
+                    Matrix4.CreateRotationZ(rotationZ.a);
                 break;
             case Slot.CENTER:
                 rotationMatrix = 
-                    Matrix4.CreateRotationX(1.0f) *
-                    Matrix4.CreateRotationY(1.0f) *
-                    Matrix4.CreateRotationZ(1.0f);
+                    Matrix4.CreateRotationX(rotationX.b) *
+                    Matrix4.CreateRotationY(rotationY.b) *
+                    Matrix4.CreateRotationZ(rotationZ.b);
                 break;
         }
 

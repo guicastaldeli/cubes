@@ -1,6 +1,3 @@
-
-using App.Root.Mesh;
-
 /**
 
     Slot class for
@@ -8,6 +5,7 @@ using App.Root.Mesh;
 
     */
 namespace App.Root.Player.Inventory;
+using App.Root.Mesh;
 
 class Slot {
     public int index;
