@@ -113,7 +113,7 @@ class MeshInteractionController {
 
         PlacedMeshDef def = mainSlot.def;
 
-        MeshData data = MeshLoader.load(def.MeshType);
+        MeshData data = MeshDataLoader.load(def.MeshType);
         float halfH = getMeshHalfHeight(data);
         Vector3 scale = def.Scale ?? mesh.getDefaultScale(data);
 

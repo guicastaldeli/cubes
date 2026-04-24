@@ -20,7 +20,7 @@ class Aim : HudElement {
     private void set() {
         int texId = TextureLoader.load(TEX_PATH);
 
-        MeshData data = MeshLoader.load(MESH);
+        MeshData data = MeshDataLoader.load(MESH);
         mesh.add(ID, data);
 
         var renderer = mesh.getMeshRenderer(ID);

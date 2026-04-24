@@ -1,8 +1,8 @@
 namespace App.Root.Mesh;
 using NLua;
 
-class MeshLoader {
-    private static string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mesh/data/");
+class MeshDataLoader {
+    private static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mesh/data/");
 
     private static float[] toFloatArray(LuaTable table) {
         int len = (int)(long)table.Values.Count;
@@ -18,9 +18,11 @@ class MeshLoader {
         return arr;
     }
 
-    ///
-    /// Parse
-    /// 
+    /**
+    
+        Parse
+    
+        */
     private static MeshData parse(Lua data, string meshId) {
         string meshType = data["meshType"] as string ?? meshId;
         MeshData meshData = new MeshData(meshId, meshType);
@@ -43,12 +45,14 @@ class MeshLoader {
         return meshData;
     } 
 
-    ///
-    /// Load
-    /// 
+    /**
+    
+        Load
+    
+        */ 
     public static MeshData load(string meshId) {
         string file = meshId.ToLower() + ".lua";
-        string path = Path.Combine(DIR, file);
+        string path = Path.Combine(DATA_DIR, file);
         if(!File.Exists(path)) throw new IOException("Mesh file not found: " + path);
 
         try {

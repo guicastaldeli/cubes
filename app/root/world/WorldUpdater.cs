@@ -102,7 +102,7 @@ class WorldUpdater {
         if(window == null || mesh == null || collisionManager == null) return;
 
         window.queueOnRenderThread(() => {
-            MeshData data = MeshLoader.load(meshType);
+            MeshData data = MeshDataLoader.load(meshType);
             mesh.add(id, data);
             mesh.setPosition(id, position);
             mesh.setScale(id, scale);

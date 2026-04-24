@@ -254,7 +254,7 @@ class Mode {
                 }
             }
 
-            MeshData data = MeshLoader.load(def.MeshType);
+            MeshData data = MeshDataLoader.load(def.MeshType);
             mesh.add(previewId, data);
 
             if(def.Scale.HasValue) {

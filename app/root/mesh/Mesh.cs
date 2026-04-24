@@ -326,12 +326,12 @@ class Mesh {
 
         */
     public void add(string id) {
-        MeshData data = MeshLoader.load(id);
+        MeshData data = MeshDataLoader.load(id);
         addToMap(id, data);
     }
 
     public void add(string id, string meshType) {
-        MeshData data = MeshLoader.load(meshType);
+        MeshData data = MeshDataLoader.load(meshType);
         addToMap(id, data);
     }
 

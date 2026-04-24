@@ -71,7 +71,7 @@ class Platform : WorldHandler {
         private void spawnMesh(string meshType, Vector3 position, float scale, string texPath, string stackId) {
             string id = $"{meshType}_{spawnCounter++}";
 
-            MeshData data = MeshLoader.load(meshType);
+            MeshData data = MeshDataLoader.load(meshType);
             mesh.add(id, data);
             mesh.setPosition(id, position);
             if(scale != 1.0f) mesh.setScale(id, scale);
@@ -99,7 +99,7 @@ class Platform : WorldHandler {
             string id = "cubic";
             string stackId = "cubic_stack";
             string mesht = "cube";
-            MeshData data = MeshLoader.load(mesht);
+            MeshData data = MeshDataLoader.load(mesht);
             mesh.add(id, data);
             mesh.setPosition(id, 0.0f, 10.0f, -3.0f);
             mesh.setScale(id, 0.5f);
@@ -127,7 +127,7 @@ class Platform : WorldHandler {
         public void set3() {
             string id = "cubic2";
             string mesht = "sphere";
-            MeshData data = MeshLoader.load(mesht);
+            MeshData data = MeshDataLoader.load(mesht);
             mesh.add(id, data);
             mesh.setPosition(id, 2.0f, 10.0f, -3.0f);
 

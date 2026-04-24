@@ -172,7 +172,7 @@ class ParticleEntity {
     private void setup() {
         if(mesh.hasMesh(id)) return;
         
-        MeshData data = MeshLoader.load(MESH_TYPE);
+        MeshData data = MeshDataLoader.load(MESH_TYPE);
         data.shaderType = 7;
 
         float[] colors = new float[16];

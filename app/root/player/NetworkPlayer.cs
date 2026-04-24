@@ -34,7 +34,7 @@ class NetworkPlayer : NetworkUpdateHandler {
             playerController.getWindow().queueOnRenderThread(() => {
                 if(string.IsNullOrEmpty(meshName)) return;
 
-                MeshData data = MeshLoader.load(meshName);
+                MeshData data = MeshDataLoader.load(meshName);
                 mesh.add(id, data);
                 mesh.setPosition(id, x, y, z);
             });

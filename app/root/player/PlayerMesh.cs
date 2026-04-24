@@ -138,7 +138,7 @@ class PlayerMesh {
 
         if(!mesh.hasMesh(PLAYER_ID)) {
             window.queueOnRenderThread(() => {
-                MeshData data = MeshLoader.load(PLAYER_MESH);
+                MeshData data = MeshDataLoader.load(PLAYER_MESH);
                 mesh.add(PLAYER_ID, data);
                 if(local) mesh.setVisible(PLAYER_ID, false);
             });
@@ -152,7 +152,7 @@ class PlayerMesh {
 
         if(!mesh.hasMesh(ARM_ID)) {
             window.queueOnRenderThread(() => {
-                MeshData data = MeshLoader.load(ARM_MESH);
+                MeshData data = MeshDataLoader.load(ARM_MESH);
                 mesh.add(ARM_ID, data);
                 mesh.setScale(ARM_ID, 0.5f, 0.5f, 0.5f);
 

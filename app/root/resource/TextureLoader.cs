@@ -3,10 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using StbImageSharp;
 
 class TextureLoader {
-    private static string DIR = Path.Combine(
-        AppDomain.CurrentDomain.BaseDirectory,
-        "resource/texture/"
-    );
+    private static string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/texture/");
 
     public class TextureData {
         public int id;
