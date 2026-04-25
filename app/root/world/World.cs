@@ -9,7 +9,7 @@ class World : WorldHandler {
     private ServiceContainer ServiceContainer = new ServiceContainer();
     private bool isRegistered = false;
 
-    private List<WorldHandler> el = new ();
+    private List<WorldHandler> el = new();
 
     private Window window;
     private Mesh.Mesh mesh;
@@ -18,7 +18,7 @@ class World : WorldHandler {
     private WorldManager worldManager;
     private WorldBoundary worldBoundary;
 
-    public static float WORLD_BOUNDARY = 25.0f;
+    public const float WORLD_BOUNDARY = 25.0f;
     
     public World(
         Window window,
@@ -51,6 +51,11 @@ class World : WorldHandler {
     // Get Mesh
     public Mesh.Mesh getMesh() {
         return mesh;
+    }
+
+    // Get World Manager
+    public WorldManager getWorldManager() {
+        return worldManager;
     }
 
     // Set Collision

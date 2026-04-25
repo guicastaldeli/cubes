@@ -21,6 +21,7 @@ class Skybox : WorldHandler {
         */
     private void set() {
         MeshData data = MeshDataLoader.load(MESH);
+        data.shaderType = 8;
 
         mesh.setPosition(ID, 0.0f, 0.0f, 0.0f);
         mesh.add(ID, data);
