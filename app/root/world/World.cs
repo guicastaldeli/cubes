@@ -2,9 +2,13 @@ namespace App.Root.World;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Physics;
+using App.Root.Utils;
 using System.Reflection;
 
 class World : WorldHandler {
+    private ServiceContainer ServiceContainer = new ServiceContainer();
+    private bool isRegistered = false;
+
     private List<WorldHandler> el = new ();
 
     private Window window;
@@ -25,8 +29,13 @@ class World : WorldHandler {
         this.window = window;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
-
         this.worldManager = worldManager;
+
+        ServiceContainer.Register(window);
+        ServiceContainer.Register(mesh);
+        ServiceContainer.Register(worldManager);
+        ServiceContainer.Register(collisionManager);
+
         WorldUpdater.getInstance().init(window, mesh, collisionManager);
         this.worldBoundary = new WorldBoundary(
             worldManager.getPlayerController(),
@@ -35,12 +44,18 @@ class World : WorldHandler {
 
         PhysicsRegistry.getInstance().init(mesh, collisionManager);
 
-        register();
+        Register();
         setCollision();
     } 
 
+    // Get Mesh
     public Mesh.Mesh getMesh() {
         return mesh;
+    }
+
+    // Set Collision
+    public void setCollision() {
+        collisionManager.addStaticCollider(new BoundaryObject(WORLD_BOUNDARY));
     }
 
     /**
@@ -53,11 +68,34 @@ class World : WorldHandler {
     }
 
     /**
+    
+        Render
+    
+        */
+    public override void render() {
+        foreach(var e in el) e.render();
+    }
+
+    /**
+    
+        Update
+    
+        */
+    public override void update() {
+        foreach(var e in el) e.update();
+        worldBoundary.apply();
+
+        PhysicsRegistry.getInstance().update();
+    }
+
+    /**
 
         Register
     
         */ 
-    private void register() {
+    private void Register() {
+        if(isRegistered) return;
+
         var baseType = typeof(WorldHandler);
         var excluded = new[] {
             typeof(WorldHandler),
@@ -74,35 +112,72 @@ class World : WorldHandler {
                 !excluded.Contains(t)
             );
         foreach(var type in types) {
-            var ctor = type.GetConstructor(new[] {
-                typeof(Mesh.Mesh),
-                typeof(CollisionManager)
-            });
-            if(ctor != null) {
-                var instance = (WorldHandler)ctor.Invoke(new object[] {
-                    mesh,
-                    collisionManager
-                });
+            var instance = CreateInstance(type);
+            if(instance != null) {
                 el.Add(instance);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Registered: {type.Name}");
+                Console.ResetColor();
+            } else {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine($"Failed to register: {type.Name}");
+                Console.ResetColor();
             }
         }
+
+        isRegistered = true;
     }
 
-    // Set Collision
-    public void setCollision() {
-        //collisionManager.addStaticCollider(new BoundaryObject(WORLD_BOUNDARY));
-    }
+    /**
 
-    // Render
-    public override void render() {
-        foreach(var e in el) e.render();
-    }
+        Create Instance
+    
+        */ 
+    private WorldHandler? CreateInstance(Type type) {
+        var constructors = type.GetConstructors();
 
-    // Update
-    public override void update() {
-        foreach(var e in el) e.update();
-        worldBoundary.apply();
+        foreach(var ctor in constructors.OrderByDescending(c => c.GetParameters().Length)) {
+            var parameters = ctor.GetParameters();
+            var args = new object?[parameters.Length];
+            bool canResolve = true;
 
-        PhysicsRegistry.getInstance().update();
+            for(int i = 0; i < parameters.Length; i++) {
+                var param = parameters[i];
+                var hasInjectionAttr = param.GetCustomAttribute<InjectAttribute>() != null;
+                if(hasInjectionAttr || ServiceContainer.Has(param.ParameterType)) {
+                    var service = ServiceContainer.Get(param.ParameterType);
+                    if(service != null) {
+                        args[i] = service;
+                    }
+                    else if(param.IsOptional) {
+                        args[i] = param.DefaultValue;
+                    }
+                    else {
+                        canResolve = false;
+                        break;
+                    }
+                }
+                else if(param.IsOptional) {
+                    args[i] = param.DefaultValue;
+                }
+                else {
+                    canResolve = false;
+                    break;
+                }
+
+            }
+
+            if(canResolve) {
+                try {
+                    return (WorldHandler)ctor.Invoke(args);
+                } catch(Exception err) {
+                    Console.WriteLine($"Error creating {type.Name}: {err.Message}");
+                    return null;
+                }
+            }
+        }
+
+        return null;
     }
 }

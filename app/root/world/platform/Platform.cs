@@ -5,6 +5,7 @@ using App.Root.Mesh;
 using App.Root.Mesh.Particle;
 using App.Root.Physics;
 using App.Root.Resource;
+using App.Root.Utils;
 using OpenTK.Mathematics;
 
 class Platform : WorldHandler {
@@ -26,7 +27,7 @@ class Platform : WorldHandler {
 
     private bool initialized = false;
     
-    public Platform(Mesh mesh, CollisionManager collisionManager) {
+    public Platform([Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
     }
@@ -119,7 +120,7 @@ class Platform : WorldHandler {
                 id,
                 State.BREAKABLE,
                 mesh,
-                Type.DYNAMIC,
+                PhysicsType.DYNAMIC,
                 stackId
             );
         }
@@ -146,7 +147,7 @@ class Platform : WorldHandler {
                 id,
                 State.BREAKABLE,
                 mesh,
-                Type.DYNAMIC
+                PhysicsType.DYNAMIC
             );
         }
 
@@ -157,7 +158,7 @@ class Platform : WorldHandler {
             MeshData data = MeshModelLoader.loadModel(path);
             data.isModel = true;
             data.modelPath = path;
-            data.colliderShape = Types.CUBE;
+            data.colliderShape = ColliderType.CUBE;
 
             mesh.add(id, data);
             mesh.setPosition(id, -3.0f, 10.0f, -3.0f);
@@ -177,7 +178,7 @@ class Platform : WorldHandler {
                 id,
                 State.BREAKABLE,
                 mesh,
-                Type.DYNAMIC,
+                PhysicsType.DYNAMIC,
                 meshType: path
             );
         }
@@ -264,7 +265,7 @@ class Platform : WorldHandler {
             GRID_ID,
             State.GRID,
             mesh,
-            Type.RECEIVER
+            PhysicsType.RECEIVER
         );
 
         height = getHeight();

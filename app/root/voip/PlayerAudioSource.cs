@@ -31,9 +31,11 @@ class PlayerAudioSource {
         Console.WriteLine($"buffer buffered: {buffer.BufferedBytes} duration: {buffer.BufferedDuration}");
     }
 
-    ///
-    /// Play
-    /// 
+    /**
+    
+        Play
+
+        */
     public void play(byte[] encodedAudio, int sequence) {
         if(sequence <= lastSequence) return;
         lastSequence = sequence;
@@ -51,9 +53,11 @@ class PlayerAudioSource {
         }
     }
 
-    ///
-    /// Dispose
-    /// 
+    /**
+    
+        Dispose
+
+        */ 
     public void dispose() {
         waveOut.Stop();
         waveOut.Dispose();

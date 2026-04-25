@@ -71,7 +71,7 @@ class WorldUpdater {
         Vector3 scale,
         int texId,
         string texPath,
-        Type? physicsType = null,
+        PhysicsType? physicsType = null,
         MeshData? meshData = null
     ) {
         applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType, meshData);
@@ -96,7 +96,7 @@ class WorldUpdater {
         Vector3 scale,
         int texId,
         string texPath,
-        Type? physicsType = null,
+        PhysicsType? physicsType = null,
         MeshData? meshData = null
     ) {
         if(window == null || mesh == null || collisionManager == null) return;

@@ -19,9 +19,11 @@ class ServerDialogAction {
         this.network = network;
     }
 
-    ///
-    /// Host Server
-    /// 
+    /**
+    
+        Host Server
+
+        */
     public void hostServer() {
         int port = network.getPort().get();
 
@@ -34,9 +36,11 @@ class ServerDialogAction {
         serverDialog.mainScreen.getScene().init();
     }
 
-    ///
-    /// Join Server
-    /// 
+    /**
+    
+        Join Server
+
+        */
     public void joinServer() {
         string ip = serverDialog.inputField.getText("ipInput");
         string port = serverDialog.inputField.getText("joinPortInput");

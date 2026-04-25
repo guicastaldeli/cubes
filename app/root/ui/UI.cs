@@ -120,9 +120,11 @@ class UI : UIHandler {
     // Handle Mouse Click
     public virtual void handleMouseClick(int x, int y) {}
 
-    ///
-    /// Render
-    ///
+    /**
+    
+        Render
+
+        */
     public virtual void render() {
         if(!visible || textRenderer == null || uiData == null) return;
 
@@ -164,18 +166,22 @@ class UI : UIHandler {
         }
     }
 
-    ///
-    /// Update
-    ///
+    /**
+    
+        Update
+
+        */
     public virtual void update() {
         if(lastMouseX >= 0 && lastMouseY >= 0) {
             handleMouseMove(lastMouseX, lastMouseY);
         }
     }
 
-    ///
-    /// Window Resize
-    ///
+    /**
+    
+        On Window Resize
+
+        */
     public virtual void onWindowResize(int width, int height) {
         UI.screenWidth = width;
         UI.screenHeight = height;

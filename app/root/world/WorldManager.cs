@@ -88,16 +88,20 @@ class WorldManager {
         return collisionManager;
     }
     
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */ 
     public void render() {
         world.render();
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+    
+        */
     public void update() {
         world.update();
     }

@@ -19,9 +19,11 @@ class DocParser {
     private static int uiEbo = 0;
     private static bool uiBuffersInitialized = false;
 
-    ///
-    /// Parse
-    ///
+    /**
+    
+        Parse
+
+        */
     public static ScreenData parseScreen(string filePath, int screenWidth, int screenHeight) {
         ScreenData screenData = new ScreenData(filePath);
         try {
@@ -167,9 +169,11 @@ class DocParser {
     public static List<ScreenElement> parseDivs(string xmlFilePath, int screenWidth, int screenHeight) =>
         getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "div");
 
-    ///
-    /// Create Element
-    ///
+    /**
+    
+        Create Element
+
+        */
     private static ScreenElement? createScreenElement(
         XmlElement element,
         string type,
@@ -341,9 +345,11 @@ class DocParser {
         return screenElement;
     }
 
-    ///
-    /// Get Elements
-    ///
+    /**
+    
+        Get Elements
+
+        */
     public static List<ScreenElement> getElementsByType(ScreenData screenData, string type) {
         var result = new List<ScreenElement>();
         foreach(var el in screenData.elements) {
@@ -388,9 +394,11 @@ class DocParser {
         uiBuffersInitialized = true;
     }
 
-    ///
-    /// Render Element
-    ///
+    /**
+    
+        Render Element
+
+        */
     public static void renderScreenElement(
         ScreenElement element,
         int screenWidth,
@@ -453,9 +461,11 @@ class DocParser {
         GL.Disable(EnableCap.Blend);
     }
 
-    ///
-    /// Render Screen
-    ///
+    /**
+    
+        Render Screen
+
+        */
     public static void renderScreen(
         ScreenData? screenData,
         int screenWidth,
@@ -533,9 +543,11 @@ class DocParser {
         }
     }
 
-    ///
-    /// Create UI Element
-    ///
+    /**
+    
+        Create UI Element
+
+        */
     private static UIElement? createUIElement(
         XmlElement element,
         string type,
@@ -764,11 +776,13 @@ class DocParser {
 
         if(depthTest) GL.Enable(EnableCap.DepthTest);
         GL.Disable(EnableCap.Blend);
-}
+    }
 
-    ///
-    /// Render UI
-    ///
+    /**
+    
+        Render UI
+
+        */
     public static void renderUI(
         UIData? uiData,
         int screenWidth,
@@ -846,9 +860,11 @@ class DocParser {
         }
     }
 
-    ///
-    /// Cleanup
-    ///
+    /**
+    
+        Cleanup
+
+        */
     public static void cleanup() {
         if(uiVao != 0) GL.DeleteVertexArray(uiVao);
         if(uiVbo != 0) GL.DeleteBuffer(uiVbo);
@@ -856,9 +872,11 @@ class DocParser {
         uiBuffersInitialized = false;
     }
 
-    ///
-    /// Expression Evaluator
-    ///
+    /**
+    
+        Evaluate Expression
+
+        */
     private static string evaluateExpression(string text) {
         if(string.IsNullOrEmpty(text) || !text.Contains("${")) return text;
 

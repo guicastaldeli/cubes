@@ -8,7 +8,7 @@ namespace App.Root.Mesh;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 
-static class Types {
+static class ColliderType {
     public const string CUBE = "cube";
     public const string SPHERE = "sphere";
     public const string TRIANGLE = "triangle";
@@ -38,13 +38,13 @@ static class MeshCollider {
         if(data == null) return;
 
         switch(data.colliderShape) {
-            case Types.CUBE:
+            case ColliderType.CUBE:
                 collisionManager.addStaticCollider(new StaticObject(mesh.getBBox(id), id));
                 break;
-            case Types.SPHERE:
+            case ColliderType.SPHERE:
                 collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
                 break;
-            case Types.TRIANGLE:
+            case ColliderType.TRIANGLE:
                 collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
                 break;
         }

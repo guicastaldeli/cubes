@@ -179,9 +179,11 @@ class Scene {
         mesh.render();
     }
 
-    ///
-    /// Reset
-    /// 
+    /**
+    
+        Reset
+
+        */
     public void reset() {
         initialized = false;
         screenController.running = false;

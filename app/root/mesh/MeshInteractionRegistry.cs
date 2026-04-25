@@ -28,7 +28,7 @@ record PlacedMeshDef(
     Vector3? Scale = null,
     string? InstanceId = null,
     string? StackId = null,
-    Type? PhysicsType = null,
+    PhysicsType? PhysicsType = null,
     MeshData? MeshData = null,
     string? ColliderShape = null,
     float? ColliderRadius = 1.0f
@@ -89,7 +89,7 @@ class MeshInteractionRegistry {
         string id,
         State state, 
         Mesh mesh,
-        Type? physicsType = null,
+        PhysicsType? physicsType = null,
         string? stackId = null,
         string? meshType = null
     ) {

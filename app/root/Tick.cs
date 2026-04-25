@@ -102,9 +102,11 @@ class Tick {
         timeUpdatedThisFrame = false;
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     private void updateTime() {
         if(timeUpdatedThisFrame) return;
 

@@ -13,17 +13,17 @@ static class MeshPhysics {
         Update
 
         */
-    public static void update(MeshData data, string id, Type? type) {
+    public static void update(MeshData data, string id, PhysicsType? type) {
         if(data == null) return;
 
         PhysicsRegistry physicsRegistry = PhysicsRegistry.getInstance();
 
         switch(type) {
-            case Type.DYNAMIC:
-                physicsRegistry.register(id, data, Type.DYNAMIC);
+            case PhysicsType.DYNAMIC:
+                physicsRegistry.register(id, data, PhysicsType.DYNAMIC);
                 break;
-            case Type.RECEIVER:
-                physicsRegistry.register(id, data, Type.RECEIVER);
+            case PhysicsType.RECEIVER:
+                physicsRegistry.register(id, data, PhysicsType.RECEIVER);
                 break;
         }
 

@@ -10,7 +10,7 @@ using OpenTK.Mathematics;
     the collider type...
 
     */
-static class Types {
+static class ShapeType {
     public const string CUBE = "cube";
     public const string SPHERE = "sphere";
     public const string TRIANGLE = "triangle";
@@ -83,12 +83,12 @@ class Shape {
         if(data == null) return this;
 
         switch(data.colliderShape) {
-            case Types.SPHERE:
+            case ShapeType.SPHERE:
                 Vector3 center = mesh.getPosition(id);
                 float r = getScaledRadius(mesh, id);
                 hit = raycaster.intersectsSphere(origin, dir, center, r, out dist);
                 break;
-            case Types.TRIANGLE:
+            case ShapeType.TRIANGLE:
                 BBox tBox = mesh.getBBox(id);
                 if(!raycaster.intersects(origin, dir, tBox, out _)) {
                     hit = false;
@@ -97,7 +97,7 @@ class Shape {
                     hit = raycaster.intersectsTriangle(origin, dir, id, out dist);
                 }
                 break;
-            case Types.CUBE:
+            case ShapeType.CUBE:
             default:
                 BBox box = mesh.getBBox(id);
                 hit = raycaster.intersects(origin, dir, box, out dist);

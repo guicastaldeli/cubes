@@ -40,9 +40,11 @@ class Atlas {
         }
     }
 
-    ///
-    /// Texture
-    /// 
+    /**
+    
+        Texture
+
+        */
     public int getTextureId() {
         return textureId;
     }
@@ -64,9 +66,11 @@ class Atlas {
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
-    ///
-    /// Glyph
-    /// 
+    /**
+    
+        Glyph
+
+        */
     public Glyph? getGlyph(char c) {
         return glyphs.Find(g => g.codepoint == c);
     }

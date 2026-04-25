@@ -138,9 +138,11 @@ class RigidBody {
         );
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     public void update() {
         float deltaTime = Tick.getDeltaTimeI();
         deltaTime = MathF.Min(deltaTime, 0.1f);

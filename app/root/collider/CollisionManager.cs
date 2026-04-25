@@ -30,9 +30,11 @@ class CollisionManager {
         return staticColliders;
     }
 
-    ///
-    /// Check Collision
-    /// 
+    /**
+    
+        Check Collision
+
+        */
     public List<CollisionResult> checkCollision(RigidBody rigidBody) {
         BBox bodyBounds = rigidBody.getBBox();
         List<CollisionResult> results = new();
@@ -86,9 +88,11 @@ class CollisionManager {
         return results;
     }
 
-    ///
-    /// Resolve Collision
-    /// 
+    /**
+    
+        Resolve Collision
+
+        */
     public void resolveCollision(RigidBody rigidBody, List<CollisionResult> collisions) {
         if(collisions.Count == 0) {
             rigidBody.setOnSurface(false);
@@ -182,9 +186,11 @@ class CollisionManager {
         rigidBody.setOnSurface(groundFound);
     } 
 
-    ///
-    /// Update 
-    /// 
+    /**
+    
+        Update
+
+        */
     public void update() {
         foreach(var collider in staticColliders) {
             RigidBody? rigidBody = collider.getRigidBody();

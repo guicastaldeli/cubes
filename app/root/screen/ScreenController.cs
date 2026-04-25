@@ -122,25 +122,31 @@ class ScreenController {
         prevScreen = null;
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */
     public void render() {
         prevScreen?.render();
         if(currentScreen != prevScreen) currentScreen?.render();
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     public void update() {
         prevScreen?.update();
         if(currentScreen != null) currentScreen.update();
     }
 
-    ///
-    /// Init
-    /// 
+    /**
+    
+        Init
+
+        */
     public void init() {
         // Main
         screens[SCREENS.MAIN] = new MainScreen();

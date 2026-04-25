@@ -67,13 +67,13 @@ class Shape {
     detect which is the Mesh physics type.
 
     */
-enum Type {
+enum PhysicsType {
     DYNAMIC,
     RECEIVER
 }
 
 class Updater {
-    private Type type;
+    private PhysicsType type;
     private Mesh mesh;
     private MeshData data;
     private PhysicsRegistry.Entry entry;
@@ -82,7 +82,7 @@ class Updater {
     private Shape shape;
 
     public Updater(
-        Type type, 
+        PhysicsType type, 
         Mesh mesh,
         MeshData data,
         PhysicsRegistry.Entry entry,
@@ -98,7 +98,7 @@ class Updater {
     }
     
     public void update(string id) {
-        if(type == Type.DYNAMIC) {
+        if(type == PhysicsType.DYNAMIC) {
             Vector3 position = mesh.getPosition(id);
             entry.physicsBody = new PhysicsBody(position);
         }  
@@ -147,11 +147,11 @@ class PhysicsRegistry {
         */
     public class Entry {
         public string id;
-        public Type type;
+        public PhysicsType type;
         public PhysicsBody? physicsBody;
         public Collider? collider;
 
-        public Entry(string id, Type type) {
+        public Entry(string id, PhysicsType type) {
             this.id = id;
             this.type = type;
         }
@@ -235,7 +235,7 @@ class PhysicsRegistry {
     // Get All Receivers
     public List<Entry> getReceivers() {
         return entries.Values
-            .Where(e => e.type == Type.RECEIVER)
+            .Where(e => e.type == PhysicsType.RECEIVER)
             .ToList();
     }
 
@@ -271,7 +271,7 @@ class PhysicsRegistry {
     // Get All Dynamic Objects
     public List<Entry> getDynamicObjects() {
         return entries.Values
-            .Where(e => e.type == Type.DYNAMIC)
+            .Where(e => e.type == PhysicsType.DYNAMIC)
             .ToList();
     }
 
@@ -295,7 +295,7 @@ class PhysicsRegistry {
         Register
     
         */
-    public void register(string id, MeshData data, Type type) {
+    public void register(string id, MeshData data, PhysicsType type) {
         if(entries.ContainsKey(id)) {
             Console.WriteLine($"PhysicsRegistry: {id} already registered");
             return;

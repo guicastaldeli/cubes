@@ -41,9 +41,11 @@ class BoundaryObject : Collider {
             MathF.Abs(position.Z) > distance;
     }
 
-    ///
-    /// Get Boundary
-    /// 
+    /**
+    
+        Get Boundary
+
+        */
     public Vector3 getBoundaryNormal(Vector3 position) {
         Vector3 normal = Vector3.Zero;
         if(MathF.Abs(position.X) > distance) {

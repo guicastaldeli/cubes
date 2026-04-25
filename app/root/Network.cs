@@ -67,9 +67,11 @@ class Network {
         return server != null;
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     public void initNetworkUpdate() {
         networkUpdate = new NetworkUpdate();
     }
@@ -78,9 +80,11 @@ class Network {
         return networkUpdate;
     }
 
-    ///
-    /// Host
-    /// 
+    /**
+    
+        Host
+
+        */
     public void host(int port, int maxPlayers) {
         server = new Server(port, maxPlayers);
         server.start();

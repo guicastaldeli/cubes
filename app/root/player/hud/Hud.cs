@@ -80,9 +80,11 @@ class Hud {
         }
     }
 
-    ///
-    /// Init
-    /// 
+    /**
+    
+        Init
+
+        */
     public void init() {
         var baseType = typeof(HudElement);
 
@@ -102,18 +104,22 @@ class Hud {
         }
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+
+        */
     public void render() {
         foreach(var el in elements.Values) {
             el.render();
         }
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+
+        */
     public void update() {
         foreach(var el in elements.Values) {
             el.update();
