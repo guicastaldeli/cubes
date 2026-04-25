@@ -15,9 +15,11 @@ class NetworkPlayer : NetworkUpdateHandler {
         renderName();
     }
 
-    ///
-    /// Render
-    /// 
+    /**
+    
+        Render
+    
+        */
     private void render(
         Mesh mesh, 
         string id, 
@@ -65,9 +67,11 @@ class NetworkPlayer : NetworkUpdateHandler {
         });
     }
 
-    ///
-    /// Update
-    /// 
+    /**
+    
+        Update
+    
+        */ 
     public override void update() {
         playerController.sendState();
         

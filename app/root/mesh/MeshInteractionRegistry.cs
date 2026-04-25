@@ -28,7 +28,8 @@ record PlacedMeshDef(
     Vector3? Scale = null,
     string? InstanceId = null,
     string? StackId = null,
-    Type? PhysicsType = null
+    Type? PhysicsType = null,
+    MeshData? MeshData = null
 );
 
 /**
@@ -87,7 +88,8 @@ class MeshInteractionRegistry {
         State state, 
         Mesh mesh,
         Type? physicsType = null,
-        string? stackId = null
+        string? stackId = null,
+        string? meshType = null
     ) {
         var renderer = mesh.getMeshRenderer(id);
         if(renderer == null) return;
@@ -95,9 +97,11 @@ class MeshInteractionRegistry {
         var data = mesh.getData(id);
         if(data == null) return;
 
-        string meshType = data.meshType ?? id;
+        string type = meshType ?? data.meshType ?? id;
+        
         string? texPath = renderer.getTexPath();
         int texId = renderer.getTexId();
+
         Vector3? scale = 
             (renderer != null && renderer.isScaled()) ? 
             renderer.getScale() : 
@@ -108,7 +112,7 @@ class MeshInteractionRegistry {
         }
 
         setRegister(id, state, new PlacedMeshDef(
-            meshType, 
+            type, 
             texPath, 
             texId, 
             scale,
@@ -124,7 +128,7 @@ class MeshInteractionRegistry {
         Mesh mesh,
         string? stackId = null
     ) {
-        register(id, state, mesh, null, stackId);
+        register(id, state, mesh, null, stackId, null);
     }
 
     public void register(

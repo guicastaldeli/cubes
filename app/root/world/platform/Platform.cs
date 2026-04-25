@@ -150,6 +150,36 @@ class Platform : WorldHandler {
             );
         }
 
+        public void set4() {
+            string id = "dino";
+            string path = "resource/test/dino.obj";
+
+            MeshData data = MeshModelLoader.loadModel(path);
+            data.isModel = true;
+
+            mesh.add(id, data);
+            mesh.setPosition(id, -3.0f, 10.6f, -3.0f);
+
+            var renderer = mesh.getMeshRenderer(id);
+            if(renderer != null) renderer.isInteractive = true;
+
+            string texPath = "test/dino.png";
+            int texId = TextureLoader.load(texPath);
+            mesh.setTexture(id, texId, texPath);
+
+            //collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
+            //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
+            //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
+        
+            MeshInteractionRegistry.getInstance().register(
+                id,
+                State.BREAKABLE,
+                mesh,
+                Type.DYNAMIC,
+                meshType: path
+            );
+        }
+
         ///
         /// Particles
         /// 
@@ -280,6 +310,8 @@ class Platform : WorldHandler {
 
             set2();
             set3();
+            set4();
+            
             spawnGrid("cube", new Vector3(4f, 3f, -3f), 5, 3);
             
             initialized = true;

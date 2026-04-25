@@ -20,9 +20,24 @@ class MeshData {
     public string meshType { 
         get; 
     }
-    
+
     public string id { 
         get; 
+    }
+
+    public bool isModel {
+        get;
+        set;
+    } = false;
+
+    public string? modelPath { 
+        get; 
+        set; 
+    }
+    
+    public string? texPath { 
+        get; 
+        set; 
     }
     
     public bool isDynamic { 

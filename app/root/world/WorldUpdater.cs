@@ -63,9 +63,7 @@ class WorldUpdater {
         Mesh
     
         */
-    ///
-    /// Add
-    /// 
+    // Add
     public void addMesh(
         string id,
         string meshType,
@@ -73,9 +71,10 @@ class WorldUpdater {
         Vector3 scale,
         int texId,
         string texPath,
-        Type? physicsType = null
+        Type? physicsType = null,
+        MeshData? meshData = null
     ) {
-        applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType);
+        applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType, meshData);
 
         var packet = new PacketMeshUpdate {
             action = MeshAction.ADD,
@@ -97,12 +96,15 @@ class WorldUpdater {
         Vector3 scale,
         int texId,
         string texPath,
-        Type? physicsType = null
+        Type? physicsType = null,
+        MeshData? meshData = null
     ) {
         if(window == null || mesh == null || collisionManager == null) return;
 
         window.queueOnRenderThread(() => {
-            MeshData data = MeshDataLoader.load(meshType);
+            MeshData? data = LoadMeshData.L(meshType, meshData!);
+            if(data == null) return;
+
             mesh.add(id, data);
             mesh.setPosition(id, position);
             mesh.setScale(id, scale);
@@ -118,14 +120,13 @@ class WorldUpdater {
                 id,
                 State.BREAKABLE,
                 mesh,
-                physicsType
+                physicsType,
+                meshType: meshType
             );
         });
     }
     
-    ///
-    /// Remove
-    /// 
+    // Remove
     public void removeMesh(string id) {
         applyRemoveMesh(id);
 

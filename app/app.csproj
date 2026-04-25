@@ -47,6 +47,14 @@
     <Content Include="root\**\*.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-  </Content>
+    </Content>
+    <Content Include="root\**\*.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\**\**\s*.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
   </ItemGroup>
 </Project>

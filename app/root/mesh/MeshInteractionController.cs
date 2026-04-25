@@ -113,7 +113,9 @@ class MeshInteractionController {
 
         PlacedMeshDef def = mainSlot.def;
 
-        MeshData data = MeshDataLoader.load(def.MeshType);
+        MeshData? data = LoadMeshData.L(def.MeshType, def.MeshData!);
+        if(data == null) return;
+        
         float halfH = getMeshHalfHeight(data);
         Vector3 scale = def.Scale ?? mesh.getDefaultScale(data);
 
@@ -132,7 +134,8 @@ class MeshInteractionController {
             scale, 
             def.TexId, 
             def.TexPath,
-            def.PhysicsType
+            def.PhysicsType,
+            def.MeshData
         );
 
         mainSlot.remove();

@@ -6,10 +6,10 @@
 
     */
 namespace App.Root.Mesh;
+using App.Root.Utils;
 using OpenTK.Mathematics;
 using System.Globalization;
 using NLua;
-using App.Root.Utils;
 
 /**
 
@@ -39,7 +39,7 @@ class ModelData {
 
     */
 class MeshModelLoader {
-    private static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "");
+    private static string DATA_DIR = AppDomain.CurrentDomain.BaseDirectory;
 
     // Generate Normals
     private static float[] generateNormals(float[] verts, int[] indices) {
@@ -160,10 +160,9 @@ class MeshModelLoader {
     // Load Model
     public static MeshData loadModel(string fileName) {
         string ext = Path.GetExtension(fileName).ToLower();
-        const string extName = ".obj";
         
         MeshData val = ext switch {
-            extName => loadObj(fileName),
+            LoadMeshData.EXT_NAME => loadObj(fileName),
             _ => throw new NotSupportedException($"File format {ext} not supported!")
         };
         return val;
@@ -224,46 +223,61 @@ class MeshModelLoader {
                         }
                         break;
                     case "f":
-                        if(parts.Length >= 4) {
-                            for(int i = 1; i <= 3; i++) {
-                                string vertStr = parts[i];
-                                if(vertCache.ContainsKey(vertStr)) {
-                                    string[] vertParts = vertStr.Split('/');
+                    if(parts.Length >= 4) {
+                        for(int i = 1; i <= 3; i++) {
+                            string vertStr = parts[i];
+                            
+                            if(!vertCache.ContainsKey(vertStr)) {
+                                string[] vertParts = vertStr.Split('/');
 
-                                    int vIdx = int.Parse(vertParts[0]) - 1;
-                                    finalVerts.Add(verts[vIdx].X);
-                                    finalVerts.Add(verts[vIdx].Y);
-                                    finalVerts.Add(verts[vIdx].Z);
+                                int vIdx = int.Parse(vertParts[0]) - 1;
+                                finalVerts.Add(verts[vIdx].X);
+                                finalVerts.Add(verts[vIdx].Y);
+                                finalVerts.Add(verts[vIdx].Z);
 
-                                    if(vertParts.Length > 1 && !string.IsNullOrEmpty(vertParts[1])) {
-                                        int vtIdx = int.Parse(vertParts[1]) - 1;
-                                        if(vtIdx >= 0 && vtIdx < texCoords.Count) {
-                                            finalTexCoords.Add(texCoords[vtIdx].X);
-                                            finalTexCoords.Add(texCoords[vtIdx].Y);
-                                        }
+                                if(vertParts.Length > 1 && !string.IsNullOrEmpty(vertParts[1])) {
+                                    int vtIdx = int.Parse(vertParts[1]) - 1;
+                                    if(vtIdx >= 0 && vtIdx < texCoords.Count) {
+                                        finalTexCoords.Add(texCoords[vtIdx].X);
+                                        finalTexCoords.Add(texCoords[vtIdx].Y);
+                                    } else {
+                                        finalTexCoords.Add(0.0f);
+                                        finalTexCoords.Add(0.0f);
                                     }
-
-                                    if(vertParts.Length > 2 && !string.IsNullOrEmpty(vertParts[2])) {
-                                        int vnIdx = int.Parse(vertParts[2]) - 1;
-                                        if(vnIdx >= 0 && vnIdx < norms.Count) {
-                                            finalNorms.Add(norms[vnIdx].X);
-                                            finalNorms.Add(norms[vnIdx].Y);
-                                            finalNorms.Add(norms[vnIdx].Z);
-                                        }
-                                    }
-
-                                    vertCache[vertStr] = currentIndex;
-                                    indices.Add(currentIndex);
-                                    currentIndex++;
                                 } else {
-                                    indices.Add(vertCache[vertStr]);
+                                    finalTexCoords.Add(0.0f);
+                                    finalTexCoords.Add(0.0f);
                                 }
+
+                                if(vertParts.Length > 2 && !string.IsNullOrEmpty(vertParts[2])) {
+                                    int vnIdx = int.Parse(vertParts[2]) - 1;
+                                    if(vnIdx >= 0 && vnIdx < norms.Count) {
+                                        finalNorms.Add(norms[vnIdx].X);
+                                        finalNorms.Add(norms[vnIdx].Y);
+                                        finalNorms.Add(norms[vnIdx].Z);
+                                    } else {
+                                        finalNorms.Add(0.0f);
+                                        finalNorms.Add(1.0f);
+                                        finalNorms.Add(0.0f);
+                                    }
+                                } else {
+                                    finalNorms.Add(0.0f);
+                                    finalNorms.Add(1.0f);
+                                    finalNorms.Add(0.0f);
+                                }
+
+                                vertCache[vertStr] = currentIndex;
+                                indices.Add(currentIndex);
+                                currentIndex++;
+                            } else {
+                                indices.Add(vertCache[vertStr]);
                             }
                         }
+                        
                         if(parts.Length >= 5) {
                             indices.Add(vertCache[parts[1]]);
                             indices.Add(vertCache[parts[3]]);
-
+                            
                             string vertStr = parts[4];
                             if(!vertCache.ContainsKey(vertStr)) {
                                 string[] vertParts = vertStr.Split('/');
@@ -278,7 +292,13 @@ class MeshModelLoader {
                                     if(vtIdx >= 0 && vtIdx < texCoords.Count) {
                                         finalTexCoords.Add(texCoords[vtIdx].X);
                                         finalTexCoords.Add(texCoords[vtIdx].Y);
+                                    } else {
+                                        finalTexCoords.Add(0.0f);
+                                        finalTexCoords.Add(0.0f);
                                     }
+                                } else {
+                                    finalTexCoords.Add(0.0f);
+                                    finalTexCoords.Add(0.0f);
                                 }
 
                                 if(vertParts.Length > 2 && !string.IsNullOrEmpty(vertParts[2])) {
@@ -287,7 +307,15 @@ class MeshModelLoader {
                                         finalNorms.Add(norms[vnIdx].X);
                                         finalNorms.Add(norms[vnIdx].Y);
                                         finalNorms.Add(norms[vnIdx].Z);
+                                    } else {
+                                        finalNorms.Add(0.0f);
+                                        finalNorms.Add(1.0f);
+                                        finalNorms.Add(0.0f);
                                     }
+                                } else {
+                                    finalNorms.Add(0.0f);
+                                    finalNorms.Add(1.0f);
+                                    finalNorms.Add(0.0f);
                                 }
 
                                 vertCache[vertStr] = currentIndex;
@@ -297,6 +325,7 @@ class MeshModelLoader {
                                 indices.Add(vertCache[vertStr]);
                             }
                         }
+                    }
                     break;
                 }
             }
