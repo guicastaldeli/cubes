@@ -149,7 +149,6 @@ class PlayerMesh {
         if(slot == Slot.CENTER) return;
         
         string ARM_ID = getArmId(slot);
-
         if(!mesh.hasMesh(ARM_ID)) {
             window.queueOnRenderThread(() => {
                 MeshData data = MeshDataLoader.load(ARM_MESH);

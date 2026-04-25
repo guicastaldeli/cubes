@@ -120,6 +120,8 @@ class Mode {
 
     private bool leftPressed = false;
     private bool rightPressed = false;
+    private bool leftWasPressed = false;
+    private bool rightWasPressed = false;
 
     public Mode(
         Window window,
@@ -292,14 +294,22 @@ class Mode {
 
         */
     public void handleInput(Slot slot, bool pressed) {
+        bool leftPrev = leftPressed;
+        bool rightPrev = rightPressed;
+        
         if(slot == Slot.LEFT) leftPressed = pressed;
         if(slot == Slot.RIGHT) rightPressed = pressed;
 
-        PlayerMesh playerMesh = playerController.getPlayerMesh();
+        bool isNewPress = false;
+        if(slot == Slot.LEFT && pressed && !leftPrev) isNewPress = true;
+        if(slot == Slot.RIGHT && pressed && !rightPrev) isNewPress = true;
 
+        PlayerMesh playerMesh = playerController.getPlayerMesh();
         bool bothHeld = leftPressed && rightPressed;
+        bool bothWereHeld = leftPrev && rightPrev;
+
         if(bothHeld) {
-            if(activeSlot != Slot.CENTER) {
+            if(!bothWereHeld && activeSlot != Slot.CENTER) {
                 if(activeSlot.HasValue) {
                     Slot prevSlotValue = activeSlot.Value;
                     hidePreview(prevSlotValue);
@@ -308,7 +318,7 @@ class Mode {
 
                 prevSlot = activeSlot;
                 activeSlot = Slot.CENTER;
-                
+
                 if(currentMode == Modes.NORMAL) {
                     set(Modes.GETTER, Slot.CENTER);
                 } else {
@@ -320,7 +330,7 @@ class Mode {
             return;
         }
 
-        if(activeSlot == Slot.CENTER && !bothHeld) {
+        if(activeSlot == Slot.CENTER && !bothHeld && bothWereHeld) {
             hidePreview(Slot.CENTER);
 
             Slot targetSlot = prevSlot ?? Slot.RIGHT;
@@ -336,7 +346,9 @@ class Mode {
             return;
         }
 
-        if(!pressed) return;
+        if(!isNewPress) {
+            return;
+        }
         
         if(currentMode == Modes.NORMAL) {
             set(Modes.GETTER, slot);
@@ -413,4 +425,3 @@ class Mode {
         updatePreview(activeSlot.Value);
     }
 }
-
