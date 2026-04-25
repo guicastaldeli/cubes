@@ -1,12 +1,11 @@
 
-using App.Root.Mesh;
-
 /**
 
     Grid class for
     the inventory resource grid.
 
     */
+using App.Root.Mesh;
 namespace App.Root.Player.Inventory;
 
 class Grid {
@@ -35,9 +34,17 @@ class Grid {
     // Find Slot
     public Slot? findSlot(PlacedMeshDef def) {
         for(int r = rows - 1; r >= 0; r--) {
-            for(int c = 0; c < cols; c++) {
+           for(int c = 0; c < cols; c++) {
                 var s = slots[r * cols + c];
-                if(s.def?.StackId == def.StackId && !s.isFull) return s;
+                
+                bool sameStack =
+                    s.def?.StackId != null &&
+                    s.def.StackId == def.StackId;
+                
+                bool sameType = 
+                    s.def?.MeshType == def.MeshType;
+
+                if(sameStack && sameType && !s.isFull) return s;
             }
         }
         for(int r = rows - 1; r >= 0; r--) {
@@ -51,7 +58,8 @@ class Grid {
 
     public Slot? findOccupiedSlot(PlacedMeshDef def) {
         return slots.FirstOrDefault(s => 
-            s.def?.StackId == def.StackId && 
+            s.def?.MeshType == def.MeshType &&
+            (def.StackId == null || s.def?.StackId == def.StackId) && 
             s.count > 0
         );
     }

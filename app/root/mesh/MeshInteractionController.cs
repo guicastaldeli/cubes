@@ -125,8 +125,9 @@ class MeshInteractionController {
         
         Vector3 scale = def.Scale ?? mesh.getDefaultScale(data);
         float halfH = getMeshHalfHeight(data, scale);
+        float placementH = data.isModel ? 0.0f : halfH;
 
-        Vector3? point = placementRaycaster.findPlacementPoint(halfH);
+        Vector3? point = placementRaycaster.findPlacementPoint(placementH);
         if(point == null) {
             Console.WriteLine("No valid surface to place on!");
             return;

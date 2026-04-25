@@ -117,7 +117,7 @@ class Raycaster {
     private Camera camera;
     private Mesh mesh;
 
-    private float maxDist = 50.0f;
+    private float maxDist = 10.0f;
 
     private bool isActive = true;
 

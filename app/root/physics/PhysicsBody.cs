@@ -22,6 +22,7 @@ class PhysicsBody {
     private bool isSleeping = false;
 
     private int stableFrames = 0;
+    private int spawnFrames = 15;
 
     public PhysicsBody(Vector3 position) {
         this.position = position;
@@ -109,6 +110,12 @@ class PhysicsBody {
         */
     public void applyGravity(float deltaTime) {
         if(isSleeping) return;
+
+        if(spawnFrames > 0) {
+            spawnFrames--;
+            return;
+        }
+
         if(!onSurface) {
             velocity.Y += GRAVITY * deltaTime;
             stableFrames = 0;

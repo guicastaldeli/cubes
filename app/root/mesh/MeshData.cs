@@ -19,6 +19,7 @@ class MeshData {
     
     public string meshType { 
         get; 
+        set;
     }
 
     public string id { 

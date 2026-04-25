@@ -60,9 +60,11 @@ class Slot {
             my >= y && my <= y + height;
     }
 
-    ///
-    /// Add
-    /// 
+    /**
+    
+        Add
+    
+        */ 
     public int add(PlacedMeshDef incomingDef, int amount) {
         if(def != null && def.StackId != incomingDef.StackId) return amount;
         if(def == null) def = incomingDef;
@@ -75,9 +77,11 @@ class Slot {
         return amount - adding;
     }
 
-    ///
-    /// Remove
-    /// 
+    /**
+    
+        Remove
+    
+        */
     public int setRemove(int amount) {
         int removing = Math.Min(count, amount);
         count -= removing;

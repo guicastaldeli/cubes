@@ -79,7 +79,12 @@ class Inventory {
     // Add Item
     public bool addItem(PlacedMeshDef def) {
         int remaining = 1;
+        int maxInteractions = grid.slots.Count + 1;
+        int interactions = 0;
+
         while(remaining > 0) {
+            if(interactions++ > maxInteractions) return false;
+            
             var slot = grid.findSlot(def);
             if(slot == null) return false;
             remaining = slot.add(def, remaining);
