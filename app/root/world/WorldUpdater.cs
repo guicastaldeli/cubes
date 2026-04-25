@@ -102,7 +102,12 @@ class WorldUpdater {
         if(window == null || mesh == null || collisionManager == null) return;
 
         window.queueOnRenderThread(() => {
-            MeshData? data = LoadMeshData.L(meshType, meshData!);
+            MeshData? data = LoadMeshData.L(
+                meshType, 
+                meshData!,
+                meshData!.colliderShape,
+                meshData.colliderRadius
+            );
             if(data == null) return;
 
             mesh.add(id, data);

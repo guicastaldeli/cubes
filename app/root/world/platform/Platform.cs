@@ -156,6 +156,8 @@ class Platform : WorldHandler {
 
             MeshData data = MeshModelLoader.loadModel(path);
             data.isModel = true;
+            data.modelPath = path;
+            data.colliderShape = Types.CUBE;
 
             mesh.add(id, data);
             mesh.setPosition(id, -3.0f, 10.0f, -3.0f);

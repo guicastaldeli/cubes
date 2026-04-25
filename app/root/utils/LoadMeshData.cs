@@ -14,32 +14,40 @@ class LoadMeshData {
         Load
     
         */
-    public static MeshData? L(string meshType, MeshData data) {
+    public static MeshData? L(string meshType, MeshData? data, string? colliderShape = null, float? colliderRadius = null) {
+        MeshData? result = null;
+        
         if(data != null && data.isModel) {
             string modelPath = data.modelPath ?? meshType;
-            Console.WriteLine($"Reloading model from: {modelPath}");
-            return MeshModelLoader.loadModel(modelPath);
+            result = MeshModelLoader.loadModel(modelPath);
+            result.isModel = true;
+            result.modelPath = modelPath;
+        } 
+        else if(data != null) {
+            result = data;
+        } 
+        else if(meshType.Contains("/") && meshType.EndsWith(EXT_NAME)) {
+            result = MeshModelLoader.loadModel(meshType);
+            result.isModel = true;
+            result.modelPath = meshType;
+        } 
+        else {
+            try {
+                Console.WriteLine($"Loading from Lua config: {meshType}");
+                result = MeshDataLoader.load(meshType);
+            } catch (Exception ex) {
+                Console.Error.WriteLine($"Failed to load {meshType}: {ex.Message}");
+                return null;
+            }
+        }
+        
+        if(result != null && colliderShape != null) {
+            float radius = colliderRadius ?? 1.0f;
+            
+            result.colliderShape = colliderShape;
+            result.colliderRadius = radius;
         }
 
-        if(data != null) {
-            Console.WriteLine($"Using provided mesh data for: {meshType}");
-            return data;
-        }
-
-        if(meshType.Contains("/") && meshType.EndsWith(EXT_NAME)) {
-            Console.WriteLine($"Loading OBJ directly from path: {meshType}");
-            MeshData objData = MeshModelLoader.loadModel(meshType);
-            objData.isModel = true;
-            objData.modelPath = meshType;
-            return objData;
-        }
-
-        try {
-            Console.WriteLine($"Loading from Lua config: {meshType}");
-            return MeshDataLoader.load(meshType);
-        } catch (Exception ex) {
-            Console.Error.WriteLine($"Failed to load {meshType}: {ex.Message}");
-            return null;
-        }
+        return result;
     }
 }

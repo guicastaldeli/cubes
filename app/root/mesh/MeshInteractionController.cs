@@ -57,7 +57,7 @@ class MeshInteractionController {
     }
 
     // Get Mesh Half Height
-    private float getMeshHalfHeight(MeshData data) {
+    private float getMeshHalfHeight(MeshData data, Vector3 scale) {
         float[]? vertices = data.getVertices();
         if(vertices == null) return 0.5f;
 
@@ -69,8 +69,10 @@ class MeshInteractionController {
             if(vertices[i] > maxY) maxY = vertices[i];
         }
 
-        float val = (maxY - minY) / 2.0f;
-        return val;
+        float meshHeight = (maxY - minY) * scale.Y;
+        
+        if(data.isModel) return meshHeight;
+        return meshHeight / 2.0f;
     }
 
     /**
@@ -113,11 +115,16 @@ class MeshInteractionController {
 
         PlacedMeshDef def = mainSlot.def;
 
-        MeshData? data = LoadMeshData.L(def.MeshType, def.MeshData!);
+        MeshData? data = LoadMeshData.L(
+            def.MeshType, 
+            def.MeshData!,
+            def.ColliderShape,
+            def.ColliderRadius
+        );
         if(data == null) return;
         
-        float halfH = getMeshHalfHeight(data);
         Vector3 scale = def.Scale ?? mesh.getDefaultScale(data);
+        float halfH = getMeshHalfHeight(data, scale);
 
         Vector3? point = placementRaycaster.findPlacementPoint(halfH);
         if(point == null) {
