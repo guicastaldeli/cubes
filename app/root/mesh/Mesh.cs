@@ -272,36 +272,54 @@ class Mesh {
     
         */
     public BBox getBBox(string id) {
-        Vector3 pos = getPosition(id);
         MeshData? meshData = getData(id);
         MeshRenderer? renderer = getMeshRenderer(id);
 
-        float sizeX = 1.0f;
-        float sizeY = 1.0f;
-        float sizeZ = 1.0f;
+        Vector3 pos = getPosition(id);
+        Vector3 meshSize = getSize(id);
+
+        float scaleX = 1.0f;
+        float scaleY = 1.0f;
+        float scaleZ = 1.0f;
 
         if(renderer != null && renderer.isScaled()) {
             Vector3 scale = renderer.getScale();
-            sizeX = scale.X;
-            sizeY = scale.Y;
-            sizeZ = scale.Z;
+            scaleX = scale.X;
+            scaleY = scale.Y;
+            scaleZ = scale.Z;
         } else if(meshData != null && meshData.hasScale()) {
             float[]? scale = meshData.getScale();
             if(scale != null) {
-                sizeX = scale[0];
-                sizeY = scale[1];
-                sizeZ = scale[2];
+                scaleX = scale[0];
+                scaleY = scale[1];
+                scaleZ = scale[2];
             }    
         } else if(renderer != null) {
             Vector3 scale = renderer.getScale();
-            sizeX = scale.X;
-            sizeY = scale.Y;
-            sizeZ = scale.Z;
+            scaleX = scale.X;
+            scaleY = scale.Y;
+            scaleZ = scale.Z;
         }
 
+        float finalScaleX = meshSize.X * scaleX;
+        float finalScaleY = meshSize.Y * scaleY;
+        float finalScaleZ = meshSize.Z * scaleZ;
+
+        Vector3 offset = Vector3.Zero;
+        if(meshData != null && meshData.isModel) {
+            offset.Y = finalScaleY / 2.0f;
+        }
+
+        Vector3 center = pos + offset;
+        Vector3 halfSize = new Vector3(finalScaleX, finalScaleY, finalScaleZ) / 2.0f;
+
         return new BBox(
-            pos.X - sizeX / 2, pos.Y - sizeY / 2, pos.Z - sizeZ / 2,
-            pos.X + sizeX / 2, pos.Y + sizeY / 2, pos.Z + sizeZ / 2
+            center.X - halfSize.X,
+            center.Y - halfSize.Y,
+            center.Z - halfSize.Z,
+            center.X + halfSize.X,
+            center.Y + halfSize.Y,
+            center.Z + halfSize.Z
         );
     }
 

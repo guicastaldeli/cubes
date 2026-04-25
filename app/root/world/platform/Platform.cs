@@ -158,7 +158,7 @@ class Platform : WorldHandler {
             data.isModel = true;
 
             mesh.add(id, data);
-            mesh.setPosition(id, -3.0f, 10.6f, -3.0f);
+            mesh.setPosition(id, -3.0f, 10.0f, -3.0f);
 
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;
@@ -167,7 +167,7 @@ class Platform : WorldHandler {
             int texId = TextureLoader.load(texPath);
             mesh.setTexture(id, texId, texPath);
 
-            //collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
+            collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
             //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
             //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
         

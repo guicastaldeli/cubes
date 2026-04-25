@@ -65,6 +65,26 @@ class MeshData {
         set;
     } = 1.0f;
 
+    public Vector3? originalSize { 
+        get; 
+        set; 
+    }
+
+    public Vector3? originalMinBounds { 
+        get; 
+        set; 
+    }
+
+    public Vector3? originalMaxBounds { 
+        get; 
+        set; 
+    }
+
+    public Vector3 collisionOffset { 
+        get; 
+        set; 
+    } = Vector3.Zero;
+
     private float[]? colors;
 
     public MeshData(string id, string meshType) {

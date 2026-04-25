@@ -330,6 +330,31 @@ class MeshModelLoader {
                 }
             }
 
+            Vector3 minBounds = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 maxBounds = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            for(int i = 0; i < finalVerts.Count; i += 3) {
+                Vector3 vert = new Vector3(
+                    finalVerts[i],
+                    finalVerts[i+1],
+                    finalVerts[i+2]
+                );
+
+                minBounds = Vector3.ComponentMin(minBounds, vert);
+                maxBounds = Vector3.ComponentMax(maxBounds, vert);
+            }
+
+            Vector3 center = (minBounds + maxBounds) / 2.0f;
+            Vector3 size = maxBounds - minBounds;
+            Vector3 vertexOffset = new Vector3(center.X, minBounds.Y, center.Z);
+            float bottomY = minBounds.Y;
+            float offset = -minBounds.Y;
+            
+            for(int i = 0; i < finalVerts.Count; i += 3) {
+                finalVerts[i] -= center.X;
+                finalVerts[i+1] -= bottomY;
+                finalVerts[i+2] -= center.Z;
+            }
+
             string meshId = Path.GetFileNameWithoutExtension(fileName);
             MeshData meshData = new MeshData(meshId, meshId);
 
@@ -345,6 +370,11 @@ class MeshModelLoader {
             if(finalTexCoords.Count > 0) {
                 meshData.setTexCoords(finalTexCoords.ToArray());
             }
+
+            meshData.originalSize = size;
+            meshData.originalMinBounds = minBounds;
+            meshData.originalMaxBounds = maxBounds;
+            meshData.collisionOffset = new Vector3(0, offset, 0);
 
             return meshData;
         } catch(Exception err) {
