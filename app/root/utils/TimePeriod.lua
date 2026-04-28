@@ -1,9 +1,9 @@
-/**
+--[[
+    
+    Time Period Definitions
+    Handles general time period ranges
 
-    Main implementation
-    to handle general time period 
-
-    */
+    ]]
 
 -- Period Helper
 local function p(s, e)
@@ -14,7 +14,7 @@ local Period = {
     MIDNIGHT = p(0, 4),
     DAWN = p(4, 6),
     MORNING = p(6, 12),
-    AFTERNOON = p(17, 19),
+    AFTERNOON = p(12, 17),
     DUSK = p(17, 19),
     NIGHT = p(19, 24)
 }
@@ -27,13 +27,13 @@ function isActive(period, hour)
 
 -- Get Current
 function getCurrent(hour)
-    for name, period in pairs(Periods) do
+    for name, period in pairs(Period) do
         if isActive(period, hour) then
             period.name = name
             return period
         end
     end
 
-    return Periods.MIDNIGHT
+    return Period.MIDNIGHT
 end
     
