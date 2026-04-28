@@ -70,6 +70,14 @@ void main() {
     }
     /**
 
+        Skybox
+
+        */
+    else if(shaderType == 8) {
+        setSkyboxFrag();
+    }
+    /**
+
         Main
 
         */

@@ -80,6 +80,14 @@ void main() {
         Main
 
         */
+    /**
+
+        Skybox
+
+        */
+    else if(shaderType == 8) {
+        setSkyboxVert();
+    }
     else {
         vec3 pos = aPos;
         if(isInstanced == 1) pos += aInstanceOffset;
