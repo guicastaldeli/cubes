@@ -10,7 +10,7 @@ using NLua;
 
     */
 class Color {
-    private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "utils/TimePeriod.lua");
+    private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/env/skybox/SkyboxColor.lua");
 
     public static Skybox skybox = null!;
     public static TimeCycle timeCycle = null!;
@@ -29,25 +29,25 @@ class Color {
     }
 
     // Get Top Color
-    public static LuaTable? getTop() {
-        if(Period.currentPeriod == null) return null;
+    public static string? getTop() {
+        if(currentColor == null) return null;
 
-        LuaFunction? current = data["getTopColor"] as LuaFunction;
-        if(current == null) return null;
+        LuaFunction? func = data["getTopColor"] as LuaFunction;
+        if(func == null) return null;
 
-        object[] res = current.Call(Period.getName(Period.currentPeriod));
-        return res[0] as LuaTable;
+        object[] res = func.Call(currentColor["name"] as string);
+        return res[0] as string;
     }
 
     // Get Bottom Color
-    public static LuaTable? getBottom() {
-        if(Period.currentPeriod == null) return null;
+    public static string? getBottom() {
+        if(currentColor == null) return null;
 
-        LuaFunction? current = data["getBottomColor"] as LuaFunction;
-        if(current == null) return null;
+        LuaFunction? func = data["getBottomColor"] as LuaFunction;
+        if(func == null) return null;
 
-        object[] res = current.Call(Period.getName(Period.currentPeriod));
-        return res[0] as LuaTable;
+        object[] res = func.Call(currentColor["name"] as string);
+        return res[0] as string;
     }
 
     /**
@@ -58,7 +58,15 @@ class Color {
     public static void init(Skybox skybox, TimeCycle timeCycle) {
         Color.skybox = skybox;
         Color.timeCycle = timeCycle;
+
+        data = new Lua();
+        
+        string originalDir = Directory.GetCurrentDirectory();
+        Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+        
         data.DoFile(DATA_PATH);
+
+        Directory.SetCurrentDirectory(originalDir);
     }
 
     /**
@@ -67,18 +75,18 @@ class Color {
     
         */
     public static void update() {
-        colors = data["Colors"] as LuaTable;
+        if(data == null) return;
         currentColor = getCurrent();
     }
 
     public static void updateColors() {
         LuaTable? newColor = getCurrent();
-        if(newColor != null && currentColor != null) {
-            if(Period.getName(newColor) != Period.getName(currentColor)) {
-                currentColor = newColor;
-                Console.WriteLine($"Period changed to: {Period.getName(currentColor)}");
-            }
-        } 
+        if(newColor == null) return;
+        if(currentColor == null) return;;
+
+        string? newName = newColor["name"] as string;
+        string? currentName = currentColor["name"] as string;
+        if(newName != currentName) currentColor = newColor;
     }
 }
 
@@ -96,6 +104,7 @@ class Skybox : WorldHandler {
     private TimeCycle timeCycle;
 
     private bool initialized = false;
+    private string? lastPeriodName = null;
 
     public Skybox(
         [Inject] ShaderProgram shaderProgram, 
@@ -121,12 +130,6 @@ class Skybox : WorldHandler {
         mesh.setPosition(ID, 0.0f, 0.0f, 0.0f);
         mesh.add(ID, data);
         mesh.setScale(ID, 100.0f);
-
-        int topColor = Convert.ToInt32(Color.getTop());
-        int bottomColor = Convert.ToInt32(Color.getBottom());
-
-        shaderProgram.setUniform("topColor", topColor);
-        shaderProgram.setUniform("bottomColor", bottomColor);
     }
 
     /**
@@ -149,6 +152,24 @@ class Skybox : WorldHandler {
         */ 
     public override void update() {
         Color.update();
-        Color.updateColors();
+        if(Color.currentColor != null) {
+            string? currentName = Color.currentColor["name"] as string;
+            if(currentName != lastPeriodName) {
+                lastPeriodName = currentName;
+                Console.WriteLine($"*** Color changed to: {currentName} ***");
+                updateColors();
+            }
+        }
+    }
+
+    private void updateColors() {
+        string? topStr = Convert.ToString(Color.getTop());
+        string? bottomStr = Convert.ToString(Color.getBottom());
+
+        var topColor = HexToRgb.C(topStr!);
+        var bottomColor = HexToRgb.C(bottomStr!);
+
+        shaderProgram.setUniform("topColor", topColor.r, topColor.g, topColor.b);
+        shaderProgram.setUniform("bottomColor", bottomColor.r, bottomColor.g, bottomColor.b);
     }
 }

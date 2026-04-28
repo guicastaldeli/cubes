@@ -6,6 +6,7 @@
     ]]
 dofile("utils/TimePeriod.lua")
 
+
 -- Skybox Colors
 local Colors = {
     MIDNIGHT = {
@@ -38,12 +39,11 @@ local Colors = {
 function getCurrentColor(hour)
     local currentPeriod = getCurrent(hour)
     local periodName = currentPeriod.name
-
-    if colors[periodName] then
-        return Colors[periodName]
-    end
-
-    return Colors.MIDNIGHT
+    
+    local colorData = Colors[periodName] or Colors.MIDNIGHT
+    colorData.name = periodName
+    return colorData
+end
 
 -- Get top Color
 function getTopColor(periodName)
@@ -56,7 +56,7 @@ end
 -- Get Bottom Color
 function getBottomColor(periodName)
     if Colors[periodName] then
-        return Colors[periodname].bottom
+        return Colors[periodName].bottom
     end
     return Colors.MIDNIGHT.bottom
 end

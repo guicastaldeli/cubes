@@ -92,7 +92,7 @@ class TimeCycle {
     private Tick tick;
 
     private float currentTime = 6.0f * HOUR_DURATION;
-    private float timeSpeed = 5.0f;
+    private float timeSpeed = 10.0f;
     private float timeDayPercentage = 0.25f;
 
     private float hourDiv = 24.0f;

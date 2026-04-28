@@ -4,7 +4,6 @@
     Handles general time period ranges
 
     ]]
-
 -- Period Helper
 local function p(s, e)
     return { s = s, e = e }
