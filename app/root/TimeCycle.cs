@@ -13,7 +13,7 @@ using NLua;
 
     */
 class Period {
-    private static string DATA_PATH = "utils/TimePeriod.lua";
+    private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "utils/TimePeriod.lua");
 
     private static TimeCycle timeCycle = null!;
 
@@ -73,7 +73,7 @@ class Period {
         if(newPeriod != null && currentPeriod != null) {
             if(getName(newPeriod) != getName(currentPeriod)) {
                 currentPeriod = newPeriod;
-                Console.WriteLine($"Period changed to: {getName(currentPeriod)}");
+                //Console.WriteLine($"Period changed to: {getName(currentPeriod)}");
             } 
         }
     }
@@ -91,7 +91,7 @@ class TimeCycle {
     private Tick tick;
 
     private float currentTime = 6.0f * HOUR_DURATION;
-    private float timeSpeed = 60.0f;
+    private float timeSpeed = 5.0f;
     private float timeDayPercentage = 0.25f;
 
     private float hourDiv = 24.0f;
@@ -123,7 +123,10 @@ class TimeCycle {
 
     // Get Formatted Time
     public string getFormattedTime() {
-        string val = $"{getHour():D2}:{getMinute():D2}";
+        int hour = (int)getHour();
+        int min = getMinute();
+
+        string val = $"{hour:D2}:{min:D2}";
         return val;
     }
 
@@ -140,7 +143,7 @@ class TimeCycle {
 
     /**
     
-        Set Time
+        Time
     
         */
     public void setTime(int hour, int min) {
@@ -159,6 +162,16 @@ class TimeCycle {
         return timeSpeed;
     }
 
+    public string getTime() {
+        if(Period.currentPeriod == null) return "";
+        
+        string name = Period.getName(Period.currentPeriod);
+        string time = getFormattedTime();
+        
+        string val = $"TIME: {time} ({name})";
+        return val;
+    }
+
     /**
     
         Update
@@ -173,6 +186,7 @@ class TimeCycle {
         }
 
         updateTime();
+        Period.updatePeriod();
     }
 
     private void updateTime() {

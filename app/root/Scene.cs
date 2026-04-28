@@ -10,12 +10,14 @@ using App.Root.UI;
 
 class Scene {
     private Window window;
+    private Tick tick;
     private ShaderProgram shaderProgram;
     private Input input;
     private PlayerController playerController;
     private CollisionManager collisionManager;
     private Network? network;
     
+    private TimeCycle timeCycle;
     private Mesh.Mesh mesh;
     private WorldManager worldManager;
 
@@ -27,24 +29,31 @@ class Scene {
 
     public Scene(
         Window window, 
+        Tick tick,
         ShaderProgram shaderProgram, 
         Input input
     ) {
         this.window = window;
+        this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.input = input;
+
+        this.timeCycle = new TimeCycle(tick);
+        window.setTimeCycle(timeCycle);
 
         this.mesh = new Mesh.Mesh(
             window, 
             shaderProgram, 
             input
         );
+
         this.playerController = new PlayerController(
             window, 
             input,
             shaderProgram, 
             mesh
         );
+
         this.collisionManager = new CollisionManager();
 
         this.worldManager = new WorldManager(
@@ -58,6 +67,11 @@ class Scene {
     // Is Init
     public bool isInit() {
         return initialized;
+    }
+
+    // Get Tick
+    public Tick getTick() {
+        return tick;
     }
 
     // Set Screen Controller
@@ -136,6 +150,8 @@ class Scene {
     
         */
     public void update() {
+        timeCycle.update();
+        
         input.update();
 
         playerController.update();

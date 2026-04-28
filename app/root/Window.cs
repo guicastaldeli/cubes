@@ -24,6 +24,8 @@ class Window : NativeWindow {
 
     public Action<int, int>? onResize;
 
+    private TimeCycle? timeCycle;
+
     public Window() : base(new NativeWindowSettings() {
         ClientSize = new Vector2i(WIDTH, HEIGHT),
         Title = TITLE,
@@ -54,6 +56,11 @@ class Window : NativeWindow {
                 onResize?.Invoke(WIDTH, HEIGHT);
             });
         };
+    }
+
+    // Set Time Cycle
+    public void setTimeCycle(TimeCycle timeCycle) {
+        this.timeCycle = timeCycle;
     }
 
     // Width and Height 
@@ -114,11 +121,13 @@ class Window : NativeWindow {
         if(Controller.getInstance(Instance.PROD)) {
             Title = TITLE;
         } else {
+            string timeStr = timeCycle?.getTime() ?? "";
             Title = 
                 TITLE + 
                 $" ({Controller.getCurrentName()})" +
                 " / Tick: " + tickCount +
-                " / FPS: " + fps;
+                " / FPS: " + fps +
+                " / " + timeStr;
         }
     }
 }

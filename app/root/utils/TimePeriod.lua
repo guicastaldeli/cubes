@@ -21,9 +21,12 @@ local Period = {
 
 -- Is Active
 function isActive(period, hour)
-    if p.s < p.e then
-        local val = hour >= p.s and hour p.e
+    if period.s < period.e then
+        local val = hour >= period.s and hour < period.e
         return val
+    end
+    return false
+end
 
 -- Get Current
 function getCurrent(hour)

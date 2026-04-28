@@ -92,6 +92,7 @@ class Main {
     public void init() {
         scene = new Scene(
             window, 
+            tick,
             shaderProgram, 
             input
         );
