@@ -1,8 +1,8 @@
 /**
-    
-    Skybox Time class to help
-    set the time and colors.
-    
+
+    Main implementation to handle 
+    general world particle colors and periods 
+
     */
 namespace App.Root.World.Env.Particle;
 
