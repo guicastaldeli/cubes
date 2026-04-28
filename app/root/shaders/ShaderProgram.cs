@@ -99,6 +99,15 @@ class ShaderProgram {
         if(loc != -1) GL.Uniform4(loc, x, y, z, w);
     }
 
+    public void setUniformB(string name, float x, float y, float z) {
+        int currentProgram;
+        GL.GetInteger(GetPName.CurrentProgram, out currentProgram);
+        if(currentProgram != programId) bind();
+
+        int loc = getUniformLocation(name);
+        if(loc != -1) GL.Uniform3(loc, x, y, z);
+    }
+
     public int getUniformLocation(string name) {
         if(!uniformLocations.ContainsKey(name)) {
             uniformLocations[name] = GL.GetUniformLocation(programId, name);

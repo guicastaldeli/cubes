@@ -48,6 +48,12 @@ class Period {
         return val;
     }
 
+    // Get Number
+    public static int getNumber(LuaTable period) {
+        int val = Convert.ToInt32(period["n"]);
+        return val;
+    }
+
     /**
 
         Init

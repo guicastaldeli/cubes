@@ -58,6 +58,7 @@ class Scene {
 
         this.worldManager = new WorldManager(
             window, 
+            tick,
             shaderProgram,
             mesh, 
             collisionManager, 
@@ -226,6 +227,7 @@ class Scene {
         
         worldManager = new WorldManager(
             window,
+            tick,
             shaderProgram,
             mesh, 
             collisionManager, 

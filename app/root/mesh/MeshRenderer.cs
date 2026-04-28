@@ -520,7 +520,11 @@ class MeshRenderer : DataEntry {
         }
 
         shaderProgram.bind();
-        shaderProgram.setUniform("shaderType", 0);
+        if(meshData.shaderType != 0) {
+            shaderProgram.setUniform("shaderType", meshData.shaderType);
+        } else {
+            shaderProgram.setUniform("shaderType", 0);
+        }
         shaderProgram.setUniform("uModel", modelMatrix);
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());

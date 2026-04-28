@@ -5,6 +5,7 @@ using App.Root.Shaders;
 
 class WorldManager {
     private Window window;
+    private Tick tick;
     private ShaderProgram shaderProgram;
     private Mesh.Mesh? mesh;
     private CollisionManager? collisionManager;
@@ -21,6 +22,7 @@ class WorldManager {
 
     public WorldManager(
         Window window,
+        Tick tick,
         ShaderProgram shaderProgram,
         Mesh.Mesh mesh, 
         CollisionManager collisionManager,
@@ -28,13 +30,14 @@ class WorldManager {
         TimeCycle timeCycle
     ) {
         this.window = window;
+        this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.playerController = playerController;
         this.timeCycle = timeCycle;
 
-        this.world = new World(window, shaderProgram, mesh, this, collisionManager, timeCycle);
+        this.world = new World(window, tick, shaderProgram, mesh, this, collisionManager, timeCycle);
         this.worldBroadcaster = new WorldBroadcaster(this);
         this.networkWorld = new NetworkWorld(this);
     }

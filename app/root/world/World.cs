@@ -13,6 +13,7 @@ class World : WorldHandler {
     private List<WorldHandler> el = new();
 
     private Window window;
+    private Tick tick;
     private ShaderProgram shaderProgram;
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
@@ -25,6 +26,7 @@ class World : WorldHandler {
     
     public World(
         Window window,
+        Tick tick,
         ShaderProgram shaderProgram,
         Mesh.Mesh mesh, 
         WorldManager worldManager,
@@ -32,6 +34,7 @@ class World : WorldHandler {
         TimeCycle timeCycle
     ) {
         this.window = window;
+        this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.worldManager = worldManager;
@@ -39,6 +42,7 @@ class World : WorldHandler {
         this.timeCycle = timeCycle;
 
         ServiceContainer.Register(window);
+        ServiceContainer.Register(tick);
         ServiceContainer.Register(mesh);
         ServiceContainer.Register(shaderProgram);
         ServiceContainer.Register(worldManager);
