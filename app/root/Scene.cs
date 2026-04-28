@@ -58,9 +58,11 @@ class Scene {
 
         this.worldManager = new WorldManager(
             window, 
+            shaderProgram,
             mesh, 
             collisionManager, 
-            playerController
+            playerController,
+            timeCycle
         );
     }
 
@@ -224,9 +226,11 @@ class Scene {
         
         worldManager = new WorldManager(
             window,
+            shaderProgram,
             mesh, 
             collisionManager, 
-            playerController
+            playerController,
+            timeCycle
         );
         if(network != null) worldManager.setNetwork(network);
     }

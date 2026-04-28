@@ -2,6 +2,7 @@ namespace App.Root.World;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Physics;
+using App.Root.Shaders;
 using App.Root.Utils;
 using System.Reflection;
 
@@ -12,8 +13,10 @@ class World : WorldHandler {
     private List<WorldHandler> el = new();
 
     private Window window;
+    private ShaderProgram shaderProgram;
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
+    private TimeCycle timeCycle;
 
     private WorldManager worldManager;
     private WorldBoundary worldBoundary;
@@ -22,19 +25,25 @@ class World : WorldHandler {
     
     public World(
         Window window,
+        ShaderProgram shaderProgram,
         Mesh.Mesh mesh, 
         WorldManager worldManager,
-        CollisionManager collisionManager
+        CollisionManager collisionManager,
+        TimeCycle timeCycle
     ) {
         this.window = window;
+        this.shaderProgram = shaderProgram;
         this.mesh = mesh;
-        this.collisionManager = collisionManager;
         this.worldManager = worldManager;
+        this.collisionManager = collisionManager;
+        this.timeCycle = timeCycle;
 
         ServiceContainer.Register(window);
         ServiceContainer.Register(mesh);
+        ServiceContainer.Register(shaderProgram);
         ServiceContainer.Register(worldManager);
         ServiceContainer.Register(collisionManager);
+        ServiceContainer.Register(timeCycle);
 
         WorldUpdater.getInstance().init(window, mesh, collisionManager);
         this.worldBoundary = new WorldBoundary(

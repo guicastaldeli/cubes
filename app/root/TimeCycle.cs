@@ -19,12 +19,14 @@ class Period {
 
     public static Lua data = null!;
     public static LuaTable? periods = null!;
-    public static LuaTable? currentPeriod = null!;
+    public static LuaTable? currentPeriod;
 
     // Get Current
     public static LuaTable? getCurrent() {
-        LuaFunction? getCurrent = data["getCurrent"] as LuaFunction;
-        object[] res = getCurrent!.Call(timeCycle.getHour());
+        LuaFunction? current = data["getCurrent"] as LuaFunction;
+        if(current == null) return null;
+
+        object[] res = current.Call(timeCycle.getHour());
         return res[0] as LuaTable;
     }
 
@@ -69,7 +71,6 @@ class Period {
 
     public static void updatePeriod() {
         LuaTable? newPeriod = getCurrent();
-
         if(newPeriod != null && currentPeriod != null) {
             if(getName(newPeriod) != getName(currentPeriod)) {
                 currentPeriod = newPeriod;

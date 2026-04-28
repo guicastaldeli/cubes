@@ -1,31 +1,40 @@
 namespace App.Root.World;
 using App.Root.Collider;
 using App.Root.Player;
+using App.Root.Shaders;
 
 class WorldManager {
     private Window window;
-    private Server? server;
-    private Client? client;
+    private ShaderProgram shaderProgram;
     private Mesh.Mesh? mesh;
     private CollisionManager? collisionManager;
-    private Network? network;
     private PlayerController playerController;
-    
+    private TimeCycle timeCycle;
+
+    private Network? network;
+    private Server? server;
+    private Client? client;
+
     private World world;
     private WorldBroadcaster worldBroadcaster;
     private NetworkWorld networkWorld;
 
     public WorldManager(
         Window window,
+        ShaderProgram shaderProgram,
         Mesh.Mesh mesh, 
         CollisionManager collisionManager,
-        PlayerController playerController
+        PlayerController playerController,
+        TimeCycle timeCycle
     ) {
         this.window = window;
+        this.shaderProgram = shaderProgram;
+        this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.playerController = playerController;
+        this.timeCycle = timeCycle;
 
-        this.world = new World(window, mesh, this, collisionManager);
+        this.world = new World(window, shaderProgram, mesh, this, collisionManager, timeCycle);
         this.worldBroadcaster = new WorldBroadcaster(this);
         this.networkWorld = new NetworkWorld(this);
     }
