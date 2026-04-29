@@ -26,5 +26,5 @@ void setSkyboxFrag() {
     float gradient = (vWorldY + height / 2.0) / height;
     gradient = clamp(gradient, 0.0, 1.0);
 
-    fragColor = vec4(mix(currentBottom, currentTop, gradient), 1.0);
+    fragColor = applyWeatherTemp(vec4(mix(currentBottom, currentTop, gradient), 1.0));
 }

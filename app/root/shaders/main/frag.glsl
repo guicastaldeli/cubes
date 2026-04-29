@@ -18,6 +18,7 @@ uniform sampler2D uSampler;
 #include "flat.frag.glsl"
 #include "outline.frag.glsl"
 #include "particle.frag.glsl"
+#include "../world/weather.frag.glsl"
 #include "../world/skybox.frag.glsl"
 #include "../world/star.frag.glsl"
 
@@ -87,12 +88,16 @@ void main() {
 
         */
     else {
+        vec4 baseColor;
+        
         if(hasTex == 1) {
-            fragColor = texture(uSampler, vTexCoord);
+            baseColor = texture(uSampler, vTexCoord);
         } else if(uHasColors == 1) {
-            fragColor = vColor;
+            baseColor = vColor;
         } else {
-            fragColor = uColor;
+            baseColor = uColor;
         }
+
+        fragColor = applyWeatherTemp(baseColor);
     }
 }
