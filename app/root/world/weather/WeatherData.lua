@@ -5,8 +5,8 @@
 
     */
 -- Weather Helper
-local function w(id, f, s) {
-    return { i = id and id.i or nil, f = f, s = s }
+local function w(id, f, v) {
+    return { i = id and id.i or nil, f = f, v = v }
 }
 
 local Types {
