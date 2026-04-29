@@ -7,7 +7,7 @@
 namespace App.Root.Utils;
 using NLua;
 
-class ToFloatArray {
+static class ToFloatArray {
     /**
 
         Convert

@@ -3,7 +3,12 @@
     Util Hex to Int Converter.
     
     */
-class HexToInt {
+static class HexToInt {
+    /**
+
+        Convert
+
+        */
     public static int C(string hex) {
         hex = hex.Replace("#", "");
 
