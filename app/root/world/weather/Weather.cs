@@ -1,12 +1,10 @@
 namespace App.Root.World.Weather;
-
-using System.Runtime.CompilerServices;
 using App.Root.Mesh;
 using App.Root.Mesh.Particle;
 using App.Root.Shaders;
 using App.Root.Utils;
-using NLua;
 using OpenTK.Mathematics;
+using NLua;
 
 /**
 
@@ -15,7 +13,7 @@ using OpenTK.Mathematics;
     */
 class WeatherEntry {
     public int Id;
-    public string Name;
+    public string? Name;
     public float Frequency;
     public int Value;
 }
@@ -196,7 +194,7 @@ class Weather : WorldHandler {
 
         var entries = WeatherData.getEntries();
         weatherCycle.init(entries);
-        weatherCycle.onWeatherChanged += onWeatherChenged;
+        weatherCycle.onWeatherChanged += onWeatherChanged;
     }
 
     /**
