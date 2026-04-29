@@ -23,6 +23,7 @@ class MeshRenderer : DataEntry {
 
     private int instanceVbo = 0;
     private int instanceCount = 0;
+    private int instanceRotationVbo = 0;
     public bool isInstanced = false;
     private List<Vector3> cachedInstancePositions = new();
 
@@ -182,7 +183,7 @@ class MeshRenderer : DataEntry {
         setupFullscreenQuad();
     } 
 
-    public void setInstanceData(List<Vector3> positions, List<float[]>? colors = null) {
+    public void setInstanceData(List<Vector3> positions, List<float[]>? colors = null, List<float>? rotations = null) {
         if(positions.Count == 0) return;
 
         cachedInstancePositions = positions;
@@ -220,6 +221,23 @@ class MeshRenderer : DataEntry {
             GL.VertexAttribPointer(5, 4, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(5);
             GL.VertexAttribDivisor(5, 1);
+        }
+
+        if(rotations != null && rotations.Count == positions.Count) {
+            float[] rotationData = new float[rotations.Count * 4];
+            for(int i = 0; i < rotations.Count; i++) {
+                rotationData[i*4+0] = rotations[i];
+                rotationData[i*4+1] = 0;
+                rotationData[i*4+2] = 0;
+                rotationData[i*4+3] = 0;
+            }
+
+            if(instanceRotationVbo == 0) instanceRotationVbo =  GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, instanceRotationVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, rotationData.Length * sizeof(float), rotationData, BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(6, 4, VertexAttribPointerType.Float, false, 0, 0);
+            GL.EnableVertexAttribArray(6);
+            GL.VertexAttribDivisor(6, 1);
         }
 
         GL.BindVertexArray(0);
@@ -449,6 +467,49 @@ class MeshRenderer : DataEntry {
                 rotationMatrix *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(speed * deltaTime));
                 break;
         }
+    }
+
+    public void updateInstanceData(List<Vector3> positions, List<float[]> colors, List<float> rotations) {
+        if(positions.Count != instanceCount) return;
+
+        float[] posData = new float[positions.Count * 3];
+        for(int i = 0; i < positions.Count; i++) {
+            posData[i * 3 + 0] = positions[i].X;
+            posData[i * 3 + 1] = positions[i].Y;
+            posData[i * 3 + 2] = positions[i].Z;
+        }
+        
+        GL.BindBuffer(BufferTarget.ArrayBuffer, instanceVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, posData.Length * sizeof(float), posData, BufferUsageHint.DynamicDraw);
+
+        if(colors != null && colors.Count == positions.Count && instanceColorVbo != 0) {
+            float[] colorData = new float[colors.Count * 4];
+                for(int i = 0; i < colors.Count; i++) {
+                colorData[i * 4 + 0] = colors[i][0];
+                colorData[i * 4 + 1] = colors[i][1];
+                colorData[i * 4 + 2] = colors[i][2];
+                colorData[i * 4 + 3] = colors[i][3];
+            }
+            GL.BindBuffer(BufferTarget.ArrayBuffer, instanceColorVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, colorData.Length * sizeof(float), colorData, BufferUsageHint.DynamicDraw);
+        }
+
+        if(rotations != null && rotations.Count == positions.Count && instanceRotationVbo != 0) {
+            float[] rotationData = new float[rotations.Count * 4];
+            for(int i = 0; i < rotations.Count; i++) {
+                rotationData[i*4+0] = rotations[i];
+                rotationData[i*4+1] = 0;
+                rotationData[i*4+2] = 0;
+                rotationData[i*4+3] = 0;
+            }
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, instanceRotationVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, rotationData.Length * sizeof(float), rotationData, BufferUsageHint.DynamicDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);      
+        }
+
+        GL.BindVertexArray(0);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
     }
 
     /**

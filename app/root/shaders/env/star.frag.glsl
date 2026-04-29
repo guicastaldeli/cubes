@@ -3,6 +3,8 @@
     Skybox stars frag shader
 
     */
+uniform float starTransition;
+
 // Star Intensity
 float getStarIntensity(float hour) {
     // MIDNIGHT and NIGHT
@@ -25,10 +27,17 @@ void setStarFrag() {
     float intensity = getStarIntensity(currentHour);
     if(intensity <= 0.0) discard;
 
-    vec2 uv = vTexCoord - 0.5;
-    float dist = length(uv);
-    float circle = step(dist, 0.35);
-    if(circle < 0.5) discard;
+    float finalAlpha = intensity * starTransition;
+    if(finalAlpha <= 0.01) discard;
 
-    fragColor = vec4(vColor.rgb * intensity, 1.0);
+    float pixelSize = mix(0.2, 0.1, starTransition);
+    vec2 pUv = floor(vTexCoord / pixelSize) * pixelSize;
+    vec2 uv = pUv - 0.5;
+
+    float squareSize = mix(0.1, 0.35, starTransition);
+    float dist = max(abs(uv.x), abs(uv.y));
+    float square = step(dist, squareSize);
+    if(square < 0.5) discard;
+
+    fragColor = vec4(vColor.rgb * intensity * starTransition, finalAlpha);
 }
