@@ -25,10 +25,8 @@ float getStarIntensity(float hour) {
 // Set Star Frag
 void setStarFrag() {
     float intensity = getStarIntensity(currentHour);
-    if(intensity <= 0.0) discard;
 
-    float finalAlpha = intensity * starTransition;
-    if(finalAlpha <= 0.01) discard;
+    float alpha = max(intensity, 0.01) * starTransition;
 
     float pixelSize = mix(0.2, 0.1, starTransition);
     vec2 pUv = floor(vTexCoord / pixelSize) * pixelSize;
@@ -39,5 +37,6 @@ void setStarFrag() {
     float square = step(dist, squareSize);
     if(square < 0.5) discard;
 
-    fragColor = vec4(vColor.rgb * intensity * starTransition, finalAlpha);
+    vec3 color = vColor.rgb;
+    fragColor = vec4(color, alpha);
 }

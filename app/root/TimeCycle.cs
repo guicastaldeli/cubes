@@ -98,7 +98,7 @@ class TimeCycle {
     private Tick tick;
 
     private float currentTime = 6.0f * HOUR_DURATION;
-    private float timeSpeed = 10.0f;
+    private float timeSpeed = 1.0f;
     private float timeDayPercentage = 0.25f;
 
     private float hourDiv = 24.0f;
@@ -110,7 +110,7 @@ class TimeCycle {
         Period.init(this);
         Period.update();
         
-        setTime(22, 0);
+        setTime(7, 0);
         //setPause(true);
         
         updateTime();

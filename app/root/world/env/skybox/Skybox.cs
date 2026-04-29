@@ -254,9 +254,12 @@ class Skybox : WorldHandler {
 
         private static int prevPeriodType = -1;
         private static float transitionProgress = 1.0f;
-        private static float transitionDuration = 2.0f;
+        private static float transitionDuration = 0.5f;
         private static bool isTransitioning = false;
+        
         private static bool visible = true;
+        private static bool targetVisibility = true;
+        private static bool currentVisibility = true;
 
         /**
         
@@ -318,6 +321,7 @@ class Skybox : WorldHandler {
 
             if(appearing) {
                 transitionProgress = 0.0f;
+                currentVisibility = true;
             } else {
                 transitionProgress = 1.0f;
             }
@@ -372,8 +376,11 @@ class Skybox : WorldHandler {
             int currentPeriod = Period.getNumber(Period.getCurrent()!);
             if(currentPeriod != prevPeriodType) {
                 bool nowVisible = isVisible(currentPeriod);
-                bool wasVisible = isVisible(prevPeriodType);
-                if(nowVisible != wasVisible) startTransition(nowVisible);
+                
+                if(nowVisible != targetVisibility) {
+                    targetVisibility = nowVisible;
+                    startTransition(nowVisible);
+                }
 
                 prevPeriodType = currentPeriod;
             }
@@ -381,8 +388,9 @@ class Skybox : WorldHandler {
             if(isTransitioning) {
                 updateTransition();
             }
-
-            if(transitionProgress <= 0.0f && !isTransitioning) return;
+            if(transitionProgress <= 0.0f && !isTransitioning && !targetVisibility) {
+                return;
+            }
 
             float multiplier = isTransitioning ? 3.0f : 1.0f;
             for(int i = 0; i < currentRotations.Count; i++) {
@@ -412,12 +420,14 @@ class Skybox : WorldHandler {
                 if(transitionProgress >= 1.0f) {
                     transitionProgress = 1.0f;
                     isTransitioning = false;
+                    currentVisibility = true;
                 }
             } else {
                 transitionProgress -= deltaTime / transitionDuration;
                 if(transitionProgress <= 0.0f) {
                     transitionProgress = 0.0f;
                     isTransitioning = false;
+                    currentVisibility = false;
                 }
             }
         }
