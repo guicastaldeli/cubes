@@ -5,6 +5,7 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 using NLua;
+using App.Root.Collider.Types;
 
 /**
 
@@ -24,7 +25,7 @@ class ParticleConfig {
     public float Size = 1.0f;
     public float Speed = 1.0f;
     public float Lifetime = 1.0f;
-    public float[] Vel = { 0.0f, -1.0f, 0.0f };
+    public float[] Vel = { 0.0f, 1.0f, 0.0f };
 }
 
 class TempConfig {
@@ -34,6 +35,12 @@ class TempConfig {
     public float Strength;
 }
 
+class WeatherType {
+    public const string NORMAL = "NORMAL";
+    public const string RAIN = "RAIN";    
+    public const string SNOW = "SNOW";
+}
+
 /**
 
     Weather data helper
@@ -41,7 +48,7 @@ class TempConfig {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = "NORMAL";
+    public static string DEFAULT_WEATHER = WeatherType.RAIN;
 
     private static Lua data = null!;
 
@@ -140,6 +147,7 @@ class Weather : WorldHandler {
     private Tick tick;
     private Mesh mesh;
     private ShaderProgram shaderProgram;
+    private World world;
 
     private WeatherCycle weatherCycle;
     private string currentWeather = WeatherData.DEFAULT_WEATHER;
@@ -155,12 +163,17 @@ class Weather : WorldHandler {
 
     private bool initialized = false;
 
-    public Weather([Inject] Tick tick, [Inject] Mesh mesh, [Inject] ShaderProgram shaderProgram) {
+    public Weather([Inject] Tick tick, [Inject] Mesh mesh, [Inject] ShaderProgram shaderProgram, World world) {
+        ServiceContainer.ActiveSRegister(true);
+        
         this.tick = tick;
         this.mesh = mesh;
         this.shaderProgram = shaderProgram;
+        this.world = world;
 
         this.weatherCycle = new WeatherCycle();
+    
+        ServiceContainer.ActiveSRegister(false);
     }
 
     // On Weather Changed
@@ -182,6 +195,17 @@ class Weather : WorldHandler {
             .FirstOrDefault(e => e.Name == name)
             ?.Value ?? 0;
         return val;
+    }
+
+    // Get World Height
+    private float getWorldHeight() {
+        var boundary = world.getWorldBoundary().getBoundaryObject();
+        if(boundary != null) {
+            float maxHeight = boundary.getMaxHeight();
+            return maxHeight;
+        }
+
+        return 0.0f;
     }
 
     /**
@@ -213,9 +237,16 @@ class Weather : WorldHandler {
         partEmitTimer = 0.0f;
     } 
 
-    // Get Emitter Position
-    protected virtual Vector3 getPartEmitPosition() {
-        return new Vector3(0.0f, 0.0f, 0.0f);
+    // Set Position
+    private Vector3 setPosition() {
+        float height = getWorldHeight();
+        Vector3 val = new Vector3(0.0f, height, 0.0f);
+        return val;
+        
+    }
+
+    private float setPositionf() {
+        return World.WORLD_BOUNDARY;
     }
 
     /**
@@ -224,7 +255,7 @@ class Weather : WorldHandler {
     
         */
     public override void render() {
-        if(currentWeather == WeatherData.DEFAULT_WEATHER) return;
+        //base.render();
     }
 
     /**
@@ -278,13 +309,13 @@ class Weather : WorldHandler {
             strength = Lerp.S(prevTemp.Strength, 0.0f, tempTransition);
         }
 
-        shaderProgram.setUniformB("weatherTemp", r, g, b);
+        shaderProgram.setUniformb("weatherTemp", r, g, b);
         shaderProgram.setUniform("weatherStrength", strength);
     }
 
     // Update Particles
     private void updateParticles(float deltaTime) {
-        if(currentWeather == WeatherData.DEFAULT_WEATHER) return;
+        if(currentWeather == WeatherType.NORMAL) return;
     
         partEmitTimer += deltaTime;
         if(partEmitTimer < partEmitInterval) return;
@@ -296,15 +327,16 @@ class Weather : WorldHandler {
         var controller = mesh.getParticleController();
         if(controller == null) return;
 
-        Vector3 emitPos = getPartEmitPosition();
         controller.emit(
-            position: emitPos,
+            position: setPosition(),
             color: new Vector3(config.Color[0], config.Color[1], config.Color[2]),
             amount: config.Amount,
             size: config.Size,
             speed: config.Speed,
             lifetime: config.Lifetime,
-            velNum: new Vector3(config.Vel[0], config.Vel[1], config.Vel[2])
+            velNum: new Vector3(config.Vel[0], config.Vel[1], config.Vel[2]),
+            enableMotion: true,
+            spawnRadius: setPositionf()
         );
     }
 }

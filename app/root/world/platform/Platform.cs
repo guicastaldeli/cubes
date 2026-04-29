@@ -15,9 +15,7 @@ class Platform : WorldHandler {
     public string GRID_ID = "grid";
     private string MESH = "cube";
 
-    private float x = 0.0f;
-    private float y = 0.0f;
-    private float z = 0.0f;
+    (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
     private Vector3 offset = Vector3.Zero;
     
     private int sizeX = 10;
@@ -40,7 +38,7 @@ class Platform : WorldHandler {
 
     // Set Position
     private void setPosition() {
-        offset = new Vector3(x, y, z);
+        offset = new Vector3(pos.x, pos.y, pos.z);
     }
 
     // Height
@@ -330,7 +328,7 @@ class Platform : WorldHandler {
         frameCounter++;
 
         if(frameCounter % 10 == 0) {
-            emitParticle();
+            //emitParticle();
         }
     }
 }

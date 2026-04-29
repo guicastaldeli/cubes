@@ -39,7 +39,9 @@ class ParticleController {
         float speed,
         float lifetime,
         Vector3? velNum = null,
-        Func<Vector3>? colorSupplier = null
+        Func<Vector3>? colorSupplier = null,
+        bool enableMotion = false,
+        float spawnRadius = 0.0f
     ) {
         ParticleEntity entity = new ParticleEntity(mesh);
         
@@ -48,6 +50,8 @@ class ParticleController {
         entity.setSize(size);
         entity.setSpeed(speed);
         entity.setLifetime(lifetime);
+        entity.setMotion(enableMotion);
+        entity.setSpawnRadius(spawnRadius);
         if(velNum.HasValue) entity.setVelNum(velNum.Value);
 
         entity.set(position, velNum.HasValue, colorSupplier);

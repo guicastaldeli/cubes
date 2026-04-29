@@ -20,17 +20,17 @@ local Particle = {
         color = { 0.5, 0.6, 0.8 },
         amount = 200,
         size = 0.05,
-        speed = 15.0,
+        speed = 1.0,
         lifetime = 1.5,
-        vel = { 0.1, -1.0, 0.05 }
+        vel = { 0.0, -10.0, 0.0 }
     },
     SNOW = {
         color = { 0.9, 0.95, 1.0 },
         amount = 80,
         size = 0.08,
-        speed = 15,
+        speed = 1.0,
         lifetime = 5.0,
-        vel = { 0.2, -0.3, 0.2 }
+        vel = { 0.2, -10.0, 0.2 }
     }
 }
 

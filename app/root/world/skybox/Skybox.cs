@@ -212,15 +212,15 @@ class Skybox : WorldHandler {
     }
 
     private void updateShader() {
-        shaderProgram.setUniformB("periodType", Period.getNumber(Period.getCurrent()!));
+        shaderProgram.setUniformb("periodType", Period.getNumber(Period.getCurrent()!));
         shaderProgram.setUniform("currentHour", timeCycle.getHour());
         shaderProgram.setUniform("time", tick.getCurrentTime());
 
-        shaderProgram.setUniformB("topColor", Color.currentTopColor.X, Color.currentTopColor.Y, Color.currentTopColor.Z);
+        shaderProgram.setUniformb("topColor", Color.currentTopColor.X, Color.currentTopColor.Y, Color.currentTopColor.Z);
         
-        shaderProgram.setUniformB("bottomColor", Color.currentBottomColor.X, Color.currentBottomColor.Y, Color.currentBottomColor.Z);
-        shaderProgram.setUniformB("prevTopColor", Color.prevTopColor.X, Color.prevTopColor.Y, Color.prevTopColor.Z);
-        shaderProgram.setUniformB("prevBottomColor", Color.prevBottomColor.X, Color.prevBottomColor.Y, Color.prevBottomColor.Z);
+        shaderProgram.setUniformb("bottomColor", Color.currentBottomColor.X, Color.currentBottomColor.Y, Color.currentBottomColor.Z);
+        shaderProgram.setUniformb("prevTopColor", Color.prevTopColor.X, Color.prevTopColor.Y, Color.prevTopColor.Z);
+        shaderProgram.setUniformb("prevBottomColor", Color.prevBottomColor.X, Color.prevBottomColor.Y, Color.prevBottomColor.Z);
         
         shaderProgram.setUniform("transitionProgress", Color.transitionProgress);
         shaderProgram.setUniform("starTransition", SkyboxStar.getTransitionProgress());

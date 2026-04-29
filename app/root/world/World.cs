@@ -53,16 +53,19 @@ class World : WorldHandler {
         ServiceContainer.Register(collisionManager);
         ServiceContainer.Register(timeCycle);
         ServiceContainer.Register(camera);
+        ServiceContainer.SRegister(this);
 
         WorldUpdater.getInstance().init(window, mesh, collisionManager);
         this.worldBoundary = new WorldBoundary(
             worldManager.getPlayerController(),
-            worldManager.getPlayerController().getRigidBody()
+            worldManager.getPlayerController().getRigidBody(),
+            collisionManager
         );
 
         PhysicsRegistry.getInstance().init(mesh, collisionManager);
 
         Register();
+        
         setCollision();
     } 
 
@@ -74,6 +77,11 @@ class World : WorldHandler {
     // Get World Manager
     public WorldManager getWorldManager() {
         return worldManager;
+    }
+
+    // Get World Boundary
+    public WorldBoundary getWorldBoundary() {
+        return worldBoundary;
     }
 
     // Set Collision
@@ -135,17 +143,21 @@ class World : WorldHandler {
                 !excluded.Contains(t)
             );
         foreach(var type in types) {
-            var instance = CreateInstance(type);
-            if(instance != null) {
-                el.Add(instance);
+            bool shouldInclude = ServiceContainer.IsSRegisterActive() || !excluded.Contains(type);
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Registered: {type.Name}");
-                Console.ResetColor();
-            } else {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine($"Failed to register: {type.Name}");
-                Console.ResetColor();
+            if(shouldInclude) {
+                var instance = CreateInstance(type);
+                if(instance != null) {
+                    el.Add(instance);
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"Registered: {type.Name}");
+                    Console.ResetColor();
+                } else {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine($"Failed to register: {type.Name}");
+                    Console.ResetColor();
+                }
             }
         }
 

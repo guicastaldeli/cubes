@@ -101,7 +101,7 @@ class ShaderProgram {
     }
 
     // Set Uniform Bind
-    public void setUniformB(string name, float x, float y, float z) {
+    public void setUniformb(string name, float x, float y, float z) {
         int currentProgram;
         GL.GetInteger(GetPName.CurrentProgram, out currentProgram);
         if(currentProgram != programId) bind();
@@ -110,7 +110,7 @@ class ShaderProgram {
         if(loc != -1) GL.Uniform3(loc, x, y, z);
     }
 
-    public void setUniformB(string name, int val) {
+    public void setUniformb(string name, int val) {
         int currentProgram;
         GL.GetInteger(GetPName.CurrentProgram, out currentProgram);
         if(currentProgram != programId) bind();

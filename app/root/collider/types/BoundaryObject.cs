@@ -8,6 +8,9 @@ class BoundaryObject : Collider {
     private float distance;
     private float thickness = 100.0f;
 
+    private float minHeight = -10.0f;
+    private float maxHeight = 20.0f;
+
     public BoundaryObject(float distance) {
         this.distance = distance;
         bBox = new BBox(
@@ -33,6 +36,15 @@ class BoundaryObject : Collider {
     // On Collision
     public void onCollision(CollisionResult coll) {
         
+    }
+
+    // Height
+    public float getMinHeight() {
+        return minHeight;
+    }
+
+    public float getMaxHeight() {
+        return maxHeight;
     }
 
     // Is Outside Boundary

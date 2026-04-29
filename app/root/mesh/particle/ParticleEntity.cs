@@ -30,6 +30,7 @@ class ParticleEntity {
     private float speed;
     private int amount;
     private float lifetime;
+    private float spawnRadius;
 
     private bool vel;
     private Vector3 velNum;
@@ -56,6 +57,7 @@ class ParticleEntity {
         this.amount = 10;
         this.lifetime = 2.0f;
         this.velNum = Vector3.One;
+        this.spawnRadius = 0.0f;
 
         this.id = setId();
 
@@ -155,6 +157,15 @@ class ParticleEntity {
 
     /**
     
+        Set Spawn Radius
+    
+        */
+    public void setSpawnRadius(float spawnRadius) {
+        this.spawnRadius = spawnRadius;
+    }
+
+    /**
+    
         Set Motion
     
         */
@@ -162,6 +173,10 @@ class ParticleEntity {
         this.enableMotion = enable;
         this.swayAmplitude = swayAmplitude;
         this.swayFrequency = swayFrequency;
+    }
+
+    public void setMotion(bool enable) {
+        this.enableMotion = enable;
     }
 
     /**
@@ -205,10 +220,20 @@ class ParticleEntity {
         for(int i = 0; i < amount; i++) {
             Particle particle = new Particle();
             particle.id = generateIndexId(id, i);
-
             particle.position = new Vector3(position);
 
-            if(!enableMotion) {
+            if(enableMotion) {
+                particle.position = new Vector3(
+                    position.X + ((float)random.NextDouble() - 0.5f) * 2.0f * spawnRadius,
+                    position.Y,
+                    position.Z + ((float)random.NextDouble() - 0.5f) * 2.0f * spawnRadius
+                );
+                particle.vel = new Vector3(
+                    velNum.X * speed,
+                    velNum.Y * speed,
+                    velNum.Z * speed
+                );
+            } else {
                 particle.vel = new Vector3(
                     ((float)random.NextDouble() - 0.5f) * 2.0f * speed,
                     (float)random.NextDouble() * 3.0f * speed,
@@ -269,19 +294,11 @@ class ParticleEntity {
                 continue;
             }
 
-            if(!enableMotion) {
-                particle.vel.Y -= 
-                    GRAVITY_VEL * 
-                    deltaTime * 
-                    speed;
-            }
+            particle.vel.Y -= 
+                GRAVITY_VEL * 
+                deltaTime * 
+                speed;
             if(vel) {
-                particle.position += new Vector3(
-                    particle.vel.X * deltaTime * velNum.X,
-                    particle.vel.Y * deltaTime * velNum.Y,
-                    particle.vel.Z * deltaTime * velNum.Z
-                );
-            } else {
                 particle.position += new Vector3(
                     particle.vel.X * deltaTime,
                     particle.vel.Y * deltaTime,

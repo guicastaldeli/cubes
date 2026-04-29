@@ -6,6 +6,7 @@
     */
 public class ServiceContainer {
     private Dictionary<Type, object> services = new Dictionary<Type, object>();
+    private static bool activeSRegister = false;
 
     /**
     
@@ -41,5 +42,22 @@ public class ServiceContainer {
 
     public void Register<T>(Type type, T service) where T : class {
         services[type] = service;
+    }
+
+    /**
+    
+        SRegister
+    
+        */
+    public void SRegister<T>(T service) where T : class {
+        services[typeof(T)] = service;
+    }
+
+    public static void ActiveSRegister(bool active) {
+        activeSRegister = active;
+    }
+
+    public static bool IsSRegisterActive() {
+        return activeSRegister;
     }
 }
