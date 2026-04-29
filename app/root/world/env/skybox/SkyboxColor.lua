@@ -6,7 +6,6 @@
     ]]
 dofile("utils/TimePeriod.lua")
 
-
 -- Skybox Colors
 local Colors = {
     MIDNIGHT = {
