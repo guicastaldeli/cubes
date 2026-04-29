@@ -2,6 +2,7 @@ namespace App.Root.World;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Physics;
+using App.Root.Player;
 using App.Root.Shaders;
 using App.Root.Utils;
 using System.Reflection;
@@ -18,6 +19,7 @@ class World : WorldHandler {
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
     private TimeCycle timeCycle;
+    private Camera camera;
 
     private WorldManager worldManager;
     private WorldBoundary worldBoundary;
@@ -31,7 +33,8 @@ class World : WorldHandler {
         Mesh.Mesh mesh, 
         WorldManager worldManager,
         CollisionManager collisionManager,
-        TimeCycle timeCycle
+        TimeCycle timeCycle,
+        Camera camera
     ) {
         this.window = window;
         this.tick = tick;
@@ -40,6 +43,7 @@ class World : WorldHandler {
         this.worldManager = worldManager;
         this.collisionManager = collisionManager;
         this.timeCycle = timeCycle;
+        this.camera = camera;
 
         ServiceContainer.Register(window);
         ServiceContainer.Register(tick);
@@ -48,6 +52,7 @@ class World : WorldHandler {
         ServiceContainer.Register(worldManager);
         ServiceContainer.Register(collisionManager);
         ServiceContainer.Register(timeCycle);
+        ServiceContainer.Register(camera);
 
         WorldUpdater.getInstance().init(window, mesh, collisionManager);
         this.worldBoundary = new WorldBoundary(
@@ -73,7 +78,7 @@ class World : WorldHandler {
 
     // Set Collision
     public void setCollision() {
-        collisionManager.addStaticCollider(new BoundaryObject(WORLD_BOUNDARY));
+        //collisionManager.addStaticCollider(new BoundaryObject(WORLD_BOUNDARY));
     }
 
     /**

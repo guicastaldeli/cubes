@@ -26,6 +26,7 @@ uniform vec2 screenSize;
 #include "outline.vert.glsl"
 #include "particle.vert.glsl"
 #include "../env/skybox.vert.glsl"
+#include "../env/star.vert.glsl"
 
 void main() {
     /**
@@ -77,18 +78,21 @@ void main() {
         setParticleVert();
     }
     /**
- 
-        Main
 
-        */
-    /**
-
-        Skybox
+        Skybox and Stars
 
         */
     else if(shaderType == 8) {
         setSkyboxVert();
     }
+    else if(shaderType == 9) {
+        setStarVert();
+    }
+    /**
+ 
+        Main
+
+        */
     else {
         vec3 pos = aPos;
         if(isInstanced == 1) pos += aInstanceOffset;

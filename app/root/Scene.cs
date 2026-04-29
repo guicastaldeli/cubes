@@ -63,7 +63,8 @@ class Scene {
             mesh, 
             collisionManager, 
             playerController,
-            timeCycle
+            timeCycle,
+            playerController.getCamera()
         );
     }
 
@@ -232,7 +233,8 @@ class Scene {
             mesh, 
             collisionManager, 
             playerController,
-            timeCycle
+            timeCycle,
+            playerController.getCamera()
         );
         if(network != null) worldManager.setNetwork(network);
     }

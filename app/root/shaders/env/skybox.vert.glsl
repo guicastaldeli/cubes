@@ -13,7 +13,7 @@ void setSkyboxVert() {
     
     vec4 worldPos = uModel * vec4(aPos, 1.0);
     vWorldY = worldPos.y;
-    vWorldPos = aPos * 100.0;
+    vWorldPos = worldPos.xyz;
 
     gl_Position = uProjection * uView * worldPos;
 }

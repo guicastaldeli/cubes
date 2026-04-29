@@ -1,10 +1,10 @@
 namespace App.Root.World.Env.Skybox;
-
-using System.Numerics;
 using App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.Utils;
+using OpenTK.Mathematics;
 using NLua;
+using App.Root.Player;
 
 /**
 
@@ -114,7 +114,7 @@ class Color {
 
     public static void updateTransition() {
         if(transitionProgress < 1.0f) {
-            transitionProgress += tick.getDeltaTime() * transitionProgress;
+            transitionProgress += tick.getDeltaTime() * transitionSpeed;
             if(transitionProgress > 1.0f) transitionProgress = 1.0f;
         }
     }
@@ -137,6 +137,8 @@ class Skybox : WorldHandler {
     private bool initialized = false;
     private string? lastPeriodName = null;
 
+    (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
+
     public Skybox(
         [Inject] Tick tick,
         [Inject] ShaderProgram shaderProgram, 
@@ -148,6 +150,7 @@ class Skybox : WorldHandler {
         this.mesh = mesh;
         this.timeCycle = timeCycle;
 
+        SkyboxStar.init(mesh);
         Color.init(tick, shaderProgram, this, timeCycle);
     }
 
@@ -160,9 +163,11 @@ class Skybox : WorldHandler {
         MeshData data = MeshDataLoader.load(MESH);
         data.shaderType = 8;
 
-        mesh.setPosition(ID, 0.0f, 0.0f, 0.0f);
+        mesh.setPosition(ID, pos.x, pos.y, pos.z);
         mesh.add(ID, data);
-        mesh.setScale(ID, 100.0f);
+        mesh.setScale(ID, 50.0f);
+
+        SkyboxStar.set();
 
         Color.updateColors();
     }
@@ -204,7 +209,7 @@ class Skybox : WorldHandler {
     }
 
     private void updateShader() {
-        shaderProgram.setUniform("periodType", Period.getNumber(Period.getCurrent()!));
+        shaderProgram.setUniformB("periodType", Period.getNumber(Period.getCurrent()!));
         shaderProgram.setUniform("currentHour", timeCycle.getHour());
         shaderProgram.setUniform("time", tick.getCurrentTime());
 
@@ -216,4 +221,83 @@ class Skybox : WorldHandler {
         
         shaderProgram.setUniform("transitionProgress", Color.transitionProgress);
     }
+
+    /**
+
+        Skybox Star class.
+
+        */
+    private static class SkyboxStar {
+        private static string STAR_ID = "star";
+        private static string STAR_MESH = "quad";
+
+        private static int STAR_COUNT = 300;
+        private static float RADIUS = 45.0f;
+    
+        private static Mesh mesh = null!;
+
+        static (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
+
+        /**
+        
+            Init
+        
+            */
+        public static void init(Mesh mesh) {
+            SkyboxStar.mesh = mesh;
+        }
+
+        /**
+        
+            Set
+        
+            */
+        public static void set() {
+            MeshData data = MeshDataLoader.load(STAR_MESH);
+            data.shaderType = 9;
+
+            mesh.add(STAR_ID, data);
+            mesh.setPosition(STAR_ID, pos.x, pos.y, pos.z);
+
+            var (positions, colors) = generate();
+            mesh.getMeshRenderer(STAR_ID)!.isInstanced = true;
+            mesh.getMeshRenderer(STAR_ID)!.setInstanceData(positions, colors);
+        }
+
+        /**
+        
+            Generate
+        
+            */
+        public static (List<Vector3>, List<float[]>) generate() {
+            var positions = new List<Vector3>();
+            var colors = new List<float[]>();
+
+            float angle = MathF.PI * (3.0f - MathF.Sqrt(5.0f));
+            var range = new Random(42);
+
+            for(int i = 0; i < STAR_COUNT; i++) {
+                float y = 1.0f - (i / (float)(STAR_COUNT - 1)) * 2.0f;
+                float radiusAtY = MathF.Sqrt(1.0f - y * y);
+                float theta = angle * i;
+
+                float x = MathF.Cos(theta) * radiusAtY;
+                float z = MathF.Sin(theta) * radiusAtY;
+
+                float brigthness = 0.5f + (float)range.NextDouble() * 0.5f;
+                float size = 0.3f + (float)range.NextDouble() * 0.7f;
+                
+                if(y < -0.2f) continue;
+
+                positions.Add(new Vector3(x, y, z) * RADIUS);
+                colors.Add(new float[] {
+                    brigthness, brigthness, brigthness,
+                    size
+                });
+            }
+
+            return (positions, colors);
+        }
+    }
 }
+

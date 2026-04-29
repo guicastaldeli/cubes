@@ -11,6 +11,7 @@ class WorldManager {
     private CollisionManager? collisionManager;
     private PlayerController playerController;
     private TimeCycle timeCycle;
+    private Camera camera;
 
     private Network? network;
     private Server? server;
@@ -27,7 +28,8 @@ class WorldManager {
         Mesh.Mesh mesh, 
         CollisionManager collisionManager,
         PlayerController playerController,
-        TimeCycle timeCycle
+        TimeCycle timeCycle,
+        Camera camera
     ) {
         this.window = window;
         this.tick = tick;
@@ -36,8 +38,9 @@ class WorldManager {
         this.collisionManager = collisionManager;
         this.playerController = playerController;
         this.timeCycle = timeCycle;
+        this.camera = camera;
 
-        this.world = new World(window, tick, shaderProgram, mesh, this, collisionManager, timeCycle);
+        this.world = new World(window, tick, shaderProgram, mesh, this, collisionManager, timeCycle, camera);
         this.worldBroadcaster = new WorldBroadcaster(this);
         this.networkWorld = new NetworkWorld(this);
     }

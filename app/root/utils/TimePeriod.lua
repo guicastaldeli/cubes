@@ -5,17 +5,17 @@
 
     ]]
 -- Period Helper
-local function p(s, e, n)
-    return { s = s, e = e, n = n }
+local function p(s, e, num)
+    return { s = s, e = e, n = num and num.n or nil }
 end
 
 local Period = {
-    MIDNIGHT = p(0, 4, 1),
-    DAWN = p(4, 6, 3),
-    MORNING = p(6, 12, 5),
-    AFTERNOON = p(12, 17, 6),
-    DUSK = p(17, 19, 4),
-    NIGHT = p(19, 24, 2)
+    MIDNIGHT = p(0, 4, { n = 1 }),
+    DAWN = p(4, 6, { n = 4 }), 
+    MORNING = p(6, 12, { n= 5 }), 
+    AFTERNOON = p(12, 17, { n = 6 }), 
+    DUSK = p(17, 19, { n = 3 }),
+    NIGHT = p(19, 24, { n = 2 })
 }
 
 -- Is Active

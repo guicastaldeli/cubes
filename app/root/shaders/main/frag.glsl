@@ -19,6 +19,7 @@ uniform sampler2D uSampler;
 #include "outline.frag.glsl"
 #include "particle.frag.glsl"
 #include "../env/skybox.frag.glsl"
+#include "../env/star.frag.glsl"
 
 void main() {
     /**
@@ -76,6 +77,9 @@ void main() {
         */
     else if(shaderType == 8) {
         setSkyboxFrag();
+    }
+    else if(shaderType == 9) {
+        setStarFrag();
     }
     /**
 

@@ -71,7 +71,7 @@ class Period {
     
         */
     public static void update() {
-        periods = data["Period"] as LuaTable;
+        if(data == null) return;
         currentPeriod = getCurrent();
     }
 
@@ -110,7 +110,9 @@ class TimeCycle {
         Period.init(this);
         Period.update();
         
-        setTime(7, 0);
+        setTime(0, 0);//setTime(7, 0);
+        setPause(true);
+        
         updateTime();
     }
 
