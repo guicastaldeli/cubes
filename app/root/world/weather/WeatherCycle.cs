@@ -12,11 +12,11 @@ namespace App.Root.World.Weather;
 
     */
 static class Duration {
-    public const float MIN_DUATION_LOW = 60.0f;
+    public const float MIN_DURATION_LOW = 60.0f;
     public const float MIN_DURATION_HIGH = 300.0f;
 
-    public const float MAX_DUTATION_LOW = 300.0f;
-    public const float MIN_DUTATION_HIGH = 600.0f;
+    public const float MAX_DURATION_LOW = 300.0f;
+    public const float MAX_DURATION_HIGH = 600.0f;
 }
 /**
 
@@ -66,19 +66,21 @@ class WeatherCycle {
         */
     private void next(bool force = false) {
         string next = weigthedRandom();
+        if(next == currentName && !force) next = weigthedRandom();
+        
         prevName = currentName;
         currentName = next;
         timer = 0.0f;
 
-        float minDuration = 
-            Duration.MAX_DUTATION_LOW + 
+        float minDuration =
+            Duration.MIN_DURATION_LOW +
             (float)(range.NextDouble() * 
-            (Duration.MIN_DURATION_HIGH - Duration.MIN_DUATION_LOW));
-    
-        float maxDuration = 
-            Duration.MAX_DUTATION_LOW +
-            (float)(range.NextDouble() *
-            Duration.MAX_DUTATION_LOW - Duration.MAX_DUTATION_LOW);
+            (Duration.MIN_DURATION_HIGH - Duration.MIN_DURATION_LOW));
+
+        float maxDuration =
+            Duration.MAX_DURATION_LOW +
+            (float)(range.NextDouble() * 
+            (Duration.MAX_DURATION_HIGH - Duration.MAX_DURATION_LOW));
 
         duration = 
             minDuration + 

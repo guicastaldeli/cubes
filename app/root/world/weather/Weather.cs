@@ -75,10 +75,10 @@ class WeatherData {
             if(row == null) continue;
 
             res.Add(new WeatherEntry {
-                Id = Convert.ToInt32(row["id"]),
+                Id = Convert.ToInt32(row["i"]),
                 Name = key,
                 Frequency = Convert.ToSingle(row["f"]),
-                Value = Convert.ToInt32(row["s"])
+                Value = Convert.ToInt32(row["v"])
             });
         }
 
@@ -268,7 +268,7 @@ class Weather : WorldHandler {
             float prevStrength = prevTemp?.Strength ?? 0.0f;
 
             r = Lerp.S(prevR, currentTemp.R, tempTransition);
-            b = Lerp.S(prevG, currentTemp.G, tempTransition);
+            g = Lerp.S(prevG, currentTemp.G, tempTransition);
             b = Lerp.S(prevB, currentTemp.B, tempTransition);
             strength = Lerp.S(prevStrength, currentTemp.Strength, tempTransition); 
         } else if(prevTemp != null) {
