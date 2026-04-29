@@ -26,8 +26,8 @@ uniform vec2 screenSize;
 #include "flat.vert.glsl"
 #include "outline.vert.glsl"
 #include "particle.vert.glsl"
-#include "../env/skybox.vert.glsl"
-#include "../env/star.vert.glsl"
+#include "../world/skybox.vert.glsl"
+#include "../world/star.vert.glsl"
 
 void main() {
     /**

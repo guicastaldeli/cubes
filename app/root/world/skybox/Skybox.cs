@@ -1,4 +1,4 @@
-namespace App.Root.World.Env.Skybox;
+namespace App.Root.World.Skybox;
 using App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.Utils;
@@ -11,7 +11,7 @@ using NLua;
 
     */
 class Color {
-    private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/env/skybox/SkyboxColor.lua");
+    private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/skybox/SkyboxColor.lua");
 
     public static Tick tick = null!;
     public static ShaderProgram shaderProgram = null!;

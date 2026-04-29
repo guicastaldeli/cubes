@@ -84,7 +84,7 @@ class Platform : WorldHandler {
             MeshInteractionRegistry.getInstance().register(id, State.BREAKABLE, mesh, stackId);
         }
 
-        private void spawnGrid(string meshType, Vector3 origin, int cols, int rows, float scale = 1.0f, float spacing = 1.0f, string texPath = "env/test.jpg") {
+        private void spawnGrid(string meshType, Vector3 origin, int cols, int rows, float scale = 1.0f, float spacing = 1.0f, string texPath = "test.jpg") {
             string stackId = $"{meshType}_wall";
 
             for(int r = 0; r < rows; r++) {
@@ -108,7 +108,7 @@ class Platform : WorldHandler {
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;
 
-            string texPath = "env/test.jpg";
+            string texPath = "test.jpg";
             int texId = TextureLoader.load(texPath);
             mesh.setTexture(id, texId, texPath);
 
@@ -135,7 +135,7 @@ class Platform : WorldHandler {
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;
 
-            string texPath = "env/test.jpg";
+            string texPath = "test.jpg";
             int texId = TextureLoader.load(texPath);
             mesh.setTexture(id, texId, texPath);
 

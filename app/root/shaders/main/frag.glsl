@@ -18,8 +18,8 @@ uniform sampler2D uSampler;
 #include "flat.frag.glsl"
 #include "outline.frag.glsl"
 #include "particle.frag.glsl"
-#include "../env/skybox.frag.glsl"
-#include "../env/star.frag.glsl"
+#include "../world/skybox.frag.glsl"
+#include "../world/star.frag.glsl"
 
 void main() {
     /**
