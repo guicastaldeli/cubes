@@ -56,6 +56,11 @@ class MeshData {
         set; 
     } = 0;
 
+    public int shaderAddon {
+        get;
+        set;
+    } = 0;
+
     public string? colliderShape {
         get;
         set;
