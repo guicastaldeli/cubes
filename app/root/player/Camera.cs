@@ -25,7 +25,7 @@ class Camera {
 
     private float aspectRatio;
     private float nearPlane = 0.1f;
-    private float farPlane = 100.0f;
+    private float farPlane = 1000.0f;
 
     public Camera() {
         position = new Vector3(posX, posY, posZ);

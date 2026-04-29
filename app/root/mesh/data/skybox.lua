@@ -1,152 +1,93 @@
 meshType = "skybox"
 
+local stacks = 20.0
+local slices = 20.0
+local radius = 1.0
+
+local verts = {}
+local norms = {}
+local texs = {}
+local idx = {}
+local cols = {}
+
+local PI = math.pi
+
+local function randomColor()
+    return {
+        math.random(),
+        math.random(),
+        math.random(),
+        1.0
+    }
+end
+
+local function pushVertex(
+    vx, vy, vz,
+    nx, ny, nz,
+    u, v,
+    col
+)
+    table.insert(verts, vx)
+    table.insert(verts, vy)
+    table.insert(verts, vz)
+
+    table.insert(norms, nx)
+    table.insert(norms, ny)
+    table.insert(norms, nz)
+
+    table.insert(texs, u)
+    table.insert(texs, v)
+
+    table.insert(cols, col[1])
+    table.insert(cols, col[2])
+    table.insert(cols, col[3])
+    table.insert(cols, col[4])
+end
+
+local function spherePoint(phi, theta)
+    local x = math.sin(phi) * math.cos(theta)
+    local y = math.cos(phi)
+    local z = math.sin(phi) * math.sin(theta)
+    return x, y, z
+end
+
+num = 42
+math.randomseed(num)
+
 -- Vertices
-vertices = {
-    -0.5, -0.5,  0.5,
-    0.5, -0.5,  0.5,
-    0.5,  0.5,  0.5,
-    -0.5,  0.5,  0.5,
-    
-    -0.5, -0.5, -0.5,
-    0.5, -0.5, -0.5,
-    0.5,  0.5, -0.5,
-    -0.5,  0.5, -0.5,
-    
-    -0.5,  0.5, -0.5,
-    0.5,  0.5, -0.5,
-    0.5,  0.5,  0.5,
-    -0.5,  0.5,  0.5,
-    
-    -0.5, -0.5, -0.5,
-    0.5, -0.5, -0.5,
-    0.5, -0.5,  0.5,
-    -0.5, -0.5,  0.5,
-    
-    0.5, -0.5, -0.5,
-    0.5,  0.5, -0.5,
-    0.5,  0.5,  0.5,
-    0.5, -0.5,  0.5,
-    
-    -0.5, -0.5, -0.5,
-    -0.5,  0.5, -0.5,
-    -0.5,  0.5,  0.5,
-    -0.5, -0.5,  0.5
-}
+for i = 0, stacks - 1 do
+    for j = 0, slices - 1 do
+        local phi1 = PI * i / stacks
+        local phi2 = PI * (i+1) / stacks
+        local theta1 = 2 * PI * j / slices
+        local theta2 = 2 * PI * (j+1) / slices
 
---Indices
-indices = {
-    0, 1, 2, 2, 3, 0,
-    4, 5, 6, 6, 7, 4,
-    8, 9, 10, 10, 11, 8,
-    12, 13, 14, 14, 15, 12,
-    16, 17, 18, 18, 19, 16,
-    20, 21, 22, 22, 23, 20
-}
+        local x00, y00, z00 = spherePoint(phi1, theta1)
+        local x10, y10, z10 = spherePoint(phi2, theta1)
+        local x01, y01, z01 = spherePoint(phi1, theta2)
+        local x11, y11, z11 = spherePoint(phi2, theta2)
 
--- Colors
-colors = {
-    0.40, 0.10, 0.10, 1.0,
-    0.40, 0.10, 0.10, 1.0,
-    0.40, 0.10, 0.10, 1.0,
-    0.40, 0.10, 0.10, 1.0,
-    
-    0.25, 0.05, 0.05, 1.0,
-    0.25, 0.05, 0.05, 1.0,
-    0.25, 0.05, 0.05, 1.0,
-    0.25, 0.05, 0.05, 1.0,
-    
-    0.35, 0.08, 0.08, 1.0,
-    0.35, 0.08, 0.08, 1.0,
-    0.35, 0.08, 0.08, 1.0,
-    0.35, 0.08, 0.08, 1.0,
-    
-    0.20, 0.04, 0.04, 1.0,
-    0.20, 0.04, 0.04, 1.0,
-    0.20, 0.04, 0.04, 1.0,
-    0.20, 0.04, 0.04, 1.0,
-    
-    0.30, 0.07, 0.07, 1.0,
-    0.30, 0.07, 0.07, 1.0,
-    0.30, 0.07, 0.07, 1.0,
-    0.30, 0.07, 0.07, 1.0,
-    
-    0.28, 0.06, 0.06, 1.0,
-    0.28, 0.06, 0.06, 1.0,
-    0.28, 0.06, 0.06, 1.0,
-    0.28, 0.06, 0.06, 1.0
-}
+        local u0 = j / slices
+        local u1 = (j+1) / slices
+        local v0 = i / stacks
+        local v1 = (i+1) / stacks
 
--- Normals
-normals = {
-    0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0,
-    
-    0.0, 0.0, -1.0,
-    0.0, 0.0, -1.0,
-    0.0, 0.0, -1.0,
-    0.0, 0.0, -1.0,
-    
-    0.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
-    
-    0.0, -1.0, 0.0,
-    0.0, -1.0, 0.0,
-    0.0, -1.0, 0.0,
-    0.0, -1.0, 0.0,
-    
-    1.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    
-    -1.0, 0.0, 0.0,
-    -1.0, 0.0, 0.0,
-    -1.0, 0.0, 0.0,
-    -1.0, 0.0, 0.0
-}
+        local c1 = randomColor()
+        pushVertex(radius*x00, radius*y00, radius*z00, x00, y00, z00, u0, v0, c1)
+        pushVertex(radius*x10, radius*y10, radius*z10, x10, y10, z10, u0, v1, c1)
+        pushVertex(radius*x01, radius*y01, radius*z01, x01, y01, z01, u1, v0, c1)
 
--- Tex Coords
-texCoords = {
-    -- Front
-    0.0, 1.0,
-    1.0, 1.0,
-    1.0, 0.0,
-    0.0, 0.0,
-    
-    -- Back
-    1.0, 1.0,
-    0.0, 1.0,
-    0.0, 0.0,
-    1.0, 0.0,
-    
-    -- Top
-    0.0, 1.0,
-    1.0, 1.0,
-    1.0, 0.0,
-    0.0, 0.0,
-    
-    -- Bottom
-    1.0, 1.0,
-    0.0, 1.0,
-    0.0, 0.0,
-    1.0, 0.0,
-    
-    -- Right
-    1.0, 1.0,
-    1.0, 0.0,
-    0.0, 0.0,
-    0.0, 1.0,
-    
-    -- Left
-    0.0, 1.0,
-    0.0, 0.0,
-    1.0, 0.0,
-    1.0, 1.0
-}
+        local c2 = randomColor()
+        pushVertex(radius*x01, radius*y01, radius*z01, x01, y01, z01, u1, v0, c2)
+        pushVertex(radius*x10, radius*y10, radius*z10, x10, y10, z10, u0, v1, c2)
+        pushVertex(radius*x11, radius*y11, radius*z11, x11, y11, z11, u1, v1, c2)
+    end
+end
+
+vertices = verts
+normals = norms
+texCoords = texs
+colors = cols
 
 -- Rotation
 rotation = {
@@ -156,5 +97,5 @@ rotation = {
 
 -- Collider
 collider = {
-    shape = "cube"
+    shape = "sphere"
 }

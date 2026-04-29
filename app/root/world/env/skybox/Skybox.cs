@@ -4,7 +4,6 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 using NLua;
-using App.Root.Player;
 
 /**
 

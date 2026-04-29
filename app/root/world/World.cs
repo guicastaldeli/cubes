@@ -78,7 +78,7 @@ class World : WorldHandler {
 
     // Set Collision
     public void setCollision() {
-        //collisionManager.addStaticCollider(new BoundaryObject(WORLD_BOUNDARY));
+        collisionManager.addStaticCollider(new BoundaryObject(WORLD_BOUNDARY));
     }
 
     /**
