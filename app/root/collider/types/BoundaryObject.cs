@@ -8,11 +8,15 @@ class BoundaryObject : Collider {
     private float distance;
     private float thickness = 100.0f;
 
-    private float minHeight = -20.0f;
-    private float maxHeight = 20.0f;
+    private float minHeight;
+    private float maxHeight;
 
     public BoundaryObject(float distance) {
         this.distance = distance;
+
+        this.minHeight = -distance;
+        this.maxHeight = distance;
+        
         bBox = new BBox(
             -distance - thickness, float.MinValue, -distance - thickness,
             distance + thickness, float.MaxValue, distance + thickness
