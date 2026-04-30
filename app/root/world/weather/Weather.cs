@@ -195,7 +195,7 @@ class Weather : WorldHandler {
         tempTransition = 0.0f;
 
         stopPartEmitter();
-        if(next != WeatherData.DEFAULT_WEATHER) startPartEmitter(next);
+        if(next != WeatherData.DEFAULT_WEATHER) startPartEmitter();
     }
 
     // Get Weather Value
@@ -253,7 +253,7 @@ class Weather : WorldHandler {
         tempTransition = 1.0f;
 
         if(currentWeather != WeatherType.NORMAL) {
-            startPartEmitter(currentWeather);
+            startPartEmitter();
         }
     }
 
@@ -263,7 +263,7 @@ class Weather : WorldHandler {
     
         */
     // Start Emitter
-    private void startPartEmitter(string weatherName) {
+    private void startPartEmitter() {
         partEmitTimer = partEmitInterval;
     }
 
