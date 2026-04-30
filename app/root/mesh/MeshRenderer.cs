@@ -586,9 +586,7 @@ class MeshRenderer : DataEntry {
         } else {
             shaderProgram.setUniform("shaderType", 0);
         }
-        if(meshData.shaderAddon != 0) {
-            shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
-        }
+        shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
         shaderProgram.setUniform("uModel", modelMatrix);
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());
@@ -662,9 +660,7 @@ class MeshRenderer : DataEntry {
         } else {
             shaderProgram.setUniform("shaderType", 0);
         }
-        if(meshData.shaderAddon != 0) {
-            shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
-        }
+        shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
         shaderProgram.setUniform("uModel", modelMatrix);
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());

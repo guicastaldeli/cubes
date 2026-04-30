@@ -11,6 +11,7 @@ uniform int uHasColors;
 uniform int hasTex;
 uniform int shaderType;
 uniform sampler2D uSampler;
+uniform int shaderAddon;
 
 #include "../text/text.frag.glsl"
 #include "../ui/ui.frag.glsl"
