@@ -4,9 +4,16 @@
     general weather props...
 
     --]]
+local minHeight = 0.0
+
 -- Weather Helper
 local function w(id, f, v)
     return { i = id and id.i or nil, f = f, v = v }
+end
+
+-- Set Min Height
+function setMinHeight(val)
+    minHeight = val
 end
 
 local Types = {
@@ -16,22 +23,26 @@ local Types = {
 }
 
 local Particle = {
-    RAIN = {
-        color = { 0.5, 0.6, 0.8 },
-        amount = 200,
-        size = 0.05,
-        speed = 1.0,
-        lifetime = 1.5,
-        vel = { 0.0, -10.0, 0.0 }
-    },
-    SNOW = {
-        color = { 0.9, 0.95, 1.0 },
-        amount = 80,
-        size = 0.08,
-        speed = 1.0,
-        lifetime = 5.0,
-        vel = { 0.2, -10.0, 0.2 }
-    }
+    RAIN = function()
+        return {
+            color = { 0.141, 0.106, 0.871 },
+            amount = 150,
+            size = 0.05,
+            speed = 0.65,
+            lifetime = 1.5,
+            vel = { 0.0, minHeight, 0.0 }
+        }
+    end,
+    SNOW = function()
+        return {
+            color = { 0.9, 0.95, 1.0 },
+            amount = 80,
+            size = 0.08,
+            speed = 0.5,
+            lifetime = 1.5,
+            vel = { 5.0, minHeight, 5.0 }
+        }
+    end
 }
 
 local Temp = {
@@ -46,7 +57,8 @@ function getTypes()
 end
 
 function getParticle(name)
-    return Particle[name]
+    local f = Particle[name]
+    return f and f()
 end
 
 function getTemp(addonId)

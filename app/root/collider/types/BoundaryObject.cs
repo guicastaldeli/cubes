@@ -8,7 +8,7 @@ class BoundaryObject : Collider {
     private float distance;
     private float thickness = 100.0f;
 
-    private float minHeight = -10.0f;
+    private float minHeight = -20.0f;
     private float maxHeight = 20.0f;
 
     public BoundaryObject(float distance) {

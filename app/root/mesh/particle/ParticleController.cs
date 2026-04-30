@@ -40,11 +40,13 @@ class ParticleController {
         float lifetime,
         Vector3? velNum = null,
         Func<Vector3>? colorSupplier = null,
+        float targetY = 0.0f,
         bool enableMotion = false,
         float spawnRadius = 0.0f
     ) {
         ParticleEntity entity = new ParticleEntity(mesh);
         
+        entity.setTargetY(targetY);
         entity.setColor(color);
         entity.setAmount(amount);
         entity.setSize(size);

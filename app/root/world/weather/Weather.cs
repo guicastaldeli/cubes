@@ -5,7 +5,6 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 using NLua;
-using App.Root.Collider.Types;
 
 /**
 
@@ -48,8 +47,9 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.RAIN;
+    public static string DEFAULT_WEATHER = WeatherType.SNOW;
 
+    private static Weather weather = null!;
     private static Lua data = null!;
 
     /**
@@ -57,7 +57,8 @@ class WeatherData {
         Init
     
         */
-    public static void init() {
+    public static void init(Weather weather) {
+        WeatherData.weather = weather;
         data = new Lua();
 
         string originalDir = Directory.GetCurrentDirectory();
@@ -136,6 +137,14 @@ class WeatherData {
             Strength = Convert.ToSingle(t["strength"])
         };
     }
+
+    // Get Min Height
+    public static void setMinHeight() {
+        LuaFunction? func = data["setMinHeight"] as LuaFunction;
+        if(func == null) return;
+
+        func.Call(weather.getWorldMinHeight());
+    }
 }
 
 /**
@@ -163,7 +172,7 @@ class Weather : WorldHandler {
 
     private bool initialized = false;
 
-    public Weather([Inject] Tick tick, [Inject] Mesh mesh, [Inject] ShaderProgram shaderProgram, World world) {
+    public Weather([Inject] Tick tick, [Inject] Mesh mesh, [Inject] ShaderProgram shaderProgram, [Inject] World world) {
         ServiceContainer.ActiveSRegister(true);
         
         this.tick = tick;
@@ -197,8 +206,22 @@ class Weather : WorldHandler {
         return val;
     }
 
-    // Get World Height
-    private float getWorldHeight() {
+    /**
+    
+        World Height
+    
+        */
+    public float getWorldMinHeight() {
+        var boundary = world.getWorldBoundary().getBoundaryObject();
+        if(boundary != null) {
+            float minHeight = boundary.getMinHeight();
+            return minHeight;
+        }
+
+        return 0.0f;
+    }
+
+    public float getWorldMaxHeight() {
         var boundary = world.getWorldBoundary().getBoundaryObject();
         if(boundary != null) {
             float maxHeight = boundary.getMaxHeight();
@@ -214,7 +237,8 @@ class Weather : WorldHandler {
     
         */
     private void set() {
-        WeatherData.init();
+        WeatherData.init(this);
+        WeatherData.setMinHeight();
 
         var entries = WeatherData.getEntries();
         weatherCycle.init(entries);
@@ -239,7 +263,7 @@ class Weather : WorldHandler {
 
     // Set Position
     private Vector3 setPosition() {
-        float height = getWorldHeight();
+        float height = getWorldMaxHeight();
         Vector3 val = new Vector3(0.0f, height, 0.0f);
         return val;
         
@@ -327,16 +351,21 @@ class Weather : WorldHandler {
         var controller = mesh.getParticleController();
         if(controller == null) return;
 
-        controller.emit(
-            position: setPosition(),
-            color: new Vector3(config.Color[0], config.Color[1], config.Color[2]),
-            amount: config.Amount,
-            size: config.Size,
-            speed: config.Speed,
-            lifetime: config.Lifetime,
-            velNum: new Vector3(config.Vel[0], config.Vel[1], config.Vel[2]),
-            enableMotion: true,
-            spawnRadius: setPositionf()
-        );
+        if(partActiveEmitter == null) {
+            partActiveEmitter = controller.emit(
+                position: setPosition(),
+                color: new Vector3(config.Color[0], config.Color[1], config.Color[2]),
+                amount: config.Amount,
+                size: config.Size,
+                speed: config.Speed,
+                lifetime: config.Lifetime,
+                velNum: new Vector3(config.Vel[0], config.Vel[1], config.Vel[2]),
+                targetY: getWorldMinHeight(),
+                enableMotion: true,
+                spawnRadius: setPositionf()
+            );
+        } else {
+            partActiveEmitter.set(setPosition(), true, getWorldMinHeight());
+        }
     }
 }

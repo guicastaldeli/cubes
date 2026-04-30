@@ -8,7 +8,6 @@ namespace App.Root.Mesh.Particle;
 using Particle = Data.Particle;
 using App.Root.Mesh;
 using OpenTK.Mathematics;
-using System.Net;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";
@@ -38,6 +37,8 @@ class ParticleEntity {
     private bool enableMotion;
     private float swayAmplitude;
     private float swayFrequency;
+
+    private float targetY = 0.0f;
 
     private List<Vector3> instancePositions = new();
     private List<float[]> instanceColors = new();
@@ -166,6 +167,15 @@ class ParticleEntity {
 
     /**
     
+        Set Target Y
+    
+        */
+    public void setTargetY(float targetY) {
+        this.targetY = targetY;
+    }
+
+    /**
+    
         Set Motion
     
         */
@@ -212,10 +222,17 @@ class ParticleEntity {
         Set
     
         */
-    public void set(Vector3 position, bool vel, Func<Vector3>? colorSupplier = null) {
+    public void set(Vector3 position, bool vel, float targetY = 0.0f, Func<Vector3>? colorSupplier = null) {
+        this.targetY = targetY;
         this.vel = vel;
         this.position = position;
         this.isActive = true;
+
+        float startY = position.Y;
+        float distance = startY - targetY;
+
+        float updatedLifetime = lifetime / speed;
+        float reqTargetY = -distance / updatedLifetime;
 
         for(int i = 0; i < amount; i++) {
             Particle particle = new Particle();
@@ -230,7 +247,7 @@ class ParticleEntity {
                 );
                 particle.vel = new Vector3(
                     velNum.X * speed,
-                    velNum.Y * speed,
+                    reqTargetY,
                     velNum.Z * speed
                 );
             } else {
@@ -248,8 +265,8 @@ class ParticleEntity {
             }
 
             particle.size = size;
-            particle.lifetime = lifetime;
-            particle.maxLifetime = lifetime;
+            particle.lifetime = updatedLifetime;
+            particle.maxLifetime = updatedLifetime;
 
             particles.Add(particle);
 
@@ -266,9 +283,14 @@ class ParticleEntity {
         updateInstance();
     }
 
-    public void set(Vector3 position, bool vel) {
-        set(position, vel, null);
+    public void set(Vector3 position, bool vel, Func<Vector3>? colorSupplier) {
+        set(position, vel, this.targetY, colorSupplier);
     }
+
+    public void set(Vector3 position, bool vel) {
+        set(position, vel, this.targetY, null);
+    }
+
 
     /**
     
@@ -284,7 +306,8 @@ class ParticleEntity {
         for(int i = particles.Count - 1; i >= 0; i--) {
             Particle particle = particles[i];
             particle.lifetime -= deltaTime;
-            if(particle.lifetime <= 0) {
+
+            if(particle.lifetime <= 0 || particle.position.Y <= targetY) {
                 particles.RemoveAt(i);
                 instancePositions.RemoveAt(i);
                 instanceColors.RemoveAt(i);
@@ -294,10 +317,12 @@ class ParticleEntity {
                 continue;
             }
 
-            particle.vel.Y -= 
-                GRAVITY_VEL * 
-                deltaTime * 
-                speed;
+            if(!enableMotion) {
+                particle.vel.Y -= 
+                    GRAVITY_VEL * 
+                    deltaTime * 
+                    speed;
+            }
             if(vel) {
                 particle.position += new Vector3(
                     particle.vel.X * deltaTime,
