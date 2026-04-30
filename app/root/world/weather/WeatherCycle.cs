@@ -87,9 +87,7 @@ class WeatherCycle {
             (float)(range.NextDouble() * 
             (maxDuration - minDuration));
 
-        if(force || prevName != currentName) {
-            onWeatherChanged?.Invoke(prevName, currentName);
-        }
+        onWeatherChanged?.Invoke(prevName, currentName);
     }
 
     /**

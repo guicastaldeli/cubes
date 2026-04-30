@@ -17,9 +17,9 @@ function setMinHeight(val)
 end
 
 local Types = {
-    NORMAL = w({ i = 0 }, 0.0, 0.0),
-    RAIN = w({ i = 1}, 1.0, 1.0),
-    SNOW = w({ i = 2 }, 0.0, 2.0)
+    NORMAL = w({ i = 0 }, 0.5, 0.0),
+    RAIN = w({ i = 1}, 0.3, 1.0),
+    SNOW = w({ i = 2 }, 0.2, 2.0)
 }
 
 local Particle = {

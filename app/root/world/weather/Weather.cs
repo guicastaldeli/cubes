@@ -47,7 +47,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.RAIN;
+    public static string DEFAULT_WEATHER = WeatherType.NORMAL;
 
     private static Weather weather = null!;
     private static Lua data = null!;
@@ -188,24 +188,11 @@ class Weather : WorldHandler {
     // On Weather Changed
     private void onWeatherChanged(string prev, string next) {
         Console.WriteLine($"*** Weather changed: {prev} → {next} ***");
-    currentWeather = next;
+        currentWeather = next;
 
-    // FORCE temp for testing
-    if(next == "RAIN") {
         prevTemp = currentTemp;
-        currentTemp = new TempConfig { R = 0.45f, G = 0.52f, B = 0.65f, Strength = 0.35f };
-        Console.WriteLine("FORCED rain temp config!");
-    } else if(next == "SNOW") {
-        prevTemp = currentTemp;
-        currentTemp = new TempConfig { R = 0.92f, G = 0.95f, B = 1.00f, Strength = 0.4f };
-        Console.WriteLine("FORCED snow temp config!");
-    } else {
-        prevTemp = currentTemp;
-        currentTemp = null;
-        Console.WriteLine("Cleared temp config");
-    }
-    
-    tempTransition = 0.0f;
+        currentTemp = WeatherData.getTempConfig(getWeatherValue(next));
+        tempTransition = 0.0f;
 
         stopPartEmitter();
         if(next != WeatherData.DEFAULT_WEATHER) startPartEmitter(next);
@@ -254,9 +241,11 @@ class Weather : WorldHandler {
         WeatherData.setMinHeight();
 
         var entries = WeatherData.getEntries();
-        weatherCycle.init(entries);
         weatherCycle.onWeatherChanged += onWeatherChanged;
+        weatherCycle.init(entries);
+    }
 
+    private void test() {
         string currentWeather = weatherCycle.getCurrent();
         int weatherValue = getWeatherValue(currentWeather);
         currentTemp = WeatherData.getTempConfig(weatherValue);
