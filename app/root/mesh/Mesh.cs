@@ -397,8 +397,8 @@ class Mesh {
         if(meshRenderer != null) {
             meshRenderer.render();
 
-            renderOrto();
             renderOnTopMeshes();
+            renderOrto();
         }
     }
 
