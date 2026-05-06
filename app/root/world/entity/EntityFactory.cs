@@ -4,6 +4,8 @@
 
     */
 namespace App.Root.World.Entity;
+
+using App.Root.Mesh;
 using OpenTK.Mathematics;
 
 /**
@@ -77,6 +79,37 @@ class EntityFactory {
 
         string val = Guid.NewGuid().ToString(s)[..num];
         return val;
+    }
+
+    /**
+    
+        Clone
+    
+        */
+    public static MeshData clone(MeshData src) {
+        MeshData c = new MeshData(src.id, src.meshType);
+
+        float[]? vertices = src.getVertices();
+        int[]? indices = src.getIndices();
+        float[]? normals = src.getNormals();
+        float[]? texCoords = src.getTexCoords();
+        float[]? colors = src.getColors();
+        float[]? scale = src.getScale();
+        
+        if(vertices != null) c.setVertices(vertices.ToArray());
+        if(indices != null) c.setIndices(indices.ToArray());
+        if(normals != null) c.setNormals(normals.ToArray());
+        if(texCoords != null) c.setTexCoords(texCoords.ToArray());
+        if(colors != null) c.setColors(colors.ToArray());
+        if(scale != null) c.setScale(scale.ToArray());
+        c.shaderType = src.shaderType;
+        c.shaderAddon = src.shaderAddon;
+        c.isDynamic = src.isDynamic;
+        c.isModel = src.isModel;
+        c.colliderShape = src.colliderShape;
+        c.colliderRadius = src.colliderRadius;
+        
+        return c;
     }
 
     /**

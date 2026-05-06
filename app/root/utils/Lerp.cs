@@ -5,7 +5,7 @@
     */
 namespace App.Root.Utils;
 
-static class Lerp {
+public static class Lerp {
     /**
     
         Setter
