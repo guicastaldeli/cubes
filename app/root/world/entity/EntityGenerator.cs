@@ -32,7 +32,7 @@ class Setter {
 
             MeshData content = loader switch {
                 "data" => MeshDataLoader.load(id),
-                "model" => MeshModelLoader.loadModel("id"),
+                "model" => MeshModelLoader.loadModel(id),
                 _ => throw new Exception($"Unknown loader '{loader}' for entity '{id}'")
             };
 
@@ -47,7 +47,7 @@ class Setter {
 
     */
 class EntityGenerator : WorldHandler {
-    private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "entity/Entity.lua");
+    private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/Entity.lua");
     
     private Mesh mesh;
     private CollisionManager collisionManager;
@@ -66,7 +66,14 @@ class EntityGenerator : WorldHandler {
         */
     public static Dictionary<string, MeshData> load() {
         using Lua data = new Lua();
+
+        string originalDir = Directory.GetCurrentDirectory();
+        Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+        
         data.DoFile(DATA_FILE);
+        
+        Directory.SetCurrentDirectory(originalDir);
+        
         if(data["Entities"] is not LuaTable entities) {
             throw new Exception("Entity.lua err!");
         }

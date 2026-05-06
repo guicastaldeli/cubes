@@ -4,13 +4,13 @@
     load in the correct MeshLoader
 
     --]]
-global map = {
+local map = {
     d = "data",
     m = "model"
 }
 
 -- Set
-global function set(entity)
+local function set(entity)
     local type = map[entity.l]
     if not type then
         error("Unknown loader type '" .. entity.l .. "' for entity '" .. entity.id .. "'")
@@ -23,7 +23,12 @@ global function set(entity)
 end
 
 -- Resolved
-global resolved = {}
-for _, entity in ipairs(entityes) do
-    table.insert(resolved, set(entity))
+function resolved(entities)
+    local res = {}
+    
+    for _, entity in ipairs(entities) do
+        table.insert(res, set(entity))
+    end
+    
+    return res
 end

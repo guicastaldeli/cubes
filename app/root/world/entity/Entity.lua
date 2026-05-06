@@ -4,9 +4,9 @@
     handle general Entity Configuration.
 
     --]]
-dofile("LoaderSetter.lua")
+dofile("world/entity/LoaderSetter.lua")
 
-global Entities {
+Entities = {
     { id = "cube", l = "d" },
     { id = "rectangle", l = "d" },
     { id = "sphere", l = "d" },
@@ -14,4 +14,4 @@ global Entities {
     { id = "dino", l = "m" },
 }
 
-Entities = resolved
+Entities = resolved(Entities)

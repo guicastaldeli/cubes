@@ -7,6 +7,7 @@
 namespace App.Root.Mesh;
 using App.Root.Collider;
 using App.Root.Player;
+using App.Root.Utils;
 using App.Root.World;
 using OpenTK.Mathematics;
 

@@ -158,6 +158,11 @@ class MeshModelLoader {
         */
     // Load Model
     public static MeshData loadModel(string fileName) {
+        if(Path.GetExtension(fileName) == string.Empty) {
+            string obj = ".obj";
+            fileName = fileName + obj;
+        }
+        
         string ext = Path.GetExtension(fileName).ToLower();
         
         MeshData val = ext switch {
