@@ -83,27 +83,23 @@ class EntityGenerator : WorldHandler {
         */
     private void generate(Dictionary<string, MeshData> meshTypes) {
         foreach(var (meshType, meshData) in meshTypes) {
-            List<EntityProps> group = EntityFactory.generate(meshType);
+            EntityProps entity = EntityFactory.generate(meshType);
+            MeshData data = EntityFactory.clone(meshData);
 
-            foreach(var prop in group) {
-                MeshData data = EntityFactory.clone(meshData);
+            mesh.add(entity.Id, data);
+            mesh.setScale(entity.Id, entity.Scale);
+            mesh.setColor(entity.Id, entity.Color);
+            mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
 
-                mesh.add(prop.Id, data);
-                mesh.setScale(prop.Id, prop.Scale);
-                mesh.setColor(prop.Id, prop.Color);
-
-                var rotationRad = prop.Rotation * (MathF.PI / 180.0f);
-                var rotationMatrix =
-                    Matrix4.CreateRotationX(rotationRad.X) *
-                    Matrix4.CreateRotationY(rotationRad.Y) *
-                    Matrix4.CreateRotationZ(rotationRad.Z);
-                mesh.setRotationMatrix(prop.Id, rotationMatrix);
-
-                var renderer = mesh.getMeshRenderer(prop.Id);
-                if(renderer != null) {
-                    renderer.isInstanced = true;
-                    renderer.isInteractive = true;
-                }
+            var renderer = mesh.getMeshRenderer(entity.Id);
+            if(renderer != null) {
+                renderer.isInstanced = true;
+                renderer.isInteractive = true;
+                renderer.setInstanceData(
+                    entity.Position,
+                    Converter.ToRgbaList(entity.Color, entity.Position.Count),
+                    Converter.ToRotationList(entity.Rotation, entity.Position.Count)
+                );
             }
         }
 

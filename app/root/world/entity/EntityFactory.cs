@@ -4,8 +4,8 @@
 
     */
 namespace App.Root.World.Entity;
-
 using App.Root.Mesh;
+using App.Root.Utils;
 using OpenTK.Mathematics;
 
 /**
@@ -13,14 +13,46 @@ using OpenTK.Mathematics;
     Entity Props
 
     */
-record EntityProps(
+public record EntityProps(
     string Id,
     string StackId,
     string MeshType,
     string Color,
     float Scale,
-    Vector3 Rotation
+    List<Vector3> Position,
+    float Rotation
 );
+
+/**
+
+    Converter Helper...
+
+    */
+public static class Converter {
+    /**
+    
+        To Rgba List
+    
+        */
+    public static List<float[]> ToRgbaList(string hex, int count) {
+        var (r, g, b) = HexToRgb.C(hex);
+        float a = 1.0f;
+        float[] rgba = new float[] { r, g, b, a };
+
+        List<float[]> val = Enumerable.Repeat(rgba, count).ToList();
+        return val;
+    }
+
+    /**
+    
+        To Rotation List
+    
+        */
+    public static List<float> ToRotationList(float rotation, int count) {
+        List<float> val = Enumerable.Repeat(rotation, count).ToList();
+        return val;
+    }
+}
 
 /**
 
@@ -30,8 +62,17 @@ record EntityProps(
 class EntityFactory {
     private static readonly Random range = new Random();
 
+    // Id
+    private static string Id() {
+        string s = "N";
+        int num = 8;
+
+        string val = Guid.NewGuid().ToString(s)[..num];
+        return val;
+    }
+
     // Color
-    private static string color() {
+    private static string Color() {
         float f1 = 0.5f;
         float f2 = 0.2f;
 
@@ -51,7 +92,7 @@ class EntityFactory {
     }
 
     // Scale
-    private static float scale() {
+    private static float Scale() {
         float f1 = 0.5f;
         float f2 = 1.5f;
         
@@ -59,25 +100,26 @@ class EntityFactory {
         return val;
     }
 
-    // Rotation
-    private static Vector3 rotation() {
-        float f = 360.0f;
+    // Position
+    private static List<Vector3> Position(int count) {
+        var list = new List<Vector3>();
+        
+        for(int i = 0; i < count; i++) {
+            list.Add(new Vector3(
+                (float)(range.NextDouble()),
+                (float)(range.NextDouble()),
+                (float)(range.NextDouble())
+            ));
+        }
 
-        Vector3 val = new Vector3(
-            (float)(range.NextDouble() * f),
-            (float)(range.NextDouble() * f),
-            (float)(range.NextDouble() * f)
-        );
-
-        return val;
+        return list;
     }
 
-    // Id
-    private static string id() {
-        string s = "N";
-        int num = 8;
+    // Rotation
+    private static float Rotation() {
+        float f = 360.0f;
 
-        string val = Guid.NewGuid().ToString(s)[..num];
+        float val = (float)(range.NextDouble() * f);
         return val;
     }
 
@@ -117,27 +159,28 @@ class EntityFactory {
         Generate
     
         */
-    public static List<EntityProps> generate(string meshType) {
-        string idVal = $"{meshType}_{id()}";
-        string stackIdVal = $"s_{id()}";
-        string colorVal = color();
-        float scaleVal = scale();
-        Vector3 rotationVal = rotation();
+    public static EntityProps generate(string meshType) {        
+        int min = 5;
+        int max = 21;
+        int count = range.Next(min, max);
 
-        var group = new List<EntityProps>();
-        int copies = range.Next(5, 21);
+        string idVal = $"{meshType}_{Id()}";
+        string stackIdVal = $"s_{Id()}";
+        string colorVal = Color();
+        float scaleVal = Scale();
+        List<Vector3> positionVal = Position(count);
+        float rotationVal = Rotation();
 
-        for(int i = 0; i < copies; i++) {
-            group.Add(new EntityProps(
-                Id: idVal,
-                StackId: stackIdVal,
-                MeshType: meshType,
-                Color: colorVal,
-                Scale: scaleVal,
-                Rotation: rotationVal
-            ));
-        }
+        EntityProps val = new EntityProps(
+            Id: idVal,
+            StackId: stackIdVal,
+            MeshType: meshType,
+            Color: colorVal,
+            Scale: scaleVal,
+            Position: positionVal,
+            Rotation: rotationVal
+        );
 
-        return group;
+        return val;
     }
 }
