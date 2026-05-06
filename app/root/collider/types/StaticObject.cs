@@ -67,11 +67,6 @@ class StaticObject : Collider {
         return null;
     }
 
-    // On Collision
-    public void onCollision(CollisionResult coll) {
-        
-    }
-
     // Get Type
     public string getType() {
         string val = type ?? "";

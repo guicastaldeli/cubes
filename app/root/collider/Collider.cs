@@ -4,6 +4,6 @@ using App.Root.Player;
 interface Collider {
     BBox getBBox();
     RigidBody? getRigidBody();
-    void onCollision(CollisionResult coll);
+    void onCollision(CollisionResult coll) {}
     string getId(); 
 }

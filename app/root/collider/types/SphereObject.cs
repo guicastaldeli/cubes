@@ -38,11 +38,6 @@ class SphereObject : Collider {
         return mesh.getPosition(id);
     }
 
-    // On Collision
-    public void onCollision(CollisionResult coll) {
-        
-    }
-
     // Get Radius
     public float getRadius() {
         Vector3 size = mesh.getSize(id);

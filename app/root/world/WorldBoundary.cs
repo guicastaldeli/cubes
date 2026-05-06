@@ -39,7 +39,7 @@ class WorldBoundary {
         Vector3? spawn = Platform.Platform.height;
         
         var boundary = getBoundaryObject();
-        if(boundary == null) return;
+        if(boundary == null || !boundary.isActive()) return;
 
         float minHeight = boundary.getMinHeight();
         float maxHeight = boundary.getMaxHeight();

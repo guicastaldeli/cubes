@@ -8,7 +8,6 @@ namespace App.Root.World.Entity;
 using App.Root.Collider;
 using App.Root.Mesh;
 using App.Root.Utils;
-using OpenTK.Mathematics;
 using NLua;
 
 /**
@@ -49,14 +48,20 @@ class Setter {
 class EntityGenerator : WorldHandler {
     private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/Entity.lua");
     
+    private Tick tick;
     private Mesh mesh;
     private CollisionManager collisionManager;
 
+    private EntitySpawner entitySpawner;
+
     private bool initialized = false;
 
-    public EntityGenerator([Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
+    public EntityGenerator([Inject] Tick tick, [Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
+        this.tick = tick;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
+    
+        this.entitySpawner = new EntitySpawner(tick, mesh);
     }
 
     /**
@@ -98,6 +103,8 @@ class EntityGenerator : WorldHandler {
             mesh.setColor(entity.Id, entity.Color);
             mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
 
+            entitySpawner.render(entity);
+
             var renderer = mesh.getMeshRenderer(entity.Id);
             if(renderer != null) {
                 renderer.isInstanced = true;
@@ -133,6 +140,6 @@ class EntityGenerator : WorldHandler {
     
         */
     public override void update() {
-        
+        entitySpawner.update();
     }
 }

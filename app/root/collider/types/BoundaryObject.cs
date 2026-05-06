@@ -11,6 +11,8 @@ class BoundaryObject : Collider {
     private float minHeight;
     private float maxHeight;
 
+    private bool active = true;
+
     public BoundaryObject(float distance) {
         this.distance = distance;
 
@@ -23,6 +25,7 @@ class BoundaryObject : Collider {
         );
     }
 
+    // Get Id
     public string getId() {
         return "";
     }
@@ -37,9 +40,18 @@ class BoundaryObject : Collider {
         return null;
     }
 
-    // On Collision
-    public void onCollision(CollisionResult coll) {
-        
+    // Activate
+    public void activate() {
+        active = true;
+    }
+
+    public bool isActive() {
+        return active;
+    }
+
+    // Deactivate
+    public void deactivate() {
+        active = false;
     }
 
     // Height
@@ -53,6 +65,8 @@ class BoundaryObject : Collider {
 
     // Is Outside Boundary
     public bool isOutsideBoundary(Vector3 position) {
+        if(!active) return false;
+        
         return MathF.Abs(position.X) > distance ||
             MathF.Abs(position.Z) > distance;
     }

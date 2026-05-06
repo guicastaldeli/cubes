@@ -41,11 +41,6 @@ class TriangleObject : Collider {
         return null;
     }
 
-    // On Collision
-    public void onCollision(CollisionResult coll) {
-        
-    }
-
     // Get BBox
     public BBox getBBox() {
         bBox = mesh.getBBox(id);
