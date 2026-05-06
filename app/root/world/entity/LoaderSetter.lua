@@ -1,6 +1,6 @@
 --[[
 
-    Loader Finder to help
+    Loader Setter to help
     load in the correct MeshLoader
 
     --]]
@@ -9,8 +9,8 @@ global map = {
     m = "model"
 }
 
--- Find
-global function find(entity)
+-- Set
+global function set(entity)
     local type = map[entity.l]
     if not type then
         error("Unknown loader type '" .. entity.l .. "' for entity '" .. entity.id .. "'")
@@ -25,5 +25,5 @@ end
 -- Resolved
 global resolved = {}
 for _, entity in ipairs(entityes) do
-    table.insert(resolved, find(entity))
+    table.insert(resolved, set(entity))
 end
