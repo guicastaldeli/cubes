@@ -3,6 +3,8 @@
     Lerp Util helper
     
     */
+namespace App.Root.Utils;
+
 static class Lerp {
     /**
     

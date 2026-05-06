@@ -6,6 +6,7 @@
     */
 namespace App.Root.World.Entity;
 using App.Root.Mesh;
+using OpenTK.Mathematics;
 using NLua;
 
 /**
@@ -38,13 +39,12 @@ class Setter {
     }
 }
 
-
 /**
 
-    Entity Generator main class
+    Entity Generator main class.
 
     */
-class EntityGenerator {
+class EntityGenerator : WorldHandler {
     private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "entity/Entity.lua");
     
     /**

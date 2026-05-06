@@ -4,6 +4,8 @@
     Attribute Injection.
     
     */
+namespace App.Root.Utils;
+
 public class ServiceContainer {
     private Dictionary<Type, object> services = new Dictionary<Type, object>();
     private static bool activeSRegister = false;

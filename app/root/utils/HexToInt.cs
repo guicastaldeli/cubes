@@ -3,7 +3,9 @@
     Util Hex to Int Converter.
     
     */
-static class HexToInt {
+namespace App.Root.Utils;
+
+public static class HexToInt {
     /**
 
         Convert

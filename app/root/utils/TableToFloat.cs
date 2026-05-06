@@ -1,11 +1,11 @@
-
-using NLua;
-
 /**
     
     Util Table to Float Converter
     
     */
+namespace App.Root.Utils;
+using NLua;
+
 public static class TableToFloat {
     /**
 

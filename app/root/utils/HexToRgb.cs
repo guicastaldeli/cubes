@@ -3,7 +3,9 @@
     Util Hex to Rgb Converter.
     
     */
-static class HexToRgb {
+namespace App.Root.Utils;
+
+public static class HexToRgb {
     /**
 
         Convert

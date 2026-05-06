@@ -4,6 +4,7 @@
     loads data or models.
     
     */
+namespace App.Root.Utils;
 using App.Root.Mesh;
 
 class LoadMeshData {
