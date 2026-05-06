@@ -92,8 +92,8 @@ class EntitySpawner {
         float b = SPAWN_AREA * 2.0f;
         
         float x = (float)(range.NextDouble() * b - SPAWN_AREA);
-        float y = (float)(range.NextDouble() * b - SPAWN_AREA);
-        float z = 0.0f;
+        float y = 0.0f;
+        float z = (float)(range.NextDouble() * b - SPAWN_AREA);
 
         Vector3 val = new Vector3(x, y, z);
         return val;
