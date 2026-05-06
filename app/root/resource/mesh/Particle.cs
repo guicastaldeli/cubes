@@ -4,7 +4,8 @@
     data.
 
     */
-namespace App.Root.Mesh.Data;
+namespace App.Root.Resource.Mesh;
+using App.Root.Mesh;
 using OpenTK.Mathematics;
 
 class Particle {

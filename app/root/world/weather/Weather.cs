@@ -1,6 +1,6 @@
 namespace App.Root.World.Weather;
 using App.Root.Mesh;
-using App.Root.Mesh.Particle;
+using App.Root.Particle;
 using App.Root.Shaders;
 using App.Root.Utils;
 using OpenTK.Mathematics;

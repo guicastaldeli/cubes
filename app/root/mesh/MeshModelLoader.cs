@@ -39,8 +39,6 @@ class ModelData {
 
     */
 class MeshModelLoader {
-    private static string DATA_DIR = AppDomain.CurrentDomain.BaseDirectory;
-
     // Generate Normals
     private static float[] generateNormals(float[] verts, int[] indices) {
         float[] norms = new float[verts.Length];
@@ -171,7 +169,7 @@ class MeshModelLoader {
 
     // Load Obj
     private static MeshData loadObj(string fileName) {
-        string path = Path.Combine(DATA_DIR, fileName);
+        string path = Path.Combine(Mesh.DATA_DIR, fileName);
         if(!File.Exists(path)) throw new IOException("Model file not found! " + path);
 
         List<Vector3> verts = new List<Vector3>();
@@ -385,7 +383,7 @@ class MeshModelLoader {
 
     // Load Data
     public static List<ModelData> loadData(string fileName) {
-        string path = Path.Combine(DATA_DIR, fileName);
+        string path = Path.Combine(Mesh.DATA_DIR, fileName);
         if(!File.Exists(path)) throw new IOException("Data file not found: " + path);
 
         try {

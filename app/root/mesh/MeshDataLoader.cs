@@ -8,8 +8,6 @@ namespace App.Root.Mesh;
 using NLua;
 
 class MeshDataLoader {
-    private static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mesh/data/");
-
     private static float[] toFloatArray(LuaTable table) {
         int len = (int)(long)table.Values.Count;
         float[] arr = new float[len];
@@ -58,7 +56,7 @@ class MeshDataLoader {
         */ 
     public static MeshData load(string meshId) {
         string file = meshId.ToLower() + ".lua";
-        string path = Path.Combine(DATA_DIR, file);
+        string path = Path.Combine(Mesh.DATA_DIR, file);
         if(!File.Exists(path)) throw new IOException("Mesh file not found: " + path);
 
         try {

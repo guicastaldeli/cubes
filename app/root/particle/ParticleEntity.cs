@@ -4,9 +4,9 @@
     generator.
 
     */
-namespace App.Root.Mesh.Particle;
-using Particle = Data.Particle;
+namespace App.Root.Particle;
 using App.Root.Mesh;
+using Particle = Resource.Mesh.Particle;
 using OpenTK.Mathematics;
 
 class ParticleEntity {

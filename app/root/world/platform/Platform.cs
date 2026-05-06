@@ -2,7 +2,7 @@ namespace App.Root.World.Platform;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
-using App.Root.Mesh.Particle;
+using App.Root.Particle;
 using App.Root.Physics;
 using App.Root.Resource;
 using App.Root.Utils;
@@ -151,7 +151,7 @@ class Platform : WorldHandler {
 
         public void set4() {
             string id = "dino";
-            string path = "resource/test/dino.obj";
+            string path = "dino.obj";
 
             MeshData data = MeshModelLoader.loadModel(path);
             data.isModel = true;
@@ -164,7 +164,7 @@ class Platform : WorldHandler {
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;
 
-            string texPath = "test/dino.png";
+            string texPath = "mesh/dino.png";
             int texId = TextureLoader.load(texPath);
             mesh.setTexture(id, texId, texPath);
 

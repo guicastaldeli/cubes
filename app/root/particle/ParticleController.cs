@@ -3,16 +3,16 @@
     Main particle general controller
 
     */
-namespace App.Root.Mesh.Particle;
+namespace App.Root.Particle;
 using OpenTK.Mathematics;
 
 class ParticleController {
-    private Mesh mesh;
+    private Mesh.Mesh mesh;
 
     private List<ParticleEntity> particleEntities;
     private ParticleEntity? particleEntity;
 
-    public ParticleController(Mesh mesh) {
+    public ParticleController(Mesh.Mesh mesh) {
         this.mesh = mesh;
         this.particleEntities = new List<ParticleEntity>();
     }

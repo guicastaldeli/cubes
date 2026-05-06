@@ -4,9 +4,11 @@ using App.Root.Player;
 using App.Root.Collider;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.ES11;
-using App.Root.Mesh.Particle;
+using App.Root.Particle;
 
 class Mesh {
+    public static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/mesh/");
+
     private Window window;
     private ShaderProgram shaderProgram;
     private Camera? camera;
