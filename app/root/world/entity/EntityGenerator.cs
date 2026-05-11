@@ -61,7 +61,7 @@ class EntityGenerator : WorldHandler {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
     
-        this.entitySpawner = new EntitySpawner(tick, mesh);
+        this.entitySpawner = new EntitySpawner(tick, mesh, collisionManager);
     }
 
     /**
@@ -109,10 +109,12 @@ class EntityGenerator : WorldHandler {
             if(renderer != null) {
                 renderer.isInstanced = true;
                 renderer.isInteractive = true;
+                var spawnPos = entitySpawner.getPositions(entity.Id);
+                
                 renderer.setInstanceData(
-                    entity.Position,
-                    Converter.ToRgbaList(entity.Color, entity.Position.Count),
-                    Converter.ToRotationList(entity.Rotation, entity.Position.Count)
+                    spawnPos,
+                    Converter.ToRgbaList(entity.Color, spawnPos.Count),
+                    Converter.ToRotationList(entity.Rotation, spawnPos.Count)
                 );
             }
         }

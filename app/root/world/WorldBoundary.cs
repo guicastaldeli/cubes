@@ -4,7 +4,6 @@
 
     */
 namespace App.Root.World;
-
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Player;
@@ -23,7 +22,8 @@ class WorldBoundary {
 
     // Get Boundary Object
     public BoundaryObject? getBoundaryObject() {
-        BoundaryObject? val = collisionManager.getColliders()
+        BoundaryObject? val = 
+            collisionManager.getColliders()
             .OfType<BoundaryObject>()
             .FirstOrDefault();
         return val;

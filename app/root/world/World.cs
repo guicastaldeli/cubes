@@ -66,7 +66,7 @@ class World : WorldHandler {
 
         Register();
         
-        setCollision();
+        setBoundary();
     } 
 
     // Get Mesh
@@ -79,14 +79,14 @@ class World : WorldHandler {
         return worldManager;
     }
 
-    // Get World Boundary
+    // World Boundary
     public WorldBoundary getWorldBoundary() {
         return worldBoundary;
     }
 
-    // Set Collision
-    public void setCollision() {
-        collisionManager.addStaticCollider(new BoundaryObject(WORLD_BOUNDARY));
+    public void setBoundary() {
+        var boundary = new BoundaryObject(WORLD_BOUNDARY);
+        collisionManager.addStaticCollider(boundary);
     }
 
     /**

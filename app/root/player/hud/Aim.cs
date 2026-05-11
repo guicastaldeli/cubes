@@ -22,6 +22,7 @@ class Aim : HudElement {
 
         MeshData data = MeshDataLoader.load(MESH);
         mesh.add(ID, data);
+        data.shaderAddon = -1;
 
         var renderer = mesh.getMeshRenderer(ID);
         if(renderer != null) renderer.isHud = true;
