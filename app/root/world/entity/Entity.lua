@@ -11,7 +11,7 @@ Entities = {
     { id = "rectangle", l = "d" },
     { id = "sphere", l = "d" },
     { id = "triangle", l = "d" },
-    { id = "dino", l = "m" },
+    { id = "dino", l = "m", tex = "mesh/dino.png" },
 }
 
 Entities = resolved(Entities)

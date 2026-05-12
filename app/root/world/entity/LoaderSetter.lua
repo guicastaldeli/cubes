@@ -18,7 +18,8 @@ local function set(entity)
 
     return {
         id = entity.id,
-        loader = type
+        loader = type,
+        tex = entity.tex
     }
 end
 

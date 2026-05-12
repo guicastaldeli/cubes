@@ -625,7 +625,6 @@ class MeshRenderer : DataEntry {
 
         GL.BindVertexArray(0);
         if(hasTex) GL.BindTexture(TextureTarget.Texture2D, 0);
-
         shaderProgram.unbind();
     }
 
@@ -668,8 +667,13 @@ class MeshRenderer : DataEntry {
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());
         shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
-        shaderProgram.setUniform("hasTex", 0);
+        shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
         shaderProgram.setUniform("isInstanced", 1);
+        if(hasTex) {
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, texId);
+            shaderProgram.setUniform("uSampler", 0);
+        }
 
         GL.BindVertexArray(vao);
         int[]? indices = meshData.getIndices();
@@ -680,6 +684,7 @@ class MeshRenderer : DataEntry {
         }
         
         GL.BindVertexArray(0);
+        if(hasTex) GL.BindTexture(TextureTarget.Texture2D, 0);
         shaderProgram.unbind();
     }
 

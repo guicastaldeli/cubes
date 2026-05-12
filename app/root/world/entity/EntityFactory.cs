@@ -20,7 +20,8 @@ public record EntityProps(
     string Color,
     float Scale,
     List<Vector3> Position,
-    float Rotation
+    float Rotation,
+    string? Tex
 );
 
 /**
@@ -29,6 +30,19 @@ public record EntityProps(
 
     */
 public static class Converter {
+    /**
+    
+        To Rgba
+    
+        */
+    public static float[] ToRgba(string hex) {
+        var (r, g, b) = HexToRgb.C(hex);
+        float a = 1.0f;
+
+        float[] val = new float[] { r, g, b, a };
+        return val;
+    }
+
     /**
     
         To Rgba List
@@ -73,19 +87,12 @@ class EntityFactory {
 
     // Color
     private static string Color() {
-        float f1 = 0.5f;
-        float f2 = 0.2f;
+        int min = 0;
+        int max = 256;
 
-        float[] channels = { 0, 0, 0 };
-        int primary = range.Next(3);
-        int secoundary = (primary + 1 + range.Next(2)) % 3;
-
-        channels[primary] = f1 + (float)range.NextDouble() * f2;
-        channels[secoundary] = (float)range.NextDouble() * f1;
-
-        int r = (int)(channels[0] * 255);
-        int g = (int)(channels[1] * 255);
-        int b = (int)(channels[2] * 255);
+        int r = range.Next(min, max);
+        int g = range.Next(min, max);
+        int b = range.Next(min, max);
 
         string val = $"#{r:X2}{g:X2}{b:X2}";
         return val;
@@ -118,7 +125,6 @@ class EntityFactory {
     // Rotation
     private static float Rotation() {
         float f = 360.0f;
-
         float val = (float)(range.NextDouble() * f);
         return val;
     }
@@ -135,15 +141,23 @@ class EntityFactory {
         int[]? indices = src.getIndices();
         float[]? normals = src.getNormals();
         float[]? texCoords = src.getTexCoords();
-        float[]? colors = src.getColors();
         float[]? scale = src.getScale();
         
         if(vertices != null) c.setVertices(vertices.ToArray());
         if(indices != null) c.setIndices(indices.ToArray());
         if(normals != null) c.setNormals(normals.ToArray());
         if(texCoords != null) c.setTexCoords(texCoords.ToArray());
-        if(colors != null) c.setColors(colors.ToArray());
         if(scale != null) c.setScale(scale.ToArray());
+        if(c.getColors() == null) {
+            float[]? vert = c.getVertices();
+            if(vert != null) {
+                int vertCount = vert.Length / 3;
+
+                float[] colors = new float[vertCount * 4];
+                Array.Fill(colors, 1.0f);
+                c.setColors(colors);
+            }
+        }
         c.shaderType = src.shaderType;
         c.shaderAddon = src.shaderAddon;
         c.isDynamic = src.isDynamic;
@@ -159,7 +173,7 @@ class EntityFactory {
         Generate
     
         */
-    public static EntityProps generate(string meshType) {        
+    public static EntityProps setGeneration(string meshType) {        
         int min = 5;
         int max = 21;
         int count = range.Next(min, max);
@@ -178,8 +192,22 @@ class EntityFactory {
             Color: colorVal,
             Scale: scaleVal,
             Position: positionVal,
-            Rotation: rotationVal
+            Rotation: rotationVal,
+            Tex: null
         );
+
+        return val;
+    }
+
+    public static List<EntityProps> generate(string meshType) {
+        int min = 5;
+        int max = 15;
+        int count = range.Next(min, max);
+
+        List<EntityProps> val = 
+            Enumerable.Repeat(meshType, count)
+                .Select(setGeneration)
+                .ToList();
 
         return val;
     }

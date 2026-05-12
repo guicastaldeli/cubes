@@ -92,7 +92,8 @@ void main() {
         vec4 baseColor;
         
         if(hasTex == 1) {
-            baseColor = texture(uSampler, vTexCoord);
+            vec4 texColor = texture(uSampler, vTexCoord);
+            baseColor = vColor * texColor;
         } else if(uHasColors == 1) {
             baseColor = vColor;
         } else {

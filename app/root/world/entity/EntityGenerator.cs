@@ -7,6 +7,7 @@
 namespace App.Root.World.Entity;
 using App.Root.Collider;
 using App.Root.Mesh;
+using App.Root.Resource;
 using App.Root.Utils;
 using NLua;
 
@@ -27,6 +28,7 @@ class Setter {
 
             string? id = entry["id"] as string;
             string? loader = entry["loader"] as string;
+            string? tex = entry["tex"] as string;
             if(id == null || loader == null) continue;
 
             MeshData content = loader switch {
@@ -34,6 +36,8 @@ class Setter {
                 "model" => MeshModelLoader.loadModel(id),
                 _ => throw new Exception($"Unknown loader '{loader}' for entity '{id}'")
             };
+
+            if(tex != null) content.texPath = tex;
 
             res[id] = content;
         }
@@ -95,27 +99,35 @@ class EntityGenerator : WorldHandler {
         */
     private void generate(Dictionary<string, MeshData> meshTypes) {
         foreach(var (meshType, meshData) in meshTypes) {
-            EntityProps entity = EntityFactory.generate(meshType);
-            MeshData data = EntityFactory.clone(meshData);
+            var entities = EntityFactory.generate(meshType);
 
-            mesh.add(entity.Id, data);
-            mesh.setScale(entity.Id, entity.Scale);
-            mesh.setColor(entity.Id, entity.Color);
-            mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
+            int texId = meshData.texPath is string texPath 
+                ? TextureLoader.load(texPath) 
+                : -1;
 
-            entitySpawner.render(entity);
+            foreach(var entity in entities) {
+                MeshData data = EntityFactory.clone(meshData);
 
-            var renderer = mesh.getMeshRenderer(entity.Id);
-            if(renderer != null) {
-                renderer.isInstanced = true;
-                renderer.isInteractive = true;
-                var spawnPos = entitySpawner.getPositions(entity.Id);
-                
-                renderer.setInstanceData(
-                    spawnPos,
-                    Converter.ToRgbaList(entity.Color, spawnPos.Count),
-                    Converter.ToRotationList(entity.Rotation, spawnPos.Count)
-                );
+                mesh.add(entity.Id, data);
+                mesh.setScale(entity.Id, entity.Scale);
+                mesh.setColor(entity.Id, entity.Color);
+                mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
+                if(texId != -1) mesh.setTexture(entity.Id, texId, meshData.texPath!);
+
+                entitySpawner.render(entity);
+
+                var renderer = mesh.getMeshRenderer(entity.Id);
+                if(renderer != null) {
+                    renderer.isInstanced = true;
+                    renderer.isInteractive = true;
+                    var spawnPos = entitySpawner.getPositions(entity.Id);
+                    
+                    renderer.setInstanceData(
+                        spawnPos,
+                        Converter.ToRgbaList(entity.Color, spawnPos.Count),
+                        Converter.ToRotationList(entity.Rotation, spawnPos.Count)
+                    );
+                }
             }
         }
 
