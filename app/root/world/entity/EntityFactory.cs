@@ -117,7 +117,9 @@ class EntityFactory {
 
     // Rotation
     private static float Rotation() {
-        float val = 0.0f;
+        float f = 360.0f;
+
+        float val = (float)(range.NextDouble() * f);
         return val;
     }
 

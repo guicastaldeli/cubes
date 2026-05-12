@@ -587,6 +587,8 @@ class MeshRenderer : DataEntry {
             shaderProgram.setUniform("shaderType", 0);
         }
         shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
+        shaderProgram.setUniform("isInstanced", 0);
+        shaderProgram.setUniform("hasInstanceColor", 0);
         shaderProgram.setUniform("uModel", modelMatrix);
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());
@@ -661,6 +663,7 @@ class MeshRenderer : DataEntry {
             shaderProgram.setUniform("shaderType", 0);
         }
         shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
+        shaderProgram.setUniform("hasInstanceColor", instanceColorVbo != 0 ? 1 : 0);
         shaderProgram.setUniform("uModel", modelMatrix);
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());

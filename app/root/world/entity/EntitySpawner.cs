@@ -83,9 +83,9 @@ class EntitySpawner {
     private float maxSpeed = 10.0f;
 
     private Dictionary<string, List<Vector3>> positions = new();
-    private Dictionary<string, float> rotations = new();
-    private Dictionary<string, string> colors = new();
+    private Dictionary<string, List<float>> rotations = new();
     private Dictionary<string, List<float>> speeds = new();
+    private Dictionary<string, string> colors = new();
     
     public EntitySpawner(Tick tick, Mesh.Mesh mesh, CollisionManager collisionManager) {
         this.tick = tick;
@@ -169,7 +169,7 @@ class EntitySpawner {
         return val;
     }
 
-    private (List<Vector3>, List<float>) spawn(int count) {
+    private (List<Vector3>, List<float>, List<float>) spawn(int count) {
         List<Vector3> pos = 
             Enumerable.Range(0, count)
                 .Select(_ => spawnEntity())
@@ -178,8 +178,12 @@ class EntitySpawner {
             Enumerable.Range(0, count)
                 .Select(_ => randomSpeed())
                 .ToList();
+        var rotatations =
+            Enumerable.Range(0, count)
+                .Select(_ => (float)(range.NextDouble() * 360.0f))
+                .ToList();
         
-        var val = (pos, speed);
+        var val = (pos, rotatations, speed);
         return val;
     }
 
@@ -193,10 +197,14 @@ class EntitySpawner {
 
         float fSpeed = 3.0f;
         float deltaTime = tick.getDeltaTime();
-        float gSpeed = fSpeed * deltaTime;
+        float gSpeed = (fSpeed * deltaTime) / 5.0f;
+
+        float rAngle = 360.0f;
+        float rotationSpeed = gSpeed * 10.0f;
 
         foreach(var (id, pos) in positions) {
             List<float> speed = speeds[id];
+            List<float> rotation = rotations[id];
             
             for(int i = 0; i < pos.Count; i++) {
                 pos[i] = new Vector3(
@@ -204,6 +212,9 @@ class EntitySpawner {
                     pos[i].Y,
                     pos[i].Z - speed[i] * gSpeed
                 );
+                rotation[i] = 
+                    (rotation[i] + speed[i] * rotationSpeed) % 
+                    rAngle;
             }
 
             wrap(pos);
@@ -211,7 +222,7 @@ class EntitySpawner {
             mesh.getMeshRenderer(id)?.updateInstanceData(
                 pos,
                 Converter.ToRgbaList(colors[id], pos.Count),
-                Converter.ToRotationList(rotations[id], pos.Count)
+                rotation
             );
         }
     }
@@ -222,13 +233,11 @@ class EntitySpawner {
     
         */
     public void render(EntityProps entity) {
-        var (positionsVal, speedsVal) = spawn(entity.Position.Count);
-        string colorsVal = entity.Color;
-        float rotationsVal = entity.Rotation;
+        var (positionsVal, rotationsVal, speedsVal) = spawn(entity.Position.Count);
 
         positions[entity.Id] = positionsVal;
         rotations[entity.Id] = rotationsVal;
-        colors[entity.Id] = colorsVal;
+        colors[entity.Id] = entity.Color;
         speeds[entity.Id] = speedsVal;
     }
 }

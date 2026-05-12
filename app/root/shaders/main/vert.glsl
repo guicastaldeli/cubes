@@ -19,6 +19,7 @@ uniform int uHasColors;
 uniform int shaderType;
 uniform int isInstanced;
 uniform vec2 screenSize;
+uniform int hasInstanceColor;
 
 #include "../text/text.vert.glsl"
 #include "../ui/ui.vert.glsl"
@@ -96,7 +97,35 @@ void main() {
         */
     else {
         vec3 pos = aPos;
-        if(isInstanced == 1) pos += aInstanceOffset;
+
+        if(isInstanced == 1) {
+            float angle = radians(aInstanceRotation.x);
+            float cosA = cos(angle);
+            float sinA = sin(angle);
+
+            mat3 instanceRotation = mat3(
+                cosA, 0.0, sinA,
+                0.0, 1.0, 0.0,
+                -sinA, 0.0, cosA
+            );
+
+            pos = instanceRotation * pos;
+            pos += aInstanceOffset;
+
+            vec4 viewPos = uView * vec4(pos, 1.0);
+            gl_Position = uProjection * viewPos;
+
+            if(hasInstanceColor == 1) {
+                vColor = aInstanceColor;
+            } else {
+                vColor = uHasColors == 1 ? aColor : vec4(1.0);
+            }
+
+            vTexCoord = aTexCoord;
+            fragDist = length(viewPos.xyz);
+
+            return;
+        }
 
         vec4 worldPos = uModel * vec4(pos, 1.0);
         vec4 viewPos = uView * worldPos;
