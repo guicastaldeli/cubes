@@ -45,6 +45,11 @@ class MeshData {
         get; 
         set; 
     } = false;
+
+    public int isEntity { 
+        get; 
+        set; 
+    }
     
     public bool isTransparent { 
         get; 

@@ -581,6 +581,11 @@ class MeshRenderer : DataEntry {
         }
 
         shaderProgram.bind();
+        if(meshData.isEntity != 0) {
+            shaderProgram.setUniform("isEntity", meshData.isEntity);
+        } else {
+            shaderProgram.setUniform("isEntity", 0);
+        }
         if(meshData.shaderType != 0) {
             shaderProgram.setUniform("shaderType", meshData.shaderType);
         } else {
@@ -656,6 +661,11 @@ class MeshRenderer : DataEntry {
         }
 
         shaderProgram.bind();
+        if(meshData.isEntity != 0) {
+            shaderProgram.setUniform("isEntity", meshData.isEntity);
+        } else {
+            shaderProgram.setUniform("isEntity", 0);
+        }
         if(meshData.shaderType != 0) {
             shaderProgram.setUniform("shaderType", meshData.shaderType);
         } else {

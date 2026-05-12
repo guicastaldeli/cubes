@@ -107,6 +107,7 @@ class EntityGenerator : WorldHandler {
 
             foreach(var entity in entities) {
                 MeshData data = EntityFactory.clone(meshData);
+                data.isEntity = 1;
 
                 mesh.add(entity.Id, data);
                 mesh.setScale(entity.Id, entity.Scale);
@@ -118,6 +119,7 @@ class EntityGenerator : WorldHandler {
 
                 var renderer = mesh.getMeshRenderer(entity.Id);
                 if(renderer != null) {
+
                     renderer.isInstanced = true;
                     renderer.isInteractive = true;
                     var spawnPos = entitySpawner.getPositions(entity.Id);

@@ -9,6 +9,7 @@ out vec4 fragColor;
 uniform vec4 uColor;
 uniform int uHasColors;
 uniform int hasTex;
+uniform int isEntity;
 uniform int shaderType;
 uniform sampler2D uSampler;
 uniform int shaderAddon;
@@ -92,8 +93,12 @@ void main() {
         vec4 baseColor;
         
         if(hasTex == 1) {
-            vec4 texColor = texture(uSampler, vTexCoord);
-            baseColor = vColor * texColor;
+            if(isEntity == 1) {
+                vec4 texColor = texture(uSampler, vTexCoord);
+                baseColor = vColor * texColor;
+            } else {
+                baseColor = texture(uSampler, vTexCoord);
+            }
         } else if(uHasColors == 1) {
             baseColor = vColor;
         } else {
