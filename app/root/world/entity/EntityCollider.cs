@@ -42,7 +42,7 @@ static class EntityCollider {
         }
 
         for(int i = 0; i < list.Count; i++) {
-            string id = $"{entity.Id}_c_{i}";
+            string id = $"{entity.Id}_{i}";
             Vector3 position = list[i].Position;
 
             MeshCollider.setInstanced(data, id, position, entity.Scale, entity.MeshType);

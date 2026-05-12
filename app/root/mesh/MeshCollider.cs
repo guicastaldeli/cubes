@@ -39,8 +39,8 @@ static class MeshCollider {
     private static Dictionary<string, string> instancedMeshTypes = new();
     private static Dictionary<string, BBox> instancedBBoxes = new();
 
-    private static Dictionary<string, float[]> cachedVertices = new();
-    private static Dictionary<string, int[]> cachedIndices = new();
+    public static Dictionary<string, float[]> cachedVertices = new();
+    public static Dictionary<string, int[]> cachedIndices = new();
 
     // Position
     public static Vector3 getInstancedPosition(string colliderId) {
@@ -103,6 +103,20 @@ static class MeshCollider {
     public static void init(Mesh mesh, CollisionManager collisionManager) {
         MeshCollider.mesh = mesh;
         MeshCollider.collisionManager = collisionManager; 
+    }
+
+    /**
+    
+        Get
+    
+        */
+    public static IEnumerable<(string id, string meshType, Vector3 position, float scale)> getInstancedColliders() {
+        foreach(var (colliderId, meshType) in instancedMeshTypes) {
+            if(instancedPositions.TryGetValue(colliderId, out Vector3 pos) &&
+                instancedScales.TryGetValue(colliderId, out float scale)) {
+                yield return (colliderId, meshType, pos, scale);
+            }
+        }
     }
 
     /**

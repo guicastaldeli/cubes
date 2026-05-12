@@ -333,6 +333,7 @@ class EntitySpawner {
 
             var (positions, colors, rotations, textures) = getData(id, l);
             mesh.getMeshRenderer(id)?.updateInstanceData(positions, colors, rotations, textures);
+            if(l.Count > 0) mesh.setPosition(id, l[0].Position);
         }
     }
 

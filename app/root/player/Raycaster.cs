@@ -1,6 +1,7 @@
 namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Mesh;
+using App.Root.Utils;
 using OpenTK.Mathematics;
 
 /**
@@ -22,18 +23,15 @@ class Shape {
     public Raycaster raycaster = null!;
 
     public string id = null!;
+    public string? meshType = null;
     public Vector3 origin;
     public Vector3 dir;
     public float dist;
     public bool hit;
 
-    /**
+    public Vector3? instancedPosition = null;
+    public Vector3? instancedSize = null;
 
-        Overloaded Constructors
-        to handle different initializations
-
-        */
-    // Main Variables
     public Shape(
         Mesh mesh, 
         MeshData data,
@@ -43,8 +41,6 @@ class Shape {
         this.data = data;
         this.raycaster = raycaster;
     }
-
-    // Raycaster Props
     public Shape(
         string id,
         Vector3 origin,
@@ -59,7 +55,11 @@ class Shape {
         this.hit = hit;
     }
     
-    // Get Scaled Radius
+    /**
+
+        Scaled Radius
+
+        */
     private static float getScaledRadius(Mesh mesh, string id) {
         Vector3 size = mesh.getSize(id);
         float baseRadius = Math.Max(size.X, Math.Max(size.Y, size.Z)) / 2.0f;
@@ -74,9 +74,14 @@ class Shape {
         return baseRadius;
     }
 
+    private static float getScaledRadius(Vector3 size) {
+        float val = Math.Max(size.X, Math.Max(size.Y, size.Z)) / 2.0f;
+        return val;
+    }
+
     /**
 
-        Update Detection
+        Update
 
         */
     public Shape update() {
@@ -84,23 +89,53 @@ class Shape {
 
         switch(data.colliderShape) {
             case ShapeType.SPHERE:
-                Vector3 center = mesh.getPosition(id);
-                float r = getScaledRadius(mesh, id);
+                Vector3 center;
+                float r;
+
+                if(instancedPosition.HasValue && instancedSize.HasValue) {
+                    center = instancedPosition.Value;
+                    r = getScaledRadius(instancedSize.Value);
+                } else {
+                    center = mesh.getPosition(id);
+                    r = getScaledRadius(mesh, id);
+                }
+
                 hit = raycaster.intersectsSphere(origin, dir, center, r, out dist);
                 break;
             case ShapeType.TRIANGLE:
-                BBox tBox = mesh.getBBox(id);
-                if(!raycaster.intersects(origin, dir, tBox, out _)) {
+                BBox tbox;
+    
+                if(instancedPosition.HasValue && instancedSize.HasValue) {
+                    tbox = BBox.setFromCenterI(instancedPosition.Value, instancedSize.Value);                
+                } else {
+                    tbox = mesh.getBBox(id);
+                }
+
+                if(!raycaster.intersects(origin, dir, tbox, out _)) {
                     hit = false;
                     dist = 0;
                 } else {
-                    hit = raycaster.intersectsTriangle(origin, dir, id, out dist);
+                    if(instancedPosition.HasValue && meshType != null) {
+                        float scale = instancedSize!.Value.X / MeshCollider.getCachedSize(meshType).X;
+                        
+                        hit = raycaster.intersectsTriangle(origin, dir, meshType, instancedPosition.Value, scale, out dist);
+                    } else {
+                        hit = raycaster.intersectsTriangle(origin, dir, id, out dist);
+                    }
                 }
+
                 break;
             case ShapeType.CUBE:
             default:
-                BBox box = mesh.getBBox(id);
-                hit = raycaster.intersects(origin, dir, box, out dist);
+                BBox bbox;
+
+                if(instancedPosition.HasValue && instancedSize.HasValue) {
+                    bbox = BBox.setFromCenterI(instancedPosition.Value, instancedSize.Value);
+                } else {
+                    bbox = mesh.getBBox(id);
+                }
+    
+                hit = raycaster.intersects(origin, dir, bbox, out dist);
                 break;
         }
 
@@ -117,7 +152,7 @@ class Raycaster {
     private Camera camera;
     private Mesh mesh;
 
-    private float maxDist = 30.0f;
+    private float maxDist = 300.0f;
 
     private bool isActive = true;
 
@@ -235,78 +270,77 @@ class Raycaster {
         string id,
         out float dist
     ) {
+        float f = 1.0f;
+        bool val = intersectsTriangle(origin, dir, id, null, f, out dist); 
+        return val;
+    }
+
+    public bool intersectsTriangle(
+        Vector3 origin,
+        Vector3 dir,
+        string id,
+        Vector3? instancedPos,
+        float instancedScale,
+        out float dist
+    ) {
         dist = 0;
-        float bDist = float.MaxValue;
-        bool hit = false;
 
-        MeshData? data = mesh.getData(id);
-        if(data == null) return false;
+        float[]? verts;
+        int[]? indices;
+        Vector3 pos;
+        Vector3 scale;
 
-        float[]? verts = data.getVertices();
-        int[]? indices = data.getIndices();
-        if(verts == null) return false;
+        if(instancedPos.HasValue) {
+            if(!MeshCollider.cachedVertices.TryGetValue(id, out verts) || verts == null) {
+                return false;
+            }
+            MeshCollider.cachedIndices.TryGetValue(id, out indices);
 
-        var renderer = mesh.getMeshRenderer(id);
+            pos = instancedPos.Value;
+            scale = new Vector3(instancedScale);
+        } else {
+            MeshData? data = mesh.getData(id);
+            if(data == null) return false;
 
-        Vector3 pos = mesh.getPosition(id);
-        Vector3 scale = Vector3.One;
-        if(renderer != null && renderer.isScaled()) {
-            scale = renderer.getScale();
-        } else if(data.hasScale()) {
-            float[]? s = data.getScale();
-            if(s != null) scale = new Vector3(s[0], s[1], s[2]);
-        }
+            verts = data.getVertices();
+            indices = data.getIndices();
 
-        Vector3 getVert(int i) => new Vector3(
-            verts[i*3+0] * scale.X + pos.X,
-            verts[i*3+1] * scale.Y + pos.Y,
-            verts[i*3+2] * scale.Z + pos.Z
-        );
+            pos = mesh.getPosition(id);
+            scale = Vector3.One;
 
-        void t(Vector3 a, Vector3 b, Vector3 c) {
-            Vector3 edge1 = b - a;
-            Vector3 edge2 = c - a;
-            Vector3 h = Vector3.Cross(dir, edge2);
-            float det = Vector3.Dot(edge1, h);
-
-            float f = 1e-6f;
-            if(MathF.Abs(det) < f) return;
-
-            float invDet = 1.0f / det;
-            Vector3 s = origin - a;
-            float u = invDet * Vector3.Dot(s, h);
-            if(u < 0 || u > 1) return;
-
-            Vector3 q = Vector3.Cross(s, edge1);
-            float v = invDet * Vector3.Dot(dir, q);
-            if(v < 0 || u + v > 1) return;
-
-            float t = invDet * Vector3.Dot(edge2, q);
-            if(t >= 0 && t < bDist) {
-                bDist = t;
-                hit = true;
+            var renderer = mesh.getMeshRenderer(id);
+            if(renderer != null && renderer.isScaled()) {
+                scale = renderer.getScale();
+            } else if(data.hasScale()) {
+                float[]? s = data.getScale();
+                if(s != null) scale = new Vector3(s[0], s[1], s[2]);
             }
         }
+
+        DefTriangle.r(dir, origin);
+        DefTriangle.m(verts!, pos, scale);
 
         if(indices != null) {
             for(int i = 0; i < indices.Length; i+= 3) {
-                t(getVert(indices[i]),
-                    getVert(indices[i+1]),
-                    getVert(indices[i+2])
+                DefTriangle.t(
+                    DefTriangle.getVert(indices[i]),
+                    DefTriangle.getVert(indices[i+1]),
+                    DefTriangle.getVert(indices[i+2])
                 );
             }
         } else {
-            int count = verts.Length / 3;
+            int count = verts!.Length / 3;
             for(int i = 0; i < count; i += 3) {
-                t(getVert(i),
-                    getVert(i+1),
-                    getVert(i+2)
+                DefTriangle.t(
+                    DefTriangle.getVert(i),
+                    DefTriangle.getVert(i+1),
+                    DefTriangle.getVert(i+2)
                 );
             }
         }
 
-        dist = bDist;
-        return hit;
+        dist = DefTriangle.bdist;
+        return DefTriangle.hit;
     }
 
     /**
@@ -339,6 +373,26 @@ class Raycaster {
                 raycaster = this
             }.update();
             
+            if(shape.hit && shape.dist < maxDist && shape.dist < closestDist) {
+                closestDist = shape.dist;
+                closest = id;
+            }
+        }
+        foreach(var (id, instancedMeshType, position, scale) in MeshCollider.getInstancedColliders()) {
+            MeshData? data = mesh.getData(instancedMeshType);
+            if(data?.colliderShape == null) continue;
+
+            Vector3 size = MeshCollider.getCachedSize(instancedMeshType) * scale;
+
+            Shape shape = new Shape(id, origin, dir, 0, false) {
+                mesh = mesh,
+                data = data,
+                raycaster = this,
+                instancedPosition = position,
+                instancedSize = size,
+                meshType = instancedMeshType
+            }.update();
+
             if(shape.hit && shape.dist < maxDist && shape.dist < closestDist) {
                 closestDist = shape.dist;
                 closest = id;

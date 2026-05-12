@@ -2,6 +2,7 @@ namespace App.Root.Collider.Types;
 using App.Root.Collider;
 using App.Root.Mesh;
 using App.Root.Player;
+using App.Root.Utils;
 using OpenTK.Mathematics;
 
 class TriangleObject : Collider {
@@ -88,35 +89,31 @@ class TriangleObject : Collider {
     
         */
     private void build() {
-        Vector3 getVert(int i) => new Vector3(
-            verts[i*3+0] * scale.X,
-            verts[i*3+1] * scale.Y,
-            verts[i*3+2] * scale.Z
-        );
-
         if(useProviders) {
             verts = verticesProvider?.Invoke();
             int[]? ind = indicesProvider?.Invoke();
             scale = scaleProvider?.Invoke() ?? Vector3.One;
 
             if(verts == null) return;
+            
+            DefTriangle.m(verts, Vector3.Zero, scale);
             tri.Clear();
 
             if(ind != null) {
                 for(int i = 0; i < ind.Length; i += 3) {
                     tri.Add((
-                        getVert(ind[i]), 
-                        getVert(ind[i+1]), 
-                        getVert(ind[i+2])
+                        DefTriangle.getVert(ind[i]), 
+                        DefTriangle.getVert(ind[i+1]), 
+                        DefTriangle.getVert(ind[i+2])
                     ));
                 }
             } else {
                 int count = verts.Length / 3;
                 for(int i = 0; i < count; i += 3) {
                     tri.Add((
-                        getVert(i), 
-                        getVert(i+1), 
-                        getVert(i+2)
+                        DefTriangle.getVert(i), 
+                        DefTriangle.getVert(i+1), 
+                        DefTriangle.getVert(i+2)
                     ));
                 }
             }
@@ -133,6 +130,7 @@ class TriangleObject : Collider {
         if(verts == null) return;
 
         var renderer = mesh.getMeshRenderer(id);
+        Vector3 pos = mesh.getPosition(id);
         if(renderer != null && renderer.isScaled()) {
             scale = renderer.getScale();
         } else if(data.hasScale()) {
@@ -140,25 +138,24 @@ class TriangleObject : Collider {
             if(s != null) scale = new Vector3(s[0], s[1], s[2]);
         }
 
+        DefTriangle.m(verts, pos, scale);
         tri.Clear();
-
-        
 
         if(indices != null) {
             for(int i = 0; i < indices.Length; i += 3) {
                 tri.Add((
-                    getVert(indices[i]),
-                    getVert(indices[i+1]),
-                    getVert(indices[i+2])
+                    DefTriangle.getVert(indices[i]),
+                    DefTriangle.getVert(indices[i+1]),
+                    DefTriangle.getVert(indices[i+2])
                 ));
             }
         } else {
             int count = verts.Length / 3;
             for(int i = 0; i < count; i += 3) {
                 tri.Add((
-                    getVert(i),
-                    getVert(i+1),
-                    getVert(i+2)
+                    DefTriangle.getVert(i),
+                    DefTriangle.getVert(i+1),
+                    DefTriangle.getVert(i+2)
                 ));
             }
         }
