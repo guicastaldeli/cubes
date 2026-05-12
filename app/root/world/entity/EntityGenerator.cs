@@ -127,7 +127,8 @@ class EntityGenerator : WorldHandler {
                     renderer.setInstanceData(
                         spawnPos,
                         Converter.ToRgbaList(entity.Color, spawnPos.Count),
-                        Converter.ToRotationList(entity.Rotation, spawnPos.Count)
+                        Converter.ToRotationList(entity.Rotation, spawnPos.Count),
+                        Converter.ToTexId(meshData.texPath, spawnPos.Count)
                     );
                 }
             }

@@ -26,6 +26,23 @@ class TextureLoader {
         return (w, h);
     }
 
+    // Get Or Load Tex Id
+    public static int getOrLoadTexId(string? path, Dictionary<string, int> pathCache) {
+        if(path == null) return -1;
+
+        if(!pathCache.TryGetValue(path, out int id)) {
+            try {
+                id = load(path);
+                pathCache[path] = id;
+            } catch {
+                id = -1;
+                pathCache[path] = -1;
+            }
+        }
+
+        return id;
+    }
+
     /**
     
         Load

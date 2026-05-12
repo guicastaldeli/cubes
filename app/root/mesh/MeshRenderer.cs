@@ -3,6 +3,7 @@ using App.Root.Player;
 using App.Root.Shaders;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
+using App.Root.Resource;
 
 class MeshRenderer : DataEntry {
     private Window window;
@@ -40,6 +41,11 @@ class MeshRenderer : DataEntry {
 
     private int instanceColorVbo;
     private List<float[]> cachedInstanceColors = new();
+
+    private int instanceTexIdVbo = 0;
+    private Dictionary<string, int> texPathCache = new();
+    private List<string?> cachedInstanceTex = new();
+    private bool hasInstanceTextures = false;
 
     public bool renderOnTop = false;
 
@@ -183,11 +189,21 @@ class MeshRenderer : DataEntry {
         setupFullscreenQuad();
     } 
 
-    public void setInstanceData(List<Vector3> positions, List<float[]>? colors = null, List<float>? rotations = null) {
+    public void setInstanceData(
+        List<Vector3> positions, 
+        List<float[]>? colors = null, 
+        List<float>? rotations = null,
+        List<string?>? texPaths = null
+    ) {
         if(positions.Count == 0) return;
 
         cachedInstancePositions = positions;
         if(colors != null) cachedInstanceColors = colors;
+        if(texPaths != null) {
+            cachedInstanceTex = texPaths;
+            hasInstanceTextures = true;
+        }
+
         instanceCount = positions.Count;
 
         GL.BindVertexArray(vao);
@@ -238,6 +254,20 @@ class MeshRenderer : DataEntry {
             GL.VertexAttribPointer(6, 4, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(6);
             GL.VertexAttribDivisor(6, 1);
+        }
+
+        if(texPaths != null && texPaths.Count == positions.Count) {
+            int[] texIdData = new int[texPaths.Count];
+            for(int i = 0; i < texPaths.Count; i++) {
+                texIdData[i] = TextureLoader.getOrLoadTexId(texPaths[i], texPathCache);
+            }
+
+            if(instanceTexIdVbo == 0) instanceTexIdVbo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, instanceTexIdVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, texIdData.Length * sizeof(int), texIdData, BufferUsageHint.DynamicDraw);
+            GL.VertexAttribIPointer(7, 1, VertexAttribIntegerType.Int, 0, 0);
+            GL.EnableVertexAttribArray(7);
+            GL.VertexAttribDivisor(7, 1);
         }
 
         GL.BindVertexArray(0);
@@ -469,7 +499,12 @@ class MeshRenderer : DataEntry {
         }
     }
 
-    public void updateInstanceData(List<Vector3> positions, List<float[]> colors, List<float> rotations) {
+    public void updateInstanceData(
+        List<Vector3> positions, 
+        List<float[]> colors, 
+        List<float> rotations,
+        List<string?>? texPaths = null
+    ) {
         if(positions.Count != instanceCount) return;
 
         float[] posData = new float[positions.Count * 3];
@@ -490,6 +525,7 @@ class MeshRenderer : DataEntry {
                 colorData[i * 4 + 2] = colors[i][2];
                 colorData[i * 4 + 3] = colors[i][3];
             }
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, instanceColorVbo);
             GL.BufferData(BufferTarget.ArrayBuffer, colorData.Length * sizeof(float), colorData, BufferUsageHint.DynamicDraw);
         }
@@ -506,6 +542,16 @@ class MeshRenderer : DataEntry {
             GL.BindBuffer(BufferTarget.ArrayBuffer, instanceRotationVbo);
             GL.BufferData(BufferTarget.ArrayBuffer, rotationData.Length * sizeof(float), rotationData, BufferUsageHint.DynamicDraw);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);      
+        }
+
+        if(texPaths != null && texPaths.Count == positions.Count && instanceTexIdVbo != 0) {
+            int[] texIdData = new int[texPaths.Count];
+            for(int i = 0; i < texPaths.Count; i++) {
+                texIdData[i] = TextureLoader.getOrLoadTexId(texPaths[i], texPathCache);
+            }
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, instanceTexIdVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, texIdData.Length * sizeof(int), texIdData, BufferUsageHint.DynamicDraw);
         }
 
         GL.BindVertexArray(0);

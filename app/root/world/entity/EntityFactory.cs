@@ -66,6 +66,16 @@ public static class Converter {
         List<float> val = Enumerable.Repeat(rotation, count).ToList();
         return val;
     }
+
+    /**
+    
+        To Texture Id
+    
+        */
+    public static List<string?> ToTexId(string? texPath, int count) {
+        List<string?> val = Enumerable.Repeat(texPath, count).ToList();
+        return val;
+    }
 }
 
 /**

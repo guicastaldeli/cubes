@@ -3,6 +3,7 @@
 in vec4 vColor;
 in vec2 vTexCoord;
 in float fragDist;
+flat in int vInstanceTexId;
 
 out vec4 fragColor;
 
@@ -12,6 +13,8 @@ uniform int hasTex;
 uniform int isEntity;
 uniform int shaderType;
 uniform sampler2D uSampler;
+uniform sampler2DArray uSamplerArray;
+uniform int useArrayTexture;
 uniform int shaderAddon;
 
 #include "../text/text.frag.glsl"
@@ -23,6 +26,16 @@ uniform int shaderAddon;
 #include "../world/weather.frag.glsl"
 #include "../world/skybox.frag.glsl"
 #include "../world/star.frag.glsl"
+
+vec4 setEntityColor(vec4 texColor) {
+    if(isEntity == 1) {
+        vec4 color = vColor * texColor;     
+        return color;
+    } else {
+        vec4 color = texColor;
+        return color;
+    }
+}
 
 void main() {
     /**
@@ -93,12 +106,15 @@ void main() {
         vec4 baseColor;
         
         if(hasTex == 1) {
-            if(isEntity == 1) {
-                vec4 texColor = texture(uSampler, vTexCoord);
-                baseColor = vColor * texColor;
+            vec4 texColor;
+
+            if(useArrayTexture == 1) {
+                texColor = texture(uSamplerArray, vec3(vTexCoord, vInstanceTexId));
             } else {
-                baseColor = texture(uSampler, vTexCoord);
+                texColor = texture(uSampler, vTexCoord);
             }
+
+            baseColor = setEntityColor(texColor);
         } else if(uHasColors == 1) {
             baseColor = vColor;
         } else {

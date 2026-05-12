@@ -26,13 +26,15 @@ struct Instance {
         Data
     
         */
+    // Main Data
     private Instance Data() {
         return this;
     }
 
-    public (Vector3 position, float[] color, float rotation) InstData() {
+    // Instance Data
+    public (Vector3 position, float[] color, float rotation, string? tex) InstData() {
         var data = Data();
-        var val = (data.Position, Converter.ToRgba(data.Color), data.Rotation);
+        var val = (data.Position, Converter.ToRgba(data.Color), data.Rotation, data.Tex);
         return val;
     }
 } 
@@ -291,13 +293,15 @@ class EntitySpawner {
         Data
     
         */
-    private (List<Vector3>, List<float[]>, List<float>) getData(List<Instance> list) {
+    private (List<Vector3>, List<float[]>, List<float>, List<string?>) getData(string id, List<Instance> list) {
         var inst = list.Select(i => i.InstData()).ToList();
-        return (
-            inst.Select(d => d.position).ToList(),
-            inst.Select(d => d.color).ToList(),
-            inst.Select(d => d.rotation).ToList()
-        );
+        
+        var positions = inst.Select(d => d.position).ToList();
+        var colors = inst.Select(d => d.color).ToList();
+        var rotations = inst.Select(d => d.rotation).ToList();
+        var textures = inst.Select(d => d.tex).ToList();
+
+        return (positions, colors, rotations, textures);
     }
 
     /**
@@ -324,8 +328,8 @@ class EntitySpawner {
                 l[i] = inst;
             }
 
-            var (positions, colors, rotations) = getData(l);
-            mesh.getMeshRenderer(id)?.updateInstanceData(positions, colors, rotations);
+            var (positions, colors, rotations, textures) = getData(id, l);
+            mesh.getMeshRenderer(id)?.updateInstanceData(positions, colors, rotations, textures);
         }
     }
 

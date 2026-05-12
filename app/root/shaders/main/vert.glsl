@@ -7,10 +7,12 @@ layout(location = 3) in vec2 aTexCoord;
 layout(location = 4) in vec3 aInstanceOffset;
 layout(location = 5) in vec4 aInstanceColor;
 layout(location = 6) in vec4 aInstanceRotation;
+layout(location = 7) in int aInstanceTexId;
 
 out vec4 vColor;
 out vec2 vTexCoord;
 out float fragDist;
+flat out int vInstanceTexId;
 
 uniform mat4 uModel;
 uniform mat4 uView;
@@ -123,6 +125,7 @@ void main() {
 
             vTexCoord = aTexCoord;
             fragDist = length(viewPos.xyz);
+            vInstanceTexId = aInstanceTexId;
 
             return;
         }
