@@ -26,7 +26,11 @@ class BBox {
         this.maxZ = maxZ;
     }
 
-    // Set From Center
+    /**
+    
+        Set From Center
+    
+        */
     public void setFromCenter(Vector3 center, Vector3 size) {
         float hx = size.X / 2f;
         float hy = size.Y / 2f;
@@ -39,6 +43,17 @@ class BBox {
         maxX = center.X + hx;
         maxY = center.Y + hy;
         maxZ = center.Z + hz;
+    }
+
+    public static BBox setFromCenterI(Vector3 center, Vector3 size) {
+        float hx = size.X / 2f;
+        float hy = size.Y / 2f;
+        float hz = size.Z / 2f;
+    
+        return new BBox(
+            center.X - hx, center.Y - hy, center.Z - hz,
+            center.X + hx, center.Y + hy, center.Z + hz
+        );
     }
 
     /**

@@ -4,7 +4,7 @@ using App.Root.Player;
 using OpenTK.Mathematics;
 
 class StaticObject : Collider {
-    private BBox? bBox;
+    private BBox? bbox;
     private Vector3? position;
     private string? type;
     private string? id;
@@ -13,10 +13,10 @@ class StaticObject : Collider {
     private float halfX;
     private float halfY;
     private float halfZ;
-    private Func<BBox>? bBoxProvider;
+    private Func<BBox>? bboxProvider;
 
-    public StaticObject(BBox bBox, string id, string type = "") {
-        this.bBox = bBox;
+    public StaticObject(BBox bbox, string id, string type = "") {
+        this.bbox = bbox;
         this.id = id;
         this.type = type;
     }
@@ -43,15 +43,15 @@ class StaticObject : Collider {
         this.id = id;
         this.type = type;
     }
-    public StaticObject(Func<BBox> bBoxProvideer, string id, string type = "") {
-        this.bBoxProvider = bBoxProvideer;
+    public StaticObject(Func<BBox> bboxProvideer, string id, string type = "") {
+        this.bboxProvider = bboxProvideer;
         this.id = id;
         this.type = type;
     }
 
     // Get BBox
     public BBox getBBox() {
-        if(bBoxProvider != null) return bBoxProvider();
+        if(bboxProvider != null) return bboxProvider();
         if(position.HasValue) {
             Vector3 p = position.Value;
             return new BBox(
@@ -59,7 +59,7 @@ class StaticObject : Collider {
                 p.X + halfX, p.Y + halfY, p.Z + halfZ
             );
         }
-        return bBox!;
+        return bbox!;
     }
 
     // Get Rigid Body
@@ -80,10 +80,10 @@ class StaticObject : Collider {
     }
 
     // Check Collision
-    public CollisionResult checkCollision(BBox bBox) {
+    public CollisionResult checkCollision(BBox bbox) {
         BBox self = getBBox();
-        if(bBox.intersects(self)) {
-            return calcCollision(bBox, self);
+        if(bbox.intersects(self)) {
+            return calcCollision(bbox, self);
         }
         return new CollisionResult();
     }
@@ -116,7 +116,7 @@ class StaticObject : Collider {
     // Resolve Collision
     public static void resolveCollision(
         Vector3 position, 
-        BBox bBox, 
+        BBox bbox, 
         RigidBody rigidBody,
         CollisionResult collision
     ) {

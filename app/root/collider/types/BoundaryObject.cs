@@ -4,7 +4,7 @@ using App.Root.Player;
 using OpenTK.Mathematics;
 
 class BoundaryObject : Collider {
-    private BBox bBox;
+    private BBox bbox;
     private float distance;
     private float thickness = 100.0f;
 
@@ -19,7 +19,7 @@ class BoundaryObject : Collider {
         this.minHeight = -distance;
         this.maxHeight = distance;
         
-        bBox = new BBox(
+        bbox = new BBox(
             -distance - thickness, float.MinValue, -distance - thickness,
             distance + thickness, float.MaxValue, distance + thickness
         );
@@ -32,7 +32,7 @@ class BoundaryObject : Collider {
 
     // Get BBox
     public BBox getBBox() {
-        return bBox;
+        return bbox;
     }
 
     // Get Rigid Body

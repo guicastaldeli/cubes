@@ -97,21 +97,21 @@ class SphereObject : Collider {
     }
 
     // Check Collision
-    public CollisionResult checkCollision(BBox bBox) {
+    public CollisionResult checkCollision(BBox bbox) {
         Vector3 center = getCenter();
         float r = getRadius();
 
-        float x = MathF.Max(bBox.minX, MathF.Min(center.X, bBox.maxX));
-        float y = MathF.Max(bBox.minY, MathF.Min(center.Y, bBox.maxY));
-        float z = MathF.Max(bBox.minZ, MathF.Min(center.Z, bBox.maxZ));
+        float x = MathF.Max(bbox.minX, MathF.Min(center.X, bbox.maxX));
+        float y = MathF.Max(bbox.minY, MathF.Min(center.Y, bbox.maxY));
+        float z = MathF.Max(bbox.minZ, MathF.Min(center.Z, bbox.maxZ));
         
         float dist = Vector3.Distance(center, new Vector3(x, y, z));
         if(dist >= r) return new CollisionResult();
 
         Vector3 playerCenter = new Vector3(
-            (bBox.minX + bBox.maxX) / 2.0f,
-            (bBox.minY + bBox.maxY) / 2.0f,
-            (bBox.minZ + bBox.maxZ) / 2.0f
+            (bbox.minX + bbox.maxX) / 2.0f,
+            (bbox.minY + bbox.maxY) / 2.0f,
+            (bbox.minZ + bbox.maxZ) / 2.0f
         );
 
         Vector3 dir = playerCenter - center;
@@ -138,7 +138,7 @@ class SphereObject : Collider {
     // Resolve Collision
     public static void resolveCollision(
         Vector3 position,
-        BBox bBox,
+        BBox bbox,
         RigidBody rigidBody,
         CollisionResult collision
     ) {

@@ -104,7 +104,7 @@ class CollisionManager {
 
         foreach(var collision in collisions) {
             Vector3 position = rigidBody.getPosition();
-            BBox bBox = rigidBody.getBBox();
+            BBox bbox = rigidBody.getBBox();
 
             // Boundary Object
             if(collision.otherCollider is BoundaryObject boundaryObj) {

@@ -354,10 +354,10 @@ class PhysicsRegistry {
             Vector3 newPos = entry.physicsBody.getPosition();
             mesh.setPosition(entry.id, newPos);
 
-            BBox bBox = mesh.getBBox(entry.id);
+            BBox bbox = mesh.getBBox(entry.id);
 
-            var receiverColls = checkCollisionWithReceivers(bBox);
-            var dynamicColls = checkCollisionWithDynamic(entry.id, bBox);
+            var receiverColls = checkCollisionWithReceivers(bbox);
+            var dynamicColls = checkCollisionWithDynamic(entry.id, bbox);
 
             var allColls = new List<CollisionResult>();
             allColls.AddRange(receiverColls);

@@ -126,9 +126,7 @@ static class MeshCollider {
 
         Vector3 size = getCachedSize(meshType) * scale;
 
-        BBox bbox = new BBox(0, 0, 0, 0, 0, 0);
-        bbox.setFromCenter(position, size);
-        instancedBBoxes[colliderId] = bbox;
+        instancedBBoxes[colliderId] = BBox.setFromCenterI(position, size);
 
         switch(data.colliderShape) {
             case ColliderType.CUBE:
