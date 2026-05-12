@@ -1,4 +1,6 @@
 namespace App.Root.Resource;
+
+using App.Root.Mesh;
 using OpenTK.Graphics.OpenGL;
 using StbImageSharp;
 
@@ -24,6 +26,15 @@ class TextureLoader {
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int h);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return (w, h);
+    }
+
+    // Set Texture
+    public static int setTex(MeshData meshData) {
+        int val = meshData.texPath is string texPath 
+            ? TextureLoader.load(texPath) 
+            : -1;
+
+        return val;
     }
 
     // Get Or Load Tex Id

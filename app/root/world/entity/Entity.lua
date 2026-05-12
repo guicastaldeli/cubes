@@ -4,7 +4,7 @@
     handle general Entity Configuration.
 
     --]]
-dofile("world/entity/LoaderSetter.lua")
+dofile("world/entity/SetLoader.lua")
 
 Entities = {
     { id = "cube", l = "d" },

@@ -105,3 +105,7 @@ rotation = {
     axis = "X",
     speed = 0.0
 }
+
+collider = {
+    shape = "cube"
+}

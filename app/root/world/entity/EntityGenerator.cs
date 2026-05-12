@@ -10,6 +10,7 @@ using App.Root.Mesh;
 using App.Root.Resource;
 using App.Root.Utils;
 using NLua;
+using OpenTK.Mathematics;
 
 /**
 
@@ -98,38 +99,33 @@ class EntityGenerator : WorldHandler {
     
         */
     private void generate(Dictionary<string, MeshData> meshTypes) {
-        foreach(var (meshType, meshData) in meshTypes) {
-            var entities = EntityFactory.generate(meshType);
-
-            int texId = meshData.texPath is string texPath 
-                ? TextureLoader.load(texPath) 
-                : -1;
-
+        foreach(var (type, data) in meshTypes) {
+            var entities = EntityFactory.generate(type);
+            int tex = TextureLoader.setTex(data);
+            
             foreach(var entity in entities) {
-                MeshData data = EntityFactory.clone(meshData);
+                MeshData meshData = EntityFactory.clone(data);
                 data.isEntity = 1;
 
                 mesh.add(entity.Id, data);
                 mesh.setScale(entity.Id, entity.Scale);
                 mesh.setColor(entity.Id, entity.Color);
                 mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
-                if(texId != -1) mesh.setTexture(entity.Id, texId, meshData.texPath!);
-
+                if(tex != -1) mesh.setTexture(entity.Id, tex, meshData.texPath!);
+                
                 entitySpawner.render(entity);
 
-                var renderer = mesh.getMeshRenderer(entity.Id);
-                if(renderer != null) {
-                    renderer.isInstanced = true;
-                    renderer.isInteractive = true;
+                var entityData = mesh.getMeshRenderer(entity.Id);
+                if(entityData != null) {
+                    entityData.isInstanced = true;
+                    entityData.isInteractive = true;
                     
-                    var spawnPos = entitySpawner.getPositions(entity.Id);
+                    List<Vector3> position = entitySpawner.getPositions(entity.Id);
+                    List<float[]> color = Converter.ToRgbaList(entity.Color, position.Count);
+                    List<float> rotation = Converter.ToRotationList(entity.Rotation, position.Count); 
+                    List<string?> texture = Converter.ToTexId(meshData.texPath, position.Count);
                     
-                    renderer.setInstanceData(
-                        spawnPos,
-                        Converter.ToRgbaList(entity.Color, spawnPos.Count),
-                        Converter.ToRotationList(entity.Rotation, spawnPos.Count),
-                        Converter.ToTexId(meshData.texPath, spawnPos.Count)
-                    );
+                    entityData.setInstanceData(position, color, rotation, texture);
                 }
             }
         }

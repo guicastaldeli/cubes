@@ -76,6 +76,8 @@ class MeshRenderer : DataEntry {
         this.mesh = mesh;
     }
 
+    public List<Vector3> getCachedInstancePositions() => cachedInstancePositions;
+
     // Camera
     public void setCamera(Camera camera) {
         this.camera = camera;

@@ -6,6 +6,7 @@
 namespace App.Root.World.Entity;
 using App.Root.Collider;
 using App.Root.Collider.Types;
+using App.Root.Mesh;
 using OpenTK.Mathematics;
 
 /**
@@ -103,7 +104,7 @@ class EntitySpawner {
     public static float SPAWN_AREA = 50.0f;
 
     private Tick? tick;
-    private Mesh.Mesh? mesh;
+    private Mesh? mesh;
     private CollisionManager collisionManager;
 
     private Random range = new Random();
@@ -119,7 +120,7 @@ class EntitySpawner {
 
     private Dictionary<string, List<Instance>> instances = new();
     
-    public EntitySpawner(Tick tick, Mesh.Mesh mesh, CollisionManager collisionManager) {
+    public EntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
         this.tick = tick;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
