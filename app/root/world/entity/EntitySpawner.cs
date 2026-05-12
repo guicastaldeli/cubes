@@ -11,10 +11,10 @@ using OpenTK.Mathematics;
 
 /**
 
-    Entity Area helper class.
+    Spawn Point helper class.
 
     */
-static class EntityArea {
+static class SpawnPoint {
     private static CollisionManager collisionManager = null!;
     private static BoundaryObject boundaryObject = null!;
 
@@ -24,7 +24,7 @@ static class EntityArea {
     
         */
     public static void init(CollisionManager collisionManager) {
-        EntityArea.collisionManager = collisionManager;
+        SpawnPoint.collisionManager = collisionManager;
         if(isInit()) initCollider();
     }
 
@@ -44,7 +44,7 @@ static class EntityArea {
         Spawn Point
     
         */
-    public static (Vector3 center, Vector3 size) getSpawnPoint() {
+    public static (Vector3 center, Vector3 size) get() {
         var dist = boundaryObject.getBoundaryDistance();
 
         float z = dist;
@@ -95,7 +95,7 @@ class EntitySpawner {
         this.startZ = SPAWN_AREA;
         this.endZ = -SPAWN_AREA;
 
-        EntityArea.init(collisionManager);
+        SpawnPoint.init(collisionManager);
     }
 
     // Get Boundary
@@ -113,18 +113,27 @@ class EntitySpawner {
         return endZ;
     }
 
-    // Speed
-    public EntitySpawner setSpeed(float min, float max) {
-        this.minSpeed = min;
-        this.maxSpeed = max;
-        return this;
-    }
-
-    private float randomSpeed() {
+    /**
+    
+        Speed
+    
+        */
+    private float setSpeed() {
         float val = 
             minSpeed + 
             (float)range.NextDouble() * 
             (maxSpeed - minSpeed);
+        return val;
+    }
+
+    /**
+    
+        Rotation
+    
+        */
+    private float setRotation() {
+        float f = 360.0f;
+        float val = (float)(range.NextDouble() * f);
         return val;
     }
 
@@ -148,7 +157,7 @@ class EntitySpawner {
     private void wrap(List<Vector3> pos) {
         for(int i = 0; i < pos.Count; i++) {
             if(isOutside(pos[i])) {
-                pos[i] = spawnEntity();
+                pos[i] = setSpawn();
             }
         }
     }
@@ -158,8 +167,8 @@ class EntitySpawner {
         Spawn
     
         */
-    private Vector3 spawnEntity() {
-        var (center, size) = EntityArea.getSpawnPoint();
+    private Vector3 setSpawn() {
+        var (center, size) = SpawnPoint.get();
 
         float x = center.X + (float)(range.NextDouble() * size.X - size.X / 2.0f);
         float y = center.Y + (float)(range.NextDouble() * size.Y - size.Y / 2.0f);
@@ -172,15 +181,15 @@ class EntitySpawner {
     private (List<Vector3>, List<float>, List<float>) spawn(int count) {
         List<Vector3> pos = 
             Enumerable.Range(0, count)
-                .Select(_ => spawnEntity())
+                .Select(_ => setSpawn())
                 .ToList();
         var speed = 
             Enumerable.Range(0, count)
-                .Select(_ => randomSpeed())
+                .Select(_ => setSpeed())
                 .ToList();
         var rotatations =
             Enumerable.Range(0, count)
-                .Select(_ => (float)(range.NextDouble() * 360.0f))
+                .Select(_ => setRotation())
                 .ToList();
         
         var val = (pos, rotatations, speed);

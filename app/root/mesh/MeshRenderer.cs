@@ -700,6 +700,7 @@ class MeshRenderer : DataEntry {
 
         shaderProgram.bind();
         shaderProgram.setUniform("shaderType", 0);
+        shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
         shaderProgram.setUniform("uModel", model);
         shaderProgram.setUniform("uView", Matrix4.Identity);
         shaderProgram.setUniform("uProjection", ortho);
