@@ -119,9 +119,9 @@ class EntityGenerator : WorldHandler {
 
                 var renderer = mesh.getMeshRenderer(entity.Id);
                 if(renderer != null) {
-
                     renderer.isInstanced = true;
                     renderer.isInteractive = true;
+                    
                     var spawnPos = entitySpawner.getPositions(entity.Id);
                     
                     renderer.setInstanceData(
