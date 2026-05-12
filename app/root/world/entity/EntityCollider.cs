@@ -14,7 +14,7 @@ static class EntityCollider {
     public static Mesh? mesh = null!;
     public static CollisionManager? collisionManager = null!;
 
-    public static Dictionary<string, List<string>> instanceColliderIds = new();
+    public static Dictionary<string, List<string>> colliderIds = new();
 
     /**
     
@@ -34,28 +34,19 @@ static class EntityCollider {
     
         */
     public static void create(EntityProps entity, List<Instance> list) {
-        MeshData? meshData = mesh?.getData(entity.Id);
-        if(meshData?.colliderShape == null) return;
+        MeshData? data = mesh?.getData(entity.Id);
+        if(data?.colliderShape == null) return;
 
-        if(!instanceColliderIds.ContainsKey(entity.Id)) {
-            instanceColliderIds[entity.Id] = new List<string>();
+        if(!colliderIds.ContainsKey(entity.Id)) {
+            colliderIds[entity.Id] = new List<string>();
         }
 
         for(int i = 0; i < list.Count; i++) {
             string id = $"{entity.Id}_c_{i}";
+            Vector3 position = list[i].Position;
 
-            MeshData colliderData = EntityFactory.clone(meshData);
-            colliderData.meshType = entity.MeshType;
-
-            if(mesh == null) return;
-            mesh.add(id, colliderData);
-            mesh.setScale(id, entity.Scale);
-            mesh.setPosition(id, list[i].Position);
-            mesh.setVisible(id, false);
-
-            MeshCollider.update(meshData, id);
-
-            instanceColliderIds[entity.Id].Add(id);
+            MeshCollider.setInstanced(data, id, position, entity.Scale, entity.MeshType);
+            colliderIds[entity.Id].Add(id);
         }
     }
 
@@ -65,11 +56,11 @@ static class EntityCollider {
     
         */
     public static void update(string id, int i, Vector3 pos) {
-        if(!instanceColliderIds.ContainsKey(id)) return;
-        if(i >= instanceColliderIds[id].Count) return;
+        if(!colliderIds.ContainsKey(id)) return;
+        if(i >= colliderIds[id].Count) return;
 
-        string colliderId = instanceColliderIds[id][i];
-        if(mesh != null) mesh.setPosition(colliderId, pos);
+        string colliderId = colliderIds[id][i];
+        MeshCollider.updateInstanced(colliderId, pos);
     }
 
     /**
@@ -80,13 +71,13 @@ static class EntityCollider {
     public static void cleanup() {
         if(mesh == null || collisionManager == null) return;
 
-        foreach(var (entityId, colliderIds) in instanceColliderIds) {
-            foreach(var colliderId in colliderIds) {
-                collisionManager.removeCollider(colliderId);
-                mesh.remove(colliderId);
+        foreach(var list in colliderIds.Values) {
+            foreach(var id in list) {
+                collisionManager.removeCollider(id);
+                mesh.removeData(id);
             }
         }
 
-        instanceColliderIds.Clear();
+        colliderIds.Clear();
     }
 }

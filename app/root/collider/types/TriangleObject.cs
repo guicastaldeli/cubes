@@ -1,34 +1,64 @@
 namespace App.Root.Collider.Types;
 using App.Root.Collider;
+using App.Root.Mesh;
 using App.Root.Player;
 using OpenTK.Mathematics;
 
 class TriangleObject : Collider {
-    private Mesh.Mesh mesh;
+    private Mesh? mesh = null!;
+    private string? type = null!;
     private string id;
-    private string type;
 
-    private BBox bBox = null!;
+    private BBox bbox = null!;
 
-    private float[] verts = null!;
+    private float[]? verts = null!;
     private Vector3 scale = Vector3.One;
     private List<(Vector3 a, Vector3 b, Vector3 c)> tri = new();
 
+    private Func<Vector3>? positionProvider;
+    private Func<float[]?>? verticesProvider;
+    private Func<int[]?>? indicesProvider;
+    private Func<Vector3>? scaleProvider;
+    private Func<BBox>? bboxProvider;
+
     private bool built = false;
+    private bool useProviders = false;
 
     public TriangleObject(
-        Mesh.Mesh mesh, 
+        Mesh mesh, 
         string id, 
         string type
     ) {
         this.mesh = mesh;
         this.id = id;
         this.type = type;
+        this.useProviders = false;
+
+        build();
+    }
+    public TriangleObject(
+        Func<Vector3> positionProvider,
+        Func<float[]?> verticesProvider, 
+        Func<int[]?> indicesProvider,
+        Func<Vector3> scaleProvider,
+        Func<BBox> bboxProvider,
+        string id
+    ) {
+        this.positionProvider = positionProvider;
+        this.verticesProvider = verticesProvider;
+        this.indicesProvider = indicesProvider;
+        this.scaleProvider = scaleProvider;
+        this.bboxProvider = bboxProvider; 
+
+        this.id = id;
+        this.useProviders = true;
+
+        build();
     }
 
     // Get Type
     public string getType() {
-        return type;
+        return type!;
     }
 
     // Get Id
@@ -43,13 +73,59 @@ class TriangleObject : Collider {
 
     // Get BBox
     public BBox getBBox() {
-        bBox = mesh.getBBox(id);
-        return bBox;
+        if(useProviders && bboxProvider != null) {
+            BBox? bb = bboxProvider();
+            if(bb != null) return bb;
+        }
+
+        bbox = mesh!.getBBox(id);
+        return bbox;
     }
 
-    // Build
+    /**
+    
+        Build
+    
+        */
     private void build() {
-        var data = mesh.getData(id);
+        Vector3 getVert(int i) => new Vector3(
+            verts[i*3+0] * scale.X,
+            verts[i*3+1] * scale.Y,
+            verts[i*3+2] * scale.Z
+        );
+
+        if(useProviders) {
+            verts = verticesProvider?.Invoke();
+            int[]? ind = indicesProvider?.Invoke();
+            scale = scaleProvider?.Invoke() ?? Vector3.One;
+
+            if(verts == null) return;
+            tri.Clear();
+
+            if(ind != null) {
+                for(int i = 0; i < ind.Length; i += 3) {
+                    tri.Add((
+                        getVert(ind[i]), 
+                        getVert(ind[i+1]), 
+                        getVert(ind[i+2])
+                    ));
+                }
+            } else {
+                int count = verts.Length / 3;
+                for(int i = 0; i < count; i += 3) {
+                    tri.Add((
+                        getVert(i), 
+                        getVert(i+1), 
+                        getVert(i+2)
+                    ));
+                }
+            }
+
+            built = true;
+            return;
+        }
+
+        var data = mesh!.getData(id);
         if(data == null) return;
 
         verts = data.getVertices()!;
@@ -66,11 +142,7 @@ class TriangleObject : Collider {
 
         tri.Clear();
 
-        Vector3 getVert(int i) => new Vector3(
-            verts[i*3+0] * scale.X,
-            verts[i*3+1] * scale.Y,
-            verts[i*3+2] * scale.Z
-        );
+        
 
         if(indices != null) {
             for(int i = 0; i < indices.Length; i += 3) {
@@ -91,15 +163,27 @@ class TriangleObject : Collider {
             }
         }
 
-        bBox = mesh.getBBox(id);
+        bbox = mesh.getBBox(id);
     }
 
+    /**
+    
+        Check
+    
+        */
     // Check Collision
     public CollisionResult checkCollision(BBox box) {
-        bBox = mesh.getBBox(id);
-        if(!box.intersects(bBox)) return new CollisionResult();
+        if(!built) build();
 
-        Vector3 currentPos = mesh.getPosition(id);
+        BBox bbox = getBBox();
+        if(bbox == null || !box.intersects(bbox)) return new CollisionResult();
+
+        Vector3 currentPos;
+        if(useProviders && positionProvider != null) {
+            currentPos = positionProvider();
+        } else {
+            currentPos = mesh!.getPosition(id);
+        }
         CollisionResult best = new CollisionResult();
         float bestDepth = 0;
 

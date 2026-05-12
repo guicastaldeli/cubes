@@ -97,7 +97,7 @@ static class SpawnPoint {
 
 /**
 
-    Entity Spawner main class.
+    Entity Spawner main class
 
     */
 class EntitySpawner {
@@ -129,6 +129,7 @@ class EntitySpawner {
         this.endZ = SPAWN_AREA;
 
         SpawnPoint.init(collisionManager);
+        EntityCollider.init(mesh, collisionManager);
     }
 
     // Get Boundary
@@ -313,7 +314,7 @@ class EntitySpawner {
     public void update() {
         if(tick == null || mesh == null) return;
 
-        float deltaTime = tick.getDeltaTime();
+        float deltaTime = tick.getDeltaTime() / 5.0f;
 
         foreach(var (id, l) in instances) {
             for(int i = 0; i < l.Count; i++) {
@@ -321,12 +322,13 @@ class EntitySpawner {
 
                 if(wrap(deltaTime, ref inst)) {
                     l[i] = inst;
+                    EntityCollider.update(id, i, inst.Position);
                     continue;
                 }
 
                 setSpawn(deltaTime, ref inst);
-
                 l[i] = inst;
+                EntityCollider.update(id, i, inst.Position);
             }
 
             var (positions, colors, rotations, textures) = getData(id, l);
@@ -340,10 +342,13 @@ class EntitySpawner {
     
         */
     public void render(EntityProps entity) {
-        instances[entity.Id] = 
+        var instanceList = 
             Enumerable.Repeat(entity, entity.Position.Count)
                 .Select(spawn)
                 .ToList();
+        
+        instances[entity.Id] = instanceList;
+        EntityCollider.create(entity, instanceList);
     }
 
     /**
@@ -356,5 +361,15 @@ class EntitySpawner {
         inst.Speed = setSpeed();
         inst.Rotation = setRotation();
         inst.Lifetime = setLifetime();
+    }
+
+    /**
+
+        Cleanup
+
+        */
+    private void cleanup() {
+        EntityCollider.cleanup();
+        instances.Clear();
     }
 }

@@ -4,9 +4,13 @@ using App.Root.Player;
 using OpenTK.Mathematics;
 
 class SphereObject : Collider {
-    private Mesh.Mesh mesh;
+    private Mesh.Mesh? mesh = null!;
+    private string? type = null!;
     private string id;
-    private string type;
+
+    private Func<Vector3>? centerProvider;
+    private Func<Vector3>? sizeProvider;
+    private bool useProviders = false;
 
     public SphereObject(
         Mesh.Mesh mesh, 
@@ -16,11 +20,23 @@ class SphereObject : Collider {
         this.mesh = mesh;
         this.id = id;
         this.type = type;
+        this.useProviders = false;
+    }
+    public SphereObject(
+        Func<Vector3> centerProvider,
+        Func<Vector3> sizeProvider,
+        string id
+    ) {
+        this.centerProvider = centerProvider;
+        this.sizeProvider = sizeProvider;
+        this.id = id;
+        this.useProviders = true;
+        this.mesh = null!;
     }
 
     // Get Type
     public string getType() {
-        return type;
+        return type!;
     }
 
     // Get Id
@@ -35,12 +51,20 @@ class SphereObject : Collider {
 
     // Get Center
     private Vector3 getCenter() {
-        return mesh.getPosition(id);
+        if(useProviders && centerProvider != null) {
+            return centerProvider();
+        }
+        return mesh!.getPosition(id);
     }
 
     // Get Radius
     public float getRadius() {
-        Vector3 size = mesh.getSize(id);
+        if(useProviders && sizeProvider != null) {
+            Vector3 s = sizeProvider();
+            return Math.Max(s.X, Math.Max(s.Y, s.Z)) / 2.0f;
+        }
+
+        Vector3 size = mesh!.getSize(id);
         float baseRadius = Math.Max(size.X, Math.Max(size.Y, size.Z)) / 2.0f;
 
         var renderer = mesh.getMeshRenderer(id);

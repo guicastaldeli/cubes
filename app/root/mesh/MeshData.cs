@@ -24,6 +24,7 @@ class MeshData {
 
     public string id { 
         get; 
+        set;
     }
 
     public bool isModel {

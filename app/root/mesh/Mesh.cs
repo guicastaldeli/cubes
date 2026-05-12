@@ -22,6 +22,9 @@ class Mesh {
     private Dictionary<string, MeshData> meshDataMap = new();
     private Dictionary<string, MeshRenderer> meshRendererMap = new();
 
+    private Dictionary<string, Vector3> dataPositions = new();
+    private Dictionary<string, Vector3> dataScale = new();
+
     public Mesh(
         Window window, 
         ShaderProgram shaderProgram,
@@ -133,8 +136,18 @@ class Mesh {
     }
 
     public Vector3 getPosition(string id) {
+        if(dataPositions.TryGetValue(id, out Vector3 pos)) {
+            return pos;
+        }
+
         Vector3 val = getMeshRenderer(id)?.getPosition() ?? Vector3.Zero;
         return val;
+    }
+
+    public void setDataPosition(string id, Vector3 position) {
+        if(dataPositions.ContainsKey(id)) {
+            dataPositions[id] = position;
+        }
     }
 
     /**
@@ -284,7 +297,11 @@ class Mesh {
         float scaleY = 1.0f;
         float scaleZ = 1.0f;
 
-        if(renderer != null && renderer.isScaled()) {
+        if(dataScale.TryGetValue(id, out Vector3 dataScaleVec)) {
+            scaleX = dataScaleVec.X;
+            scaleY = dataScaleVec.Y;
+            scaleZ = dataScaleVec.Z;
+        } else if(renderer != null && renderer.isScaled()) {
             Vector3 scale = renderer.getScale();
             scaleX = scale.X;
             scaleY = scale.Y;
@@ -368,6 +385,23 @@ class Mesh {
 
         if(camera != null) renderer.setCamera(camera);
         meshRendererMap[id] = renderer;
+    }
+
+    /**
+    
+        Data
+
+        */
+    public void addData(MeshData data, Vector3 position, float scale) {
+        meshDataMap[data.id] = data;
+        dataPositions[data.id] = position;
+        dataScale[data.id] = new Vector3(scale);
+    }
+
+    public void removeData(string id) {
+        meshDataMap.Remove(id);
+        dataPositions.Remove(id);
+        dataScale.Remove(id);
     }
 
     /**
