@@ -27,6 +27,7 @@ class MeshRenderer : DataEntry {
     private int instanceRotationVbo = 0;
     public bool isInstanced = false;
     private List<Vector3> cachedInstancePositions = new();
+    private List<float> cachedInstanceRotations = new();
 
     private int stencilFbo = 0;
     private int stencilTexture = 0;
@@ -201,6 +202,7 @@ class MeshRenderer : DataEntry {
 
         cachedInstancePositions = positions;
         if(colors != null) cachedInstanceColors = colors;
+        if(rotations != null) cachedInstanceRotations = rotations;
         if(texPaths != null) {
             cachedInstanceTex = texPaths;
             hasInstanceTextures = true;
@@ -509,6 +511,9 @@ class MeshRenderer : DataEntry {
     ) {
         if(positions.Count != instanceCount) return;
 
+        cachedInstancePositions = positions;
+        cachedInstanceRotations = rotations;
+
         float[] posData = new float[positions.Count * 3];
         for(int i = 0; i < positions.Count; i++) {
             posData[i * 3 + 0] = positions[i].X;
@@ -792,7 +797,7 @@ class MeshRenderer : DataEntry {
     }
 
     // Flat Meshes
-    public void renderFlat() {
+    public void renderFlat(Vector3? instancePos = null, int instanceIndex = 0) {
         if(meshData == null || camera == null) return;
 
         Matrix4 model;
@@ -826,18 +831,78 @@ class MeshRenderer : DataEntry {
 
         GL.BindVertexArray(vao);
         int[]? indices = meshData.getIndices();
-        if(indices != null) {
-            GL.DrawElements(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, 0);
-        } else {
-            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
-        }
-        GL.BindVertexArray(0);
+        if(isInstanced) {
+            shaderProgram.setUniform("isInstanced", 1);
 
+            int drawCount = instanceCount;
+            if(instancePos.HasValue && instanceVbo != 0) {
+                float[] single = { 
+                    instancePos.Value.X, 
+                    instancePos.Value.Y, 
+                    instancePos.Value.Z 
+                };
+                
+                GL.BindBuffer(BufferTarget.ArrayBuffer, instanceVbo);
+                GL.BufferData(BufferTarget.ArrayBuffer, single.Length * sizeof(float), single, BufferUsageHint.DynamicDraw);
+                
+                if(instanceRotationVbo != 0 && cachedInstanceRotations.Count > instanceIndex) {
+                    float[] rotation = { cachedInstanceRotations[instanceIndex], 0, 0, 0 };
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, instanceRotationVbo);
+                    GL.BufferData(BufferTarget.ArrayBuffer, rotation.Length * sizeof(float), rotation, BufferUsageHint.DynamicDraw);
+                }
+
+                drawCount = 1;
+            }
+
+            if(indices != null) {
+                GL.DrawElementsInstanced(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, drawCount);
+            } else {
+                GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, vertexCount, drawCount);
+            }
+
+            if(instancePos.HasValue) {
+                if(cachedInstancePositions.Count > 0) {
+                    float[] posData = new float[cachedInstancePositions.Count * 3];
+                    for(int i = 0; i < cachedInstancePositions.Count; i++) {
+                        posData[i*3+0] = cachedInstancePositions[i].X;
+                        posData[i*3+1] = cachedInstancePositions[i].Y;
+                        posData[i*3+2] = cachedInstancePositions[i].Z;
+                    }
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, instanceVbo);
+                    GL.BufferData(BufferTarget.ArrayBuffer, posData.Length * sizeof(float), posData, BufferUsageHint.DynamicDraw);
+                }
+
+                if(instanceRotationVbo != 0 && cachedInstanceRotations.Count > 0) {
+                    float[] rotationData = new float[cachedInstanceRotations.Count * 4];
+                    for(int i = 0; i < cachedInstanceRotations.Count; i++) {
+                        rotationData[i*4+0] = cachedInstanceRotations[i];
+                        rotationData[i*4+1] = 0; 
+                        rotationData[i*4+2] = 0; 
+                        rotationData[i*4+3] = 0;
+                    }
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, instanceRotationVbo);
+                    GL.BufferData(BufferTarget.ArrayBuffer, rotationData.Length * sizeof(float), rotationData, BufferUsageHint.DynamicDraw);
+                }
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            }
+        } else {
+            shaderProgram.setUniform("isInstanced", 0);
+            if(indices != null) {
+                GL.DrawElements(PrimitiveType.Triangles, vertexCount, DrawElementsType.UnsignedInt, 0);
+            } else {
+                GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
+            }
+        }
+
+        GL.BindVertexArray(0);
         shaderProgram.unbind();
     }
 
     // Outline
-    public void renderOutline(List<MeshRenderer> selectedMeshes) {
+    public void renderOutline(List<MeshRenderer> selectedMeshes, Vector3? instancePos = null, int instanceIndex = 0) {
         if(!visible) return;
         if(meshData == null || camera == null) return;
 
@@ -856,7 +921,7 @@ class MeshRenderer : DataEntry {
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
         foreach(var mesh in selectedMeshes) {
-            mesh.renderFlat();
+            mesh.renderFlat(instancePos, instanceIndex);
         }
 
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);

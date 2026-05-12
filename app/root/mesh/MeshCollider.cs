@@ -36,7 +36,7 @@ static class MeshCollider {
 
     private static Dictionary<string, Vector3> instancedPositions = new();
     private static Dictionary<string, float> instancedScales = new();
-    private static Dictionary<string, string> instancedMeshTypes = new();
+    public static Dictionary<string, string> instancedMeshTypes = new();
     private static Dictionary<string, BBox> instancedBBoxes = new();
 
     public static Dictionary<string, float[]> cachedVertices = new();
@@ -51,6 +51,7 @@ static class MeshCollider {
 
         return val;
     }
+    private static Dictionary<string, string> colliderToEntity = new();
 
     // Size
     public static Vector3 getInstancedSize(string colliderId) {

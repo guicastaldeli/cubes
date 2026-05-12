@@ -502,6 +502,13 @@ class Mesh {
         selected[0].renderOutline(selected);
     }
 
+    public void renderOutlineInstanced(string entityId, Vector3 instancePosition, int instanceIndex) {
+        MeshRenderer? renderer = getMeshRenderer(entityId);
+        if(renderer == null) return;
+
+        renderer.renderOutline(new List<MeshRenderer> { renderer }, instancePosition, instanceIndex);
+    }
+
     /**
     
         Init

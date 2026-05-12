@@ -15,6 +15,30 @@ static class EntityCollider {
     public static CollisionManager? collisionManager = null!;
 
     public static Dictionary<string, List<string>> colliderIds = new();
+    private static Dictionary<string, string> colliderToEntity = new();
+
+    /**
+    
+        Resolve
+    
+        */
+    // Entity Id
+    public static string? resolveEntityId(string colliderId) {
+        string? val = 
+            colliderToEntity.TryGetValue(colliderId, out string? entityId) ? 
+                entityId : 
+                null;
+        return val; 
+    }
+
+    // Instance Index
+    public static int resolveInstanceIndex(string colliderId) {
+        int lastUnder = colliderId.LastIndexOf('_');
+        if(lastUnder >= 0 && int.TryParse(colliderId[(lastUnder + 1)..], out int idx)) {
+            return idx;
+        }
+        return 0;
+    }
 
     /**
     
@@ -37,6 +61,9 @@ static class EntityCollider {
         MeshData? data = mesh?.getData(entity.Id);
         if(data?.colliderShape == null) return;
 
+        if(mesh != null && !mesh.hasMesh(entity.MeshType)) {
+            mesh.add(entity.MeshType, data);
+        }
         if(!colliderIds.ContainsKey(entity.Id)) {
             colliderIds[entity.Id] = new List<string>();
         }
@@ -47,6 +74,7 @@ static class EntityCollider {
 
             MeshCollider.setInstanced(data, id, position, entity.Scale, entity.MeshType);
             colliderIds[entity.Id].Add(id);
+            colliderToEntity[id] = entity.Id;
         }
     }
 
@@ -79,5 +107,6 @@ static class EntityCollider {
         }
 
         colliderIds.Clear();
+        colliderToEntity.Clear();
     }
 }

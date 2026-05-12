@@ -105,9 +105,9 @@ class EntityGenerator : WorldHandler {
             
             foreach(var entity in entities) {
                 MeshData meshData = EntityFactory.clone(data);
-                data.isEntity = 1;
+                meshData.isEntity = 1;
 
-                mesh.add(entity.Id, data);
+                mesh.add(entity.Id, meshData);
                 mesh.setScale(entity.Id, entity.Scale);
                 mesh.setColor(entity.Id, entity.Color);
                 mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));

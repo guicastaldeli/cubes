@@ -2,6 +2,7 @@ namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Mesh;
 using App.Root.Utils;
+using App.Root.World.Entity;
 using OpenTK.Mathematics;
 
 /**
@@ -352,7 +353,7 @@ class Raycaster {
         if(!isActive) return null;
 
         var (origin, dir) = getRay();
-
+    
         string? closest = null;
         float closestDist = float.MaxValue;
 
@@ -362,6 +363,7 @@ class Raycaster {
 
             if(!renderer.isInteractive) continue;
             if(renderer.isHud) continue;
+            if(renderer.isInstanced) continue;
             if(string.IsNullOrEmpty(id)) continue;
 
             MeshData? data = mesh.getData(id);
@@ -412,7 +414,14 @@ class Raycaster {
 
         string? d = cast();
         if(d != null) {
-            mesh.renderOutline(new List<string> { d });
+            string? entityId = EntityCollider.resolveEntityId(d);
+            if(entityId != null) {
+                Vector3 instancePos = MeshCollider.getInstancedPosition(d);
+                int instanceIndex = EntityCollider.resolveInstanceIndex(d);
+                mesh.renderOutlineInstanced(entityId, instancePos, instanceIndex);
+            } else {
+                mesh.renderOutline(new List<string> { d });
+            }
         }
     }
 }
