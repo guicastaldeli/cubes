@@ -7,6 +7,7 @@
 namespace App.Root.Mesh;
 
 using App.Root.Physics;
+using App.Root.World.Entity;
 using OpenTK.Mathematics;
 
 /**
@@ -142,6 +143,21 @@ class MeshInteractionRegistry {
         Mesh mesh
     ) {
         register(id, state, mesh, null, null);
+    }
+
+    public void register(string id, EntityProps entity, MeshData data, State state) {
+        setRegister(id, state, new PlacedMeshDef(
+            entity.MeshType,
+            entity.Tex ?? "",
+            -1,
+            new Vector3(entity.Scale),
+            id,
+            entity.StackId,
+            null,
+            data,
+            data.colliderShape,
+            data.colliderRadius
+        ));
     }
 
     /**

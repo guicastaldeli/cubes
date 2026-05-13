@@ -316,6 +316,8 @@ class EntitySpawner {
 
         float deltaTime = tick.getDeltaTime() / 5.0f;
 
+        cleanupEntity();
+
         foreach(var (id, l) in instances) {
             for(int i = 0; i < l.Count; i++) {
                 var inst = l[i];
@@ -369,8 +371,20 @@ class EntitySpawner {
         Cleanup
 
         */
-    private void cleanup() {
+    public void cleanup() {
         EntityCollider.cleanup();
         instances.Clear();
+    }
+    
+    private void cleanupEntity() {
+        EntityCollider.cleanupRemoved();
+
+        var removedEntities = instances.Keys
+            .Where(id => !EntityCollider.colliderIds.ContainsKey(id))
+            .ToList();
+
+        foreach(var rId in removedEntities) {
+            instances.Remove(rId);
+        }
     }
 }

@@ -51,7 +51,6 @@ static class MeshCollider {
 
         return val;
     }
-    private static Dictionary<string, string> colliderToEntity = new();
 
     // Size
     public static Vector3 getInstancedSize(string colliderId) {

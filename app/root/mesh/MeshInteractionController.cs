@@ -89,6 +89,9 @@ class MeshInteractionController {
         PlacedMeshDef? def = MeshInteractionRegistry.getInstance().getDef(hit);
         if(def == null) return;
 
+        collisionManager.removeCollider(hit);
+        mesh.removeData(hit);
+
         var inventory = 
             input.getPlayerInputMap()
             .getInventory();
@@ -97,7 +100,6 @@ class MeshInteractionController {
         }
 
         heldMesh = def;
-
         WorldUpdater.getInstance().removeMesh(hit);
     }
 

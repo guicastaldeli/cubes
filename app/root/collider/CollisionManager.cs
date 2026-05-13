@@ -10,24 +10,60 @@ class CollisionManager {
     }
 
     private List<Collider> staticColliders = new();
+    public List<string> pendingRemovals = new();
 
     // Add Static Collider
     public void addStaticCollider(Collider coll) {
         staticColliders.Add(coll);
     }
 
-    // Remove Collider
+    // Collider Exists
+    public bool colliderExists(string id) {
+        if(pendingRemovals.Contains(id)) return false;
+        
+        bool val = staticColliders.Any(c => c.getId() == id);
+        return val;
+    }
+
+    /**
+    
+        Get Collider
+    
+        */
+    public List<Collider> getColliders() {
+        return staticColliders;
+    }
+
+    public List<string> getCollidersByPrefix(string prefix) {
+        List<string> val = staticColliders
+            .Where(c => c.getId().StartsWith(prefix))
+            .Select(c => c.getId())
+            .ToList();
+        
+        return val;
+    }
+
+    /**
+    
+        Remove
+    
+        */
     public void removeCollider(Collider coll) {
-        staticColliders.Remove(coll);
+        pendingRemovals.Add(coll.getId());
     }
 
     public void removeCollider(string id) {
-        staticColliders.RemoveAll(c => c.getId() == id);
+        pendingRemovals.Add(id);
     }
 
-    // Get Colliders
-    public List<Collider> getColliders() {
-        return staticColliders;
+    public void processRemovals() {
+        if(pendingRemovals.Count == 0) return;
+
+        foreach(var id in pendingRemovals) {
+            staticColliders.RemoveAll(c => c.getId() == id);
+        }
+        
+        pendingRemovals.Clear();
     }
 
     /**
@@ -39,8 +75,10 @@ class CollisionManager {
         BBox bodyBounds = rigidBody.getBBox();
         List<CollisionResult> results = new();
 
+        var colliders = staticColliders.ToList();
+
         // Boundary Object
-        foreach(var collider in staticColliders) {
+        foreach(var collider in colliders) {
             if(collider is BoundaryObject boundary) {
                 Vector3 position = rigidBody.getPosition();
                 if(boundary.isOutsideBoundary(position)) {
@@ -55,7 +93,7 @@ class CollisionManager {
             }
         }
         // Static Object
-        foreach(var collider in staticColliders) {
+        foreach(var collider in colliders) {
             if(collider is StaticObject staticObj) {
                 CollisionResult res = staticObj.checkCollision(bodyBounds);
                 if(res.collided) {
@@ -65,7 +103,7 @@ class CollisionManager {
             }
         } 
         // Sphere Object
-        foreach(var collider in staticColliders) {
+        foreach(var collider in colliders) {
             if(collider is SphereObject sphereObj) {
                 CollisionResult res = sphereObj.checkCollision(bodyBounds);
                 if(res.collided) {
@@ -75,7 +113,7 @@ class CollisionManager {
             }
         }
         // Triangle Object
-        foreach(var collider in staticColliders) {
+        foreach(var collider in colliders) {
             if(collider is TriangleObject triObj) {
                 CollisionResult res = triObj.checkCollision(bodyBounds);
                 if(res.collided) {
@@ -192,7 +230,11 @@ class CollisionManager {
 
         */
     public void update() {
-        foreach(var collider in staticColliders) {
+        processRemovals();
+
+        var colliders = staticColliders.ToList();
+        
+        foreach(var collider in colliders) {
             RigidBody? rigidBody = collider.getRigidBody();
             if(rigidBody != null) {
                 rigidBody.update();
@@ -200,5 +242,7 @@ class CollisionManager {
                 resolveCollision(rigidBody, collision);
             }
         }
+
+        processRemovals();
     }
 }

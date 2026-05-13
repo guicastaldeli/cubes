@@ -12,8 +12,7 @@ using OpenTK.Mathematics;
 /**
 
     World Updater class
-    to update all world-related
-    things for Multiplayer.
+    to update all world-related things.
 
     */
 class WorldUpdater {
@@ -32,23 +31,6 @@ class WorldUpdater {
         return instance;
     }
 
-    /**
-
-        Init
-    
-        */
-    public void init(
-        Window window,
-        Mesh mesh, 
-        CollisionManager collisionManager
-    ) {
-        this.window = window;
-        this.mesh = mesh;
-        this.collisionManager = collisionManager;
-
-        MeshCollider.init(mesh, collisionManager);
-    }
-
     // Set Client
     public void setClient(Client client) {
         this.client = client;
@@ -64,7 +46,7 @@ class WorldUpdater {
         Mesh
     
         */
-    // Add
+    /* Add */
     public void addMesh(
         string id,
         string meshType,
@@ -132,7 +114,7 @@ class WorldUpdater {
         });
     }
     
-    // Remove
+    /* Remove */
     public void removeMesh(string id) {
         applyRemoveMesh(id);
 
@@ -173,5 +155,22 @@ class WorldUpdater {
                 client.send(packet);
             }
         }
+    }
+
+    /**
+
+        Init
+    
+        */
+    public void init(
+        Window window,
+        Mesh mesh, 
+        CollisionManager collisionManager
+    ) {
+        this.window = window;
+        this.mesh = mesh;
+        this.collisionManager = collisionManager;
+
+        MeshCollider.init(mesh, collisionManager);
     }
 }

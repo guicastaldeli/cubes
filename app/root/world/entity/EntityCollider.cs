@@ -15,7 +15,7 @@ static class EntityCollider {
     public static CollisionManager? collisionManager = null!;
 
     public static Dictionary<string, List<string>> colliderIds = new();
-    private static Dictionary<string, string> colliderToEntity = new();
+    public static Dictionary<string, string> colliderToEntity = new();
 
     /**
     
@@ -55,7 +55,7 @@ static class EntityCollider {
     /**
     
         Create
-    
+
         */
     public static void create(EntityProps entity, List<Instance> list) {
         MeshData? data = mesh?.getData(entity.Id);
@@ -75,6 +75,8 @@ static class EntityCollider {
             MeshCollider.setInstanced(data, id, position, entity.Scale, entity.MeshType);
             colliderIds[entity.Id].Add(id);
             colliderToEntity[id] = entity.Id;
+            
+            MeshInteractionRegistry.getInstance().register(id, entity, data, State.BREAKABLE);
         }
     }
 
@@ -108,5 +110,37 @@ static class EntityCollider {
 
         colliderIds.Clear();
         colliderToEntity.Clear();
+    }
+
+    public static void cleanupRemoved() {
+        if(collisionManager == null || mesh == null) return;
+
+        collisionManager.processRemovals();
+        
+        var toRemove = new List<string>();
+
+        foreach(var (entityId, colliderList) in colliderIds) {
+            bool anyAlive = false;
+
+            for(int i = colliderList.Count - 1; i >= 0; i--) {
+                string colliderId = colliderList[i];
+
+                if(!collisionManager.colliderExists(colliderId)) {
+                    colliderList.RemoveAt(i);
+                    colliderToEntity.Remove(colliderId);
+                    mesh.removeData(colliderId);
+                } else {
+                    anyAlive = true;
+                }
+            }
+
+            if(!anyAlive) {
+                toRemove.Add(entityId);
+            }
+        }
+
+        foreach(var id in toRemove) {
+            colliderIds.Remove(id);
+        }
     }
 }

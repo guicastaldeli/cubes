@@ -404,6 +404,11 @@ class Mesh {
         dataScale.Remove(id);
     }
 
+    public bool hasData(string id) {
+        bool val = getData(id) != null;
+        return val;
+    }
+
     /**
     
         Update
