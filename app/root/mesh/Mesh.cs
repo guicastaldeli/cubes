@@ -514,6 +514,14 @@ class Mesh {
         renderer.renderOutline(new List<MeshRenderer> { renderer }, instancePosition, instanceIndex);
     }
 
+    public void renderOutlineAll(string id, string? meshType = null, Vector3? position = null, int? index = null) {
+        if(meshType != null && position.HasValue && index.HasValue) {
+            renderOutlineInstanced(meshType, position.Value, index.Value);
+        } else {
+            renderOutline(new List<string> { id });
+        }
+    }
+
     /**
     
         Init

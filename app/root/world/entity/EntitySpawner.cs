@@ -14,7 +14,7 @@ using OpenTK.Mathematics;
     Entity Instance
 
     */
-struct Instance {
+public struct Instance {
     public Vector3 Position;
     public float Speed;
     public float Rotation;
@@ -115,8 +115,8 @@ class EntitySpawner {
     private const float MIN_SPEED = 1.0f;
     private const float MAX_SPEED = 10.0f;
 
-    private const float MIN_LIFETIME = 5.0f;
-    private const float MAX_LIFETIME = 20.0f;
+    private const float MIN_LIFETIME = 1.0f;
+    private const float MAX_LIFETIME = 2.0f;
 
     private Dictionary<string, List<Instance>> instances = new();
     
@@ -150,6 +150,14 @@ class EntitySpawner {
     // Is Outside
     public bool isOutside(Vector3 position) {
         bool val = position.Z > endZ;
+        return val;
+    }
+
+    // Get Instances
+    public List<Instance> getInstances(string id) {
+        List<Instance> val = instances.TryGetValue(id, out var list) ?
+            list :
+            new List<Instance>();
         return val;
     }
 

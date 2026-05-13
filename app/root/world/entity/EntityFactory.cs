@@ -180,12 +180,38 @@ class EntityFactory {
 
     /**
     
+        Set
+    
+        */
+    // Set Event
+    public static void setEvent(
+        Dictionary<string, List<string>> colliderIds, 
+        Dictionary<string, EntityProps> props,
+        Dictionary<string, List<Instance>> instances
+    ) {
+        EventStream.set("stream-id", colliderIds);
+        EventStream.set("stream-props", props);
+        EventStream.set("stream-instances", instances);
+    }
+
+    // Set Interaction
+    public static void setInteraction(MeshData data, EntityProps entity, string id) {
+        MeshInteractionRegistry.getInstance().register(
+            id, 
+            entity, 
+            data, 
+            State.BREAKABLE
+        );
+    }
+
+    /**
+    
         Generate
     
         */
     public static EntityProps setGeneration(string meshType) {        
-        int min = 5;
-        int max = 21;
+        int min = 1;
+        int max = 2;
         int count = range.Next(min, max);
 
         string idVal = $"{meshType}_{Id()}";
@@ -206,12 +232,13 @@ class EntityFactory {
             Tex: null
         );
 
+        Console.WriteLine($"[EntityFactory] Generated new entity: {val.Id} (type: {meshType})");
         return val;
     }
 
     public static List<EntityProps> generate(string meshType) {
-        int min = 5;
-        int max = 15;
+        int min = 1;
+        int max = 1;
         int count = range.Next(min, max);
 
         List<EntityProps> val = 

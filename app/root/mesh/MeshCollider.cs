@@ -213,6 +213,8 @@ static class MeshCollider {
         */
     public static void removeInstanced(string colliderId) {
         collisionManager.removeCollider(colliderId);
+        collisionManager.processRemovals();
+        
         colliderTypes.Remove(colliderId);
         instancedPositions.Remove(colliderId);
         instancedScales.Remove(colliderId);

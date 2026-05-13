@@ -17,6 +17,8 @@ static class EntityCollider {
     public static Dictionary<string, List<string>> colliderIds = new();
     public static Dictionary<string, string> colliderToEntity = new();
 
+    public static Action<string>? onEntityRemoved;
+
     /**
     
         Resolve
@@ -33,10 +35,14 @@ static class EntityCollider {
 
     // Instance Index
     public static int resolveInstanceIndex(string colliderId) {
-        int lastUnder = colliderId.LastIndexOf('_');
-        if(lastUnder >= 0 && int.TryParse(colliderId[(lastUnder + 1)..], out int idx)) {
-            return idx;
+        var stream = EventStream.get<Dictionary<string, List<string>>>("stream-id");
+        if(stream == null) return 0;
+
+        foreach(var (entityId, data) in stream) {
+            int idx = data.IndexOf(colliderId);
+            if(idx != -1) return idx;
         }
+
         return 0;
     }
 
@@ -76,7 +82,7 @@ static class EntityCollider {
             colliderIds[entity.Id].Add(id);
             colliderToEntity[id] = entity.Id;
             
-            MeshInteractionRegistry.getInstance().register(id, entity, data, State.BREAKABLE);
+            EntityFactory.setInteraction(data, entity, id);
         }
     }
 
@@ -139,8 +145,14 @@ static class EntityCollider {
             }
         }
 
+        var stream = EventStream.get<Dictionary<string, EntityProps>>("stream-props");
         foreach(var id in toRemove) {
             colliderIds.Remove(id);
+
+            if(stream != null && stream.TryGetValue(id, out EntityProps? data)) {
+                onEntityRemoved?.Invoke(data.MeshType);
+                stream.Remove(id);
+            }
         }
     }
 }

@@ -153,9 +153,9 @@ class Raycaster {
     private Camera camera;
     private Mesh mesh;
 
-    private float maxDist = 300.0f;
-
     private bool isActive = true;
+
+    private const float MAX_DIST = 300.0f;
 
     public Raycaster(Camera camera, Mesh mesh) {
         this.camera = camera;
@@ -375,7 +375,7 @@ class Raycaster {
                 raycaster = this
             }.update();
             
-            if(shape.hit && shape.dist < maxDist && shape.dist < closestDist) {
+            if(shape.hit && shape.dist < MAX_DIST && shape.dist < closestDist) {
                 closestDist = shape.dist;
                 closest = id;
             }
@@ -395,7 +395,7 @@ class Raycaster {
                 meshType = instancedMeshType
             }.update();
 
-            if(shape.hit && shape.dist < maxDist && shape.dist < closestDist) {
+            if(shape.hit && shape.dist < MAX_DIST && shape.dist < closestDist) {
                 closestDist = shape.dist;
                 closest = id;
             }
@@ -413,15 +413,20 @@ class Raycaster {
         if(!isActive) return;
 
         string? d = cast();
-        if(d != null) {
-            string? entityId = EntityCollider.resolveEntityId(d);
-            if(entityId != null) {
-                Vector3 instancePos = MeshCollider.getInstancedPosition(d);
-                int instanceIndex = EntityCollider.resolveInstanceIndex(d);
-                mesh.renderOutlineInstanced(entityId, instancePos, instanceIndex);
-            } else {
-                mesh.renderOutline(new List<string> { d });
+        if(d == null) return;
+
+        var instanced = EventStream.get<Dictionary<string, List<string>>>("stream-id");
+        if(instanced != null) {
+            foreach(var (id, list) in instanced) {
+                int index = list.IndexOf(d);
+                if(index >= 0) {
+                    Vector3 pos = MeshCollider.getInstancedPosition(d);
+                    mesh.renderOutlineAll(d, id, pos, index);
+                    return;
+                }
             }
         }
+
+        mesh.renderOutlineAll(d);
     }
 }

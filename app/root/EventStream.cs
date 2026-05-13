@@ -54,6 +54,34 @@ static class EventStream {
 
     /**
     
+        Select
+    
+        */
+    public static TResult? select<T, TResult>(string streamId, Func<T, TResult> selector) where T : class {
+        T? data = get<T>(streamId);
+        if(data == null) return default;
+        return selector(data);
+    }
+
+    /**
+    
+        Update
+    
+        */
+    public static void update(string streamId, Action<dynamic> updater) {
+        if(!events.TryGetValue(streamId, out var data)) return;
+
+        updater((dynamic)data);
+        
+        if(subscribers.TryGetValue(streamId, out var handlers)) {
+            foreach(var handler in handlers) {
+                handler(data);
+            }
+        }
+    }
+
+    /**
+    
         Remove
     
         */

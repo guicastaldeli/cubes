@@ -56,8 +56,9 @@ class EntityGenerator : WorldHandler {
     private Tick tick;
     private Mesh mesh;
     private CollisionManager collisionManager;
-
     private EntitySpawner entitySpawner;
+
+    private Queue<string> generationQueue = new();
 
     private bool initialized = false;
 
@@ -67,6 +68,10 @@ class EntityGenerator : WorldHandler {
         this.collisionManager = collisionManager;
     
         this.entitySpawner = new EntitySpawner(tick, mesh, collisionManager);
+    
+        EntityCollider.onEntityRemoved += meshType => {
+            generationQueue.Enqueue(meshType);
+        };
     }
 
     /**
@@ -99,11 +104,17 @@ class EntityGenerator : WorldHandler {
     
         */
     private void generate(Dictionary<string, MeshData> meshTypes) {
+        var entityProps = new Dictionary<string, EntityProps>();
+        var entityInstances = new Dictionary<string, List<Instance>>();
+
         foreach(var (type, data) in meshTypes) {
             var entities = EntityFactory.generate(type);
             int tex = TextureLoader.setTex(data);
             
             foreach(var entity in entities) {
+                entityProps[entity.Id] = entity;
+                entityInstances[entity.Id] = entitySpawner.getInstances(entity.Id);
+
                 MeshData meshData = EntityFactory.clone(data);
                 meshData.isEntity = 1;
 
@@ -130,7 +141,56 @@ class EntityGenerator : WorldHandler {
             }
         }
 
+        EntityFactory.setEvent(
+            EntityCollider.colliderIds,
+            entityProps,
+            entityInstances
+        );
+
         initialized = true;
+    }
+
+    private void generateNew(string type, MeshData data) {
+        var entityProps = new Dictionary<string, EntityProps>();
+        var entityInstances = new Dictionary<string, List<Instance>>();
+
+        var entities = EntityFactory.generate(type);
+        int tex = TextureLoader.setTex(data);
+            
+        foreach(var entity in entities) {
+    
+            MeshData meshData = EntityFactory.clone(data);
+            meshData.isEntity = 1;
+
+            mesh.add(entity.Id, meshData);
+            mesh.setScale(entity.Id, entity.Scale);
+            mesh.setColor(entity.Id, entity.Color);
+            mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
+            if(tex != -1) mesh.setTexture(entity.Id, tex, meshData.texPath!);
+                
+            entitySpawner.render(entity);
+            entityProps[entity.Id] = entity;
+            entityInstances[entity.Id] = entitySpawner.getInstances(entity.Id);
+
+            var entityData = mesh.getMeshRenderer(entity.Id);
+            if(entityData != null) {
+                entityData.isInstanced = true;
+                entityData.isInteractive = true;
+                    
+                List<Vector3> position = entitySpawner.getPositions(entity.Id);
+                List<float[]> color = Converter.ToRgbaList(entity.Color, position.Count);
+                List<float> rotation = Converter.ToRotationList(entity.Rotation, position.Count); 
+                List<string?> texture = Converter.ToTexId(meshData.texPath, position.Count);
+                    
+                entityData.setInstanceData(position, color, rotation, texture);
+            }
+        }
+
+        EntityFactory.setEvent(
+            EntityCollider.colliderIds,
+            entityProps,
+            entityInstances
+        );
     }
 
     /**
@@ -154,5 +214,14 @@ class EntityGenerator : WorldHandler {
         */
     public override void update() {
         entitySpawner.update();
+
+        while(generationQueue.Count > 0) {
+            string meshType = generationQueue.Dequeue();
+            var meshTypes = load();
+
+            if(meshTypes.TryGetValue(meshType, out MeshData? data)) {
+                generateNew(meshType, data);
+            }
+        }
     }
 }
