@@ -10,6 +10,7 @@ using App.Root.Utils;
 using OpenTK.Mathematics;
 using System.Globalization;
 using NLua;
+using App.Root.Player;
 
 /**
 
@@ -379,6 +380,8 @@ class MeshModelLoader {
             meshData.originalMinBounds = minBounds;
             meshData.originalMaxBounds = maxBounds;
             meshData.collisionOffset = new Vector3(0, offset, 0);
+            meshData.isModel = true;
+            meshData.colliderShape = meshData.colliderShape ?? ShapeType.CUBE;
 
             return meshData;
         } catch(Exception err) {
