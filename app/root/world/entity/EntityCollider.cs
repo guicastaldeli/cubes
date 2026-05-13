@@ -154,5 +154,7 @@ static class EntityCollider {
                 stream.Remove(id);
             }
         }
+
+        collisionManager.clearRemoved();
     }
 }

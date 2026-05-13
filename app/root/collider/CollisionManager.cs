@@ -11,6 +11,7 @@ class CollisionManager {
 
     private List<Collider> staticColliders = new();
     public List<string> pendingRemovals = new();
+    private List<string> removedIds = new();
 
     // Add Static Collider
     public void addStaticCollider(Collider coll) {
@@ -20,9 +21,15 @@ class CollisionManager {
     // Collider Exists
     public bool colliderExists(string id) {
         if(pendingRemovals.Contains(id)) return false;
+        if(removedIds.Contains(id)) return false;
         
         bool val = staticColliders.Any(c => c.getId() == id);
         return val;
+    }
+
+    // Clear Removed
+    public void clearRemoved() {
+        removedIds.Clear();
     }
 
     /**
@@ -61,6 +68,7 @@ class CollisionManager {
 
         foreach(var id in pendingRemovals) {
             staticColliders.RemoveAll(c => c.getId() == id);
+            removedIds.Add(id);
         }
         
         pendingRemovals.Clear();

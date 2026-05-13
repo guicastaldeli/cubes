@@ -25,6 +25,16 @@ static class EventStream {
         }
     }
 
+    public static void set<T>(string streamId, Dictionary<string, T> incoming) where T : class {
+        var existing = get<Dictionary<string, T>>(streamId) ?? new();
+        
+        foreach(var (k, v) in incoming) {
+            existing[k] = v;
+        }
+
+        set(streamId, (object)existing);
+    }
+
     /**
     
         Get

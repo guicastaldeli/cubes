@@ -115,8 +115,8 @@ class EntitySpawner {
     private const float MIN_SPEED = 1.0f;
     private const float MAX_SPEED = 10.0f;
 
-    private const float MIN_LIFETIME = 1.0f;
-    private const float MAX_LIFETIME = 2.0f;
+    private const float MIN_LIFETIME = 5.0f;
+    private const float MAX_LIFETIME = 20.0f;
 
     private Dictionary<string, List<Instance>> instances = new();
     
@@ -253,12 +253,13 @@ class EntitySpawner {
         Wrap
     
         */
-    private bool wrap(float deltaTime, ref Instance inst) {
+    private bool wrap(float deltaTime, ref Instance inst, string entityId, int index) {
         float l = 0.0f;
         inst.Lifetime -= deltaTime;
 
         if(inst.Lifetime <= l || isOutside(inst.Position)) {
-            reset(ref inst);
+            string colliderId = EntityCollider.colliderIds[entityId][index];
+            collisionManager.removeCollider(colliderId);
             return true;
         }
 
@@ -330,9 +331,8 @@ class EntitySpawner {
             for(int i = 0; i < l.Count; i++) {
                 var inst = l[i];
 
-                if(wrap(deltaTime, ref inst)) {
+                if(wrap(deltaTime, ref inst, id, i)) {
                     l[i] = inst;
-                    EntityCollider.update(id, i, inst.Position);
                     continue;
                 }
 
@@ -393,6 +393,8 @@ class EntitySpawner {
 
         foreach(var rId in removedEntities) {
             instances.Remove(rId);
+            mesh?.removeData(rId);
+            mesh?.remove(rId);
         }
     }
 }
