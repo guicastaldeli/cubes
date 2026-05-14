@@ -311,7 +311,7 @@ class Platform : WorldHandler {
 
             set2();
             set3();
-            set4();
+            //set4();
             
             spawnGrid("cube", new Vector3(4f, 3f, -3f), 5, 3);
             

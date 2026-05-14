@@ -118,6 +118,8 @@ class MeshInteractionRegistry {
             MeshPhysics.update(data, id, physicsType);
         }
 
+        string? color = FloatToHex.C(data.getColors());
+
         bool isEntityVal = IsEntity.BC(isEntity);
 
         setRegister(id, state, new PlacedMeshDef(
@@ -131,7 +133,7 @@ class MeshInteractionRegistry {
             data,
             data.colliderShape,
             data.colliderRadius,
-            null,
+            color,
             isEntityVal
         ));
     }
