@@ -2,6 +2,7 @@ namespace App.Root.Resource;
 
 using App.Root.Mesh;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using StbImageSharp;
 
 class TextureLoader {
@@ -52,6 +53,27 @@ class TextureLoader {
         }
 
         return id;
+    }
+
+    // Set Instanced Texture
+    public static List<int> setInstancedTex(MeshRenderer meshRenderer, List<Vector3> positions, List<int>? texIds, List<string?>? texPaths = null) {
+        List<int> finalTexIds = new List<int>();
+
+        if(texIds != null && texIds.Count == positions.Count) {
+            finalTexIds = texIds;
+            meshRenderer.cacheInstanceTexIds = texIds;
+        } else if(texPaths != null && texPaths.Count == positions.Count) {
+            finalTexIds = texPaths.Select(path => {
+                if(string.IsNullOrEmpty(path)) return -1;
+                return getOrLoadTexId(path, meshRenderer.texPathCache);
+            }).ToList();
+
+            meshRenderer.cacheInstanceTexIds = finalTexIds;
+        } else {
+            meshRenderer.cacheInstanceTexIds = new List<int>();
+        }
+
+        return finalTexIds;
     }
 
     /**

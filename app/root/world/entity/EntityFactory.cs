@@ -5,6 +5,7 @@
     */
 namespace App.Root.World.Entity;
 using App.Root.Mesh;
+using App.Root.Resource;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 
@@ -21,7 +22,9 @@ public record EntityProps(
     float Scale,
     List<Vector3> Position,
     float Rotation,
-    string? Tex
+    string? Tex,
+    int? TexId,
+    string? PhysicsType
 );
 
 /**
@@ -69,11 +72,20 @@ public static class Converter {
 
     /**
     
-        To Texture Id
+        To Texture
     
         */
-    public static List<string?> ToTexId(string? texPath, int count) {
+    // Tex Path
+    public static List<string?> ToTexPath(string? texPath, int count) {
         List<string?> val = Enumerable.Repeat(texPath, count).ToList();
+        return val;
+    }
+
+    // Tex Id
+    public static List<int>? ToTexId(int? texId, int count) {
+        if(texId == null) return null;
+        
+        List<int> val = Enumerable.Repeat(texId.Value, count).ToList();
         return val;
     }
 }
@@ -85,6 +97,7 @@ public static class Converter {
     */
 class EntityFactory {
     private static readonly Random range = new Random();
+    private static Dictionary<string, int> texCache = new();
 
     // Id
     private static string Id() {
@@ -139,6 +152,23 @@ class EntityFactory {
         return val;
     }
 
+    // Texture
+    private static (string? texPath, int texId) Texture(MeshData data) {
+        string? texPath = data.texPath;
+        int texId = -1;
+
+        if(!string.IsNullOrEmpty(texPath)) {
+            if(texCache.TryGetValue(texPath, out int cachedId)) {
+                texId = cachedId;
+            } else {
+                texId = TextureLoader.load(texPath);
+                if(texId > 0) texCache[texPath] = texId;
+            }
+        }
+
+        return (texPath, texId);
+    }
+
     /**
     
         Clone
@@ -174,6 +204,7 @@ class EntityFactory {
         c.isModel = src.isModel;
         c.colliderShape = src.colliderShape;
         c.colliderRadius = src.colliderRadius;
+        c.texPath = src.texPath;
         
         return c;
     }
@@ -199,7 +230,7 @@ class EntityFactory {
         MeshInteractionRegistry.getInstance().register(
             id, 
             entity, 
-            data, 
+            data,
             State.BREAKABLE
         );
     }
@@ -209,7 +240,7 @@ class EntityFactory {
         Generate
     
         */
-    public static EntityProps setGeneration(string meshType) {        
+    public static EntityProps setGeneration(MeshData data, string meshType) {        
         int min = 1;
         int max = 15;
         int count = range.Next(min, max);
@@ -220,6 +251,7 @@ class EntityFactory {
         float scaleVal = Scale();
         List<Vector3> positionVal = Position(count);
         float rotationVal = Rotation();
+        var (texPathVal, texIdVal) = Texture(data);
 
         EntityProps val = new EntityProps(
             Id: idVal,
@@ -229,20 +261,22 @@ class EntityFactory {
             Scale: scaleVal,
             Position: positionVal,
             Rotation: rotationVal,
-            Tex: null
+            Tex: texPathVal,
+            TexId: texIdVal,
+            PhysicsType: null
         );
 
         return val;
     }
 
-    public static List<EntityProps> generate(string meshType) {
+    public static List<EntityProps> generate(MeshData data, string meshType) {
         int min = 5;
         int max = 20;
         int count = range.Next(min, max);
 
         List<EntityProps> val = 
             Enumerable.Repeat(meshType, count)
-                .Select(setGeneration)
+                .Select(_ => setGeneration(data, meshType))
                 .ToList();
 
         return val;

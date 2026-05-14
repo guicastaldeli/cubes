@@ -150,7 +150,7 @@ class MeshInteractionRegistry {
         setRegister(id, state, new PlacedMeshDef(
             entity.MeshType,
             entity.Tex ?? "",
-            -1,
+            entity.TexId ?? -1,
             new Vector3(entity.Scale),
             id,
             entity.StackId,

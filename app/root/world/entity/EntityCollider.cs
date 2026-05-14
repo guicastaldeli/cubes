@@ -1,5 +1,3 @@
-
-
 /**
 
     Entity Collider helper class

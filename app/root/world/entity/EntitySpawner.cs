@@ -335,7 +335,7 @@ class EntitySpawner {
     public void update() {
         if(tick == null || mesh == null) return;
 
-        float deltaTime = tick.getDeltaTime();
+        float deltaTime = tick.getDeltaTime() / 5.0f;
 
         cleanupEntity();
 

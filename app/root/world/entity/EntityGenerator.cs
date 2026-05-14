@@ -9,8 +9,8 @@ using App.Root.Collider;
 using App.Root.Mesh;
 using App.Root.Resource;
 using App.Root.Utils;
-using NLua;
 using OpenTK.Mathematics;
+using NLua;
 
 /**
 
@@ -108,8 +108,7 @@ class EntityGenerator : WorldHandler {
         var entityInstances = new Dictionary<string, List<Instance>>();
 
         foreach(var (type, data) in meshTypes) {
-            var entities = EntityFactory.generate(type);
-            int tex = TextureLoader.setTex(data);
+            var entities = EntityFactory.generate(data, type);
             
             foreach(var entity in entities) {
                 entityProps[entity.Id] = entity;
@@ -122,7 +121,7 @@ class EntityGenerator : WorldHandler {
                 mesh.setScale(entity.Id, entity.Scale);
                 mesh.setColor(entity.Id, entity.Color);
                 mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
-                if(tex != -1) mesh.setTexture(entity.Id, tex, meshData.texPath!);
+                if(entity.TexId.HasValue && entity.TexId > 0) mesh.setTexture(entity.Id, entity.TexId.Value, entity.Tex!);
                 
                 entitySpawner.render(entity);
 
@@ -134,9 +133,10 @@ class EntityGenerator : WorldHandler {
                     List<Vector3> position = entitySpawner.getPositions(entity.Id);
                     List<float[]> color = Converter.ToRgbaList(entity.Color, position.Count);
                     List<float> rotation = Converter.ToRotationList(entity.Rotation, position.Count); 
-                    List<string?> texture = Converter.ToTexId(meshData.texPath, position.Count);
+                    List<string?> texPath = Converter.ToTexPath(meshData.texPath, position.Count);
+                    List<int>? texId = Converter.ToTexId(entity.TexId, position.Count);
                     
-                    entityData.setInstanceData(position, color, rotation, texture);
+                    entityData.setInstanceData(position, color, rotation, texPath, texId);
                 }
             }
         }
@@ -154,11 +154,9 @@ class EntityGenerator : WorldHandler {
         var entityProps = new Dictionary<string, EntityProps>();
         var entityInstances = new Dictionary<string, List<Instance>>();
 
-        var entities = EntityFactory.generate(type);
-        int tex = TextureLoader.setTex(data);
+        var entities = EntityFactory.generate(data, type);
             
         foreach(var entity in entities) {
-    
             MeshData meshData = EntityFactory.clone(data);
             meshData.isEntity = 1;
 
@@ -166,7 +164,7 @@ class EntityGenerator : WorldHandler {
             mesh.setScale(entity.Id, entity.Scale);
             mesh.setColor(entity.Id, entity.Color);
             mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
-            if(tex != -1) mesh.setTexture(entity.Id, tex, meshData.texPath!);
+            if(entity.TexId.HasValue && entity.TexId > 0) mesh.setTexture(entity.Id, entity.TexId.Value, entity.Tex!);
                 
             entitySpawner.render(entity);
             entityProps[entity.Id] = entity;
@@ -180,7 +178,7 @@ class EntityGenerator : WorldHandler {
                 List<Vector3> position = entitySpawner.getPositions(entity.Id);
                 List<float[]> color = Converter.ToRgbaList(entity.Color, position.Count);
                 List<float> rotation = Converter.ToRotationList(entity.Rotation, position.Count); 
-                List<string?> texture = Converter.ToTexId(meshData.texPath, position.Count);
+                List<string?> texture = Converter.ToTexPath(meshData.texPath, position.Count);
                     
                 entityData.setInstanceData(position, color, rotation, texture);
             }

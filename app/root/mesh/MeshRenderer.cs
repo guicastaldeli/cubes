@@ -44,9 +44,9 @@ class MeshRenderer : DataEntry {
     private List<float[]> cachedInstanceColors = new();
 
     private int instanceTexIdVbo = 0;
-    private Dictionary<string, int> texPathCache = new();
-    private List<string?> cachedInstanceTex = new();
-    private bool hasInstanceTextures = false;
+    public List<int> cacheInstanceTexIds = new();
+    public Dictionary<string, int> texPathCache = new();
+    public List<string?> cachedInstanceTexPaths = new();
 
     public bool renderOnTop = false;
 
@@ -196,17 +196,17 @@ class MeshRenderer : DataEntry {
         List<Vector3> positions, 
         List<float[]>? colors = null, 
         List<float>? rotations = null,
-        List<string?>? texPaths = null
+        List<string?>? texPaths = null,
+        List<int>? texIds = null
     ) {
         if(positions.Count == 0) return;
 
         cachedInstancePositions = positions;
         if(colors != null) cachedInstanceColors = colors;
         if(rotations != null) cachedInstanceRotations = rotations;
-        if(texPaths != null) {
-            cachedInstanceTex = texPaths;
-            hasInstanceTextures = true;
-        }
+        if(texPaths != null) cachedInstanceTexPaths = texPaths;
+        
+        List<int> texId = TextureLoader.setInstancedTex(this, positions, texIds, texPaths);
 
         instanceCount = positions.Count;
 
@@ -260,11 +260,8 @@ class MeshRenderer : DataEntry {
             GL.VertexAttribDivisor(6, 1);
         }
 
-        if(texPaths != null && texPaths.Count == positions.Count) {
-            int[] texIdData = new int[texPaths.Count];
-            for(int i = 0; i < texPaths.Count; i++) {
-                texIdData[i] = TextureLoader.getOrLoadTexId(texPaths[i], texPathCache);
-            }
+        if(texId.Count == positions.Count) {
+            int[] texIdData = texId.ToArray();
 
             if(instanceTexIdVbo == 0) instanceTexIdVbo = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, instanceTexIdVbo);
@@ -507,12 +504,15 @@ class MeshRenderer : DataEntry {
         List<Vector3> positions, 
         List<float[]> colors, 
         List<float> rotations,
-        List<string?>? texPaths = null
+        List<string?>? texPaths = null,
+        List<int>? texIds = null
     ) {
         if(positions.Count != instanceCount) return;
 
         cachedInstancePositions = positions;
         cachedInstanceRotations = rotations;
+
+        List<int> texId = TextureLoader.setInstancedTex(this, positions, texIds, texPaths);
 
         float[] posData = new float[positions.Count * 3];
         for(int i = 0; i < positions.Count; i++) {
@@ -551,11 +551,8 @@ class MeshRenderer : DataEntry {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);      
         }
 
-        if(texPaths != null && texPaths.Count == positions.Count && instanceTexIdVbo != 0) {
-            int[] texIdData = new int[texPaths.Count];
-            for(int i = 0; i < texPaths.Count; i++) {
-                texIdData[i] = TextureLoader.getOrLoadTexId(texPaths[i], texPathCache);
-            }
+        if(texId.Count == positions.Count && instanceTexIdVbo != 0) {
+            int[] texIdData = texId.ToArray();
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, instanceTexIdVbo);
             GL.BufferData(BufferTarget.ArrayBuffer, texIdData.Length * sizeof(int), texIdData, BufferUsageHint.DynamicDraw);
@@ -999,7 +996,8 @@ class MeshRenderer : DataEntry {
         cachedInstancePositions.RemoveAt(index);
         cachedInstanceColors.RemoveAt(index);
         cachedInstanceRotations.RemoveAt(index);
-        if(cachedInstanceTex.Count > index) cachedInstanceTex.RemoveAt(index);
+        if(cachedInstanceTexPaths.Count > index) cachedInstanceTexPaths.RemoveAt(index);
+        if(cacheInstanceTexIds.Count > index) cacheInstanceTexIds.RemoveAt(index);
 
         instanceCount = cachedInstancePositions.Count;
 
@@ -1008,7 +1006,8 @@ class MeshRenderer : DataEntry {
                 cachedInstancePositions, 
                 cachedInstanceColors, 
                 cachedInstanceRotations, 
-                cachedInstanceTex
+                cachedInstanceTexPaths,
+                cacheInstanceTexIds
             );
         }
     }
