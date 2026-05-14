@@ -5,6 +5,8 @@
 
     */
 namespace App.Root.Mesh;
+
+using System.Data;
 using App.Root.Collider;
 using App.Root.Player;
 using App.Root.Utils;
@@ -57,25 +59,6 @@ class MeshInteractionController {
         return heldMesh;
     }
 
-    // Get Mesh Half Height
-    private float getMeshHalfHeight(MeshData data, Vector3 scale) {
-        float[]? vertices = data.getVertices();
-        if(vertices == null) return 0.5f;
-
-        float minY = float.MaxValue;
-        float maxY = float.MinValue;
-
-        for(int i = 1; i < vertices.Length; i += 3) {
-            if(vertices[i] < minY) minY = vertices[i];
-            if(vertices[i] > maxY) maxY = vertices[i];
-        }
-
-        float meshHeight = (maxY - minY) * scale.Y;
-        
-        if(data.isModel) return meshHeight;
-        return meshHeight / 2.0f;
-    }
-
     /**
     
         On Break
@@ -100,8 +83,11 @@ class MeshInteractionController {
             }
         }
 
+        bool isEntity = IsEntity.BC(def.IsEntity);
+        if(isEntity) EventStream.set("instanced-break", hit);
+
         EventStream.set("collider-remove", hit);
-        
+                
         collisionManager.removeCollider(hit);
         collisionManager.processRemovals();
         mesh.removeData(hit);
@@ -141,17 +127,18 @@ class MeshInteractionController {
         if(data == null) return;
         
         Vector3 scale = def.Scale ?? mesh.getDefaultScale(data);
-        float halfH = getMeshHalfHeight(data, scale);
-        float placementH = data.isModel ? 0.0f : halfH;
+        Vector3 halfExtends = HalfMesh.HalfExtents(data, scale);
 
-        Vector3? point = placementRaycaster.findPlacementPoint(placementH);
+        Vector3? point = data.isModel ?
+            placementRaycaster.findPlacementPoint(HalfMesh.HalfHeight(data, scale)) :
+            placementRaycaster.findPlacementPoint(halfExtends);
         if(point == null) {
             Console.WriteLine("No valid surface to place on!");
             return;
         } 
 
         string newId = $"{def.MeshType}_{placedCounter++}";
-        
+
         WorldUpdater.getInstance().addMesh(
             newId, 
             def.MeshType, 
@@ -165,6 +152,10 @@ class MeshInteractionController {
             def.IsEntity
         );
 
+        bool isEntity = IsEntity.BC(def.IsEntity);
+        if(isEntity) EventStream.set("instanced-place", (newId, def.MeshData, point.Value));
+
+        Console.WriteLine($"placement point: {point.Value}");
         mainSlot.remove();
         heldMesh = 
             mainSlot.isEmpty ? 

@@ -144,7 +144,10 @@ static class MeshCollider {
 
         switch(data.colliderShape) {
             case ColliderType.CUBE:
-                collisionManager.addStaticCollider(new StaticObject(() => instancedBBoxes[colliderId], colliderId));
+                collisionManager.addStaticCollider(new StaticObject(
+                    () => instancedBBoxes.TryGetValue(colliderId, out var b) ? b : null,
+                    colliderId
+                ));
                 break;
             case ColliderType.SPHERE:
                 collisionManager.addStaticCollider(

@@ -13,7 +13,7 @@ class StaticObject : Collider {
     private float halfX;
     private float halfY;
     private float halfZ;
-    private Func<BBox>? bboxProvider;
+    private Func<BBox?>? bboxProvider;
 
     public StaticObject(BBox bbox, string id, string type = "") {
         this.bbox = bbox;
@@ -43,15 +43,15 @@ class StaticObject : Collider {
         this.id = id;
         this.type = type;
     }
-    public StaticObject(Func<BBox> bboxProvideer, string id, string type = "") {
-        this.bboxProvider = bboxProvideer;
+    public StaticObject(Func<BBox?> bboxProvider, string id, string type = "") {
+        this.bboxProvider = bboxProvider;
         this.id = id;
         this.type = type;
     }
 
     // Get BBox
     public BBox getBBox() {
-        if(bboxProvider != null) return bboxProvider();
+        if(bboxProvider != null) return bboxProvider()!;
         if(position.HasValue) {
             Vector3 p = position.Value;
             return new BBox(

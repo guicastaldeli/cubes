@@ -7,6 +7,7 @@ namespace App.Root.World.Entity;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
+using App.Root.Physics;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 
@@ -102,6 +103,16 @@ static class SpawnPoint {
 
     */
 class EntitySpawner {
+    /**
+    
+        Entity State
+    
+        */
+    private enum State {
+        SLEEP,
+        ACTIVE
+    }
+
     public static float SPAWN_AREA = 50.0f;
 
     private Tick? tick;
@@ -120,6 +131,9 @@ class EntitySpawner {
     private const float MAX_LIFETIME = 20.0f;
 
     private Dictionary<string, List<Instance>> instances = new();
+    private Dictionary<string, State> instanceStates = new();
+
+    private Dictionary<string, (MeshData data, Vector3 position)> pendingPhysics = new();
     
     public EntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
         this.tick = tick;
@@ -130,6 +144,8 @@ class EntitySpawner {
         this.endZ = SPAWN_AREA;
 
         SpawnPoint.init(collisionManager);
+
+        onEvents();
         
         EntityCollider.init(mesh, collisionManager, this);
         EntityCollider.onEvents();
@@ -334,6 +350,7 @@ class EntitySpawner {
         Update
     
         */
+    // Update
     public void update() {
         if(tick == null || mesh == null) return;
 
@@ -342,6 +359,8 @@ class EntitySpawner {
         cleanupEntity();
 
         foreach(var (id, l) in instances) {
+            if(instanceStates.TryGetValue(id, out var state) && state == State.ACTIVE) continue;
+
             for(int i = 0; i < l.Count; i++) {
                 var inst = l[i];
 
@@ -358,7 +377,24 @@ class EntitySpawner {
             var (positions, colors, rotations, textures) = getData(id, l);
             mesh.getMeshRenderer(id)?.updateInstanceData(positions, colors, rotations, textures);
             if(l.Count > 0) mesh.setPosition(id, l[0].Position);
+
         }
+
+        updatePhysics();
+    }
+
+    // Update Physics
+    private void updatePhysics() {
+        foreach(var (id, (meshData, position)) in pendingPhysics) {
+            if(!PhysicsRegistry.getInstance().has(id)) {
+                PhysicsRegistry.getInstance().register(id, meshData, PhysicsType.DYNAMIC);
+            }
+                
+            var entry = PhysicsRegistry.getInstance().getEntry(id);
+            entry?.physicsBody?.setPosition(position);
+        }
+
+        pendingPhysics.Clear();
     }
 
     /**
@@ -373,7 +409,46 @@ class EntitySpawner {
                 .ToList();
         
         instances[entity.Id] = instanceList;
+        instanceStates[entity.Id] = State.SLEEP;
         EntityCollider.create(entity, instanceList);
+    }
+
+    /**
+
+        On Events
+
+        */
+    private void onEvents() {
+        // Instanced Break
+        EventStream.on("instanced-break", (data) => {
+            if(data is not string colliderId) return;
+
+            string? entityId = EntityCollider.colliderToEntity.TryGetValue(colliderId, out var eid) ? eid : null;
+            if(entityId == null) return;
+
+            if(!instances.ContainsKey(entityId)) return;
+            if(!instanceStates.ContainsKey(entityId)) return;
+
+            instanceStates[entityId] = State.ACTIVE;
+
+            var ids = EntityCollider.colliderIds.TryGetValue(entityId, out var list) ? list : null;
+            if(ids == null) return;
+
+            int index = ids.IndexOf(colliderId);
+            if(index < 0 || index >= instances[entityId].Count) return;
+
+            instances[entityId].RemoveAt(index);
+            ids.RemoveAt(index);
+            EntityCollider.colliderToEntity.Remove(colliderId);
+            MeshCollider.removeInstanced(colliderId);
+            mesh?.removeInstance(entityId, index);
+        });
+
+        // Instanced Place
+        EventStream.on("instanced-place", (data) => {
+            if(data is not (string id, MeshData meshData, Vector3 position)) return;
+            pendingPhysics[id] = (meshData, position);
+        });
     }
 
     /**

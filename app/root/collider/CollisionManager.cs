@@ -66,6 +66,9 @@ class CollisionManager {
     public void processRemovals() {
         if(pendingRemovals.Count == 0) return;
 
+        var snapshot = pendingRemovals.ToList();
+        pendingRemovals.Clear();
+
         foreach(var id in pendingRemovals) {
             staticColliders.RemoveAll(c => c.getId() == id);
             removedIds.Add(id);
@@ -103,6 +106,9 @@ class CollisionManager {
         // Static Object
         foreach(var collider in colliders) {
             if(collider is StaticObject staticObj) {
+                BBox? self = staticObj.getBBox();
+                if(self == null) continue;
+                
                 CollisionResult res = staticObj.checkCollision(bodyBounds);
                 if(res.collided) {
                     res.otherCollider = staticObj;

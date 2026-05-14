@@ -116,6 +116,9 @@ class Updater {
 class CollisionChecker {
     public CollisionResult update(Collider collider, BBox bbox) {
         CollisionResult result = new CollisionResult();
+
+        BBox? box = collider.getBBox();
+        if(box == null) return result;
         
         switch(collider) {
             case StaticObject staticObj:
@@ -184,6 +187,12 @@ class PhysicsRegistry {
     // Has
     public bool has(string id) {
         return entries.ContainsKey(id);
+    }
+
+    // Get Entry
+    public Entry? getEntry(string id) {
+        Entry? val = entries.TryGetValue(id, out var entry) ? entry : null;
+        return val;
     }
 
     // Resolve Collisions
@@ -355,6 +364,7 @@ class PhysicsRegistry {
             mesh.setPosition(entry.id, newPos);
 
             BBox bbox = mesh.getBBox(entry.id);
+            if(bbox == null) continue;
 
             var receiverColls = checkCollisionWithReceivers(bbox);
             var dynamicColls = checkCollisionWithDynamic(entry.id, bbox);
