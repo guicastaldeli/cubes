@@ -32,7 +32,8 @@ record PlacedMeshDef(
     PhysicsType? PhysicsType = null,
     MeshData? MeshData = null,
     string? ColliderShape = null,
-    float? ColliderRadius = 1.0f
+    float? ColliderRadius = 1.0f,
+    string? Color = null
 );
 
 /**
@@ -156,7 +157,8 @@ class MeshInteractionRegistry {
             null,
             data,
             data.colliderShape,
-            data.colliderRadius
+            data.colliderRadius,
+            entity.Color
         ));
     }
 

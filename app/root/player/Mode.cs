@@ -249,6 +249,7 @@ class Mode {
                 } else {
                     if(def.Scale.HasValue) mesh.setScale(previewId, def.Scale.Value);
                     mesh.setTexture(previewId, def.TexId, def.TexPath);
+                    if(def.Color != null) mesh.setColor(previewId, def.Color);
                     
                     updatePreviewPosition(slot, previewId);
                     mesh.setVisible(previewId, true);
@@ -268,7 +269,9 @@ class Mode {
             } else {
                 mesh.setScale(previewId, mesh.getDefaultScale(data));
             }
+            
             mesh.setTexture(previewId, def.TexId, def.TexPath);
+            if(def.Color != null) mesh.setColor(previewId, def.Color);
                 
             updatePreviewPosition(slot, previewId);
             mesh.setVisible(previewId, true);
