@@ -152,7 +152,23 @@ class MeshRenderer : DataEntry {
 
     // Colors
     public void updateColors(float[] colors) {
-        if(colorVbo == 0) return;
+        if(colorVbo == 0) {
+            colorVbo = GL.GenBuffer();
+
+            GL.BindVertexArray(vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, colorVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, colors.Length * sizeof(float), colors, BufferUsageHint.DynamicDraw);
+            GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, 0, 0);
+            GL.EnableVertexAttribArray(2);
+            GL.BindVertexArray(0);
+
+            hasColors = true;
+
+            return;
+        }
+
+        hasColors = true;
+
         GL.BindBuffer(BufferTarget.ArrayBuffer, colorVbo);
         GL.BufferData(BufferTarget.ArrayBuffer, colors.Length * sizeof(float), colors, BufferUsageHint.DynamicDraw);
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

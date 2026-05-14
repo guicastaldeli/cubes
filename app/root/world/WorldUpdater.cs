@@ -55,9 +55,10 @@ class WorldUpdater {
         int texId,
         string texPath,
         PhysicsType? physicsType = null,
-        MeshData? meshData = null
+        MeshData? meshData = null,
+        string? color = null
     ) {
-        applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType, meshData);
+        applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType, meshData, color);
 
         var packet = new PacketMeshUpdate {
             action = MeshAction.ADD,
@@ -80,7 +81,8 @@ class WorldUpdater {
         int texId,
         string texPath,
         PhysicsType? physicsType = null,
-        MeshData? meshData = null
+        MeshData? meshData = null,
+        string? color = null 
     ) {
         if(window == null || mesh == null || collisionManager == null) return;
 
@@ -98,6 +100,7 @@ class WorldUpdater {
             mesh.setScale(id, scale);
 
             if(texId > 0) mesh.setTexture(id, texId, texPath);
+            if(!string.IsNullOrEmpty(color)) mesh.setColor(id, color);
 
             var renderer = mesh.getMeshRenderer(id);
             if(renderer != null) renderer.isInteractive = true;

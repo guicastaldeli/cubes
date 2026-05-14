@@ -146,7 +146,8 @@ class MeshInteractionController {
             def.TexId, 
             def.TexPath,
             def.PhysicsType,
-            def.MeshData
+            def.MeshData,
+            def.Color
         );
 
         mainSlot.remove();
