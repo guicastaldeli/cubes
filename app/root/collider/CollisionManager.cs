@@ -38,7 +38,7 @@ class CollisionManager {
     
         */
     public List<Collider> getColliders() {
-        return staticColliders;
+        return staticColliders.ToList();
     }
 
     public List<string> getCollidersByPrefix(string prefix) {

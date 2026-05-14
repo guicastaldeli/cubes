@@ -554,6 +554,7 @@ class Mesh {
         Remove
     
         */
+    // Default Remove
     public void remove(string id) {
         if(meshRendererMap.TryGetValue(id, out var meshRenderer)) {
             meshRenderer.cleanup();
@@ -562,6 +563,7 @@ class Mesh {
         meshDataMap.Remove(id);
     }
 
+    // Remove Instance
     public void removeInstance(string id, int index) {
         getMeshRenderer(id)?.removeInstance(index);
     }

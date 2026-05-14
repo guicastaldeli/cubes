@@ -89,8 +89,23 @@ class MeshInteractionController {
         PlacedMeshDef? def = MeshInteractionRegistry.getInstance().getDef(hit);
         if(def == null) return;
 
+        var instanced = EventStream.get<Dictionary<string, List<string>>>("stream-id");
+        if(instanced != null) {
+            foreach(var (entityId, colliderList) in instanced) {
+                int index = colliderList.IndexOf(hit);
+                if(index >= 0) {
+                    mesh.removeInstance(entityId, index);
+                    break;
+                }
+            }
+        }
+
+        EventStream.set("collider-remove", hit);
+        
         collisionManager.removeCollider(hit);
+        collisionManager.processRemovals();
         mesh.removeData(hit);
+        WorldUpdater.getInstance().removeMesh(hit);
 
         var inventory = 
             input.getPlayerInputMap()
@@ -100,7 +115,6 @@ class MeshInteractionController {
         }
 
         heldMesh = def;
-        WorldUpdater.getInstance().removeMesh(hit);
     }
 
     /**

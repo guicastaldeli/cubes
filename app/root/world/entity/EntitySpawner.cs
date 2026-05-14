@@ -130,7 +130,9 @@ class EntitySpawner {
         this.endZ = SPAWN_AREA;
 
         SpawnPoint.init(collisionManager);
+        
         EntityCollider.init(mesh, collisionManager, this);
+        EntityCollider.onEvents();
     }
 
     // Get Boundary
@@ -407,5 +409,16 @@ class EntitySpawner {
             mesh?.removeData(rId);
             mesh?.remove(rId);
         }
+    }
+
+    /**
+    
+        Remove
+    
+        */
+    public void removeInstance(string entityId, int index) {
+        if(!instances.ContainsKey(entityId)) return;
+        if(index >= instances[entityId].Count) return;
+        instances[entityId].RemoveAt(index);
     }
 }

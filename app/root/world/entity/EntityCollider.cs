@@ -18,6 +18,8 @@ static class EntityCollider {
 
     public static Action<string>? onEntityRemoved;
 
+    private static bool eventsRegistered = false;
+
     /**
     
         Init
@@ -33,6 +35,35 @@ static class EntityCollider {
         EntityCollider.entitySpawner = entitySpawner;
 
         MeshCollider.init(mesh, collisionManager);
+    }
+
+    /*
+    
+        On Events
+    
+        */
+    public static void onEvents() {
+        if(eventsRegistered) return;
+        eventsRegistered = true;
+        
+        // Collider Remove
+        EventStream.on("collider-remove", (data) => {
+            if(data is string colliderId) {
+                foreach(var (entityId, list) in colliderIds) {
+                    int index = list.IndexOf(colliderId);
+                    if(index >= 0) {
+                        entitySpawner?.removeInstance(entityId, index);
+                        break;
+                    }
+                }
+                foreach(var list in colliderIds.Values) {
+                    list.Remove(colliderId);
+                }
+
+                colliderToEntity.Remove(colliderId);
+                MeshCollider.removeInstanced(colliderId);
+            }
+        });
     }
 
     /**
