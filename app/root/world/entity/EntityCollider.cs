@@ -11,13 +11,31 @@ using App.Root.Mesh;
 using OpenTK.Mathematics;
 
 static class EntityCollider {
-    public static Mesh? mesh = null!;
-    public static CollisionManager? collisionManager = null!;
+    private static Mesh? mesh = null!;
+    private static CollisionManager? collisionManager = null!;
+    private static EntitySpawner? entitySpawner = null!;
 
     public static Dictionary<string, List<string>> colliderIds = new();
     public static Dictionary<string, string> colliderToEntity = new();
 
     public static Action<string>? onEntityRemoved;
+
+    /**
+    
+        Init
+    
+        */
+    public static void init(
+        Mesh mesh, 
+        CollisionManager collisionManager,
+        EntitySpawner entitySpawner
+    ) {
+        EntityCollider.mesh = mesh;
+        EntityCollider.collisionManager = collisionManager;
+        EntityCollider.entitySpawner = entitySpawner;
+
+        MeshCollider.init(mesh, collisionManager);
+    }
 
     /**
     
@@ -44,18 +62,6 @@ static class EntityCollider {
         }
 
         return 0;
-    }
-
-    /**
-    
-        Init
-    
-        */
-    public static void init(Mesh mesh, CollisionManager collisionManager) {
-        EntityCollider.mesh = mesh;
-        EntityCollider.collisionManager = collisionManager;
-
-        MeshCollider.init(mesh, collisionManager);
     }
 
     /**

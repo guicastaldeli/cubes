@@ -130,7 +130,7 @@ class EntitySpawner {
         this.endZ = SPAWN_AREA;
 
         SpawnPoint.init(collisionManager);
-        EntityCollider.init(mesh, collisionManager);
+        EntityCollider.init(mesh, collisionManager, this);
     }
 
     // Get Boundary
