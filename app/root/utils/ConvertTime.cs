@@ -3,6 +3,8 @@
     Convert Time util class
 
     */
+namespace App.Root.Utils;
+
 static class ConvertTime {
     /**
 

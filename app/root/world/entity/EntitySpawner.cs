@@ -7,6 +7,7 @@ namespace App.Root.World.Entity;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
+using App.Root.Utils;
 using OpenTK.Mathematics;
 
 /**
@@ -242,9 +243,12 @@ class EntitySpawner {
     
         */
     private float setLifetime() {
-        float val = MIN_LIFETIME +
+        float lifetime = 
+            MIN_LIFETIME +
             (float)range.NextDouble() * 
             (MAX_LIFETIME - MIN_LIFETIME);
+        
+        float val = ConvertTime.MinutesToSeconds(lifetime);
         return val;
     }
 
@@ -255,7 +259,7 @@ class EntitySpawner {
         */
     private bool wrap(float deltaTime, ref Instance inst, string entityId, int index) {
         float l = 0.0f;
-        inst.Lifetime -= deltaTime / minutes;
+        inst.Lifetime -= deltaTime;
 
         if(isOutside(inst.Position)) {
             reset(ref inst);
