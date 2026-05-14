@@ -534,17 +534,9 @@ class Mesh {
 
     /**
     
-        Remove and Cleanup
+        Cleanup
     
         */
-    public void remove(string id) {
-        if(meshRendererMap.TryGetValue(id, out var meshRenderer)) {
-            meshRenderer.cleanup();
-            meshRendererMap.Remove(id);
-        }
-        meshDataMap.Remove(id);
-    }
-
     public void cleanup() {
         if(particleController != null) {
             particleController.cleanup();
@@ -555,5 +547,22 @@ class Mesh {
         }
         meshRendererMap.Clear();
         meshDataMap.Clear();
+    }
+
+    /**
+    
+        Remove
+    
+        */
+    public void remove(string id) {
+        if(meshRendererMap.TryGetValue(id, out var meshRenderer)) {
+            meshRenderer.cleanup();
+            meshRendererMap.Remove(id);
+        }
+        meshDataMap.Remove(id);
+    }
+
+    public void removeInstance(string id, int index) {
+        getMeshRenderer(id)?.removeInstance(index);
     }
 }

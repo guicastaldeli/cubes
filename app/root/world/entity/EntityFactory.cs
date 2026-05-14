@@ -232,7 +232,6 @@ class EntityFactory {
             Tex: null
         );
 
-        Console.WriteLine($"[EntityFactory] Generated new entity: {val.Id} (type: {meshType})");
         return val;
     }
 

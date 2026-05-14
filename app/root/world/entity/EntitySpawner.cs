@@ -255,9 +255,17 @@ class EntitySpawner {
         */
     private bool wrap(float deltaTime, ref Instance inst, string entityId, int index) {
         float l = 0.0f;
-        inst.Lifetime -= deltaTime;
+        inst.Lifetime -= deltaTime / minutes;
 
-        if(inst.Lifetime <= l || isOutside(inst.Position)) {
+        if(isOutside(inst.Position)) {
+            reset(ref inst);
+            return true;
+        }
+
+        if(inst.Lifetime <= l) {
+            if(!EntityCollider.colliderIds.ContainsKey(entityId)) return true;
+            if(index >= EntityCollider.colliderIds[entityId].Count) return true;
+            
             string colliderId = EntityCollider.colliderIds[entityId][index];
             collisionManager.removeCollider(colliderId);
             return true;
@@ -323,7 +331,7 @@ class EntitySpawner {
     public void update() {
         if(tick == null || mesh == null) return;
 
-        float deltaTime = tick.getDeltaTime() / 5.0f;
+        float deltaTime = tick.getDeltaTime();
 
         cleanupEntity();
 
@@ -371,7 +379,6 @@ class EntitySpawner {
         inst.Position = setPosition();
         inst.Speed = setSpeed();
         inst.Rotation = setRotation();
-        inst.Lifetime = setLifetime();
     }
 
     /**

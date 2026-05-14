@@ -990,6 +990,31 @@ class MeshRenderer : DataEntry {
 
     /**
     
+        Remove
+    
+        */
+    public void removeInstance(int index) {
+        if(index < 0 || index >= cachedInstancePositions.Count) return;
+
+        cachedInstancePositions.RemoveAt(index);
+        cachedInstanceColors.RemoveAt(index);
+        cachedInstanceRotations.RemoveAt(index);
+        if(cachedInstanceTex.Count > index) cachedInstanceTex.RemoveAt(index);
+
+        instanceCount = cachedInstancePositions.Count;
+
+        if(instanceCount > 0) {
+            updateInstanceData(
+                cachedInstancePositions, 
+                cachedInstanceColors, 
+                cachedInstanceRotations, 
+                cachedInstanceTex
+            );
+        }
+    }
+
+    /**
+    
         --- Data Entry ---
     
         */ 
