@@ -7,7 +7,7 @@
 namespace App.Root.Utils;
 using App.Root.Mesh;
 
-class LoadMeshData {
+public static class LoadMeshData {
     public const string EXT_NAME = ".obj";
 
     /**
@@ -23,6 +23,7 @@ class LoadMeshData {
             result = MeshModelLoader.loadModel(modelPath);
             result.isModel = true;
             result.modelPath = modelPath;
+            result.isEntity = data.isEntity;
         } 
         else if(data != null) {
             result = data;

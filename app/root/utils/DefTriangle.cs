@@ -6,7 +6,7 @@
 namespace App.Root.Utils;
 using OpenTK.Mathematics;
 
-static class DefTriangle {
+public static class DefTriangle {
     public static Vector3 dir;
     public static Vector3 origin;
     public static float bdist;

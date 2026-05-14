@@ -1,7 +1,7 @@
 namespace App.Root.Mesh;
 using OpenTK.Mathematics;
 
-class MeshData {
+public class MeshData {
     public enum DataType {
         VERTICES,
         INDICES,

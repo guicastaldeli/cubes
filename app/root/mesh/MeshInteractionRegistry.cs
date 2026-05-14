@@ -7,6 +7,7 @@
 namespace App.Root.Mesh;
 
 using App.Root.Physics;
+using App.Root.Utils;
 using App.Root.World.Entity;
 using OpenTK.Mathematics;
 
@@ -33,7 +34,8 @@ record PlacedMeshDef(
     MeshData? MeshData = null,
     string? ColliderShape = null,
     float? ColliderRadius = 1.0f,
-    string? Color = null
+    string? Color = null,
+    bool? IsEntity = false
 );
 
 /**
@@ -93,7 +95,8 @@ class MeshInteractionRegistry {
         Mesh mesh,
         PhysicsType? physicsType = null,
         string? stackId = null,
-        string? meshType = null
+        string? meshType = null,
+        bool? isEntity = false
     ) {
         var renderer = mesh.getMeshRenderer(id);
         if(renderer == null) return;
@@ -115,6 +118,8 @@ class MeshInteractionRegistry {
             MeshPhysics.update(data, id, physicsType);
         }
 
+        bool isEntityVal = IsEntity.BC(isEntity);
+
         setRegister(id, state, new PlacedMeshDef(
             type, 
             texPath, 
@@ -125,7 +130,9 @@ class MeshInteractionRegistry {
             physicsType,
             data,
             data.colliderShape,
-            data.colliderRadius
+            data.colliderRadius,
+            null,
+            isEntityVal
         ));
     }
 
@@ -158,7 +165,8 @@ class MeshInteractionRegistry {
             data,
             data.colliderShape,
             data.colliderRadius,
-            entity.Color
+            entity.Color,
+            entity.IsEntity
         ));
     }
 

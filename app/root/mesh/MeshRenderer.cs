@@ -58,7 +58,7 @@ class MeshRenderer : DataEntry {
 
     private bool hasScale = false;
     private bool isDynamic = false;
-    private bool hasColors = false;
+    public bool hasColors = false;
     private bool hasTex = false;
     private int texId = -1;
     private string texPath = "";

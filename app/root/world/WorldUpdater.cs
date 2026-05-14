@@ -56,9 +56,10 @@ class WorldUpdater {
         string texPath,
         PhysicsType? physicsType = null,
         MeshData? meshData = null,
-        string? color = null
+        string? color = null,
+        bool? isEntity = false
     ) {
-        applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType, meshData, color);
+        applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType, meshData, color, isEntity);
 
         var packet = new PacketMeshUpdate {
             action = MeshAction.ADD,
@@ -82,7 +83,8 @@ class WorldUpdater {
         string texPath,
         PhysicsType? physicsType = null,
         MeshData? meshData = null,
-        string? color = null 
+        string? color = null,
+        bool? isEntity = false
     ) {
         if(window == null || mesh == null || collisionManager == null) return;
 
@@ -94,6 +96,7 @@ class WorldUpdater {
                 meshData.colliderRadius
             );
             if(data == null) return;
+            IsEntity.C(data, isEntity);
 
             mesh.add(id, data);
             mesh.setPosition(id, position);
@@ -112,7 +115,8 @@ class WorldUpdater {
                 State.BREAKABLE,
                 mesh,
                 physicsType,
-                meshType: meshType
+                meshType: meshType,
+                isEntity: isEntity
             );
         });
     }

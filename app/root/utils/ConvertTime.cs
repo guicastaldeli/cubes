@@ -5,7 +5,7 @@
     */
 namespace App.Root.Utils;
 
-static class ConvertTime {
+public static class ConvertTime {
     /**
 
         Time Unit

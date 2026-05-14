@@ -261,6 +261,7 @@ class Mode {
 
             MeshData? data = LoadMeshData.L(def.MeshType, def.MeshData!);
             if(data == null) return;
+            IsEntity.C(data, def.IsEntity);
 
             mesh.add(previewId, data);
 

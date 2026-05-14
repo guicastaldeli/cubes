@@ -24,7 +24,8 @@ public record EntityProps(
     float Rotation,
     string? Tex,
     int? TexId,
-    string? PhysicsType
+    string? PhysicsType,
+    bool? IsEntity
 );
 
 /**
@@ -263,7 +264,8 @@ class EntityFactory {
             Rotation: rotationVal,
             Tex: texPathVal,
             TexId: texIdVal,
-            PhysicsType: null
+            PhysicsType: null,
+            IsEntity: true
         );
 
         return val;
