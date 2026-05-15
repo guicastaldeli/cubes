@@ -256,15 +256,6 @@ class PlayerController : DataEntry {
 
     /**
 
-        Render
-
-        */
-    public void render() {
-        hud.render();
-    }
-
-    /**
-
         Update
 
         */
@@ -303,12 +294,10 @@ class PlayerController : DataEntry {
         
         position = rigidBody.getPosition();
         camera.setPosition(position);
-        playerMesh.update();
-
-        hud.update();
         
+        playerMesh.update();
+        hud.update();
         raycaster.update();
-
         mode.update();
     }
 

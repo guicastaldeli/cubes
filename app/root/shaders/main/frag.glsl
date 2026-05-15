@@ -11,6 +11,7 @@ uniform vec4 uColor;
 uniform int uHasColors;
 uniform int hasTex;
 uniform int isEntity;
+uniform vec2 canvasSize;
 uniform int shaderType;
 uniform sampler2D uSampler;
 uniform sampler2DArray uSamplerArray;
@@ -18,6 +19,7 @@ uniform int useArrayTexture;
 uniform int shaderAddon;
 
 #include "../text/text.frag.glsl"
+#include "../ui/aim.glsl"
 #include "../ui/ui.frag.glsl"
 #include "../player/username.frag.glsl"
 #include "flat.frag.glsl"

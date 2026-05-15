@@ -1,3 +1,8 @@
+/**
+
+    UI Vertex Shader
+
+    */
 void setUIVert() {
     vec2 normalizedPos = vec2(
         (aPos.x * 2.0) / screenSize.x - 1.0,

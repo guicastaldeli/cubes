@@ -49,6 +49,13 @@ static class EventStream {
         return null;
     }
 
+    public static T? getT<T>(string streamId) where T : struct {
+        if(events.TryGetValue(streamId, out var data)) {
+            if(data is T val) return val;
+        }
+        return null;
+    }
+
     /**
     
         On

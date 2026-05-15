@@ -2,7 +2,6 @@ uniform sampler2D stencilTexture;
 uniform sampler2D stencilDepthTexture;
 uniform sampler2D sceneDepthTexture;
 
-uniform vec2 canvasSize;
 uniform vec4 outlineColor;
 uniform float outlineSize;
 

@@ -162,6 +162,7 @@ class Scene {
         playerController.getCamera().update();
 
         mesh.update();
+        mesh.renderOrtoT();
         worldManager.update();
 
         playerController.getNetworkPlayer()?.update();

@@ -9,6 +9,7 @@ using System.Reflection;
 
     */
 class HudElement {
+    public static Window window = null!;
     public static ShaderProgram shaderProgram = null!;
     public static Mesh mesh = null!;
     

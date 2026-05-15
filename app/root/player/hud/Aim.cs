@@ -1,16 +1,19 @@
 namespace App.Root.Player.Hud;
 using App.Root.Mesh;
 using App.Root.Resource;
+using OpenTK.Graphics.OpenGL;
 
 class Aim : HudElement {
     private static string ID = "aim";
     private static string TEX_PATH = "player/hud/aim.png";
     private static string MESH = "quad"; 
 
-    private int width = 8;
-    private int height = 8;
+    private int width = 48;//18;
+    private int height = 48;//18;
 
     private bool initialized = false;
+
+    private int screenTexHandle = 0;
 
     public Aim() : base(ID) {
         
@@ -18,6 +21,8 @@ class Aim : HudElement {
 
     // Set
     private void set() {
+        setShader();
+
         int texId = TextureLoader.load(TEX_PATH);
 
         MeshData data = MeshDataLoader.load(MESH);
@@ -37,15 +42,19 @@ class Aim : HudElement {
         );
     }
 
-    // Update Position
-    public void updatePosition() {
-        mesh.setScale(ID, width, height, 1.0f);
-        mesh.setPosition(
-            ID,
-            screenWidth / 2.0f - width / 2.0f,
-            screenHeight / 2.0f - height / 2.0f,
-            0.0f
+    private void setShader() {
+        screenTexHandle = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, screenTexHandle);
+        GL.TexImage2D(
+            TextureTarget.Texture2D, 0,
+            PixelInternalFormat.Rgb,
+            screenWidth, screenHeight,
+            0, PixelFormat.Rgb, PixelType.UnsignedByte,
+            IntPtr.Zero
         );
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     /**
@@ -56,6 +65,19 @@ class Aim : HudElement {
     public override void onWindowResize(int width, int height) {
         screenWidth = width;
         screenHeight = height;
+
+        if(screenTexHandle != 0) {
+            GL.BindTexture(TextureTarget.Texture2D, screenTexHandle);
+            GL.TexImage2D(
+                TextureTarget.Texture2D, 0,
+                PixelInternalFormat.Rgb,
+                screenWidth, screenHeight,
+                0, PixelFormat.Rgb, PixelType.UnsignedByte,
+                IntPtr.Zero
+            );
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
         if(initialized) updatePosition();
         base.onWindowResize(width, height);
     }
@@ -66,6 +88,8 @@ class Aim : HudElement {
     
         */
     public override void render() {
+        if(!initialized) return;
+        updateShader();
         base.render();
     }
 
@@ -80,5 +104,27 @@ class Aim : HudElement {
             initialized = true;
         }
         base.update();
+    }
+
+    public void updatePosition() {
+        mesh.setScale(ID, width, height, 1.0f);
+        mesh.setPosition(
+            ID,
+            screenWidth / 2.0f - width / 2.0f,
+            screenHeight / 2.0f - height / 2.0f,
+            0.0f
+        );
+    }
+
+    private void updateShader() {
+        GL.BindTexture(TextureTarget.Texture2D, screenTexHandle);
+        GL.CopyTexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, 0, 0, screenWidth, screenHeight);
+
+        GL.ActiveTexture(TextureUnit.Texture1);
+        GL.BindTexture(TextureTarget.Texture2D, screenTexHandle);
+        GL.ActiveTexture(TextureUnit.Texture0);
+
+        shaderProgram.setUniformb("uScreenTexture", 1);
+        shaderProgram.setUniformb("isInv", 1);
     }
 }

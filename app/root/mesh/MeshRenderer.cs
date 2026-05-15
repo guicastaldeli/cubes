@@ -658,6 +658,7 @@ class MeshRenderer : DataEntry {
             shaderProgram.setUniform("shaderType", 0);
         }
         shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
+        shaderProgram.setUniform("isInv", 0);
         shaderProgram.setUniform("isInstanced", 0);
         shaderProgram.setUniform("hasInstanceColor", 0);
         shaderProgram.setUniform("uModel", modelMatrix);
@@ -665,6 +666,7 @@ class MeshRenderer : DataEntry {
         shaderProgram.setUniform("uProjection", camera.getProjection());
         shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
         shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
+        shaderProgram.setUniform("canvasSize", (int)window.getWidth(), (int)window.getHeight());
         if(hasColors && meshData.getColors() != null) {
             float[]? color = meshData.getColors();
             if(color != null) {
@@ -740,11 +742,13 @@ class MeshRenderer : DataEntry {
         shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
         shaderProgram.setUniform("hasInstanceColor", instanceColorVbo != 0 ? 1 : 0);
         shaderProgram.setUniform("uModel", modelMatrix);
+        shaderProgram.setUniform("isInv", 0);
         shaderProgram.setUniform("uView", camera.getView());
         shaderProgram.setUniform("uProjection", camera.getProjection());
         shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
-        shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
         shaderProgram.setUniform("isInstanced", 1);
+        shaderProgram.setUniform("canvasSize", (int)window.getWidth(), (int)window.getHeight());
+        shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
         if(hasTex) {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texId);
@@ -769,6 +773,14 @@ class MeshRenderer : DataEntry {
         if(!visible) return;
         if(meshData == null) return;
 
+        bool depthTestWasEnabled = GL.IsEnabled(EnableCap.DepthTest);
+        bool depthMaskWasEnabled = true;
+        GL.GetBoolean(GetPName.DepthWritemask, out depthMaskWasEnabled);
+
+        GL.Clear(ClearBufferMask.DepthBufferBit);
+        GL.DepthMask(false);
+        GL.Disable(EnableCap.DepthTest);
+
         Matrix4 ortho = Matrix4.CreateOrthographicOffCenter(
             0, screenWidth,
             0, screenHeight,
@@ -780,17 +792,20 @@ class MeshRenderer : DataEntry {
             Matrix4.CreateTranslation(position);
 
         shaderProgram.bind();
-        shaderProgram.setUniform("shaderType", 0);
+        shaderProgram.setUniform("isInv", 0);
+        shaderProgram.setUniform("shaderType", 3);
         shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
         shaderProgram.setUniform("uModel", model);
         shaderProgram.setUniform("uView", Matrix4.Identity);
         shaderProgram.setUniform("uProjection", ortho);
         shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
-        shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
         shaderProgram.setUniform("isInstanced", 0);
+        shaderProgram.setUniform("canvasSize", (int)window.getWidth(), (int)window.getHeight());
+        shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
         if(hasTex) {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texId);
+            GL.Enable(EnableCap.Blend);
             shaderProgram.setUniform("uSampler", 0);
         }
 
@@ -804,8 +819,12 @@ class MeshRenderer : DataEntry {
         }
 
         GL.BindVertexArray(0);
-        if(hasTex) GL.BindTexture(TextureTarget.Texture2D, 0);
-
+        if(hasTex) {
+            GL.Disable(EnableCap.Blend);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+        GL.DepthMask(depthMaskWasEnabled);
+        if(depthTestWasEnabled) GL.Enable(EnableCap.DepthTest);
         shaderProgram.unbind();
     }
 

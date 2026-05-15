@@ -437,9 +437,7 @@ class Mesh {
 
         if(meshRenderer != null) {
             meshRenderer.render();
-
             renderOnTopMeshes();
-            renderOrto();
         }
     }
 
@@ -482,7 +480,11 @@ class Mesh {
             }
         }
     }
-    
+
+    public void renderOrtoT() {
+        renderOrto();
+    }
+
     // On Top Meshes
     private void renderOnTopMeshes() {
         foreach(var entry in getMeshRendererMap()) {
