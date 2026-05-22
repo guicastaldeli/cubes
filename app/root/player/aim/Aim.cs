@@ -16,7 +16,7 @@ class Aim : UI.UI {
     private int screenTexHandle = 0;
 
     public Aim() : base(ID) {
-        
+        enableGeneration = true;
     }
 
     // Set
@@ -91,6 +91,18 @@ class Aim : UI.UI {
 
     /**
 
+        Generate
+    
+        */
+    public override void generate() {
+        if(!initialized) {
+            set();
+            initialized = true;
+        }
+    }
+
+    /**
+
         Render
     
         */
@@ -104,11 +116,6 @@ class Aim : UI.UI {
     
         */
     public override void update() {
-        if(!initialized) {
-            set();
-            onShow();
-            initialized = true;
-        }
         base.update();
     }
 

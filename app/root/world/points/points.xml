@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <points>
-    <button
+    <label
         id="pointsLabel" 
         x="5%" y="5%" 
         scale="1.0" 
         color="0.0,0.0,0.0,1.0"
     >
         POINTS: 0
-    </button>
+    </label>
 </points>

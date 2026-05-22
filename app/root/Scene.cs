@@ -193,6 +193,7 @@ class Scene {
         screenController.running = true;
 
         mesh.render();
+        playerController.render();
     }
 
     /**

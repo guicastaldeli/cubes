@@ -24,6 +24,11 @@ class UI : UIHandler {
     public static int screenWidth;
     public static int screenHeight;
 
+    public bool enableGeneration {
+        get;
+        set;
+    } = false;
+
     public static void init(
         int screenWidth,
         int screenHeight,
@@ -127,7 +132,18 @@ class UI : UIHandler {
     }
 
     // Handle Mouse Click
-    public virtual void handleMouseClick(int x, int y) {}
+    public virtual void handleMouseClick(int x, int y) {
+        
+    }
+
+    /**
+    
+        Generate
+    
+        */
+    public virtual void generate() {
+        onShow();
+    }
 
     /**
     

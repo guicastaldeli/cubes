@@ -160,6 +160,17 @@ class UIController {
 
     /**
     
+        Generate
+    
+        */
+    public void generate() {
+        foreach(var ui in uis.Values) {
+            if(ui.enableGeneration) ui.generate();
+        }
+    }
+
+    /**
+    
         Update
     
         */

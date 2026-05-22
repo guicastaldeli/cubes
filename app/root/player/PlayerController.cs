@@ -241,6 +241,15 @@ class PlayerController : DataEntry {
     }
 
     /**
+    
+        Render
+    
+        */
+    public void render() {
+        UI.UI.uiController.generate();
+    }
+
+    /**
 
         Update
 
