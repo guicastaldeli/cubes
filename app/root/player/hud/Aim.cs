@@ -8,8 +8,8 @@ class Aim : HudElement {
     private static string TEX_PATH = "player/hud/aim.png";
     private static string MESH = "quad"; 
 
-    private int width = 48;//18;
-    private int height = 48;//18;
+    private int width = 18;
+    private int height = 18;
 
     private bool initialized = false;
 
