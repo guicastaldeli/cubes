@@ -47,6 +47,7 @@ class Main {
 
         */
     private void set() {
+        /* TEST COLORS ~~-~~-~-~- */
         if(Controller.getInstance(Instance.PROD)) {
             GL.ClearColor(0.2f, 0.3f, 0.8f, 1.0f);
         } else if(Controller.getInstance(Instance.DEV)) {
@@ -54,6 +55,7 @@ class Main {
         } else if(Controller.getInstance(Instance.DEBUG)) {
             GL.ClearColor(6.0f, 2.5f, 0.5f, 1.0f);
         }
+        /* ~]~]]]~]] */
         
         GL.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
 
