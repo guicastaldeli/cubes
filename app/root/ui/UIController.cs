@@ -7,8 +7,9 @@ using System.Reflection;
 class UIController {
     public int screenWidth;
     public int screenHeight;
+    
     public ShaderProgram shaderProgram;
-
+    public Mesh.Mesh mesh;
     private PlayerController? playerController = null!;
 
     private Dictionary<string, UI> uis = new();
@@ -18,17 +19,18 @@ class UIController {
 
     public UIController(
         ShaderProgram shaderProgram,
+        Mesh.Mesh mesh,
         int screenWidth,
         int screenHeight
     ) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.shaderProgram = shaderProgram;
+        this.mesh = mesh;
 
-        UI.init(screenWidth, screenHeight, shaderProgram, this);
+        UI.init(screenWidth, screenHeight, this, shaderProgram, mesh);
         init();
     }
-
     
     // Player Controller
     public void setPlayerController(PlayerController playerController) {
@@ -171,7 +173,8 @@ class UIController {
     
         */
     public void render() {
-       foreach(var ui in uis.Values) ui.render();
+        mesh.renderOrto();
+        foreach(var ui in uis.Values) ui.render();
     }
 
     /**

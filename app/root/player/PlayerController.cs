@@ -32,7 +32,6 @@ class PlayerController : DataEntry {
     private ShaderProgram shaderProgram;
     private Mesh.Mesh mesh;
     private PlayerMesh playerMesh;
-    private Hud.Hud hud;
     private Raycaster raycaster;
 
     private Mode mode;
@@ -92,8 +91,6 @@ class PlayerController : DataEntry {
 
         this.networkPlayer = new NetworkPlayer(this);
 
-        this.hud = new Hud.Hud(window, shaderProgram, mesh);
-
         this.raycaster = new Raycaster(camera, mesh);
 
         this.mode = new Mode(window, camera, mesh, this);
@@ -152,15 +149,6 @@ class PlayerController : DataEntry {
     // Set World Manager
     public void setWorldManager(WorldManager worldManager) {
         this.worldManager = worldManager;
-    }
-
-    /**
-
-        On Window Resize
-
-        */
-    public void onWindowResize(int width, int height) {
-        hud.onWindowResize(width, height);
     }
 
     /**
@@ -254,15 +242,6 @@ class PlayerController : DataEntry {
 
     /**
 
-        Render
-
-        */
-    public void render() {
-        hud.render();
-    }
-
-    /**
-
         Update
 
         */
@@ -303,7 +282,6 @@ class PlayerController : DataEntry {
         camera.setPosition(position);
         
         playerMesh.update();
-        hud.update();
         raycaster.update();
         mode.update();
     }

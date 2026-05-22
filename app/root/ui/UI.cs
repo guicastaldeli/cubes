@@ -7,14 +7,13 @@ using System.Collections.Generic;
 class UI : UIHandler {
     public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ui/");
 
-    public static int screenWidth;
-    public static int screenHeight;
     public static ShaderProgram shaderProgram = null!;
+    public static Mesh.Mesh mesh = null!;
     public static UIController uiController = null!;
 
     public TextRenderer? textRenderer;
     public string uiName;
-    public string filePath;
+    public string? filePath;
     public UIData? uiData;
     
     public bool visible = false;
@@ -22,18 +21,28 @@ class UI : UIHandler {
     public int lastMouseX = -1;
     public int lastMouseY = -1;
 
+    public static int screenWidth;
+    public static int screenHeight;
+
     public static void init(
         int screenWidth,
         int screenHeight,
+        UIController uiController,
         ShaderProgram shaderProgram,
-        UIController uiController
+        Mesh.Mesh mesh
     ) {
         UI.screenWidth = screenWidth;
         UI.screenHeight = screenHeight;
-        UI.shaderProgram = shaderProgram;
+
         UI.uiController = uiController;
+        UI.shaderProgram = shaderProgram;
+        UI.mesh = mesh;
     }
 
+    public UI(string uiName) {
+        this.uiName = uiName;
+        Console.WriteLine($"UI '{uiName}' initialized");
+    }
     public UI(string filePath, string uiName) {
         this.filePath = filePath;
         this.uiName = uiName;
@@ -188,7 +197,7 @@ class UI : UIHandler {
         textRenderer?.updateScreenSize(width, height);
 
         if(uiData != null) { 
-            uiData = DocParser.parseUI(filePath, width, height);
+            uiData = DocParser.parseUI(filePath!, width, height);
         }
     }
 }

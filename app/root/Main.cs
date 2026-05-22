@@ -10,6 +10,7 @@ class Main {
     private Tick tick;
     private ShaderProgram shaderProgram;
     private Input input;
+    private Mesh.Mesh mesh;
     private Network network;
 
     private Scene scene = null!;
@@ -21,6 +22,12 @@ class Main {
         tick = new Tick();
         shaderProgram = new ShaderProgram();
         input = new Input(window, tick);
+
+        this.mesh = new Mesh.Mesh(
+            window, 
+            shaderProgram, 
+            input
+        );
 
         network = new Network();
         VoiceController.getInstance().setNetwork(network);
@@ -96,7 +103,8 @@ class Main {
             window, 
             tick,
             shaderProgram, 
-            input
+            input,
+            mesh
         );
         scene.setNetwork(network);
         
@@ -115,6 +123,7 @@ class Main {
 
         uiController = new UIController(
             shaderProgram,
+            mesh,
             Window.WIDTH, Window.HEIGHT
         );
         

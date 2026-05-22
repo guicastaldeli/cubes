@@ -3,7 +3,7 @@ using App.Root.Mesh;
 using App.Root.Resource;
 using OpenTK.Graphics.OpenGL;
 
-class Aim : HudElement {
+class Aim : UI.UI {
     private static string ID = "aim";
     private static string TEX_PATH = "player/hud/aim.png";
     private static string MESH = "quad"; 
@@ -106,6 +106,7 @@ class Aim : HudElement {
     public override void update() {
         if(!initialized) {
             set();
+            onShow();
             initialized = true;
         }
         base.update();

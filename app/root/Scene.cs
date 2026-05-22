@@ -31,21 +31,17 @@ class Scene {
         Window window, 
         Tick tick,
         ShaderProgram shaderProgram, 
-        Input input
+        Input input,
+        Mesh.Mesh mesh
     ) {
         this.window = window;
         this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.input = input;
+        this.mesh = mesh;
 
         this.timeCycle = new TimeCycle(tick);
         window.setTimeCycle(timeCycle);
-
-        this.mesh = new Mesh.Mesh(
-            window, 
-            shaderProgram, 
-            input
-        );
 
         this.playerController = new PlayerController(
             window, 
@@ -110,7 +106,6 @@ class Scene {
         */
     public void onWindowResize(int width, int height) {
         getCamera().updateAspectRatio(width, height);
-        playerController.onWindowResize(width, height);
         mesh.onWindowResize(width, height);
     }
 
@@ -124,8 +119,7 @@ class Scene {
             network == null ||
             !network.isConnected || 
             network.isHost();
-        
-        playerController.render();
+
         playerController.setCollisionManager(collisionManager);
         playerController.setWorldManager(worldManager);
 

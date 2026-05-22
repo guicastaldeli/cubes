@@ -118,7 +118,10 @@ class MeshInteractionRegistry {
             MeshPhysics.update(data, id, physicsType);
         }
 
-        string? color = FloatToHex.C(data.getColors());
+        float[]? colors = data.getColors();
+        string? color = (colors != null && colors.Length > 4) 
+            ? null
+            : FloatToHex.C(colors);
 
         bool isEntityVal = IsEntity.BC(isEntity);
 
