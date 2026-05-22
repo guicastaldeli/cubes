@@ -27,6 +27,7 @@ class Aim : HudElement {
 
         MeshData data = MeshDataLoader.load(MESH);
         mesh.add(ID, data);
+        data.shaderType = 10;
         data.shaderAddon = -1;
 
         var renderer = mesh.getMeshRenderer(ID);
@@ -88,9 +89,7 @@ class Aim : HudElement {
     
         */
     public override void render() {
-        if(!initialized) return;
         updateShader();
-        base.render();
     }
 
     /**

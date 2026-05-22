@@ -17,9 +17,12 @@ uniform sampler2D uSampler;
 uniform sampler2DArray uSamplerArray;
 uniform int useArrayTexture;
 uniform int shaderAddon;
+uniform sampler2D uScreenTexture; 
+uniform int isInv;
 
 #include "../text/text.frag.glsl"
 #include "../ui/aim.glsl"
+#include "../ui/hud.frag.glsl"
 #include "../ui/ui.frag.glsl"
 #include "../player/username.frag.glsl"
 #include "flat.frag.glsl"
@@ -98,6 +101,14 @@ void main() {
     }
     else if(shaderType == 9) {
         setStarFrag();
+    }
+    /**
+
+        Hud
+
+        */
+    else if(shaderType == 10) {
+        setHudFrag();
     }
     /**
 

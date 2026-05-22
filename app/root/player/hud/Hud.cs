@@ -25,6 +25,7 @@ class HudElement {
         ShaderProgram shaderProgram,
         Mesh mesh
     ) {
+        HudElement.window = window;
         HudElement.shaderProgram = shaderProgram;
         HudElement.mesh = mesh;
         HudElement.screenWidth = window.getWidth();
@@ -114,6 +115,8 @@ class Hud {
         foreach(var el in elements.Values) {
             el.render();
         }
+
+        mesh.renderOrto();
     }
 
     /**

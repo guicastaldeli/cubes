@@ -22,8 +22,10 @@ uniform int shaderType;
 uniform int isInstanced;
 uniform vec2 screenSize;
 uniform int hasInstanceColor;
+uniform int isInv;
 
 #include "../text/text.vert.glsl"
+#include "../ui/hud.vert.glsl"
 #include "../ui/ui.vert.glsl"
 #include "../player/username.vert.glsl"
 #include "flat.vert.glsl"
@@ -91,6 +93,14 @@ void main() {
     }
     else if(shaderType == 9) {
         setStarVert();
+    }
+    /**
+
+        Hud
+
+        */
+    else if(shaderType == 10) {
+        setHudVert();
     }
     /**
  

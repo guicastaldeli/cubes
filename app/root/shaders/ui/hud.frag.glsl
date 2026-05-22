@@ -1,9 +1,9 @@
 /**
 
-    UI Frag Shader
+    Hud Frag Shader
 
     */
-void setUIFrag() {
+void setHudFrag() {
     if(hasTex == 1) {
         vec4 texColor = texture(uSampler, vTexCoord); 
         if(texColor.a < 0.1) discard;

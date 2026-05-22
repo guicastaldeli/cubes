@@ -3,9 +3,6 @@
     Aim Custom Shader
 
     */
-uniform sampler2D uScreenTexture; 
-uniform int isInv;
-
 vec4 setAim(vec4 texColor) {
     if(isInv == 0) return texColor;
 

@@ -666,7 +666,7 @@ class MeshRenderer : DataEntry {
         shaderProgram.setUniform("uProjection", camera.getProjection());
         shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
         shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
-        shaderProgram.setUniform("canvasSize", (int)window.getWidth(), (int)window.getHeight());
+        shaderProgram.setUniform("canvasSize", (float)window.getWidth(), (float)window.getHeight());
         if(hasColors && meshData.getColors() != null) {
             float[]? color = meshData.getColors();
             if(color != null) {
@@ -747,7 +747,7 @@ class MeshRenderer : DataEntry {
         shaderProgram.setUniform("uProjection", camera.getProjection());
         shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
         shaderProgram.setUniform("isInstanced", 1);
-        shaderProgram.setUniform("canvasSize", (int)window.getWidth(), (int)window.getHeight());
+        shaderProgram.setUniform("canvasSize", (float)window.getWidth(), (float)window.getHeight());
         shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
         if(hasTex) {
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -792,15 +792,20 @@ class MeshRenderer : DataEntry {
             Matrix4.CreateTranslation(position);
 
         shaderProgram.bind();
-        shaderProgram.setUniform("isInv", 0);
-        shaderProgram.setUniform("shaderType", 3);
+        if(meshData.shaderType != 0) {
+            shaderProgram.setUniform("shaderType", meshData.shaderType);
+        } else {
+            shaderProgram.setUniform("shaderType", 3);
+        }
         shaderProgram.setUniform("shaderAddon", meshData.shaderAddon);
         shaderProgram.setUniform("uModel", model);
         shaderProgram.setUniform("uView", Matrix4.Identity);
         shaderProgram.setUniform("uProjection", ortho);
         shaderProgram.setUniform("uHasColors", hasColors ? 1 : 0);
         shaderProgram.setUniform("isInstanced", 0);
-        shaderProgram.setUniform("canvasSize", (int)window.getWidth(), (int)window.getHeight());
+        shaderProgram.setUniform("screenSize", (float)screenWidth, (float)screenHeight);
+        shaderProgram.setUniform("canvasSize", (float)screenWidth, (float)screenHeight);
+        shaderProgram.setUniform("isInv", 0);
         shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
         if(hasTex) {
             GL.ActiveTexture(TextureUnit.Texture0);
