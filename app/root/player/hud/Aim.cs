@@ -29,6 +29,9 @@ class Aim : HudElement {
         mesh.add(ID, data);
         data.shaderType = 10;
         data.shaderAddon = -1;
+        data.screenTexOverride = screenTexHandle;
+        data.enableInverted = true;
+        data.invertedValue = 1;
 
         var renderer = mesh.getMeshRenderer(ID);
         if(renderer != null) renderer.isHud = true;
@@ -64,6 +67,9 @@ class Aim : HudElement {
     
         */
     public override void onWindowResize(int width, int height) {
+        var data = mesh.getData(ID);
+        if(data != null) data.screenTexOverride = screenTexHandle;
+
         screenWidth = width;
         screenHeight = height;
 
@@ -89,7 +95,7 @@ class Aim : HudElement {
     
         */
     public override void render() {
-        updateShader();
+        base.render();
     }
 
     /**
@@ -113,17 +119,5 @@ class Aim : HudElement {
             screenHeight / 2.0f - height / 2.0f,
             0.0f
         );
-    }
-
-    private void updateShader() {
-        GL.BindTexture(TextureTarget.Texture2D, screenTexHandle);
-        GL.CopyTexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, 0, 0, screenWidth, screenHeight);
-
-        GL.ActiveTexture(TextureUnit.Texture1);
-        GL.BindTexture(TextureTarget.Texture2D, screenTexHandle);
-        GL.ActiveTexture(TextureUnit.Texture0);
-
-        shaderProgram.setUniformb("uScreenTexture", 1);
-        shaderProgram.setUniformb("isInv", 1);
     }
 }

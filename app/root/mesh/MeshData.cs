@@ -41,6 +41,16 @@ public class MeshData {
         get; 
         set; 
     }
+
+    public bool? enableInverted {
+        get;
+        set;
+    } = false;
+
+    public int invertedValue {
+        get;
+        set;
+    }
     
     public bool isDynamic { 
         get; 
@@ -98,6 +108,8 @@ public class MeshData {
     } = Vector3.Zero;
 
     private float[]? colors;
+
+    public int screenTexOverride = 0;
 
     public MeshData(string id, string meshType) {
         this.id = id;

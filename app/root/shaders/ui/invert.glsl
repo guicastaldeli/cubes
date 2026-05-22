@@ -1,9 +1,9 @@
 /**
 
-    Aim Custom Shader
+    Invert Custom Shader
 
     */
-vec4 setAim(vec4 texColor) {
+vec4 invert(vec4 texColor) {
     if(isInv == 0) return texColor;
 
     vec2 screenUv = gl_FragCoord.xy / canvasSize;

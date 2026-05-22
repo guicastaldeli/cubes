@@ -792,6 +792,18 @@ class MeshRenderer : DataEntry {
             Matrix4.CreateTranslation(position);
 
         shaderProgram.bind();
+
+        if(meshData.enableInverted == true && meshData.screenTexOverride != 0) {
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, meshData.screenTexOverride);
+            GL.CopyTexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, 0, 0, screenWidth, screenHeight);
+            shaderProgram.setUniform("uScreenTexture", 1);
+            shaderProgram.setUniform("isInv", meshData.invertedValue);
+            GL.ActiveTexture(TextureUnit.Texture0);
+        } else {
+            shaderProgram.setUniform("isInv", 0);
+        }
+
         if(meshData.shaderType != 0) {
             shaderProgram.setUniform("shaderType", meshData.shaderType);
         } else {
@@ -805,7 +817,6 @@ class MeshRenderer : DataEntry {
         shaderProgram.setUniform("isInstanced", 0);
         shaderProgram.setUniform("screenSize", (float)screenWidth, (float)screenHeight);
         shaderProgram.setUniform("canvasSize", (float)screenWidth, (float)screenHeight);
-        shaderProgram.setUniform("isInv", 0);
         shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
         if(hasTex) {
             GL.ActiveTexture(TextureUnit.Texture0);

@@ -21,7 +21,7 @@ uniform sampler2D uScreenTexture;
 uniform int isInv;
 
 #include "../text/text.frag.glsl"
-#include "../ui/aim.glsl"
+#include "../ui/invert.glsl"
 #include "../ui/hud.frag.glsl"
 #include "../ui/ui.frag.glsl"
 #include "../player/username.frag.glsl"
