@@ -1,5 +1,6 @@
 namespace App.Root;
 using App.Root.Screen;
+using App.Root.Screen.Main;
 using App.Root.Shaders;
 using App.Root.UI;
 using App.Root.Voip;
@@ -46,6 +47,11 @@ class Main {
         
         uiController.onWindowResize(width, height);
         screenController.onWindowResize(width, height);
+    }
+
+    // Switch to Main Screen
+    private void switchToMainScreen() {
+        screenController.switchTo(MainScreen.ID);
     }
 
     /**
@@ -117,7 +123,7 @@ class Main {
             network,
             Window.WIDTH, Window.HEIGHT
         );
-        screenController.switchTo(ScreenController.SCREENS.MAIN);
+        switchToMainScreen();
 
         scene.setScreenController(screenController);
 

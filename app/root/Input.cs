@@ -2,6 +2,7 @@ namespace App.Root;
 using App.Root.Chat;
 using App.Root.Player;
 using App.Root.Screen;
+using App.Root.Screen.Pause;
 using App.Root.UI;
 using App.Root.Voip;
 using OpenTK.Windowing.Common;
@@ -117,20 +118,22 @@ class Input {
         if(!screenController.isRunning()) return;
 
         // Inventory
-        if(playerInputMap != null && playerInputMap.isInventoryOpen()) {
-            var uiController = getUIController();
-            uiController.hide();
-        }
+        if(playerInputMap != null) playerInputMap.hideInventory();
         
         // Multiplayer
         bool isMultiplayer = network!.isConnected;
         if(!isMultiplayer) tick.togglePause();
 
         // Pause Screen
+        activePauseScreen();
+    }
+
+    private void activePauseScreen() {
         pauseOverlayOpen = !pauseOverlayOpen;
+        
         if(pauseOverlayOpen) {
             unlockMouse();
-            screenController.switchToOverlay(ScreenController.SCREENS.PAUSE);
+            screenController.switchToOverlay(PauseScreen.ID);
         } else {
             lockMouse();
             screenController.closeOverlay();

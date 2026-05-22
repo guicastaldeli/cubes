@@ -4,6 +4,7 @@ using App.Root.Screen.Main.Custom;
 using App.Root.Screen.Main.Server;
 
 class MainScreen : Screen {
+    public const string ID = "main";
     public static readonly string PATH = DIR + "main/main_screen.xml";
     
     private MainScreenAction mainScreenAction;
@@ -12,8 +13,7 @@ class MainScreen : Screen {
     public ServerDialog serverDialog;
     public CustomMenu customMenu;
 
-    public MainScreen() : 
-    base(PATH, "main") {
+    public MainScreen() : base(PATH, ID) {
         this.mainScreenAction = new MainScreenAction(screenController, this);
 
         this.clientDialog = new ClientDialog(this);

@@ -50,9 +50,9 @@ class PauseScreenAction {
         network.stop();
         
         Screen.scene.reset();
-        var mainSceen = (MainScreen)screenController.screens[ScreenController.SCREENS.MAIN];
-        mainSceen.reset();
 
-        screenController.switchTo(ScreenController.SCREENS.MAIN);
+        var mainScreen = screenController.get<MainScreen>(MainScreen.ID);
+        if(mainScreen != null) mainScreen.reset();
+        screenController.switchTo(MainScreen.ID);
     }
 }

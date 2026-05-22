@@ -1,4 +1,4 @@
-namespace App.Root.Player.Hud;
+namespace App.Root.Player.Aim;
 using App.Root.Mesh;
 using App.Root.Resource;
 using OpenTK.Graphics.OpenGL;

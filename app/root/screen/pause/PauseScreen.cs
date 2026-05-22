@@ -1,12 +1,12 @@
 namespace App.Root.Screen.Pause;
 
 class PauseScreen : Screen {
+    public const string ID = "pause";
     public static readonly string PATH = DIR + "pause/pause_screen.xml";
     
     public PauseScreenAction pauseScreenAction;
 
-    public PauseScreen() : 
-    base(PATH, "pause") {
+    public PauseScreen() : base(PATH, ID) {
         this.pauseScreenAction = new PauseScreenAction(
             tick, 
             input,

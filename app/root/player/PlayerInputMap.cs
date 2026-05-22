@@ -107,6 +107,14 @@ class PlayerInputMap {
         return inventoryUI!.isOpen();
     }
 
+    // Hide Inventory
+    public void hideInventory() {
+        if(isInventoryOpen()) {
+            var uiController = input.getUIController();
+            uiController.hide();
+        }
+    }
+
     /**
     
         Mode

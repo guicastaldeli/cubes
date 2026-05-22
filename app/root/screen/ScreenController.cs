@@ -4,13 +4,9 @@ using App.Root.Shaders;
 using App.Root.Screen.Main;
 using System.Collections.Generic;
 using App.Root.Screen.Pause;
+using System.Reflection;
 
 class ScreenController {
-    public enum SCREENS {
-        MAIN,
-        PAUSE
-    }
-
     public int screenWidth;
     public int screenHeight;
 
@@ -21,8 +17,8 @@ class ScreenController {
     private Scene? scene;
     private Network network;
 
-    public Dictionary<SCREENS, Screen> screens = new();
-    public SCREENS? activeScreen = null;
+    public Dictionary<string, Screen> screens = new();
+    public string? activeScreen = null;
     public Screen? currentScreen = null;
     public Screen? prevScreen = null;
 
@@ -61,7 +57,7 @@ class ScreenController {
     }
 
     // Screen Active
-    public bool isScreenActive(SCREENS screenType) {
+    public bool isScreenActive(string screenType) {
         return screens.TryGetValue(screenType, out var screen) && screen.isActive();
     }
 
@@ -88,21 +84,21 @@ class ScreenController {
     }
 
     // Switch 
-    public void switchTo(SCREENS? screenType) {
+    public void switchTo(string? screenType) {
         prevScreen = null;
         currentScreen = null;
         activeScreen = null;
         foreach(var screen in screens.Values) screen.setActive(false);
         if(screenType == null) return;
 
-        if(screens.TryGetValue(screenType.Value, out var target)) {
+        if(screens.TryGetValue(screenType, out var target)) {
             currentScreen = target;
             activeScreen = screenType;
             currentScreen.setActive(true);
         }
     }
 
-    public void switchToOverlay(SCREENS screenType) {
+    public void switchToOverlay(string screenType) {
         prevScreen = currentScreen;
 
         foreach(var screen in screens.Values) screen.setActive(false);
@@ -122,6 +118,22 @@ class ScreenController {
         prevScreen = null;
     }
 
+    /**
+    
+        Get
+    
+        */
+    public Screen? get(string screenName) {
+        return screens.GetValueOrDefault(screenName);
+    }
+
+    public T? get<T>(string screenName) where T : Screen {
+        if(screens.TryGetValue(screenName, out var screen)) {
+            return screen as T;
+        }
+        return null;
+    }
+ 
     /**
     
         Render
@@ -148,11 +160,23 @@ class ScreenController {
 
         */
     public void init() {
-        // Main
-        screens[SCREENS.MAIN] = new MainScreen();
+        var baseType = typeof(Screen);
+        var types = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(t =>
+                t.IsClass &&
+                !t.IsAbstract &&
+                t.IsSubclassOf(baseType)
+            );
 
-        //Pause
-        screens[SCREENS.PAUSE] = new PauseScreen();
+        foreach(var type in types) {
+            var ctor = type.GetConstructor(Type.EmptyTypes);
+            if(ctor != null) {
+                var instance = (Screen)ctor.Invoke(null);
+                screens[instance.screenName] = instance;
+                Console.WriteLine($"Registered Screen!: {instance.screenName}");
+            }
+        }
     }
 
     // Handle Window Resize
