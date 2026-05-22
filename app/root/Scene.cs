@@ -125,6 +125,7 @@ class Scene {
             !network.isConnected || 
             network.isHost();
         
+        playerController.render();
         playerController.setCollisionManager(collisionManager);
         playerController.setWorldManager(worldManager);
 

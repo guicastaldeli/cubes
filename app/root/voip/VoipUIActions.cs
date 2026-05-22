@@ -1,4 +1,4 @@
-namespace App.Root.UI.Voip;
+namespace App.Root.Voip;
 
 class VoipUIActions {
     private VoipUI voipUI;

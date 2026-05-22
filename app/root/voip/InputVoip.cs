@@ -1,7 +1,6 @@
 namespace App.Root.Voip;
 using App.Root.Screen;
 using App.Root.UI;
-using App.Root.UI.Voip;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class InputVoip {
@@ -15,13 +14,13 @@ class InputVoip {
 
     // Get Voip UI
     public VoipUI? getVoipUI() {
-        var voipUI = uiController.get<VoipUI>(UIController.UIType.VOIP);
+        var voipUI = uiController.get<VoipUI>(VoipUI.ID);
         if(voipUI != null) return voipUI;
         return null;
     }
 
     public VoipUIActions? getVoipUIActions() {
-        var voipUI = uiController.get<VoipUI>(UIController.UIType.VOIP);
+        var voipUI = uiController.get<VoipUI>(VoipUI.ID);
         if(voipUI != null) return voipUI.getVoipUIActions();
         return null;
     }

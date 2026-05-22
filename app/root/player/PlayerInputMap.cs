@@ -71,9 +71,7 @@ class PlayerInputMap {
         */
     // Get Inventory
     public InventoryUI? getInventory() {
-        InventoryUI? val = 
-            input.getUIController()
-            .get<InventoryUI>(UI.UIController.UIType.INVENTORY);
+        InventoryUI? val = input.getUIController().get<InventoryUI>(Inventory.Inventory.ID);
         return val;
     }
 
@@ -87,9 +85,9 @@ class PlayerInputMap {
         bool kv = key == Keys.I;
         if(kv) {
             var uiController = input.getUIController();
-            uiController.toggle(UI.UIController.UIType.INVENTORY);
+            uiController.toggle(Inventory.Inventory.ID);
 
-            bool isActive = uiController.getActive() == UI.UIController.UIType.INVENTORY;
+            bool isActive = uiController.getActive() == Inventory.Inventory.ID;
             
             var raycaster = playerController.getRaycaster();
             if(raycaster != null) raycaster.setActive(!isActive);
@@ -105,7 +103,7 @@ class PlayerInputMap {
     // Is Inventory Open
     public bool isInventoryOpen() {
         var uiController = input.getUIController();
-        var inventoryUI = uiController.get<InventoryUI>(UI.UIController.UIType.INVENTORY);
+        var inventoryUI = uiController.get<InventoryUI>(Inventory.Inventory.ID);
         return inventoryUI!.isOpen();
     }
 

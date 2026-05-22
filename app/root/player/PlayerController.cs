@@ -7,6 +7,11 @@ using App.Root.World.Platform;
 using OpenTK.Mathematics;
 
 class PlayerController : DataEntry {
+    /**
+    
+        Movement Direction
+    
+        */
     public enum MovDir {
         FORWARD,
         BACKWARD,
@@ -60,10 +65,7 @@ class PlayerController : DataEntry {
     private WorldManager? worldManager = null!;
 
     private string id = "";
-    private string username =
-        InfoController.getInstance()
-            .getUserInfo()
-            .getUsername();
+    private string username = InfoController.getInstance().getUserInfo().getUsername();
 
     public PlayerController(
         Window window,
@@ -90,11 +92,7 @@ class PlayerController : DataEntry {
 
         this.networkPlayer = new NetworkPlayer(this);
 
-        this.hud = new Hud.Hud(
-            window, 
-            shaderProgram, 
-            mesh
-        );
+        this.hud = new Hud.Hud(window, shaderProgram, mesh);
 
         this.raycaster = new Raycaster(camera, mesh);
 
@@ -252,6 +250,15 @@ class PlayerController : DataEntry {
                 spawn.Value.Z
             );
         }
+    }
+
+    /**
+
+        Render
+
+        */
+    public void render() {
+        hud.render();
     }
 
     /**

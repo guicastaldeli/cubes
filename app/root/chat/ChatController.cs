@@ -1,6 +1,5 @@
 namespace App.Root.Chat;
 using App.Root.UI;
-using App.Root.UI.Chat;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class ChatController {
@@ -137,7 +136,9 @@ class ChatController {
         */
     public void show() {
         if(!opened && !messageAdded) return;
-        uiController?.show(UIController.UIType.CHAT);
+        
+        uiController?.show(Chat.ID);
+
         messageAdded = false;
     }
 }

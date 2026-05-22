@@ -10,6 +10,8 @@ using App.Root.Shaders;
 using App.Root.Text;
 
 class Inventory {
+    public const string ID = "inventory";
+    
     private ShaderProgram shaderProgram = null!;
     private TextRenderer textRenderer = null!;
 

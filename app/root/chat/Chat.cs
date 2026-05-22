@@ -1,11 +1,12 @@
-namespace App.Root.UI.Chat;
-using App.Root.Chat;
+namespace App.Root.Chat;
 
-class Chat : UI {
-    public static readonly string PATH = DIR + "chat/chat.xml";
+class Chat : UI.UI {
+    public const string ID = "chat";
 
-    public Chat() : 
-    base(PATH, "chat") {
+    public static string CHAT_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "chat/");
+    public static readonly string PATH = CHAT_DIR + "chat.xml";
+
+    public Chat() : base(PATH, ID) {
         ChatController.getInstance().setChat(this);
         ChatController.getInstance().setUIController(uiController);
     }

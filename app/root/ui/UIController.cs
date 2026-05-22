@@ -1,25 +1,18 @@
 namespace App.Root.UI;
 using App.Root.Shaders;
-using App.Root.UI.Voip;
 using System.Collections.Generic;
-using App.Root.Player.Inventory;
 using App.Root.Player;
+using System.Reflection;
 
 class UIController {
-    public enum UIType {
-        CHAT,
-        VOIP,
-        INVENTORY
-    }
-
     public int screenWidth;
     public int screenHeight;
     public ShaderProgram shaderProgram;
 
     private PlayerController? playerController = null!;
 
-    private Dictionary<UIType, UI> uis = new();
-    private UIType? active = null;
+    private Dictionary<string, UI> uis = new();
+    private string? active = null;
     private UI? currentUI = null;
     private bool isVisible = false;
 
@@ -51,11 +44,11 @@ class UIController {
         Get
     
         */
-    public UI? get(UIType uiType) {
+    public UI? get(string uiType) {
         return uis.GetValueOrDefault(uiType);
     }
 
-    public T? get<T>(UIType uiType) where T : UI {
+    public T? get<T>(string uiType) where T : UI {
         if(uis.TryGetValue(uiType, out var ui)) {
             return ui as T;
         }
@@ -67,7 +60,7 @@ class UIController {
         Show
     
         */
-    public void show(UIType uiType) {
+    public void show(string uiType) {
         if(active != null && active != uiType) hide();
 
         active = uiType;
@@ -96,7 +89,7 @@ class UIController {
         Toggle
     
         */
-    public void toggle(UIType uiType) {
+    public void toggle(string uiType) {
         if(active == uiType) {
             hide();
         } else {
@@ -108,7 +101,7 @@ class UIController {
         return isVisible;
     }
 
-    public UIType? getActive() {
+    public string? getActive() {
         return active;  
     }
 
@@ -187,8 +180,22 @@ class UIController {
     
         */
     private void init() {
-        uis[UIType.CHAT] = new Chat.Chat();
-        uis[UIType.VOIP] = new VoipUI();
-        uis[UIType.INVENTORY] = new InventoryUI();
+        var baseType = typeof(UI);
+        var types = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(t =>
+                t.IsClass &&
+                !t.IsAbstract &&
+                t.IsSubclassOf(baseType)
+            );
+
+        foreach(var type in types) {
+            var ctor = type.GetConstructor(Type.EmptyTypes);
+            if(ctor != null) {
+                var instance = (UI)ctor.Invoke(null);
+                uis[instance.uiName] = instance;
+                Console.WriteLine($"Registered UI!: {instance.uiName}");
+            }
+        }
     }
 }

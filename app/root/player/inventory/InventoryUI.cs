@@ -7,7 +7,7 @@ class InventoryUI : UI.UI {
 
     private Inventory inventory = null!;
 
-    public InventoryUI() : base(PATH, "inventory") {
+    public InventoryUI() : base(PATH, Inventory.ID) {
         init();
     }
 
