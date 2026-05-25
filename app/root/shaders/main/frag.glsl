@@ -3,6 +3,8 @@
 in vec4 vColor;
 in vec2 vTexCoord;
 in float fragDist;
+in float vWorldY;
+in vec3 vWorldPos;
 flat in int vInstanceTexId;
 
 out vec4 fragColor;
@@ -19,6 +21,7 @@ uniform int useArrayTexture;
 uniform int shaderAddon;
 uniform sampler2D uScreenTexture; 
 uniform int isInv;
+uniform float cameraY;
 
 #include "../text/text.frag.glsl"
 #include "../ui/invert.glsl"
@@ -31,6 +34,7 @@ uniform int isInv;
 #include "../world/weather.frag.glsl"
 #include "../world/skybox.frag.glsl"
 #include "../world/star.frag.glsl"
+#include "fog.glsl"
 
 vec4 setEntityColor(vec4 texColor) {
     if(isEntity == 1) {
@@ -134,6 +138,9 @@ void main() {
             baseColor = uColor;
         }
 
-        fragColor = applyWeatherTemp(baseColor);
+        vec4 weather = applyWeatherTemp(baseColor);
+        vec4 fog = applyFog(weather);
+        
+        fragColor = fog;
     }
 }

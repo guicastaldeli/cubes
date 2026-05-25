@@ -4,6 +4,7 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 using NLua;
+using App.Root.Player;
 
 /**
 
@@ -131,6 +132,7 @@ class Skybox : WorldHandler {
     private Tick tick;
     private ShaderProgram shaderProgram;
     private Mesh mesh;
+    private Camera camera;
     private TimeCycle timeCycle;
 
     private bool initialized = false;
@@ -143,11 +145,13 @@ class Skybox : WorldHandler {
         [Inject] Tick tick,
         [Inject] ShaderProgram shaderProgram, 
         [Inject] Mesh mesh,
+        [Inject] Camera camera,
         [Inject] TimeCycle timeCycle
     ) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
+        this.camera = camera;
         this.timeCycle = timeCycle;
 
         SkyboxStar.init(tick, mesh);
@@ -212,6 +216,8 @@ class Skybox : WorldHandler {
     }
 
     private void updateShader() {
+        shaderProgram.setUniform("cameraY", camera.getPosition().Y);
+        
         shaderProgram.setUniformb("periodType", Period.getNumber(Period.getCurrent()!));
         shaderProgram.setUniform("currentHour", timeCycle.getHour());
         shaderProgram.setUniform("time", tick.getCurrentTime());

@@ -12,6 +12,8 @@ layout(location = 7) in int aInstanceTexId;
 out vec4 vColor;
 out vec2 vTexCoord;
 out float fragDist;
+out float vWorldY;
+out vec3 vWorldPos;
 flat out int vInstanceTexId;
 
 uniform mat4 uModel;
@@ -123,6 +125,9 @@ void main() {
 
             pos = instanceRotation * pos;
             pos += aInstanceOffset;
+            
+            vWorldPos = pos;
+            vWorldY = pos.y;
 
             vec4 viewPos = uView * vec4(pos, 1.0);
             gl_Position = uProjection * viewPos;
@@ -141,6 +146,8 @@ void main() {
         }
 
         vec4 worldPos = uModel * vec4(pos, 1.0);
+        vWorldPos = worldPos.xyz;
+        vWorldY = worldPos.y;
         vec4 viewPos = uView * worldPos;
 
         gl_Position = uProjection * viewPos;

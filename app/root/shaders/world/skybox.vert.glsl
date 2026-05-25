@@ -3,9 +3,6 @@
     Skybox vertex shader
 
     */
-out float vWorldY;
-out vec3 vWorldPos;
-
 void setSkyboxVert() {
     vColor = aColor;
     vTexCoord = aTexCoord;

@@ -44,7 +44,7 @@ function getCurrentColor(hour)
     return colorData
 end
 
--- Get top Color
+-- Get Top Color
 function getTopColor(periodName)
     if Colors[periodName] then
         return Colors[periodName].top
