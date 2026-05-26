@@ -5,6 +5,7 @@
     */
 namespace App.Root.World.Platform;
 using App.Root.Collider;
+using App.Root.Player;
 using App.Root.Utils;
 using System.Reflection;
 
@@ -22,20 +23,28 @@ class PlatformEntity {
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
     private Platform platform;
+    private PlayerController playerController;
 
     private ServiceContainer ServiceContainer = new ServiceContainer();
     private bool isRegistered = false;
 
     private List<PlatformEntityHandler> el = new();
 
-    public PlatformEntity(Mesh.Mesh mesh, CollisionManager collisionManager, Platform platform) {
+    public PlatformEntity(
+        Mesh.Mesh mesh, 
+        CollisionManager collisionManager, 
+        Platform platform,
+        PlayerController playerController
+    ) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.platform = platform;
+        this.playerController = playerController;
 
         ServiceContainer.Register(mesh);
         ServiceContainer.Register(collisionManager);
         ServiceContainer.Register(platform);
+        ServiceContainer.Register(playerController);
     }
 
     /**

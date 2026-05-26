@@ -42,7 +42,7 @@ class WorldManager {
         this.timeCycle = timeCycle;
         this.camera = camera;
 
-        this.world = new World(window, tick, shaderProgram, mesh, this, collisionManager, timeCycle, camera);
+        this.world = new World(window, tick, shaderProgram, mesh, this, collisionManager, timeCycle, camera, playerController);
         this.worldBroadcaster = new WorldBroadcaster(this);
         this.networkWorld = new NetworkWorld(this);
     }

@@ -5,6 +5,7 @@
         x="5%" y="25%" 
         scale="1.0" 
         color="0.0,0.0,0.0,1.0"
+        visible="false"
     >
         PRESS "E" TO DEPOSIT...
     </label>
@@ -13,6 +14,7 @@
         x="5%" y="25%" 
         scale="1.0" 
         color="0.0,0.0,0.0,1.0"
+        visible="false"
     >
         + {points}
     </label>

@@ -34,7 +34,8 @@ class World : WorldHandler {
         WorldManager worldManager,
         CollisionManager collisionManager,
         TimeCycle timeCycle,
-        Camera camera
+        Camera camera,
+        PlayerController playerController
     ) {
         this.window = window;
         this.tick = tick;
@@ -53,6 +54,7 @@ class World : WorldHandler {
         ServiceContainer.Register(collisionManager);
         ServiceContainer.Register(timeCycle);
         ServiceContainer.Register(camera);
+        ServiceContainer.Register(playerController);
         ServiceContainer.SRegister(this);
 
         WorldUpdater.getInstance().init(window, mesh, collisionManager);

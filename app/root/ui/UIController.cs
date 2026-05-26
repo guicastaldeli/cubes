@@ -169,7 +169,7 @@ class UIController {
         */
     public void generate() {
         foreach(var ui in uis.Values) {
-            if(ui.enableGeneration) ui.generate();
+            if(ui.EnableGeneration) ui.generate();
         }
     }
 

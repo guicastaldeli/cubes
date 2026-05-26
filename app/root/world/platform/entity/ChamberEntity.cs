@@ -7,6 +7,7 @@ namespace App.Root.World.Platform.Entity;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
+using App.Root.Player;
 using App.Root.Resource;
 using App.Root.Utils;
 
@@ -14,11 +15,33 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     private Mesh mesh;
     private CollisionManager collisionManager;
     private Platform platform;
+    private PlayerController playerController;
+
+    private ChamberDialog chamberDialog;
     
-    public ChamberEntity([Inject] Mesh mesh, [Inject] CollisionManager collisionManager, [Inject] Platform platform) {
+    public ChamberEntity(
+        [Inject] Mesh mesh, 
+        [Inject] CollisionManager collisionManager, 
+        [Inject] Platform platform, 
+        [Inject] PlayerController playerController
+    ) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.platform = platform;
+        this.playerController = playerController;
+
+        this.chamberDialog = new ChamberDialog();
+
+        init();
+    }
+
+    // Activate Dialog
+    private void activateDialog() {
+        var dialog = UI.UI.uiController.get<ChamberDialog>(ChamberDialog.ID);
+        if(dialog != null) {
+            dialog.setPlayerController(playerController);
+            dialog.activate();
+        }
     }
 
     /**
@@ -50,6 +73,8 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
         collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
 
         MeshInteractionRegistry.getInstance().register(id, State.UNBREAKABLE, mesh);
+    
+        activateDialog();
     }
 
     /**
@@ -59,6 +84,7 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
         */
     public override void render() {
         set();
+        chamberDialog.render();
         base.render();
     }
 
@@ -68,6 +94,16 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     
         */
     public override void update() {
+        chamberDialog.update();
         base.update();
+    }
+
+    /**
+    
+        Init
+    
+        */
+    private void init() {
+        chamberDialog.init();
     }
 }

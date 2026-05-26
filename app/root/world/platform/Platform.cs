@@ -9,6 +9,7 @@ using App.Root.Collider.Types;
 using App.Root.Mesh;
 using App.Root.Particle;
 using App.Root.Physics;
+using App.Root.Player;
 using App.Root.Resource;
 using App.Root.Utils;
 using OpenTK.Mathematics;
@@ -17,6 +18,7 @@ class Platform : WorldHandler {
     private Mesh mesh;
     private CollisionManager collisionManager;
     private PlatformEntity platformEntity;
+    private PlayerController playerController;
 
     public string GRID_ID = "grid";
     private string MESH = "cube";
@@ -31,10 +33,11 @@ class Platform : WorldHandler {
 
     private bool initialized = false;
     
-    public Platform([Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
+    public Platform([Inject] Mesh mesh, [Inject] CollisionManager collisionManager, [Inject] PlayerController playerController) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
-        this.platformEntity = new PlatformEntity(mesh, collisionManager, this);
+        this.playerController = playerController;
+        this.platformEntity = new PlatformEntity(mesh, collisionManager, this, playerController);
     
         init();
     }

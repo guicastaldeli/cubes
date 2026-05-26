@@ -153,6 +153,7 @@ class Raycaster {
     private Mesh mesh;
 
     public Action? onRenderOutline = null;
+    public event Action<string?>? onHit;
     private bool isActive = true;
 
     private const float MAX_DIST = 300.0f;
@@ -412,9 +413,11 @@ class Raycaster {
     public void update() {
         if(!isActive) return;
 
-        onRenderOutline = null;
-
         string? d = cast();
+        
+        onRenderOutline = null;
+        onHit?.Invoke(d);
+
         if(d == null) return;
 
         onRenderOutline = () => {

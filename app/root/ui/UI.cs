@@ -24,7 +24,7 @@ class UI : UIHandler {
     public static int screenWidth;
     public static int screenHeight;
 
-    public bool enableGeneration {
+    public bool EnableGeneration {
         get;
         set;
     } = false;

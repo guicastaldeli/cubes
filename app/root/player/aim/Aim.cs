@@ -16,7 +16,7 @@ class Aim : UI.UI {
     private int screenTexHandle = 0;
 
     public Aim() : base(ID) {
-        enableGeneration = true;
+        EnableGeneration = true;
     }
 
     // Set

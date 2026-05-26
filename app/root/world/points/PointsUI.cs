@@ -7,7 +7,7 @@ class PointsUI : UI.UI {
     public static string PATH = POINTS_HUD_DIR + "points.xml"; 
 
     public PointsUI() : base(PATH, ID) {
-        enableGeneration = true;
+        EnableGeneration = true;
     }
 
     // On Show
