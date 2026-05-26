@@ -5,6 +5,7 @@
     */
 namespace App.Root.World.Platform;
 using App.Root.Collider;
+using App.Root.Utils;
 using System.Reflection;
 
 class PlatformEntity {
@@ -22,12 +23,19 @@ class PlatformEntity {
     private CollisionManager collisionManager;
     private Platform platform;
 
+    private ServiceContainer ServiceContainer = new ServiceContainer();
+    private bool isRegistered = false;
+
     private List<PlatformEntityHandler> el = new();
 
     public PlatformEntity(Mesh.Mesh mesh, CollisionManager collisionManager, Platform platform) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.platform = platform;
+
+        ServiceContainer.Register(mesh);
+        ServiceContainer.Register(collisionManager);
+        ServiceContainer.Register(platform);
     }
 
     /**
@@ -36,18 +44,12 @@ class PlatformEntity {
     
         */
     public void init() {
-        Console.WriteLine("YTESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
-        var baseType = typeof(PlatformEntityHandler);
-        var types = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(t =>
-                t.IsClass &&
-                !t.IsAbstract &&
-                t.IsSubclassOf(baseType)
-            );
+        if(isRegistered) return;
 
-        foreach(var type in types) {
-        }
+        var registry = new ClassRegistry(ServiceContainer);
+        el = registry.Register<PlatformEntityHandler>();
+
+        isRegistered = true;
     }
 
     /**

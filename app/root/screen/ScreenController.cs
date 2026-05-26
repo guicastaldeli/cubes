@@ -174,7 +174,10 @@ class ScreenController {
             if(ctor != null) {
                 var instance = (Screen)ctor.Invoke(null);
                 screens[instance.screenName] = instance;
+
+                Console.ForegroundColor = ConsoleColor.DarkBlue;
                 Console.WriteLine($"Registered Screen!: {instance.screenName}");
+                Console.ResetColor();
             }
         }
     }

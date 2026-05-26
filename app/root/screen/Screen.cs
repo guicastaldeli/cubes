@@ -61,7 +61,8 @@ class Screen : ScreenHandler {
                 screenWidth,
                 screenHeight
             );
-            Console.WriteLine($"Screen '{screenName}' initialized: {screenData?.elements.Count ?? 0} elements");
+
+            //Console.WriteLine($"Screen '{screenName}' initialized: {screenData?.elements.Count ?? 0} elements");
         } catch(Exception err) {
             Console.Error.WriteLine($"Failed to init screen '{screenName}': {err.Message}");
         }

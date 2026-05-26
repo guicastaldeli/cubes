@@ -208,7 +208,10 @@ class UIController {
             if(ctor != null) {
                 var instance = (UI)ctor.Invoke(null);
                 uis[instance.uiName] = instance;
+
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
                 Console.WriteLine($"Registered UI!: {instance.uiName}");
+                Console.ResetColor();
             }
         }
     }

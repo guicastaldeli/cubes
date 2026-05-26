@@ -3,6 +3,7 @@ using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
 using App.Root.Resource;
+using App.Root.Utils;
 
 /**
 
@@ -14,7 +15,7 @@ class Chamber : PlatformEntity.PlatformEntityHandler {
     private CollisionManager collisionManager;
     private Platform platform;
     
-    public Chamber(Mesh mesh, CollisionManager collisionManager, Platform platform) {
+    public Chamber([Inject] Mesh mesh, [Inject] CollisionManager collisionManager, [Inject] Platform platform) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.platform = platform;

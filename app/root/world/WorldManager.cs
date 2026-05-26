@@ -2,7 +2,9 @@ namespace App.Root.World;
 using App.Root.Collider;
 using App.Root.Player;
 using App.Root.Shaders;
+using App.Root.Utils;
 
+[ClassRegistryIgnore]
 class WorldManager {
     private Window window;
     private Tick tick;

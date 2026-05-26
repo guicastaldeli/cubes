@@ -46,7 +46,7 @@ class UI : UIHandler {
 
     public UI(string uiName) {
         this.uiName = uiName;
-        Console.WriteLine($"UI '{uiName}' initialized");
+        //Console.WriteLine($"UI '{uiName}' initialized");
     }
     public UI(string filePath, string uiName) {
         this.filePath = filePath;
@@ -57,7 +57,7 @@ class UI : UIHandler {
 
             this.uiData = DocParser.parseUI(filePath, screenWidth, screenHeight);
 
-            Console.WriteLine($"UI '{uiName}' initialized: {uiData?.elements.Count ?? 0} elements");
+            //Console.WriteLine($"UI '{uiName}' initialized: {uiData?.elements.Count ?? 0} elements");
         } catch(Exception err) {
             Console.Error.WriteLine($"Failed to init UI '{uiName}': {err.Message}");
         }        

@@ -5,8 +5,8 @@ using App.Root.Physics;
 using App.Root.Player;
 using App.Root.Shaders;
 using App.Root.Utils;
-using System.Reflection;
 
+[ClassRegistryIgnore]
 class World : WorldHandler {
     private Window window;
     private Tick tick;
@@ -79,7 +79,7 @@ class World : WorldHandler {
         return worldManager;
     }
 
-    // World Boundary
+    // Boundary
     public WorldBoundary getWorldBoundary() {
         return worldBoundary;
     }
@@ -127,92 +127,9 @@ class World : WorldHandler {
     private void Register() {
         if(isRegistered) return;
 
-        var baseType = typeof(WorldHandler);
-        var excluded = new[] {
-            typeof(WorldHandler),
-            typeof(World),
-            typeof(WorldManager)
-        };
-
-        var types = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(t =>
-                t.IsClass &&
-                !t.IsAbstract &&
-                t.IsSubclassOf(baseType) &&
-                !excluded.Contains(t)
-            );
-        foreach(var type in types) {
-            bool shouldInclude = ServiceContainer.IsSRegisterActive() || !excluded.Contains(type);
-
-            if(shouldInclude) {
-                var instance = CreateInstance(type);
-                if(instance != null) {
-                    el.Add(instance);
-
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"Registered: {type.Name}");
-                    Console.ResetColor();
-                } else {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine($"Failed to register: {type.Name}");
-                    Console.ResetColor();
-                }
-            }
-        }
+        var registry = new ClassRegistry(ServiceContainer);
+        el = registry.Register<WorldHandler>();
 
         isRegistered = true;
-    }
-
-    /**
-
-        Create Instance
-    
-        */ 
-    private WorldHandler? CreateInstance(Type type) {
-        var constructors = type.GetConstructors();
-
-        foreach(var ctor in constructors.OrderByDescending(c => c.GetParameters().Length)) {
-            var parameters = ctor.GetParameters();
-            var args = new object?[parameters.Length];
-            bool canResolve = true;
-
-            for(int i = 0; i < parameters.Length; i++) {
-                var param = parameters[i];
-                var hasInjectionAttr = param.GetCustomAttribute<InjectAttribute>() != null;
-                if(hasInjectionAttr || ServiceContainer.Has(param.ParameterType)) {
-                    var service = ServiceContainer.Get(param.ParameterType);
-                    if(service != null) {
-                        args[i] = service;
-                    }
-                    else if(param.IsOptional) {
-                        args[i] = param.DefaultValue;
-                    }
-                    else {
-                        canResolve = false;
-                        break;
-                    }
-                }
-                else if(param.IsOptional) {
-                    args[i] = param.DefaultValue;
-                }
-                else {
-                    canResolve = false;
-                    break;
-                }
-
-            }
-
-            if(canResolve) {
-                try {
-                    return (WorldHandler)ctor.Invoke(args);
-                } catch(Exception err) {
-                    Console.WriteLine($"Error creating {type.Name}: {err.Message}");
-                    return null;
-                }
-            }
-        }
-
-        return null;
     }
 }

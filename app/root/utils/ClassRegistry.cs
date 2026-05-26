@@ -1,12 +1,10 @@
-
-using System.Reflection;
-
 /**
 
     Class Register main class.
 
     */
 namespace App.Root.Utils;
+using System.Reflection;
 
 class ClassRegistry {
     private ServiceContainer ServiceContainer;
@@ -70,7 +68,7 @@ class ClassRegistry {
                 t.IsClass &&
                 !t.IsAbstract &&
                 t.IsSubclassOf(baseType) &&
-                t.GetCustomAttribute<RegistryIgnore>() == null
+                t.GetCustomAttribute<ClassRegistryIgnore>() == null
             );
         foreach(var type in types) {
             var instance = CreateInstance<T>(type);

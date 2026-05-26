@@ -34,7 +34,7 @@ class Platform : WorldHandler {
     public Platform([Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
-        this.platformEntity = new PlatformEntity(this);
+        this.platformEntity = new PlatformEntity(mesh, collisionManager, this);
     
         init();
     }
