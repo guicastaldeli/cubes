@@ -46,7 +46,7 @@ class WorldUpdater {
         Mesh
     
         */
-    /* Add */
+    // Add
     public void addMesh(
         string id,
         string meshType,
@@ -121,7 +121,7 @@ class WorldUpdater {
         });
     }
     
-    /* Remove */
+    // Remove
     public void removeMesh(string id) {
         applyRemoveMesh(id);
 

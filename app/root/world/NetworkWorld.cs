@@ -2,8 +2,8 @@ namespace App.Root.World;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
 using App.Root.Resource;
-using System.Text.Json;
 using OpenTK.Mathematics;
+using System.Text.Json;
 
 class NetworkWorld : NetworkUpdateHandler {
     private WorldManager worldManager;

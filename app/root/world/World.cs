@@ -8,11 +8,6 @@ using App.Root.Utils;
 using System.Reflection;
 
 class World : WorldHandler {
-    private ServiceContainer ServiceContainer = new ServiceContainer();
-    private bool isRegistered = false;
-
-    private List<WorldHandler> el = new();
-
     private Window window;
     private Tick tick;
     private ShaderProgram shaderProgram;
@@ -23,6 +18,11 @@ class World : WorldHandler {
 
     private WorldManager worldManager;
     private WorldBoundary worldBoundary;
+
+    private ServiceContainer ServiceContainer = new ServiceContainer();
+    private bool isRegistered = false;
+    
+    private List<WorldHandler> el = new();
 
     public const float WORLD_BOUNDARY = 25.0f;
     
