@@ -54,7 +54,17 @@ class Chamber : PlatformEntity.PlatformEntityHandler {
         Render
     
         */
-    public void render() {
+    public override void render() {
         set();
+        base.render();
+    }
+
+    /**
+    
+        Update
+    
+        */
+    public override void update() {
+        base.update();
     }
 }

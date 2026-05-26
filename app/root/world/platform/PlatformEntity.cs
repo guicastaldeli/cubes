@@ -1,12 +1,11 @@
-
-using System.Reflection;
-
 /**
 
     Platform Entity main class
 
     */
 namespace App.Root.World.Platform;
+using App.Root.Collider;
+using System.Reflection;
 
 class PlatformEntity {
     /**
@@ -18,8 +17,18 @@ class PlatformEntity {
         public virtual void render() {}
         public virtual void update() {}
     }
+    
+    private Mesh.Mesh mesh;
+    private CollisionManager collisionManager;
+    private Platform platform;
 
     private List<PlatformEntityHandler> el = new();
+
+    public PlatformEntity(Mesh.Mesh mesh, CollisionManager collisionManager, Platform platform) {
+        this.mesh = mesh;
+        this.collisionManager = collisionManager;
+        this.platform = platform;
+    }
 
     /**
     
@@ -27,6 +36,7 @@ class PlatformEntity {
     
         */
     public void init() {
+        Console.WriteLine("YTESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
         var baseType = typeof(PlatformEntityHandler);
         var types = Assembly.GetExecutingAssembly()
             .GetTypes()
@@ -37,15 +47,6 @@ class PlatformEntity {
             );
 
         foreach(var type in types) {
-            var ctor = type.GetConstructor(Type.EmptyTypes);
-            if(ctor != null) {
-                var instance = (PlatformEntityHandler)ctor.Invoke(null);
-                el.Add(instance);
-
-                Console.ForegroundColor = ConsoleColor.DarkBlue;
-                Console.WriteLine($"Platform Registered: {type.Name}");
-                Console.ResetColor();
-            }
         }
     }
 

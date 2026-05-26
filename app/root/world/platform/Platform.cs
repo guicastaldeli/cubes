@@ -16,6 +16,7 @@ using OpenTK.Mathematics;
 class Platform : WorldHandler {
     private Mesh mesh;
     private CollisionManager collisionManager;
+    private PlatformEntity platformEntity;
 
     public string GRID_ID = "grid";
     private string MESH = "cube";
@@ -33,6 +34,9 @@ class Platform : WorldHandler {
     public Platform([Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
+        this.platformEntity = new PlatformEntity(this);
+    
+        init();
     }
 
     // Set Client
@@ -312,6 +316,8 @@ class Platform : WorldHandler {
         */  
     public override void render() {
         if(!initialized) {
+            platformEntity.render();
+
             set();
 
             set2();
@@ -335,5 +341,16 @@ class Platform : WorldHandler {
         if(frameCounter % 10 == 0) {
             //emitParticle();
         }
+
+        platformEntity.update();
+    }
+
+    /**
+    
+        Init
+    
+        */
+    private void init() {
+        platformEntity.init();
     }
 }
