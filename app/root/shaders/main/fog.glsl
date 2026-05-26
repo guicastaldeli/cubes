@@ -13,12 +13,12 @@ vec4 applyFog(vec4 color) {
     vec3 currentBottom = mix(prevBottomColor, bottomColor, transitionProgress);
     vec3 fogColor = mix(currentBottom, currentTop, gradient);
 
-    vec4 fog = applyWeatherTemp(vec4(fogColor, 1.0));
+    vec4 weather = applyWeatherTemp(vec4(fogColor, 1.0));
 
     float end = 50.0;
     float start = 10.0;
     float fogFactor = clamp((end - fragDist) / (end - start), 0.0, 1.0);
 
-    vec4 val = vec4(mix(fog.rgb, color.rgb, fogFactor), color.a);
+    vec4 val = vec4(mix(weather.rgb, color.rgb, fogFactor), color.a);
     return val;
 }
