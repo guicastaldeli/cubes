@@ -87,4 +87,13 @@ class ClassRegistry {
 
         return result;
     }
+
+    /**
+    
+        Clear
+    
+        */
+    public void Clear() {
+        
+    }
 }

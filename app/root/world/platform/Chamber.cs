@@ -36,7 +36,7 @@ class Chamber : PlatformEntity.PlatformEntityHandler {
         data.colliderShape = ColliderType.CUBE;
 
         mesh.add(id, data);
-        mesh.setPosition(id, -3.0f, 10.0f, -3.0f);
+        mesh.setPosition(id, -3.0f, 3.0f, -3.0f);
 
         var renderer = mesh.getMeshRenderer(id);
         if(renderer != null) renderer.isInteractive = true;
