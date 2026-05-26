@@ -2,7 +2,6 @@ namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Mesh;
 using App.Root.Utils;
-using App.Root.World.Entity;
 using OpenTK.Mathematics;
 
 /**
@@ -153,6 +152,7 @@ class Raycaster {
     private Camera camera;
     private Mesh mesh;
 
+    public Action? onRenderOutline = null;
     private bool isActive = true;
 
     private const float MAX_DIST = 300.0f;
@@ -415,18 +415,20 @@ class Raycaster {
         string? d = cast();
         if(d == null) return;
 
-        var instanced = EventStream.get<Dictionary<string, List<string>>>("stream-id");
-        if(instanced != null) {
-            foreach(var (id, list) in instanced) {
-                int index = list.IndexOf(d);
-                if(index >= 0) {
-                    Vector3 pos = MeshCollider.getInstancedPosition(d);
-                    mesh.renderOutlineAll(d, id, pos, index);
-                    return;
+        onRenderOutline = () => {
+            var instanced = EventStream.get<Dictionary<string, List<string>>>("stream-id");
+            if(instanced != null) {
+                foreach(var (id, list) in instanced) {
+                    int index = list.IndexOf(d);
+                    if(index >= 0) {
+                        Vector3 pos = MeshCollider.getInstancedPosition(d);
+                        mesh.renderOutlineAll(d, id, pos, index);
+                        return;
+                    }
                 }
             }
-        }
 
-        mesh.renderOutlineAll(d);
+            mesh.renderOutlineAll(d);
+        };
     }
 }

@@ -1,6 +1,7 @@
 namespace App.Root.Player;
 using App.Root.Collider;
 using App.Root.Info;
+using App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.World;
 using App.Root.World.Platform;
@@ -30,7 +31,7 @@ class PlayerController : DataEntry {
     private RigidBody rigidBody;
     private CollisionManager? collisionManager;
     private ShaderProgram shaderProgram;
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     private PlayerMesh playerMesh;
     private Raycaster raycaster;
 
@@ -70,7 +71,7 @@ class PlayerController : DataEntry {
         Window window,
         Input input, 
         ShaderProgram shaderProgram,
-        Mesh.Mesh mesh
+        Mesh mesh
     ) {
         instance = this;
 
@@ -117,7 +118,7 @@ class PlayerController : DataEntry {
     }
 
     // Get Mesh
-    public Mesh.Mesh getMesh() {
+    public Mesh getMesh() {
         return mesh;
     }
 
@@ -239,13 +240,14 @@ class PlayerController : DataEntry {
             );
         }
     }
-
+    
     /**
     
         Render
     
         */
     public void render() {
+        raycaster.onRenderOutline?.Invoke();
         UI.UI.uiController.generate();
     }
 
