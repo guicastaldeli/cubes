@@ -67,7 +67,7 @@ static class SpawnPoint {
     }
 
     private static void initCollider() {
-        var collider = new BoundaryObject(EntitySpawner.SPAWN_AREA);
+        var collider = new BoundaryObject(MeshEntitySpawner.SPAWN_AREA);
         collisionManager.addStaticCollider(collider);
         boundaryObject = collider;
     }
@@ -102,7 +102,7 @@ static class SpawnPoint {
     Entity Spawner main class
 
     */
-class EntitySpawner {
+class MeshEntitySpawner {
     /**
     
         Entity State
@@ -135,7 +135,7 @@ class EntitySpawner {
 
     private Dictionary<string, (MeshData data, Vector3 position)> pendingPhysics = new();
     
-    public EntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
+    public MeshEntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
         this.tick = tick;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
@@ -147,8 +147,8 @@ class EntitySpawner {
 
         onEvents();
         
-        EntityCollider.init(mesh, collisionManager, this);
-        EntityCollider.onEvents();
+        MeshEntityCollider.init(mesh, collisionManager, this);
+        MeshEntityCollider.onEvents();
     }
 
     // Get Boundary
@@ -285,10 +285,10 @@ class EntitySpawner {
         }
 
         if(inst.Lifetime <= l) {
-            if(!EntityCollider.colliderIds.ContainsKey(entityId)) return true;
-            if(index >= EntityCollider.colliderIds[entityId].Count) return true;
+            if(!MeshEntityCollider.colliderIds.ContainsKey(entityId)) return true;
+            if(index >= MeshEntityCollider.colliderIds[entityId].Count) return true;
             
-            string colliderId = EntityCollider.colliderIds[entityId][index];
+            string colliderId = MeshEntityCollider.colliderIds[entityId][index];
             collisionManager.removeCollider(colliderId);
             return true;
         }
@@ -371,7 +371,7 @@ class EntitySpawner {
 
                 setSpawn(deltaTime, ref inst);
                 l[i] = inst;
-                EntityCollider.update(id, i, inst.Position);
+                MeshEntityCollider.update(id, i, inst.Position);
             }
 
             var (positions, colors, rotations, textures) = getData(id, l);
@@ -410,7 +410,7 @@ class EntitySpawner {
         
         instances[entity.Id] = instanceList;
         instanceStates[entity.Id] = State.SLEEP;
-        EntityCollider.create(entity, instanceList);
+        MeshEntityCollider.create(entity, instanceList);
     }
 
     /**
@@ -423,7 +423,7 @@ class EntitySpawner {
         EventStream.on("instanced-break", (data) => {
             if(data is not string colliderId) return;
 
-            string? entityId = EntityCollider.colliderToEntity.TryGetValue(colliderId, out var eid) ? eid : null;
+            string? entityId = MeshEntityCollider.colliderToEntity.TryGetValue(colliderId, out var eid) ? eid : null;
             if(entityId == null) return;
 
             if(!instances.ContainsKey(entityId)) return;
@@ -431,7 +431,7 @@ class EntitySpawner {
 
             instanceStates[entityId] = State.ACTIVE;
 
-            var ids = EntityCollider.colliderIds.TryGetValue(entityId, out var list) ? list : null;
+            var ids = MeshEntityCollider.colliderIds.TryGetValue(entityId, out var list) ? list : null;
             if(ids == null) return;
 
             int index = ids.IndexOf(colliderId);
@@ -439,7 +439,7 @@ class EntitySpawner {
 
             instances[entityId].RemoveAt(index);
             ids.RemoveAt(index);
-            EntityCollider.colliderToEntity.Remove(colliderId);
+            MeshEntityCollider.colliderToEntity.Remove(colliderId);
             MeshCollider.removeInstanced(colliderId);
             mesh?.removeInstance(entityId, index);
         });
@@ -468,15 +468,15 @@ class EntitySpawner {
 
         */
     public void cleanup() {
-        EntityCollider.cleanup();
+        MeshEntityCollider.cleanup();
         instances.Clear();
     }
     
     private void cleanupEntity() {
-        EntityCollider.cleanupRemoved();
+        MeshEntityCollider.cleanupRemoved();
 
         var removedEntities = instances.Keys
-            .Where(id => !EntityCollider.colliderIds.ContainsKey(id))
+            .Where(id => !MeshEntityCollider.colliderIds.ContainsKey(id))
             .ToList();
 
         foreach(var rId in removedEntities) {

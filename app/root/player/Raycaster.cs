@@ -412,6 +412,8 @@ class Raycaster {
     public void update() {
         if(!isActive) return;
 
+        onRenderOutline = null;
+
         string? d = cast();
         if(d == null) return;
 

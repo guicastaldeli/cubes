@@ -8,10 +8,10 @@ using App.Root.Collider;
 using App.Root.Mesh;
 using OpenTK.Mathematics;
 
-static class EntityCollider {
+static class MeshEntityCollider {
     private static Mesh? mesh = null!;
     private static CollisionManager? collisionManager = null!;
-    private static EntitySpawner? entitySpawner = null!;
+    private static MeshEntitySpawner? entitySpawner = null!;
 
     public static Dictionary<string, List<string>> colliderIds = new();
     public static Dictionary<string, string> colliderToEntity = new();
@@ -28,11 +28,11 @@ static class EntityCollider {
     public static void init(
         Mesh mesh, 
         CollisionManager collisionManager,
-        EntitySpawner entitySpawner
+        MeshEntitySpawner entitySpawner
     ) {
-        EntityCollider.mesh = mesh;
-        EntityCollider.collisionManager = collisionManager;
-        EntityCollider.entitySpawner = entitySpawner;
+        MeshEntityCollider.mesh = mesh;
+        MeshEntityCollider.collisionManager = collisionManager;
+        MeshEntityCollider.entitySpawner = entitySpawner;
 
         MeshCollider.init(mesh, collisionManager);
     }
@@ -117,7 +117,7 @@ static class EntityCollider {
             colliderIds[entity.Id].Add(id);
             colliderToEntity[id] = entity.Id;
             
-            EntityFactory.setInteraction(data, entity, id);
+            MeshEntityFactory.setInteraction(data, entity, id);
         }
     }
 

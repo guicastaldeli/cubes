@@ -1,21 +1,21 @@
-namespace App.Root.World.Platform;
+/**
+
+    Chamber main class
+
+    */
+namespace App.Root.World.Platform.Entity;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
 using App.Root.Resource;
 using App.Root.Utils;
 
-/**
-
-    Chamber main class
-
-    */
-class Chamber : PlatformEntity.PlatformEntityHandler {
+class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     private Mesh mesh;
     private CollisionManager collisionManager;
     private Platform platform;
     
-    public Chamber([Inject] Mesh mesh, [Inject] CollisionManager collisionManager, [Inject] Platform platform) {
+    public ChamberEntity([Inject] Mesh mesh, [Inject] CollisionManager collisionManager, [Inject] Platform platform) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.platform = platform;
@@ -33,10 +33,12 @@ class Chamber : PlatformEntity.PlatformEntityHandler {
         MeshData data = MeshModelLoader.loadModel(path);
         data.isModel = true;
         data.modelPath = path;
+        data.isEntity = 1;
+        data.entityType = "chamber";
         data.colliderShape = ColliderType.CUBE;
 
         mesh.add(id, data);
-        mesh.setPosition(id, -3.0f, 3.0f, -3.0f);
+        mesh.setPosition(id, -3.0f, 2.5f, -3.0f);
 
         var renderer = mesh.getMeshRenderer(id);
         if(renderer != null) renderer.isInteractive = true;

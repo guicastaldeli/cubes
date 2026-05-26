@@ -61,6 +61,11 @@ public class MeshData {
         get; 
         set; 
     }
+
+    public string entityType {
+        get;
+        set;
+    } = "";
     
     public bool isTransparent { 
         get; 

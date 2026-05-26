@@ -96,7 +96,7 @@ public static class Converter {
     Entity Factory main class.
 
     */
-class EntityFactory {
+class MeshEntityFactory {
     private static readonly Random range = new Random();
     private static Dictionary<string, int> texCache = new();
 

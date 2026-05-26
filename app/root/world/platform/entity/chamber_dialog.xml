@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chamber_dialog>
+    <label
+        id="deposit" 
+        x="5%" y="25%" 
+        scale="1.0" 
+        color="0.0,0.0,0.0,1.0"
+    >
+        PRESS "E" TO DEPOSIT...
+    </label>
+    <label
+        id="plusPoints" 
+        x="5%" y="25%" 
+        scale="1.0" 
+        color="0.0,0.0,0.0,1.0"
+    >
+        + {points}
+    </label>
+</chamber_dialog>

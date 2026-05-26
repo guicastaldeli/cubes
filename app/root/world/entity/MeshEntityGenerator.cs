@@ -7,7 +7,6 @@
 namespace App.Root.World.Entity;
 using App.Root.Collider;
 using App.Root.Mesh;
-using App.Root.Resource;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 using NLua;
@@ -50,26 +49,26 @@ class Setter {
     Entity Generator main class.
 
     */
-class EntityGenerator : WorldHandler {
-    private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/Entity.lua");
+class MeshEntityGenerator : WorldHandler {
+    private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/MeshEntity.lua");
     
     private Tick tick;
     private Mesh mesh;
     private CollisionManager collisionManager;
-    private EntitySpawner entitySpawner;
+    private MeshEntitySpawner entitySpawner;
 
     private Queue<string> generationQueue = new();
 
     private bool initialized = false;
 
-    public EntityGenerator([Inject] Tick tick, [Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
+    public MeshEntityGenerator([Inject] Tick tick, [Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
         this.tick = tick;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
     
-        this.entitySpawner = new EntitySpawner(tick, mesh, collisionManager);
+        this.entitySpawner = new MeshEntitySpawner(tick, mesh, collisionManager);
     
-        EntityCollider.onEntityRemoved += meshType => {
+        MeshEntityCollider.onEntityRemoved += meshType => {
             generationQueue.Enqueue(meshType);
         };
     }
@@ -90,7 +89,7 @@ class EntityGenerator : WorldHandler {
         Directory.SetCurrentDirectory(originalDir);
         
         if(data["Entities"] is not LuaTable entities) {
-            throw new Exception("Entity.lua err!");
+            throw new Exception("MeshEntity.lua err!");
         }
 
         var res = new Dictionary<string, MeshData>();
@@ -108,14 +107,15 @@ class EntityGenerator : WorldHandler {
         var entityInstances = new Dictionary<string, List<Instance>>();
 
         foreach(var (type, data) in meshTypes) {
-            var entities = EntityFactory.generate(data, type);
+            var entities = MeshEntityFactory.generate(data, type);
             
             foreach(var entity in entities) {
                 entityProps[entity.Id] = entity;
                 entityInstances[entity.Id] = entitySpawner.getInstances(entity.Id);
 
-                MeshData meshData = EntityFactory.clone(data);
+                MeshData meshData = MeshEntityFactory.clone(data);
                 meshData.isEntity = 1;
+                meshData.entityType = "mesh";
 
                 mesh.add(entity.Id, meshData);
                 mesh.setScale(entity.Id, entity.Scale);
@@ -141,8 +141,8 @@ class EntityGenerator : WorldHandler {
             }
         }
 
-        EntityFactory.setEvent(
-            EntityCollider.colliderIds,
+        MeshEntityFactory.setEvent(
+            MeshEntityCollider.colliderIds,
             entityProps,
             entityInstances
         );
@@ -154,10 +154,10 @@ class EntityGenerator : WorldHandler {
         var entityProps = new Dictionary<string, EntityProps>();
         var entityInstances = new Dictionary<string, List<Instance>>();
 
-        var entities = EntityFactory.generate(data, type);
+        var entities = MeshEntityFactory.generate(data, type);
             
         foreach(var entity in entities) {
-            MeshData meshData = EntityFactory.clone(data);
+            MeshData meshData = MeshEntityFactory.clone(data);
             meshData.isEntity = 1;
 
             mesh.add(entity.Id, meshData);
@@ -184,8 +184,8 @@ class EntityGenerator : WorldHandler {
             }
         }
 
-        EntityFactory.setEvent(
-            EntityCollider.colliderIds,
+        MeshEntityFactory.setEvent(
+            MeshEntityCollider.colliderIds,
             entityProps,
             entityInstances
         );
