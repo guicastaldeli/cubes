@@ -10,14 +10,19 @@ using App.Root.Mesh;
 using App.Root.Player;
 using App.Root.Resource;
 using App.Root.Utils;
+using OpenTK.Mathematics;
 
 class ChamberEntity : PlatformEntity.PlatformEntityHandler {
+    public const string CHAMBER_ENTITY_ID = "chamber";
+
     private Mesh mesh;
     private CollisionManager collisionManager;
     private Platform platform;
     private PlayerController playerController;
 
     private ChamberDialog chamberDialog;
+
+    (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
     
     public ChamberEntity(
         [Inject] Mesh mesh, 
@@ -37,11 +42,22 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
 
     // Activate Dialog
     private void activateDialog() {
-        var dialog = UI.UI.uiController.get<ChamberDialog>(ChamberDialog.ID);
-        if(dialog != null) {
-            dialog.setPlayerController(playerController);
-            dialog.activate();
-        }
+        Vector3 dPos = new Vector3(pos.x, pos.y + 1.5f, pos.z);
+
+        var chamberText = mesh.getTextEntityRenderer()!.add(
+            CHAMBER_ENTITY_ID,
+            ChamberDialog.PATH,
+            dPos,
+            maxDistance: 8.0f
+        );
+
+        var els = chamberDialog.get();
+        chamberText.setElementVisible(els.deposit.id, false);
+        chamberText.setElementVisible(els.plusPoints.id, false);
+
+        playerController.getRaycaster().onHit += (string? id) => {
+            chamberText.setVisible(id == CHAMBER_ENTITY_ID);
+        };
     }
 
     /**
@@ -50,7 +66,6 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     
         */
     public void set() {
-        string id = "chamber";
         string path = "chamber.obj";
 
         MeshData data = MeshModelLoader.loadModel(path);
@@ -60,19 +75,21 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
         data.entityType = "chamber";
         data.colliderShape = ColliderType.CUBE;
 
-        mesh.add(id, data);
-        mesh.setPosition(id, -3.0f, 2.5f, -3.0f);
+        mesh.add(CHAMBER_ENTITY_ID, data);
 
-        var renderer = mesh.getMeshRenderer(id);
+        Vector3 dPos = new Vector3(pos.x, pos.y, pos.z);
+        mesh.setPosition(CHAMBER_ENTITY_ID, dPos);
+
+        var renderer = mesh.getMeshRenderer(CHAMBER_ENTITY_ID);
         if(renderer != null) renderer.isInteractive = true;
 
         string texPath = "world/chamber-test.png";
         int texId = TextureLoader.load(texPath);
-        mesh.setTexture(id, texId, texPath);
+        mesh.setTexture(CHAMBER_ENTITY_ID, texId, texPath);
 
-        collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
+        collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(CHAMBER_ENTITY_ID), CHAMBER_ENTITY_ID));
 
-        MeshInteractionRegistry.getInstance().register(id, State.UNBREAKABLE, mesh);
+        MeshInteractionRegistry.getInstance().register(CHAMBER_ENTITY_ID, State.UNBREAKABLE, mesh);
     
         activateDialog();
     }
@@ -84,7 +101,7 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
         */
     public override void render() {
         set();
-        chamberDialog.render();
+        //chamberDialog.render();
         base.render();
     }
 
@@ -94,7 +111,7 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     
         */
     public override void update() {
-        chamberDialog.update();
+        //chamberDialog.update();
         base.update();
     }
 

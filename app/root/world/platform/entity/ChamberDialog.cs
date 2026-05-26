@@ -1,9 +1,10 @@
-using App.Root.Player;
-
 namespace App.Root.World.Platform.Entity;
+using App.Root.Player;
+using App.Root.UI;
+using App.Root.Utils;
 
-class ChamberDialog : UI.UI {
-    public static string ID = "chamber_dialog";
+class ChamberDialog : UI {
+    public const string CHAMBER_DIALOG_ID = "chamber_dialog";
     
     public static string CHAMBER_DIALOG_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/platform/entity/");
     public static string PATH = CHAMBER_DIALOG_DIR + "chamber_dialog.xml";
@@ -12,7 +13,7 @@ class ChamberDialog : UI.UI {
 
     private PlayerController playerController = null!;
 
-    public ChamberDialog() : base(PATH, ID) {
+    public ChamberDialog() : base(PATH, CHAMBER_DIALOG_ID) {
         
     }
 
@@ -31,6 +32,18 @@ class ChamberDialog : UI.UI {
         base.onHide();
     }
 
+    /**
+    
+        Get
+    
+        */
+    public dynamic get() {
+        return ElementEntry.C(
+            id => getElementById(id),
+            "deposit", "plusPoints"
+        );
+    }
+    
     /**
     
         Show
@@ -80,7 +93,7 @@ class ChamberDialog : UI.UI {
     public void activate() {
         var raycaster = playerController.getRaycaster();
         raycaster.onHit += (string? id) => {
-            if(id == "chamber") {
+            if(id == ChamberEntity.CHAMBER_ENTITY_ID) {
                 show();
             } else {
                 hide();

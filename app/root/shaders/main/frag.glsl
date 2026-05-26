@@ -24,6 +24,7 @@ uniform int isInv;
 uniform float cameraY;
 
 #include "../text/text.frag.glsl"
+#include "../text/text.entity.frag.glsl"
 #include "../ui/invert.glsl"
 #include "../ui/hud.frag.glsl"
 #include "../ui/ui.frag.glsl"
@@ -113,6 +114,14 @@ void main() {
         */
     else if(shaderType == 10) {
         setHudFrag();
+    }
+    /**
+
+        Text Entity
+
+        */
+    else if(shaderType == 11) {
+        setTextEntityFrag();
     }
     /**
 

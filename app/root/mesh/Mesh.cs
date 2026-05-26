@@ -5,6 +5,7 @@ using App.Root.Collider;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.ES11;
 using App.Root.Particle;
+using App.Root.Text;
 
 class Mesh {
     public static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/mesh/");
@@ -18,6 +19,7 @@ class Mesh {
     private CollisionManager? collisionManager;
     private MeshRenderer? meshRenderer;
     private ParticleController? particleController;
+    private TextEntityRenderer? textEntityRenderer;
 
     private Dictionary<string, MeshData> meshDataMap = new();
     private Dictionary<string, MeshRenderer> meshRendererMap = new();
@@ -58,6 +60,11 @@ class Mesh {
     // Get Particle Controller
     public ParticleController? getParticleController() {
         return particleController;
+    }
+
+    // Get Text Entity Renderer
+    public TextEntityRenderer? getTextEntityRenderer() {
+        return textEntityRenderer;
     }
 
     /**
@@ -439,6 +446,9 @@ class Mesh {
             meshRenderer.render();
             renderOnTopMeshes();
         }
+        if(textEntityRenderer != null) {
+            textEntityRenderer.render();
+        }
     }
 
     // All
@@ -532,6 +542,8 @@ class Mesh {
     public void init() {
         meshRenderer = new MeshRenderer(window, shaderProgram, this);
         meshRenderer.setupSceneFramebuffer(window.getWidth(), window.getHeight());
+
+        textEntityRenderer = new TextEntityRenderer(window, shaderProgram, camera!, this);
     }
 
     /**
