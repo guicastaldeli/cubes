@@ -6,8 +6,9 @@
         scale="1.0" 
         color="0.0,0.0,0.0,1.0"
         visible="false"
+        fontFamily="arial.ttf"
     >
-        PRESS "E" TO DEPOSIT...
+        PRESS E TO DEPOSIT...
     </label>
     <label
         id="plusPoints" 

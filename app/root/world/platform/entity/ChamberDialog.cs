@@ -3,6 +3,7 @@ using App.Root.Player;
 using App.Root.UI;
 using App.Root.Utils;
 
+[ClassRegistryIgnore]
 class ChamberDialog : UI {
     public const string CHAMBER_DIALOG_ID = "chamber_dialog";
     

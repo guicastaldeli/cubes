@@ -9,6 +9,7 @@ using App.Root.Player;
 using App.Root.Screen;
 using App.Root.Shaders;
 using App.Root.UI;
+using App.Root.Utils;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
@@ -24,23 +25,25 @@ class TextEntity {
 
     private Window window;
     private ShaderProgram shaderProgram;
-    private Camera camera;
+    private Camera? camera;
     private Mesh mesh;
 
     private UIData? uiData;
     private TextRenderer textRenderer;
+
     private Dictionary<string, int> elTextures = new();
+    private Dictionary<string, bool> elVisibility = new();
+
     private bool visible = false;
     private bool initialized = false;
 
-    public TextEntity(Window window, ShaderProgram shaderProgram, Camera camera, Mesh mesh) {
+    public TextEntity(Window window, ShaderProgram shaderProgram, Mesh mesh) {
         this.window = window;
         this.shaderProgram = shaderProgram;
-        this.camera = camera;
         this.mesh = mesh;
 
         this.textRenderer = new TextRenderer(shaderProgram, window.getWidth(), window.getHeight());
-        this.textRenderer.loadFont("arial", "arial.ttf", 32.0f);
+        //this.textRenderer.loadFont("arial", "arial.ttf", 32.0f);
     }
     public TextEntity S(
         string id,
@@ -58,6 +61,11 @@ class TextEntity {
         this.uiData = DocParser.parseUI(path, window.getWidth(), window.getHeight());
 
         return this;
+    }
+
+    // Set Camera
+    public void setCamera(Camera camera) {
+        this.camera = camera;
     }
 
     // Get Mesh Id
@@ -89,19 +97,26 @@ class TextEntity {
     // Set Visible
     public void setVisible(bool visible) {
         this.visible = visible;
-        foreach(var el in uiData?.elements ?? new()) {
-            mesh.setVisible(getMeshId(el.id), visible && el.visible);
+        if(uiData == null) return;
+
+        foreach(var el in uiData.elements) {
+            if(skip(el)) continue;
+            mesh.setVisible(getMeshId(el.id), visible);
         }
     }
 
     // Set Element Visible
-    public void setElementVisible(string elId, bool visible) {
+    public void setElementVisible(params string[] ids) {
         if(uiData == null) return;
 
-        var el = DocParser.getElementById(uiData, elId);
-        if(el != null) {
-            el.visible = visible;
-            mesh.setVisible(getMeshId(elId), visible);
+        foreach(var el in uiData.elements) {
+            if(skip(el)) continue;
+            elVisibility[el.id] = false;
+            mesh.setVisible(getMeshId(el.id), false);
+        }
+        foreach(var id in ids) {
+            elVisibility[id] = true;
+            mesh.setVisible(getMeshId(id), visible); 
         }
     }
 
@@ -119,6 +134,35 @@ class TextEntity {
     // Skip
     private bool skip(UIElement el) {
         bool val = el.type != "label";
+        return val;
+    }
+
+    // Get Texture Size
+    private (int x, int h) getTextureSize(UIElement el) {
+        string fontKey = string.IsNullOrEmpty(el.fontFamily) ? "arial" : el.fontFamily;
+        float textWidth = textRenderer.getTextWidth(el.text, el.scale, fontKey);
+        FontMetrics fontMetrics = textRenderer.getFontMetrics(fontKey);
+
+        int width = Math.Max(64, (int)(textWidth + 20));
+        int height = Math.Max(32, (int)(fontMetrics.ascent * el.scale + fontMetrics.descent * el.scale + 16));
+
+        width = NextPow2.R(width);
+        height = NextPow2.R(height);
+
+        return (width, height);
+    }
+
+    // Get Texture X
+    private float getTextureX(UIElement el, int width) {
+        float normX = el.x / (float)window.getWidth();
+        float val = normX * width;
+        return val;
+    }
+
+    // Get Texture Y
+    private float getTextureY(UIElement el, int height) {
+        float normY = el.y / (float)window.getHeight();
+        float val = normY * height;
         return val;
     }
 
@@ -147,8 +191,10 @@ class TextEntity {
         */
     // Render
     public void render() {
-        if(!initialized || uiData == null) return;
-        if(camera == null) return;
+        if(!initialized || uiData == null || camera == null) {
+            Console.Error.WriteLine("Render null!");
+            return;
+        }
 
         float dist = Vector3.Distance(camera.getPosition(), worldPosition);
         bool inRange = dist <= maxDistance;
@@ -158,7 +204,7 @@ class TextEntity {
 
             string meshId = getMeshId(el.id);
 
-            bool shouldShow = visible && el.visible && inRange;
+            bool shouldShow = visible && inRange && elVisibility.GetValueOrDefault(el.id, true);
             mesh.setVisible(meshId, shouldShow);
             if(!shouldShow) continue;
 
@@ -168,35 +214,44 @@ class TextEntity {
 
     // Render Element to Texture
     private int renderElementToTexture(UIElement el) {
-        int texW = 512;
-        int texH = 128;
+        var (width, height) = getTextureSize(el);
+        float x = getTextureX(el, width);
+        float y = getTextureY(el, height);
 
         int fbo = GL.GenFramebuffer();
         int tex = GL.GenTexture();
+        int rbo = GL.GenRenderbuffer();
 
         GL.BindTexture(TextureTarget.Texture2D, tex);
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, texW, texH, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
+        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
+        GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, width, height);
+
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, tex, 0);
+        GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
 
-        GL.Viewport(0, 0, texW, texH);
+        GL.Viewport(0, 0, width, height);
         GL.ClearColor(0, 0, 0, 0);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
         GL.Enable(EnableCap.Blend);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-        textRenderer.updateScreenSize(texW, texH);
-        textRenderer.renderText(el.text, scale, texH, el.scale, el.color, el.fontFamily);
+        shaderProgram.setUniformb("screenSize", (float)width, (float)height);
+
+        textRenderer.updateScreenSize(width, height);
+        textRenderer.renderText(el.text, x, y, el.scale, el.color, el.fontFamily);
         
         GL.Disable(EnableCap.Blend);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         GL.DeleteFramebuffer(fbo);
+        GL.DeleteRenderbuffer(rbo);
         GL.Viewport(0, 0, window.getWidth(), window.getHeight());
     
         textRenderer.updateScreenSize(window.getWidth(), window.getHeight());
@@ -218,6 +273,7 @@ class TextEntity {
             string meshId = getMeshId(el.id);
             MeshData data = MeshDataLoader.load(MESH);
             data.shaderType = 11;
+            data.isDynamic = true;
 
             mesh.add(meshId, data);
 

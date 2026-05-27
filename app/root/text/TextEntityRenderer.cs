@@ -12,19 +12,23 @@ using OpenTK.Mathematics;
 class TextEntityRenderer {
     private Window window;
     private ShaderProgram shaderProgram;
-    private Camera camera;
     private Mesh mesh;
+    private TextEntity textEntity;
 
     private Dictionary<string, TextEntity> entities = new();
 
-    public TextEntityRenderer(Window window, ShaderProgram shaderProgram, Camera camera, Mesh mesh) {
+    public TextEntityRenderer(Window window, ShaderProgram shaderProgram, Mesh mesh) {
         this.window = window;
         this.shaderProgram = shaderProgram;
-        this.camera = camera;
         this.mesh = mesh;
 
-        new TextEntity(window, shaderProgram, camera, mesh);
+        this.textEntity = new TextEntity(window, shaderProgram, mesh);
     }
+
+    // Get Text Entity
+    public TextEntity getTextEntity() {
+        return textEntity;
+    } 
 
     /**
     
@@ -48,7 +52,7 @@ class TextEntityRenderer {
         float scale = 1.0f,
         float maxDistance = 10.0f
     ) {
-        var entity = new TextEntity(window, shaderProgram, camera, mesh).S(id, path, worldPosition, scale, maxDistance);
+        var entity = textEntity.S(id, path, worldPosition, scale, maxDistance);
         entity.init();
 
         entities[id] = entity;

@@ -584,6 +584,7 @@ class MeshRenderer : DataEntry {
 
         */
     // Main
+    public bool getVisible() => visible;
     public void render() {
         if(mesh == null) {
             Console.Error.WriteLine("Mesh is null!");

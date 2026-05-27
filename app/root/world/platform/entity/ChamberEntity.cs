@@ -10,6 +10,7 @@ using App.Root.Mesh;
 using App.Root.Player;
 using App.Root.Resource;
 using App.Root.Utils;
+using App.Root.UI;
 using OpenTK.Mathematics;
 
 class ChamberEntity : PlatformEntity.PlatformEntityHandler {
@@ -23,6 +24,8 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     private ChamberDialog chamberDialog;
 
     (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
+
+    private bool initialized = false;
     
     public ChamberEntity(
         [Inject] Mesh mesh, 
@@ -42,7 +45,9 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
 
     // Activate Dialog
     private void activateDialog() {
-        Vector3 dPos = new Vector3(pos.x, pos.y + 1.5f, pos.z);
+        UI.uiController.register(chamberDialog);
+        
+        Vector3 dPos = new Vector3(pos.x, pos.y + 0.5f, pos.z);
 
         var chamberText = mesh.getTextEntityRenderer()!.add(
             CHAMBER_ENTITY_ID,
@@ -52,11 +57,14 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
         );
 
         var els = chamberDialog.get();
-        chamberText.setElementVisible(els.deposit.id, false);
-        chamberText.setElementVisible(els.plusPoints.id, false);
 
         playerController.getRaycaster().onHit += (string? id) => {
-            chamberText.setVisible(id == CHAMBER_ENTITY_ID);
+            if(id == CHAMBER_ENTITY_ID) {
+                chamberText.setVisible(true);
+                chamberText.setElementVisible(els.deposit.id);
+            } else {
+                chamberText.setVisible(false);
+            }
         };
     }
 
@@ -66,6 +74,9 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     
         */
     public void set() {
+        if(initialized) return;
+        initialized = true;
+
         string path = "chamber.obj";
 
         MeshData data = MeshModelLoader.loadModel(path);

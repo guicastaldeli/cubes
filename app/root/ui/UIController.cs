@@ -3,6 +3,7 @@ using App.Root.Shaders;
 using System.Collections.Generic;
 using App.Root.Player;
 using System.Reflection;
+using App.Root.Utils;
 
 class UIController {
     public int screenWidth;
@@ -175,6 +176,15 @@ class UIController {
 
     /**
     
+        Register
+    
+        */
+    public void register(UI ui) {
+        uis[ui.uiName] = ui;
+    }
+
+    /**
+    
         Update
     
         */
@@ -204,7 +214,8 @@ class UIController {
             .Where(t =>
                 t.IsClass &&
                 !t.IsAbstract &&
-                t.IsSubclassOf(baseType)
+                t.IsSubclassOf(baseType) &&
+                t.GetCustomAttribute<ClassRegistryIgnore>() == null
             );
 
         foreach(var type in types) {

@@ -42,9 +42,12 @@ class Mesh {
     // Set Camera
     public void setCamera(Camera camera) {
         this.camera = camera;
+
         foreach(var r in meshRendererMap.Values) {
             r.setCamera(camera);
         }
+
+        if(textEntityRenderer != null) textEntityRenderer.getTextEntity().setCamera(camera);
     }
 
     // Set Player Controller
@@ -441,13 +444,12 @@ class Mesh {
         if(particleController != null) {
             particleController.render();
         }
-
+        if(textEntityRenderer != null) {
+            textEntityRenderer.render();
+        }
         if(meshRenderer != null) {
             meshRenderer.render();
             renderOnTopMeshes();
-        }
-        if(textEntityRenderer != null) {
-            textEntityRenderer.render();
         }
     }
 
@@ -543,7 +545,7 @@ class Mesh {
         meshRenderer = new MeshRenderer(window, shaderProgram, this);
         meshRenderer.setupSceneFramebuffer(window.getWidth(), window.getHeight());
 
-        textEntityRenderer = new TextEntityRenderer(window, shaderProgram, camera!, this);
+        textEntityRenderer = new TextEntityRenderer(window, shaderProgram, this);
     }
 
     /**
