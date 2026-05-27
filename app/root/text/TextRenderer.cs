@@ -39,7 +39,10 @@ class TextRenderer {
 
     // Get Font Metrics
     public FontMetrics getFontMetrics(string fontKey = "default") {
-        return fontLoaders[fontKey].getFontMetrics();
+        if(!fontLoaders.ContainsKey(fontKey)) return new FontMetrics(0, 0, 0, 0, 0, 0);
+        
+        FontMetrics val = fontLoaders[fontKey].getFontMetrics();
+        return val;
     }
 
     // Get Text Width
@@ -59,6 +62,20 @@ class TextRenderer {
         }
 
         return width;
+    }
+
+    // Has Font
+    public bool hasFont(string key) {
+        bool val = fontLoaders.ContainsKey(key);
+        return val;
+    }
+
+    // Ensure Font
+    public void ensureFont(string key, float size = 16.0f) {
+        string keyVal = key + ".ttf";
+        if(!fontLoaders.ContainsKey(key)) {
+            loadFont(key, keyVal, size);
+        }
     }
 
     /**

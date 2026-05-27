@@ -134,9 +134,18 @@ class TextEntity {
         return val;
     }
 
+    // Get Font Key
+    private string getFontKey(UIElement el) {
+        string key = string.IsNullOrEmpty(el.fontFamily) ? "arial" : el.fontFamily;
+        textRenderer.ensureFont(key);
+
+        return key;
+    }
+
     // Get Texture Size
     private (int x, int h) getTextureSize(UIElement el) {
-        string fontKey = string.IsNullOrEmpty(el.fontFamily) ? "arial" : el.fontFamily;
+        string fontKey = getFontKey(el);
+
         float textWidth = textRenderer.getTextWidth(el.text, el.scale, fontKey);
         FontMetrics fontMetrics = textRenderer.getFontMetrics(fontKey);
 
@@ -211,6 +220,8 @@ class TextEntity {
 
     // Render Element to Texture
     private int renderElementToTexture(UIElement el) {
+        string fontKey = getFontKey(el);
+        
         var (width, height) = getTextureSize(el);
         float x = getTextureX(el, width);
         float y = getTextureY(el, height);
@@ -243,7 +254,7 @@ class TextEntity {
         shaderProgram.setUniformb("screenSize", (float)width, (float)height);
 
         textRenderer.updateScreenSize(width, height);
-        textRenderer.renderText(el.text, x, y, el.scale, el.color, el.fontFamily);
+        textRenderer.renderText(el.text, x, y, el.scale, el.color, fontKey);
         
         GL.Disable(EnableCap.Blend);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
