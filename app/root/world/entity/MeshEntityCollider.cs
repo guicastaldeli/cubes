@@ -1,6 +1,6 @@
 /**
 
-    Entity Collider helper class
+    Mesh Entity Collider helper class
 
     */
 namespace App.Root.World.Entity;

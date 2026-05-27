@@ -99,13 +99,13 @@ static class SpawnPoint {
 
 /**
 
-    Entity Spawner main class
+    Mesh Entity Spawner main class
 
     */
 class MeshEntitySpawner {
     /**
     
-        Entity State
+        Mesh Entity State
     
         */
     private enum State {
@@ -113,6 +113,11 @@ class MeshEntitySpawner {
         ACTIVE
     }
 
+    /**
+    
+        Mesh Entity main
+    
+        */
     public static float SPAWN_AREA = 50.0f;
 
     private Tick? tick;

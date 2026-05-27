@@ -1,7 +1,7 @@
 --[[
 
-    Entity Class to
-    handle general Entity Configuration.
+    MeshEntity Class to
+    handle general MeshEntity Configuration.
 
     --]]
 dofile("world/entity/SetLoader.lua")

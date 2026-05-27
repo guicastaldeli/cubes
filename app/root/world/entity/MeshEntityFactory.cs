@@ -1,6 +1,6 @@
 /**
 
-    Entity Factory class
+    Mesh Entity Factory class
 
     */
 namespace App.Root.World.Entity;
@@ -11,7 +11,7 @@ using OpenTK.Mathematics;
 
 /**
 
-    Entity Props
+    Mesh Entity Props
 
     */
 public record EntityProps(
@@ -93,7 +93,7 @@ public static class Converter {
 
 /**
 
-    Entity Factory main class.
+    Mesh Entity Factory main class.
 
     */
 class MeshEntityFactory {

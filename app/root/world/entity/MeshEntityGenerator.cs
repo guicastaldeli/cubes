@@ -1,6 +1,6 @@
 /**
 
-    Entity Generator to handle
+    Mesh Entity Generator to handle
     main controller and generation.
 
     */
@@ -46,7 +46,7 @@ class Setter {
 
 /**
 
-    Entity Generator main class.
+    Mesh Entity Generator main class.
 
     */
 class MeshEntityGenerator : WorldHandler {
