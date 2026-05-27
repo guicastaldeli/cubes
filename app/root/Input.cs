@@ -22,6 +22,8 @@ class Input {
 
     public bool pauseOverlayOpen = false;
 
+    private static Dictionary<string, (string eventId, Keys key)> keyListeners = new();
+
     public Input(Window window, Tick tick) {
         this.window = window;
         this.tick = tick;
@@ -66,6 +68,28 @@ class Input {
 
     /**
     
+        Listen
+     
+        */
+    public static void listen(string eventId, Keys key) {
+        keyListeners[eventId] = (eventId, key);
+    }
+
+    /**
+    
+        Stream
+    
+        */
+    private static void stream(Keys key, int action) {
+        foreach(var (eventId, bind) in keyListeners) {
+            if(bind.key == key) {
+                EventStream.set(eventId, (key: (int)key, action: action));
+            }
+        }
+    }
+
+    /**
+    
         Keys
     
         */
@@ -100,12 +124,16 @@ class Input {
             playerInputMap.openInventory(key);
             playerInputMap.setKeyState(key, true);
         }
+
+        stream(key, 1);
     }
 
     private void onKeyUp(Keys key) {
         if(inputVoip != null) inputVoip.onKeyUp(key);
         screenController.handleKeyPress((int)key, 0);
         playerInputMap?.setKeyState(key, false);
+
+        stream(key, 0);
     }
 
     /**

@@ -1,6 +1,6 @@
 /**
 
-    Platform Entity main class
+    Platform Registry main class
 
     */
 namespace App.Root.World.Platform;
@@ -8,20 +8,20 @@ using App.Root.Collider;
 using App.Root.Player;
 using App.Root.Utils;
 
-class PlatformEntity {
+class PlatformRegistry {
     /**
 
-        Platform Entity Handler
+        Platform Registry Handler
 
         */
-    public abstract class PlatformEntityHandler {
+    public abstract class PlatformRegistryHandler {
         public virtual void render() {}
         public virtual void update() {}
     }
     
     /**
 
-        Platform Entity main
+        Platform Registry main
 
         */
     private Mesh.Mesh mesh;
@@ -30,11 +30,11 @@ class PlatformEntity {
     private PlayerController playerController;
 
     private ServiceContainer ServiceContainer = new ServiceContainer();
-    private bool isRegistered = false;
+    private bool isRegistryed = false;
 
-    private List<PlatformEntityHandler> el = new();
+    private List<PlatformRegistryHandler> el = new();
 
-    public PlatformEntity(
+    public PlatformRegistry(
         Mesh.Mesh mesh, 
         CollisionManager collisionManager, 
         Platform platform,
@@ -57,14 +57,14 @@ class PlatformEntity {
     
         */
     public void init() {
-        if(isRegistered) return;
+        if(isRegistryed) return;
 
         var registry = new ClassRegistry(ServiceContainer);
-        registry.PRegister<WorldHandler, PlatformEntityHandler>(result => {
+        registry.PRegister<WorldHandler, PlatformRegistryHandler>(result => {
             el = result;
         });
 
-        isRegistered = true;
+        isRegistryed = true;
     }
 
     /**

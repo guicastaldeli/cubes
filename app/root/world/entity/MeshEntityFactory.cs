@@ -235,6 +235,8 @@ class MeshEntityFactory {
             data,
             State.BREAKABLE
         );
+
+        XpRegistry.Register(id, entity.Xp);
     }
 
     /**

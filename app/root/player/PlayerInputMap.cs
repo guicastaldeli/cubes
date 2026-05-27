@@ -27,6 +27,13 @@ class PlayerInputMap {
         setMode(key, pressed);
     }
 
+    // Is Key Down
+    public bool isKeyDown(Keys key) {
+        int idx = (int)key;
+        bool val = idx > 0 && idx < keyPressed.Length && keyPressed[idx];
+        return val;
+    }
+
     // Handle Mouse
     public void handleMouse(float xOffset, float yOffset) {
         playerController.getCamera().handleMouse(xOffset, yOffset);
@@ -125,8 +132,10 @@ class PlayerInputMap {
         if(key == Keys.Q) {
             mode.handleInput(Slot.LEFT, pressed);
         }
+        /*
         else if(key == Keys.E) {
             mode.handleInput(Slot.RIGHT, pressed);
         }
+        */
     }
 }

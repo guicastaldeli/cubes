@@ -5,7 +5,6 @@
 
     */
 namespace App.Root.Mesh;
-
 using App.Root.Physics;
 using App.Root.Utils;
 using App.Root.World.Entity;

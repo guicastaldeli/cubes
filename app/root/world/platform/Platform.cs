@@ -17,7 +17,7 @@ using OpenTK.Mathematics;
 class Platform : WorldHandler {
     private Mesh mesh;
     private CollisionManager collisionManager;
-    private PlatformEntity platformEntity;
+    private PlatformRegistry platformRegistry;
     private PlayerController playerController;
 
     public const string GRID_ID = "grid";
@@ -37,7 +37,7 @@ class Platform : WorldHandler {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.playerController = playerController;
-        this.platformEntity = new PlatformEntity(mesh, collisionManager, this, playerController);
+        this.platformRegistry = new PlatformRegistry(mesh, collisionManager, this, playerController);
     
         init();
     }
@@ -319,7 +319,7 @@ class Platform : WorldHandler {
         */  
     public override void render() {
         if(!initialized) {
-            platformEntity.render();
+            platformRegistry.render();
 
             set();
 
@@ -345,7 +345,7 @@ class Platform : WorldHandler {
             //emitParticle();
         }
 
-        platformEntity.update();
+        platformRegistry.update();
     }
 
     /**
@@ -354,6 +354,6 @@ class Platform : WorldHandler {
     
         */
     private void init() {
-        platformEntity.init();
+        platformRegistry.init();
     }
 }

@@ -15,14 +15,15 @@ using App.Root.Text;
 using App.Root.World.Points;
 using App.Root.World.Entity;
 using OpenTK.Mathematics;
+using WorldPlatform = Root.World.Platform.Platform;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-class ChamberEntity : PlatformEntity.PlatformEntityHandler {
+class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     public const string CHAMBER_ENTITY_ID = "chamber";
 
     private Mesh mesh;
     private CollisionManager collisionManager;
-    private Platform platform;
+    private WorldPlatform platform;
     private PlayerController playerController;
 
     private ChamberDialog chamberDialog;
@@ -34,7 +35,7 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     public ChamberEntity(
         [Inject] Mesh mesh, 
         [Inject] CollisionManager collisionManager, 
-        [Inject] Platform platform, 
+        [Inject] WorldPlatform platform, 
         [Inject] PlayerController playerController
     ) {
         this.mesh = mesh;
@@ -76,11 +77,13 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
 
     // Stream Event
     private void streamEvent(TextEntity text, dynamic els) {
-        EventStream.on("key-press", (data) => {
-            if(data is not int key) return;
-            if(key != (int)Keys.E) return;
-            if(playerController.getRaycaster().cast() != CHAMBER_ENTITY_ID) return;
+        string id = "deposit";
 
+        Input.listen(id, Keys.E);
+
+        EventStream.on(id, (data) => {
+            if(data is not (int key, int action)) return;
+            if(playerController.getRaycaster().cast() != CHAMBER_ENTITY_ID) return;
             deposit(text, els);
         });
     }
@@ -94,12 +97,12 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
         var held = mesh.getMeshInteractionController().getHeldMesh();
         if(held == null) return;
 
-        var stream = EventStream.get<Dictionary<string, EntityProps>>("stream-props");
-        var props = stream?.Values.FirstOrDefault(p => p.Id == held.InstanceId);
-        if(props == null) return;
+        int? xp = XpRegistry.Get(held.InstanceId!);
+        if(xp == null) return;
 
-        int added = Xp.ConvertToPoints(props.Xp);
-        Points.Add(props.Xp);
+        int added = Xp.ConvertToPoints(xp.Value);
+        Console.WriteLine($"adding {xp.Value} xp = {added} points");
+        Points.Add(xp.Value);
 
         text.updateText(els.plusPoints.id, $"+ {added}");
         text.setElementVisible(els.plusPoints.id);
