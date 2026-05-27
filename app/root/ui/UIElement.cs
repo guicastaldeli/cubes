@@ -1,5 +1,6 @@
 namespace App.Root.UI;
 using System.Collections.Generic;
+using App.Root.Text;
 
 class UIElement {
     public string type;
@@ -50,18 +51,18 @@ class UIElement {
         string type,
         string id,
         string text,
-        string fontFamily,
         int x, int y,
         int width, int height,
         float scale,
         float[] color,
         bool hasBackground,
-        string action
+        string action,
+        string fontFamily = FontLoader.DEFAULT_FONT
     ) {
         this.type = type;
         this.id = id;
         this.text = text;
-        this.fontFamily = fontFamily ?? "arial";
+        this.fontFamily = fontFamily;
         this.x = x;
         this.y = y;
         this.width = width;

@@ -2,6 +2,9 @@ namespace App.Root.Text;
 using StbTrueTypeSharp;
 
 class FontLoader {
+    public readonly static string FONT_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/font/");
+    public const string DEFAULT_FONT = "arial";
+
     private StbTrueType.stbtt_fontinfo? fontInfo = null!;
     private byte[] fontData;
     private float fontSize;

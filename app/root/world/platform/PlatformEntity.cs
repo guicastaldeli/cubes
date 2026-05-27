@@ -7,7 +7,6 @@ namespace App.Root.World.Platform;
 using App.Root.Collider;
 using App.Root.Player;
 using App.Root.Utils;
-using System.Reflection;
 
 class PlatformEntity {
     /**
@@ -20,6 +19,11 @@ class PlatformEntity {
         public virtual void update() {}
     }
     
+    /**
+
+        Platform Entity main
+
+        */
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
     private Platform platform;

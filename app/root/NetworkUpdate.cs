@@ -1,9 +1,19 @@
 namespace App.Root;
 
+/**
+
+    Network Update Handler
+
+    */
 abstract class NetworkUpdateHandler {
     public virtual void update() {}
 }
 
+/**
+
+    Network Update main class.
+
+    */
 class NetworkUpdate {
     private static NetworkUpdate? instance;
 

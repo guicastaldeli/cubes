@@ -1,5 +1,6 @@
 namespace App.Root.Screen;
 using System.Collections.Generic;
+using App.Root.Text;
 
 class ScreenElement {
     public string type;
@@ -59,7 +60,7 @@ class ScreenElement {
         this.type = type;
         this.id = id;
         this.text = text;
-        this.fontFamily = fontFamily ?? "arial";
+        this.fontFamily = fontFamily;
         this.x = x;
         this.y = y;
         this.width = width;

@@ -6,6 +6,7 @@
     */
 namespace App.Root.Player.Inventory;
 using App.Root.Mesh;
+using App.Root.Text;
 
 class Slot {
     public int index;
@@ -45,7 +46,7 @@ class Slot {
         this.height = height;
 
         el = new UI.UIElement(
-            "div", "", "", "arial",
+            "div", "", "",
             x, y, width, height,
             1.0f, new float[]{ 1f, 1f, 1f, 1f },
             true, ""

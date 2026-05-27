@@ -55,7 +55,7 @@ class Screen : ScreenHandler {
 
         try {
             textRenderer ??= new TextRenderer(shaderProgram, screenWidth, screenHeight);
-            textRenderer.loadFont("arial", "arial.ttf", 16.0f);
+            //textRenderer.loadFont("arial", "arial.ttf", 16.0f);
             this.screenData = DocParser.parseScreen(
                 filePath,
                 screenWidth,

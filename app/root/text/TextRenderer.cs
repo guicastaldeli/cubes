@@ -19,7 +19,6 @@ class TextRenderer {
     private int ebo;
 
     private static readonly int ATLAS_SIZE = 512;
-    private static readonly string FONT_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/font/");
 
     public TextRenderer(
         ShaderProgram shaderProgram,
@@ -144,7 +143,7 @@ class TextRenderer {
         float y,
         float scale,
         float[] color,
-        string fontKey = "default"
+        string fontKey = FontLoader.DEFAULT_FONT
     ) {
         renderTextWithShadow(text, x, y, scale, color, 0, 0, 0, new float[]{ 0, 0, 0, 0 }, fontKey);
     }
@@ -173,6 +172,8 @@ class TextRenderer {
         string fontKey = "default"
     ) {
         if(string.IsNullOrEmpty(text)) return;
+
+        ensureFont(fontKey);
         if(!fontLoaders.ContainsKey(fontKey)) return;
         currentFont = fontKey;
 
@@ -324,7 +325,7 @@ class TextRenderer {
         */
     public void loadFont(string key, string fileName, float size = 16.0f) {
         if(fontLoaders.ContainsKey(key)) return;
-        string path = Path.Combine(FONT_DIR, fileName);
+        string path = Path.Combine(FontLoader.FONT_DIR, fileName);
 
         FontLoader fontLoader = new FontLoader(path, size);
         Atlas atlas = new Atlas(ATLAS_SIZE, ATLAS_SIZE);

@@ -44,7 +44,7 @@ class UI : UIHandler {
         UI.mesh = mesh;
 
         UI.textRenderer = new TextRenderer(shaderProgram, screenWidth, screenHeight);
-        UI.textRenderer.loadFont("arial", "arial.ttf", 16.0f);
+        //UI.textRenderer.loadFont("arial", "arial.ttf", 16.0f);
     }
 
     public UI(string uiName) {

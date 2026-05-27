@@ -206,7 +206,7 @@ class Inventory {
                 slot.count.ToString(),
                 slot.x + slot.width - 12,
                 slot.y + slot.height - 14,
-                0.5f, new float[]{ 1f, 1f, 1f, 1f }, "arial"
+                0.5f, new float[]{ 1f, 1f, 1f, 1f }
             );
         }
     }

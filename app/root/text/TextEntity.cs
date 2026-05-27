@@ -136,9 +136,8 @@ class TextEntity {
 
     // Get Font Key
     private string getFontKey(UIElement el) {
-        string key = string.IsNullOrEmpty(el.fontFamily) ? "arial" : el.fontFamily;
+        string key = el.fontFamily;
         textRenderer.ensureFont(key);
-
         return key;
     }
 

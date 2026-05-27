@@ -204,7 +204,7 @@ class DocParser {
 
         string fontFamily = element.HasAttribute("fontFamily")
             ? element.GetAttribute("fontFamily").ToLower()
-            : "arial";
+            : FontLoader.DEFAULT_FONT;
 
         string action = element.HasAttribute("action") ? element.GetAttribute("action") : "";
 
@@ -578,7 +578,7 @@ class DocParser {
 
         string fontFamily = element.HasAttribute("fontFamily")
             ? element.GetAttribute("fontFamily").ToLower()
-            : "arial";
+            : FontLoader.DEFAULT_FONT;
 
         string action = element.HasAttribute("action") ? element.GetAttribute("action") : "";
 
@@ -607,9 +607,10 @@ class DocParser {
         }
 
         UIElement uiElement = new UIElement(
-            type, id, text, fontFamily,
+            type, id, text,
             x, y, width, height,
-            scale, color, hasBackground, action
+            scale, color, hasBackground, action,
+            fontFamily
         );
 
         uiElement.backgroundColor = backgroundColor;
