@@ -1,6 +1,7 @@
 namespace App.Root.Text;
-using OpenTK.Mathematics;
 using App.Root.Shaders;
+using App.Root.Utils;
+using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 
 class TextRenderer {
@@ -72,9 +73,9 @@ class TextRenderer {
 
     // Ensure Font
     public void ensureFont(string key, float size = 16.0f) {
-        string keyVal = key + ".ttf";
         if(!fontLoaders.ContainsKey(key)) {
-            loadFont(key, keyVal, size);
+            string fileName = MapFont.R(key);
+            loadFont(key, fileName, size);
         }
     }
 
