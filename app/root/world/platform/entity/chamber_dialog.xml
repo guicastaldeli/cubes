@@ -2,11 +2,10 @@
 <chamber_dialog>
     <label
         id="deposit" 
-        x="5%" y="25%" 
+        x="20%" y="0%" 
         scale="1.0" 
         color="0.0,0.0,0.0,1.0"
         visible="false"
-        fontFamily="arial.ttf"
     >
         PRESS E TO DEPOSIT...
     </label>

@@ -27,11 +27,7 @@ class Mesh {
     private Dictionary<string, Vector3> dataPositions = new();
     private Dictionary<string, Vector3> dataScale = new();
 
-    public Mesh(
-        Window window, 
-        ShaderProgram shaderProgram,
-        Input input
-    ) {
+    public Mesh(Window window, ShaderProgram shaderProgram, Input input) {
         this.window = window;
         this.shaderProgram = shaderProgram;
         this.input = input;

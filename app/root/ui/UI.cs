@@ -11,7 +11,7 @@ class UI : UIHandler {
     public static Mesh.Mesh mesh = null!;
     public static UIController uiController = null!;
 
-    public TextRenderer? textRenderer;
+    public static TextRenderer? textRenderer;
     public string uiName;
     public string? filePath;
     public UIData? uiData;
@@ -42,6 +42,9 @@ class UI : UIHandler {
         UI.uiController = uiController;
         UI.shaderProgram = shaderProgram;
         UI.mesh = mesh;
+
+        UI.textRenderer = new TextRenderer(shaderProgram, screenWidth, screenHeight);
+        UI.textRenderer.loadFont("arial", "arial.ttf", 16.0f);
     }
 
     public UI(string uiName) {
@@ -52,9 +55,6 @@ class UI : UIHandler {
         this.filePath = filePath;
         this.uiName = uiName;
         try {
-            this.textRenderer = new TextRenderer(shaderProgram, screenWidth, screenHeight);
-            this.textRenderer.loadFont("arial", "arial.ttf", 16.0f);
-
             this.uiData = DocParser.parseUI(filePath, screenWidth, screenHeight);
 
             //Console.WriteLine($"UI '{uiName}' initialized: {uiData?.elements.Count ?? 0} elements");

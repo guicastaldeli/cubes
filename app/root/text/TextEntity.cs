@@ -29,7 +29,7 @@ class TextEntity {
     private Mesh mesh;
 
     private UIData? uiData;
-    private TextRenderer textRenderer;
+    private TextRenderer textRenderer => UI.textRenderer!;
 
     private Dictionary<string, int> elTextures = new();
     private Dictionary<string, bool> elVisibility = new();
@@ -41,9 +41,6 @@ class TextEntity {
         this.window = window;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
-
-        this.textRenderer = new TextRenderer(shaderProgram, window.getWidth(), window.getHeight());
-        //this.textRenderer.loadFont("arial", "arial.ttf", 32.0f);
     }
     public TextEntity S(
         string id,

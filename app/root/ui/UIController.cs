@@ -42,10 +42,6 @@ class UIController {
         return playerController;
     }
 
-    public void renderHud() {
-    mesh.renderOrto();
-}
-
     /**
     
         Get

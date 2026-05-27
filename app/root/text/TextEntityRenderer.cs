@@ -5,7 +5,6 @@
     */
 namespace App.Root.Text;
 using App.Root.Mesh;
-using App.Root.Player;
 using App.Root.Shaders;
 using OpenTK.Mathematics;
 
@@ -13,6 +12,7 @@ class TextEntityRenderer {
     private Window window;
     private ShaderProgram shaderProgram;
     private Mesh mesh;
+
     private TextEntity textEntity;
 
     private Dictionary<string, TextEntity> entities = new();

@@ -47,7 +47,7 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     private void activateDialog() {
         UI.uiController.register(chamberDialog);
         
-        Vector3 dPos = new Vector3(pos.x, pos.y + 0.5f, pos.z);
+        Vector3 dPos = new Vector3(pos.x, pos.y, pos.z);
 
         var chamberText = mesh.getTextEntityRenderer()!.add(
             CHAMBER_ENTITY_ID,
