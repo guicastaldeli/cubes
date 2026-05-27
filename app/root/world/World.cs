@@ -130,7 +130,7 @@ class World : WorldHandler {
         if(isRegistered) return;
 
         var registry = new ClassRegistry(ServiceContainer);
-        el = registry.Register<WorldHandler>();
+        el = registry.ORegister<WorldHandler>();
 
         isRegistered = true;
     }

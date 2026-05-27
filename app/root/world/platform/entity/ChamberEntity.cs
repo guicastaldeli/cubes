@@ -1,6 +1,6 @@
 /**
 
-    Chamber main class
+    Chamber Entity main class
 
     */
 namespace App.Root.World.Platform.Entity;
@@ -11,7 +11,11 @@ using App.Root.Player;
 using App.Root.Resource;
 using App.Root.Utils;
 using App.Root.UI;
+using App.Root.Text;
+using App.Root.World.Points;
+using App.Root.World.Entity;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class ChamberEntity : PlatformEntity.PlatformEntityHandler {
     public const string CHAMBER_ENTITY_ID = "chamber";
@@ -66,6 +70,39 @@ class ChamberEntity : PlatformEntity.PlatformEntityHandler {
                 chamberText.setVisible(false);
             }
         };
+
+        streamEvent(chamberText, els);
+    }
+
+    // Stream Event
+    private void streamEvent(TextEntity text, dynamic els) {
+        EventStream.on("key-press", (data) => {
+            if(data is not int key) return;
+            if(key != (int)Keys.E) return;
+            if(playerController.getRaycaster().cast() != CHAMBER_ENTITY_ID) return;
+
+            deposit(text, els);
+        });
+    }
+
+    /**
+    
+        Deposit
+    
+        */
+    private void deposit(TextEntity text, dynamic els) {
+        var held = mesh.getMeshInteractionController().getHeldMesh();
+        if(held == null) return;
+
+        var stream = EventStream.get<Dictionary<string, EntityProps>>("stream-props");
+        var props = stream?.Values.FirstOrDefault(p => p.Id == held.InstanceId);
+        if(props == null) return;
+
+        int added = Xp.ConvertToPoints(props.Xp);
+        Points.Add(props.Xp);
+
+        text.updateText(els.plusPoints.id, $"+ {added}");
+        text.setElementVisible(els.plusPoints.id);
     }
 
     /**

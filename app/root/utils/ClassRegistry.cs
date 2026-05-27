@@ -5,12 +5,47 @@
     */
 namespace App.Root.Utils;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 class ClassRegistry {
     private ServiceContainer ServiceContainer;
 
+    private static Dictionary<Type, List<Action>> afterHooks = new();
+    private static Dictionary<Type, bool> registrationMode = new();
+
     public ClassRegistry(ServiceContainer serviceContainer) {
         this.ServiceContainer = serviceContainer;
+    }
+
+    // After
+    private static void after<TParent>(Action action) {
+        var type = typeof(TParent);
+        if(!afterHooks.ContainsKey(type)) afterHooks[type] = new();
+        afterHooks[type].Add(action);
+    }
+
+    private static void runAfter<T>() {
+        var type = typeof(T);
+        if(!afterHooks.TryGetValue(type, out var hooks)) return;
+        foreach(var hook in hooks) hook();
+        afterHooks.Remove(type);
+    }
+    
+    /**
+    
+        Logs
+    
+        */
+    private void success(string label, Type type) {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Registered [{label}]: {type.Name}");
+        Console.ResetColor();
+    }
+
+    private void error(string label, Type type) {
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.WriteLine($"Failed to register [{label}]: {type.Name}");
+        Console.ResetColor();
     }
 
     /**
@@ -58,9 +93,13 @@ class ClassRegistry {
         Register
     
         */
+    // Register
     public List<T> Register<T>() where T : class {
+        registrationMode[typeof(T)] = false;
+
         var result = new List<T>();
         var baseType = typeof(T);
+        string label = typeof(T).Name;
 
         var types = Assembly.GetExecutingAssembly()
             .GetTypes()
@@ -74,18 +113,73 @@ class ClassRegistry {
             var instance = CreateInstance<T>(type);
             if(instance != null) {
                 result.Add(instance);
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Registered: {type.Name}");
-                Console.ResetColor();
+                success(label, type);
             } else {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine($"Failed to register: {type.Name}");
-                Console.ResetColor();
+                error(label, type);
             }
         }
 
+        runAfter<T>();
         return result;
+    }
+
+    // Ordered Register
+    public List<T> ORegister<T>() where T : class {
+        registrationMode[typeof(T)] = true;
+        
+        var result = new List<T>();
+        var baseType = typeof(T);
+        string label = typeof(T).Name;
+
+        var types = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(t =>
+                t.IsClass &&
+                !t.IsAbstract &&
+                t.IsSubclassOf(baseType) &&
+                t.GetCustomAttribute<ClassRegistryIgnore>() == null
+            ).ToList();
+
+        var remaining = new Queue<Type>(types);
+        int maxPasses = types.Count;
+
+        while(remaining.Count > 0) {
+            int countBefore = remaining.Count;
+            int toProcess = remaining.Count;
+
+            for(int i = 0; i < toProcess; i++) {
+                var type = remaining.Dequeue();
+                var instance = CreateInstance<T>(type);
+
+                if(instance != null) {
+                    result.Add(instance);
+                    ServiceContainer.Register(type, instance);
+                    success(label, type);
+                } else {
+                    remaining.Enqueue(type);
+                }
+            }
+
+            if(remaining.Count == countBefore) break;
+        }
+
+        foreach(var type in remaining) {
+            error(label, type);
+        }
+
+        runAfter<T>();
+        return result;
+    }
+
+    // Parent Register
+    public void PRegister<TParent, T>(Action<List<T>> onComplete) 
+        where TParent : class
+        where T : class {
+        ClassRegistry.after<TParent>(() => {
+            bool ordered = registrationMode.GetValueOrDefault(typeof(TParent), true);
+            var result = ordered ? ORegister<T>() : Register<T>();
+            onComplete(result);
+        });
     }
 
     /**
@@ -94,6 +188,7 @@ class ClassRegistry {
     
         */
     public void Clear() {
-        
+        afterHooks.Clear();
+        registrationMode.Clear();
     }
 }

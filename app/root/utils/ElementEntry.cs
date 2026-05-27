@@ -61,13 +61,13 @@ static class ElementEntry {
         Create
     
         */
-    public static dynamic C(Func<string, UIElement?> resolver, params string[] ids) {
-        Object val = new Object<UIElement>(resolver, ids);
+    public static dynamic C<T>(Func<string, T?> resolver, IEnumerable<string> ids) {
+        Object val = new Object<T>(resolver, ids.ToArray());
         return val;
     }
 
-    public static dynamic C(Func<string, ScreenElement?> resolver, params string[] ids) {
-        Object val = new Object<ScreenElement>(resolver, ids);
+    public static dynamic C<T>(Func<string, T?> resolver, params string[] ids) {
+        Object val = new Object<T>(resolver, ids);
         return val;
     }
 }

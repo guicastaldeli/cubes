@@ -25,7 +25,8 @@ public record EntityProps(
     string? Tex,
     int? TexId,
     string? PhysicsType,
-    bool? IsEntity
+    bool? IsEntity,
+    int Xp = 0
 );
 
 /**
@@ -253,6 +254,7 @@ class MeshEntityFactory {
         List<Vector3> positionVal = Position(count);
         float rotationVal = Rotation();
         var (texPathVal, texIdVal) = Texture(data);
+        int xpVal = Xp.Range();
 
         EntityProps val = new EntityProps(
             Id: idVal,
@@ -265,7 +267,8 @@ class MeshEntityFactory {
             Tex: texPathVal,
             TexId: texIdVal,
             PhysicsType: null,
-            IsEntity: true
+            IsEntity: true,
+            Xp: xpVal
         );
 
         return val;

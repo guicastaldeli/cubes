@@ -20,8 +20,8 @@ class Platform : WorldHandler {
     private PlatformEntity platformEntity;
     private PlayerController playerController;
 
-    public string GRID_ID = "grid";
-    private string MESH = "cube";
+    public const string GRID_ID = "grid";
+    private const string MESH = "cube";
 
     (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
     private Vector3 offset = Vector3.Zero;

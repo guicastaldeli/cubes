@@ -5,6 +5,11 @@ using App.Root.Utils;
 
 [ClassRegistryIgnore]
 class ChamberDialog : UI {
+    private static List<string> Elements = new() {
+        "deposit",
+        "plusPoints"
+    };
+
     public const string CHAMBER_DIALOG_ID = "chamber_dialog";
     
     public static string CHAMBER_DIALOG_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/platform/entity/");
@@ -39,10 +44,7 @@ class ChamberDialog : UI {
     
         */
     public dynamic get() {
-        return ElementEntry.C(
-            id => getElementById(id),
-            "deposit", "plusPoints"
-        );
+        return ElementEntry.C(id => getElementById(id), Elements);
     }
     
     /**

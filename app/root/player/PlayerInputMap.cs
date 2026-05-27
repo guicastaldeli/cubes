@@ -96,7 +96,6 @@ class PlayerInputMap {
                 input.unlockMouse() : () =>
                 input.lockMouse();
             action();
-
         }
     }
 

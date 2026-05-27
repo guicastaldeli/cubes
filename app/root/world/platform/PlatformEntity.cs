@@ -60,7 +60,9 @@ class PlatformEntity {
         if(isRegistered) return;
 
         var registry = new ClassRegistry(ServiceContainer);
-        el = registry.Register<PlatformEntityHandler>();
+        registry.PRegister<WorldHandler, PlatformEntityHandler>(result => {
+            el = result;
+        });
 
         isRegistered = true;
     }
