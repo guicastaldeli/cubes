@@ -1,4 +1,5 @@
 namespace App.Root;
+using App.Root.Animation;
 using App.Root.Screen;
 using App.Root.Screen.Main;
 using App.Root.Shaders;
@@ -19,10 +20,10 @@ class Main {
     private UIController uiController = null!;
 
     public Main() {
-        window = new Window();
-        tick = new Tick();
-        shaderProgram = new ShaderProgram();
-        input = new Input(window, tick);
+        this.window = new Window();
+        this.tick = new Tick();
+        this.shaderProgram = new ShaderProgram();
+        this.input = new Input(window, tick);
 
         this.mesh = new Mesh.Mesh(
             window, 
@@ -30,10 +31,10 @@ class Main {
             input
         );
 
-        network = new Network();
+        this.network = new Network();
         VoiceController.getInstance().setNetwork(network);
 
-        window.onResize = handleResize;
+        this.window.onResize = handleResize;
 
         init();
         set();
@@ -87,6 +88,7 @@ class Main {
 
         screenController.update();
         uiController.update();
+        AnimationController.Update();
     }
 
     /**

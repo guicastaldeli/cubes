@@ -172,6 +172,15 @@ class TextEntity {
         return val;
     }
 
+    // World Position
+    public Vector3 getWorldPosition() {
+        return worldPosition;
+    }
+
+    public void setWorldPosition(Vector3 pos) {
+        worldPosition = pos;
+    }
+
     /**
     
         Refresh

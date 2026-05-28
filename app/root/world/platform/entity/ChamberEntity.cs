@@ -19,6 +19,7 @@ using AppWindow = App.Root.Window;
 using WorldPlatform = Root.World.Platform.Platform;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using App.Root.Screen;
+using App.Root.Animation;
 
 class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     public const string CHAMBER_ENTITY_ID = "chamber";
@@ -31,7 +32,8 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
 
     private ChamberDialog chamberDialog;
 
-    (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
+    private (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
+    private Vector3 storedPos;
 
     private bool initialized = false;
     private bool deposited = false;
@@ -66,7 +68,8 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
             dPos,
             maxDistance: 8.0f
         );
-
+        
+        storedPos = chamberText.getWorldPosition();
         var els = chamberDialog.get();
 
         playerController.getRaycaster().onHit += (string? id) => {
@@ -104,6 +107,43 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         }
     }
 
+    // Set Dialog Position
+    private void setDialogPosition(TextEntity textEntity) {
+        textEntity.setWorldPosition(new Vector3(storedPos));
+    }
+
+    private void setDialogPosition(TextEntity textEntity, float x, float y, float z) {
+        textEntity.setWorldPosition(new Vector3(x, y, z));
+    }
+
+    /**
+    
+        Dialog Animation
+    
+        */
+    private void setAnimationDialog(TextEntity textEntity, dynamic els) {
+        string id = $"chamber_{els.plusPoints.id}_y";
+
+        setDialogPosition(textEntity);
+
+        float start = storedPos.Y;
+        float end = storedPos.Y + 0.5f;
+
+        float duration = 1.0f;
+
+        AnimationController.Play(
+            id,
+            start, end,
+            duration,
+            value => setDialogPosition(textEntity, 
+                storedPos.X, 
+                value, 
+                storedPos.Z
+            ),
+            EaseOut.OutCubic
+        );
+    }
+
     /**
     
         Deposit
@@ -126,6 +166,7 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         window.queueOnRenderThread(() => {
             textEntity.refresh(els.plusPoints.id);
             textEntity.setElementVisible(els.plusPoints.id);
+            setAnimationDialog(textEntity, els);
         });
     }
 

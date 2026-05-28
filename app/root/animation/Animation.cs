@@ -11,7 +11,7 @@ class Animation {
     public float duration;
     public float elapsed;
     public bool active;
-    public Func<float, float>? easing;
+    public Func<float, float>? type;
     public Action<float>? onUpdate;
     public Action? onComplete;
 }
