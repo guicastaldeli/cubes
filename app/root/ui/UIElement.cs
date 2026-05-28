@@ -47,6 +47,8 @@ class UIElement {
     public int imgWidth = 0;
     public int imgHeight = 0;
 
+    public string? template;
+
     public UIElement(
         string type,
         string id,

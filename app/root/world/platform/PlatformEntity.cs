@@ -24,6 +24,7 @@ class PlatformRegistry {
         Platform Registry main
 
         */
+    private Window window;
     private Mesh.Mesh mesh;
     private CollisionManager collisionManager;
     private Platform platform;
@@ -35,16 +36,19 @@ class PlatformRegistry {
     private List<PlatformRegistryHandler> el = new();
 
     public PlatformRegistry(
+        Window window,
         Mesh.Mesh mesh, 
         CollisionManager collisionManager, 
         Platform platform,
         PlayerController playerController
     ) {
+        this.window = window;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.platform = platform;
         this.playerController = playerController;
 
+        ServiceContainer.Register(window);
         ServiceContainer.Register(mesh);
         ServiceContainer.Register(collisionManager);
         ServiceContainer.Register(platform);

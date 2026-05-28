@@ -8,6 +8,21 @@ using App.Root.Voip;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
+/**
+
+    Key Action helper
+
+    */
+public static class KeyAction {
+    public const int Press = 1;
+    public const int Release = 0;
+}
+
+/**
+
+    Input main class.
+
+    */
 class Input {
     private Window window;
     private Tick tick;
@@ -117,7 +132,7 @@ class Input {
         } 
         
         // Screen Controller
-        screenController.handleKeyPress((int)key, 1);
+        screenController.handleKeyPress((int)key, KeyAction.Press);
 
         // Player Input Map
         if(playerInputMap != null) {
@@ -125,15 +140,15 @@ class Input {
             playerInputMap.setKeyState(key, true);
         }
 
-        stream(key, 1);
+        stream(key, KeyAction.Press);
     }
 
     private void onKeyUp(Keys key) {
         if(inputVoip != null) inputVoip.onKeyUp(key);
-        screenController.handleKeyPress((int)key, 0);
+        screenController.handleKeyPress((int)key, KeyAction.Release);
         playerInputMap?.setKeyState(key, false);
 
-        stream(key, 0);
+        stream(key, KeyAction.Release);
     }
 
     /**

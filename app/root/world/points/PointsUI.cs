@@ -1,3 +1,4 @@
+using App.Root.Screen;
 using App.Root.Utils;
 
 namespace App.Root.World.Points;
@@ -58,9 +59,7 @@ class PointsUI : UI.UI {
     private void init() {
         EventStream.on("points-added", (data) => {
             if(data is not int total) return;
-
-            var label = getElementById("pointsLabel");
-            if(label != null) label.text = $"POINTS: {total}";
+            DocParser.Replace("points", total);
         });
     }
 }

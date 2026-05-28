@@ -105,4 +105,14 @@ static class EventStream {
     public static void remove(string streamId) {
         events.Remove(streamId);
     }
+
+    /**
+    
+        Clear
+    
+        */
+    public static void clear() {
+        subscribers.Clear();
+        events.Clear();
+    }
 }

@@ -15,12 +15,15 @@ using App.Root.Text;
 using App.Root.World.Points;
 using App.Root.World.Entity;
 using OpenTK.Mathematics;
+using AppWindow = App.Root.Window;
 using WorldPlatform = Root.World.Platform.Platform;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using App.Root.Screen;
 
 class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     public const string CHAMBER_ENTITY_ID = "chamber";
 
+    private AppWindow window;
     private Mesh mesh;
     private CollisionManager collisionManager;
     private WorldPlatform platform;
@@ -31,13 +34,16 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
 
     private bool initialized = false;
+    private bool deposited = false;
     
     public ChamberEntity(
+        [Inject] AppWindow window,
         [Inject] Mesh mesh, 
         [Inject] CollisionManager collisionManager, 
         [Inject] WorldPlatform platform, 
         [Inject] PlayerController playerController
     ) {
+        this.window = window;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.platform = platform;
@@ -66,7 +72,7 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         playerController.getRaycaster().onHit += (string? id) => {
             if(id == CHAMBER_ENTITY_ID) {
                 chamberText.setVisible(true);
-                chamberText.setElementVisible(els.deposit.id);
+                showDialog(chamberText, els);
             } else {
                 chamberText.setVisible(false);
             }
@@ -83,9 +89,19 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
 
         EventStream.on(id, (data) => {
             if(data is not (int key, int action)) return;
+            if(action != KeyAction.Press) return;
             if(playerController.getRaycaster().cast() != CHAMBER_ENTITY_ID) return;
             deposit(text, els);
         });
+    }
+
+    // Show Dialog
+    private void showDialog(TextEntity text, dynamic els) {
+        if(!deposited) {
+            text.setElementVisible(els.deposit.id);
+        } else {
+            text.setElementVisible(els.plusPoints.id);
+        }
     }
 
     /**
@@ -93,7 +109,7 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         Deposit
     
         */
-    private void deposit(TextEntity text, dynamic els) {
+    private void deposit(TextEntity textEntity, dynamic els) {
         var held = mesh.getMeshInteractionController().getHeldMesh();
         if(held == null) return;
 
@@ -101,11 +117,16 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         if(xp == null) return;
 
         int added = Xp.ConvertToPoints(xp.Value);
-        Console.WriteLine($"adding {xp.Value} xp = {added} points");
         Points.Add(xp.Value);
 
-        text.updateText(els.plusPoints.id, $"+ {added}");
-        text.setElementVisible(els.plusPoints.id);
+        deposited = true;
+
+        DocParser.Replace("points", added);
+        
+        window.queueOnRenderThread(() => {
+            textEntity.refresh(els.plusPoints.id);
+            textEntity.setElementVisible(els.plusPoints.id);
+        });
     }
 
     /**

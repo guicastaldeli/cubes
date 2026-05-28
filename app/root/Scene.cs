@@ -234,5 +234,7 @@ class Scene {
             playerController.getCamera()
         );
         if(network != null) worldManager.setNetwork(network);
+
+        //EventStream.clear();
     }
 }

@@ -33,11 +33,16 @@ class Platform : WorldHandler {
 
     private bool initialized = false;
     
-    public Platform([Inject] Mesh mesh, [Inject] CollisionManager collisionManager, [Inject] PlayerController playerController) {
+    public Platform(
+        [Inject] Window window,
+        [Inject] Mesh mesh, 
+        [Inject] CollisionManager collisionManager, 
+        [Inject] PlayerController playerController
+    ) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.playerController = playerController;
-        this.platformRegistry = new PlatformRegistry(mesh, collisionManager, this, playerController);
+        this.platformRegistry = new PlatformRegistry(window, mesh, collisionManager, this, playerController);
     
         init();
     }

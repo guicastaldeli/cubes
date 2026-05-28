@@ -145,7 +145,8 @@ class TextEntity {
     private (int x, int h) getTextureSize(UIElement el) {
         string fontKey = getFontKey(el);
 
-        float textWidth = textRenderer.getTextWidth(el.text, el.scale, fontKey);
+        string resolvedText = DocParser.Resolve(el.text);
+        float textWidth = textRenderer.getTextWidth(resolvedText, el.scale, fontKey);
         FontMetrics fontMetrics = textRenderer.getFontMetrics(fontKey);
 
         int width = Math.Max(64, (int)(textWidth + 20));
@@ -169,6 +170,19 @@ class TextEntity {
         float normY = el.y / (float)window.getHeight();
         float val = normY * height;
         return val;
+    }
+
+    /**
+    
+        Refresh
+    
+        */
+    public void refresh(string elId) {
+        if(uiData == null) return;
+
+        var el = DocParser.getElementById(uiData, elId);
+        if(el?.template == null) return;
+        updateText(elId, DocParser.Resolve(el.template));
     }
 
     /**
@@ -225,6 +239,8 @@ class TextEntity {
         float x = getTextureX(el, width);
         float y = getTextureY(el, height);
 
+        string resolvedText = DocParser.Resolve(el.text);
+
         int fbo = GL.GenFramebuffer();
         int tex = GL.GenTexture();
         int rbo = GL.GenRenderbuffer();
@@ -242,7 +258,7 @@ class TextEntity {
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, tex, 0);
         GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
-
+        
         GL.Viewport(0, 0, width, height);
         GL.ClearColor(0, 0, 0, 0);
         GL.Clear(ClearBufferMask.ColorBufferBit);
@@ -253,7 +269,7 @@ class TextEntity {
         shaderProgram.setUniformb("screenSize", (float)width, (float)height);
 
         textRenderer.updateScreenSize(width, height);
-        textRenderer.renderText(el.text, x, y, el.scale, el.color, fontKey);
+        textRenderer.renderText(resolvedText, x, y, el.scale, el.color, fontKey);
         
         GL.Disable(EnableCap.Blend);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);

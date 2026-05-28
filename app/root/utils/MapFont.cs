@@ -4,10 +4,10 @@ namespace App.Root.Utils;
 
 public static class MapFont {
     // Extension
-    private static (string a, string b) Ext() {
-        (string a, string b) val = (".ttf", "*.ttf");
-        return val;
-    }
+    private static readonly (string a, string b) Ext = (
+        ".ttf", 
+        "*.ttf"
+    );
 
     /**
     
@@ -36,11 +36,11 @@ public static class MapFont {
     
         */
     public static string R(string key) {
-        if(File.Exists(Path.Combine(FontLoader.FONT_DIR, key + Ext().a))) {
-            return key + Ext().a;
+        if(File.Exists(Path.Combine(FontLoader.FONT_DIR, key + Ext.a))) {
+            return key + Ext.a;
         }
 
-        var files = Directory.GetFiles(FontLoader.FONT_DIR, Ext().b);
+        var files = Directory.GetFiles(FontLoader.FONT_DIR, Ext.b);
         foreach(var file in files) {
             string fileName = Norm(Path.GetFileNameWithoutExtension(file));
             if(fileName.StartsWith(Norm(key))) {
@@ -48,7 +48,7 @@ public static class MapFont {
             }
         }
 
-        string val = key + Ext().a;
+        string val = key + Ext.a;
         return val;
     }
 }

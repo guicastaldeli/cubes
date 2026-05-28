@@ -6,6 +6,6 @@
         scale="1.0" 
         color="0.0,0.0,0.0,1.0"
     >
-        POINTS: 0
+        POINTS: {0}{points}
     </label>
 </points>

@@ -46,6 +46,8 @@ class ScreenElement {
     public int textureId = -1;
     public bool hasTexture = false;
 
+    public string? template;
+
     public ScreenElement(
         string type,
         string id,

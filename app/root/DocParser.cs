@@ -19,6 +19,56 @@ class DocParser {
     private static int uiEbo = 0;
     private static bool uiBuffersInitialized = false;
 
+    private static Dictionary<string, string> variables = new();
+
+    private static readonly (string a, string b, string c, string d, string repeat) Exp = (
+        @"\$\{(.*?)\}",
+        @"\{(\w+)\}",
+        @"\{(\d+)\}\{(\w+)\}",
+        @"\{(\w+)\|([^}]*)\}",
+        @"^'(.*?)'\.repeat\((\d+)\)$"
+    );
+
+    /**
+    
+        Replace
+    
+        */
+    public static void Replace(string key, string val) {
+        variables[key] = val;
+    }
+
+    public static void Replace(string key, object val) {
+        string v = val.ToString() ?? "";
+        variables[key] = v;
+    }
+
+    /**
+    
+        Resolve
+    
+        */
+    public static string Resolve(string text) {
+        if(string.IsNullOrEmpty(text)) return text;
+
+        text = Regex.Replace(text, Exp.c, match => {
+            string defaultVal = match.Groups[1].Value;
+            string key = match.Groups[2].Value;
+            return variables.TryGetValue(key, out var val) ? val : defaultVal;
+        });
+        text = Regex.Replace(text, Exp.d, match => {
+            string key = match.Groups[1].Value;
+            string defaultVal = match.Groups[2].Value;
+            return variables.TryGetValue(key, out var val) ? val : defaultVal;
+        });
+        text = Regex.Replace(text, Exp.b, match => {
+            string key = match.Groups[1].Value;
+            return variables.TryGetValue(key, out var val) ? val : match.Value;
+        });
+
+        return text;
+    }
+
     /**
     
         Parse
@@ -262,6 +312,11 @@ class DocParser {
 
         screenElement.borderWidth = borderWidth;
         screenElement.borderColor = borderColor;
+
+        screenElement.template = text;
+        text = evaluateExpression(text);
+        screenElement.text = text;
+
         if(element.HasAttribute("background")) screenElement.hasBackground = true;
         parseAttr(element, screenElement.attr);
 
@@ -476,15 +531,18 @@ class DocParser {
         if(screenData == null || screenData.elements.Count == 0) return;
 
         foreach(var el in screenData.elements) {
+            if(el.template != null) {
+                el.text = DocParser.Resolve(el.template);
+            }
+        }
+        foreach(var el in screenData.elements) {
             if(el.visible && el.type == "div")
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
         }
-
         foreach(var el in screenData.elements) {
             if(el.visible && el.type == "img")
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
         }
-
         foreach(var el in screenData.elements) {
             if(el.visible && el.type == "input") {
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
@@ -497,7 +555,6 @@ class DocParser {
                     );
             }
         }
-
         foreach(var el in screenData.elements) {
             if(el.visible && el.type == "button") {
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
@@ -520,7 +577,6 @@ class DocParser {
                 }
             }
         }
-
         foreach(var el in screenData.elements) {
             if(el.visible && el.type == "label") {
                 if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
@@ -617,6 +673,11 @@ class DocParser {
         uiElement.originalBackgroundColor = (float[])backgroundColor.Clone();
         uiElement.borderWidth = borderWidth;
         uiElement.borderColor = borderColor;
+
+        uiElement.template = text;
+        text = evaluateExpression(text);
+        uiElement.text = text;
+        
         if(element.HasAttribute("background")) uiElement.hasBackground = true;
         parseAttr(element, uiElement.attr);
 
@@ -794,28 +855,33 @@ class DocParser {
         if(uiData == null || uiData.elements.Count == 0) return;
 
         foreach(var el in uiData.elements) {
-        if(el.visible && el.type == "div") {
-            renderUIElement(el, screenWidth, screenHeight, shaderProgram);
+            if(el.template != null) {
+                el.text = DocParser.Resolve(el.template);
+            }
+        }
+        foreach(var el in uiData.elements) {
+            if(el.visible && el.type == "div") {
+                renderUIElement(el, screenWidth, screenHeight, shaderProgram);
 
-            if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
-                string[] lines = el.text.Split('\n');
-                float lineHeight = 32.0f * el.scale;
-                for(int i = 0; i < lines.Length; i++) {
-                    if(string.IsNullOrEmpty(lines[i])) continue;
-                    float lineY = el.y + (i * lineHeight);
-                    if(el.hasShadow) {
-                        textRenderer.renderTextWithShadow(
-                            lines[i], el.x, lineY, el.scale, el.color,
-                            el.shadowOffsetX, el.shadowOffsetY, el.shadowBlur,
-                            el.shadowColor, el.fontFamily
-                        );
-                    } else {
-                        textRenderer.renderText(lines[i], el.x, lineY, el.scale, el.color, el.fontFamily);
+                if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
+                    string[] lines = el.text.Split('\n');
+                    float lineHeight = 32.0f * el.scale;
+                    for(int i = 0; i < lines.Length; i++) {
+                        if(string.IsNullOrEmpty(lines[i])) continue;
+                        float lineY = el.y + (i * lineHeight);
+                        if(el.hasShadow) {
+                            textRenderer.renderTextWithShadow(
+                                lines[i], el.x, lineY, el.scale, el.color,
+                                el.shadowOffsetX, el.shadowOffsetY, el.shadowBlur,
+                                el.shadowColor, el.fontFamily
+                            );
+                        } else {
+                            textRenderer.renderText(lines[i], el.x, lineY, el.scale, el.color, el.fontFamily);
+                        }
                     }
                 }
             }
         }
-    }
         foreach(var el in uiData.elements) {
             if(el.visible && el.type == "img")
                 renderUIElement(el, screenWidth, screenHeight, shaderProgram);
@@ -879,11 +945,13 @@ class DocParser {
 
         */
     private static string evaluateExpression(string text) {
-        if(string.IsNullOrEmpty(text) || !text.Contains("${")) return text;
+        if(string.IsNullOrEmpty(text)) return text;
 
-        return Regex.Replace(text, @"\$\{(.*?)\}", match =>
+        text = Regex.Replace(text, Exp.a, match =>
             evaluateSimpleExpression(match.Groups[1].Value)
         );
+
+        return text;
     }
 
     private static string evaluateSimpleExpression(string expression) {

@@ -45,7 +45,7 @@ class InputChat {
         }
 
         if(chatController.isOpen()) {
-            chatController.handleKey(key, 1);
+            chatController.handleKey(key, KeyAction.Press);
             return;
         }
     }
