@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shop>
+    <div 
+        id="shopDiv" 
+        x="25%" y="25%" 
+        width="400" height="190" 
+        background="0,0,0,0.5" 
+        scale="0.7" 
+        visible="true"
+    />
+</shop>
