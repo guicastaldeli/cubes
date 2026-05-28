@@ -132,10 +132,8 @@ class PlayerInputMap {
         if(key == Keys.Q) {
             mode.handleInput(Slot.LEFT, pressed);
         }
-        /*
         else if(key == Keys.E) {
             mode.handleInput(Slot.RIGHT, pressed);
         }
-        */
     }
 }

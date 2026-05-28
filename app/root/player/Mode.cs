@@ -5,9 +5,8 @@
     player modes...
 
     */
-using App.Root.Mesh;
 namespace App.Root.Player;
-
+using App.Root.Mesh;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 
@@ -39,9 +38,9 @@ public enum Slot {
     */
 class Position {
     private Camera camera;
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
 
-    public Position(Camera camera, Mesh.Mesh mesh) {
+    public Position(Camera camera, Mesh mesh) {
         this.camera = camera;
         this.mesh = mesh;
     }    
@@ -107,7 +106,7 @@ class Position {
 class Mode {
     private Window window;
     private Camera camera;
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     private PlayerController playerController;
 
     private Position position;
@@ -125,10 +124,12 @@ class Mode {
     private bool leftWasPressed = false;
     private bool rightWasPressed = false;
 
+    private bool blocked = false;
+
     public Mode(
         Window window,
         Camera camera,
-        Mesh.Mesh mesh, 
+        Mesh mesh, 
         PlayerController playerController
     ) {
         this.window = window;
@@ -165,6 +166,11 @@ class Mode {
     public string getPreviewId(Slot slot) {
         string val = $"pv-{slot}";
         return val;
+    }
+
+    // Set Blocked
+    public void setBlocked(bool blocked) {
+        this.blocked = blocked;
     }
 
     /**
@@ -300,6 +306,8 @@ class Mode {
 
         */
     public void handleInput(Slot slot, bool pressed) {
+        if(blocked) return;
+        
         bool leftPrev = leftPressed;
         bool rightPrev = rightPressed;
         

@@ -181,6 +181,11 @@ class TextEntity {
         worldPosition = pos;
     }
 
+    // Get Element by Id
+    public UIElement? getElementById(string elId) {
+        return uiData != null ? DocParser.getElementById(uiData, elId) : null;
+    }
+
     /**
     
         Refresh
@@ -191,6 +196,7 @@ class TextEntity {
 
         var el = DocParser.getElementById(uiData, elId);
         if(el?.template == null) return;
+
         updateText(elId, DocParser.Resolve(el.template));
     }
 

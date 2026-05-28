@@ -19,7 +19,6 @@ using AppWindow = App.Root.Window;
 using WorldPlatform = Root.World.Platform.Platform;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using App.Root.Screen;
-using App.Root.Animation;
 
 class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     public const string CHAMBER_ENTITY_ID = "chamber";
@@ -33,7 +32,7 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     private ChamberDialog chamberDialog;
 
     private (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
-    private Vector3 storedPos;
+    public static Vector3 storedPos;
 
     private bool initialized = false;
     private bool deposited = false;
@@ -76,8 +75,10 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
             if(id == CHAMBER_ENTITY_ID) {
                 chamberText.setVisible(true);
                 showDialog(chamberText, els);
+                playerController.getMode().setBlocked(true);
             } else {
                 chamberText.setVisible(false);
+                playerController.getMode().setBlocked(false);
             }
         };
 
@@ -107,41 +108,12 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         }
     }
 
-    // Set Dialog Position
-    private void setDialogPosition(TextEntity textEntity) {
-        textEntity.setWorldPosition(new Vector3(storedPos));
-    }
+    // Get Mesh Entity Color
+    private Vector3 getMeshEntityColor(PlacedMeshDef held) {
+        var (r, g, b) = HexToRgb.C(held.Color!);
 
-    private void setDialogPosition(TextEntity textEntity, float x, float y, float z) {
-        textEntity.setWorldPosition(new Vector3(x, y, z));
-    }
-
-    /**
-    
-        Dialog Animation
-    
-        */
-    private void setAnimationDialog(TextEntity textEntity, dynamic els) {
-        string id = $"chamber_{els.plusPoints.id}_y";
-
-        setDialogPosition(textEntity);
-
-        float start = storedPos.Y;
-        float end = storedPos.Y + 0.5f;
-
-        float duration = 1.0f;
-
-        AnimationController.Play(
-            id,
-            start, end,
-            duration,
-            value => setDialogPosition(textEntity, 
-                storedPos.X, 
-                value, 
-                storedPos.Z
-            ),
-            EaseOut.OutCubic
-        );
+        Vector3 color = new Vector3(r, g, b);
+        return color;
     }
 
     /**
@@ -160,14 +132,42 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         Points.Add(xp.Value);
 
         deposited = true;
-
         DocParser.Replace("points", added);
+
+        Vector3 entityColor = getMeshEntityColor(held);
         
         window.queueOnRenderThread(() => {
+            activeParticles(entityColor);
+
             textEntity.refresh(els.plusPoints.id);
             textEntity.setElementVisible(els.plusPoints.id);
-            setAnimationDialog(textEntity, els);
+
+            chamberDialog.setAnimation(textEntity, els, entityColor);
         });
+    }
+
+    private void activeParticles(Vector3 color) {
+        var particles = mesh.getParticleController();
+
+        if(particles != null) {
+            float y = pos.y + 1.0f;
+            Vector3 emitPos = new Vector3(pos.x, y, pos.z);
+            
+            particles.emit(
+                emitPos,
+                color,
+                30,
+                0.1f,
+                2.0f,
+                1.5f,
+                new Vector3(2.0f, 4.0f, 2.0f),
+                () => new Vector3(
+                    color.X * (0.8f + (float)Random.Shared.NextDouble() * 0.2f),
+                    color.Y * (0.8f + (float)Random.Shared.NextDouble() * 0.2f),
+                    color.Z * (0.8f + (float)Random.Shared.NextDouble() * 0.2f)
+                )
+            );
+        }
     }
 
     /**
