@@ -60,6 +60,17 @@ class TextEntityRenderer {
         return entity;
     }
 
+    public TextEntity addV(
+        string id,
+        string path,
+        Vector3 worldPosition,
+        float scale,
+        float maxDistance
+    ) {
+        TextEntity val = add(id, path, worldPosition, scale, maxDistance);
+        return val;
+    }
+
     /**
     
         Render

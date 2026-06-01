@@ -286,11 +286,16 @@ class TextEntity {
         GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
         
         GL.Viewport(0, 0, width, height);
-        GL.ClearColor(0, 0, 0, 0);
+
+        float r = el.color[0];
+        float g = el.color[1];
+        float b = el.color[2];
+
+        GL.ClearColor(r, g, b, 0);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
         GL.Enable(EnableCap.Blend);
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        GL.BlendFunc(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
 
         shaderProgram.setUniformb("screenSize", (float)width, (float)height);
 

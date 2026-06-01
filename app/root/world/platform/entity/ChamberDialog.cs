@@ -122,24 +122,25 @@ class ChamberDialog : UI {
         Vector3 pos = new Vector3(entityPos.x, entityPos.y, entityPos.z);
 
         float dist = 8.0f;
+        float scale = 1.0f;
 
-        var text = mesh.getTextEntityRenderer()!.add(entityId, PATH, pos, maxDistance: dist);
+        var textEntity = mesh.getTextEntityRenderer()!.addV(entityId, PATH, pos, scale, dist);
+        chamberEntity.storedPos = textEntity.getWorldPosition();
         
-        chamberEntity.storedPos = text.getWorldPosition();
         var els = get();
 
         playerController.getRaycaster().onHit += (string? id) => {
             if(id == entityId) {
-                text.setVisible(true);
-                show(text, els);
+                textEntity.setVisible(true);
+                show(textEntity, els);
                 playerController.getMode().setBlocked(true);
             } else {
-                text.setVisible(false);
+                textEntity.setVisible(false);
                 playerController.getMode().setBlocked(false);
             }
         };
 
-        chamberEntity.streamEvent(text, els);
+        chamberEntity.streamEvent(textEntity, els);
     }
 
     /**

@@ -4,5 +4,5 @@ void setTextEntityFrag() {
     float alpha = texColor.a;
     if(alpha < 0.1) discard;
 
-    fragColor = vec4(texColor.rgb, alpha * texColor.rgb);
+    fragColor = vec4(texColor.rgb, alpha);
 }
