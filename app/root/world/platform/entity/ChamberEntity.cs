@@ -31,11 +31,11 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
 
     private ChamberDialog chamberDialog;
 
-    private (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
-    public static Vector3 storedPos;
+    public (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
+    public Vector3 storedPos;
 
     private bool initialized = false;
-    private bool deposited = false;
+    public bool deposited = false;
     
     public ChamberEntity(
         [Inject] AppWindow window,
@@ -55,38 +55,8 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         init();
     }
 
-    // Activate Dialog
-    private void activateDialog() {
-        UI.uiController.register(chamberDialog);
-        
-        Vector3 dPos = new Vector3(pos.x, pos.y, pos.z);
-
-        var chamberText = mesh.getTextEntityRenderer()!.add(
-            CHAMBER_ENTITY_ID,
-            ChamberDialog.PATH,
-            dPos,
-            maxDistance: 8.0f
-        );
-        
-        storedPos = chamberText.getWorldPosition();
-        var els = chamberDialog.get();
-
-        playerController.getRaycaster().onHit += (string? id) => {
-            if(id == CHAMBER_ENTITY_ID) {
-                chamberText.setVisible(true);
-                showDialog(chamberText, els);
-                playerController.getMode().setBlocked(true);
-            } else {
-                chamberText.setVisible(false);
-                playerController.getMode().setBlocked(false);
-            }
-        };
-
-        streamEvent(chamberText, els);
-    }
-
     // Stream Event
-    private void streamEvent(TextEntity text, dynamic els) {
+    public void streamEvent(TextEntity text, dynamic els) {
         string id = "deposit";
 
         Input.listen(id, Keys.E);
@@ -99,21 +69,37 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         });
     }
 
-    // Show Dialog
-    private void showDialog(TextEntity text, dynamic els) {
-        if(!deposited) {
-            text.setElementVisible(els.deposit.id);
-        } else {
-            text.setElementVisible(els.plusPoints.id);
-        }
-    }
-
     // Get Mesh Entity Color
     private Vector3 getMeshEntityColor(PlacedMeshDef held) {
         var (r, g, b) = HexToRgb.C(held.Color!);
 
         Vector3 color = new Vector3(r, g, b);
         return color;
+    }
+
+    // Activate Particles
+    private void activateParticles(Vector3 color) {
+        var particles = mesh.getParticleController();
+
+        if(particles != null) {
+            float y = pos.y + 1.0f;
+            Vector3 emitPos = new Vector3(pos.x, y, pos.z);
+            
+            particles.emit(
+                emitPos,
+                color,
+                30,
+                0.1f,
+                2.0f,
+                1.5f,
+                new Vector3(2.0f, 4.0f, 2.0f),
+                () => new Vector3(
+                    color.X * (0.8f + (float)Random.Shared.NextDouble() * 0.2f),
+                    color.Y * (0.8f + (float)Random.Shared.NextDouble() * 0.2f),
+                    color.Z * (0.8f + (float)Random.Shared.NextDouble() * 0.2f)
+                )
+            );
+        }
     }
 
     /**
@@ -137,37 +123,13 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         Vector3 entityColor = getMeshEntityColor(held);
         
         window.queueOnRenderThread(() => {
-            activeParticles(entityColor);
+            activateParticles(entityColor);
 
             textEntity.refresh(els.plusPoints.id);
             textEntity.setElementVisible(els.plusPoints.id);
 
             chamberDialog.setAnimation(textEntity, els, entityColor);
         });
-    }
-
-    private void activeParticles(Vector3 color) {
-        var particles = mesh.getParticleController();
-
-        if(particles != null) {
-            float y = pos.y + 1.0f;
-            Vector3 emitPos = new Vector3(pos.x, y, pos.z);
-            
-            particles.emit(
-                emitPos,
-                color,
-                30,
-                0.1f,
-                2.0f,
-                1.5f,
-                new Vector3(2.0f, 4.0f, 2.0f),
-                () => new Vector3(
-                    color.X * (0.8f + (float)Random.Shared.NextDouble() * 0.2f),
-                    color.Y * (0.8f + (float)Random.Shared.NextDouble() * 0.2f),
-                    color.Z * (0.8f + (float)Random.Shared.NextDouble() * 0.2f)
-                )
-            );
-        }
     }
 
     /**
@@ -204,7 +166,7 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
 
         MeshInteractionRegistry.getInstance().register(CHAMBER_ENTITY_ID, State.UNBREAKABLE, mesh);
     
-        activateDialog();
+        chamberDialog.activate(mesh);
     }
 
     /**
@@ -214,7 +176,6 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         */
     public override void render() {
         set();
-        //chamberDialog.render();
         base.render();
     }
 
@@ -224,7 +185,6 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     
         */
     public override void update() {
-        //chamberDialog.update();
         base.update();
     }
 
@@ -234,6 +194,8 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     
         */
     private void init() {
+        chamberDialog.setChamberEntity(this);
+        chamberDialog.setPlayerController(playerController);
         chamberDialog.init();
     }
 }

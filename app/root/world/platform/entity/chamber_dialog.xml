@@ -4,7 +4,7 @@
         id="deposit" 
         x="20%" y="0%" 
         scale="1.0" 
-        color="0.0,0.0,0.0,1.0"
+        color="0.729, 0.184, 0.184,1.0"
         visible="false"
         fontFamily="homevideo"
     >

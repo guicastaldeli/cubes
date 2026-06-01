@@ -18,8 +18,6 @@ class TextRenderer {
     private int vbo;
     private int ebo;
 
-    private static readonly int ATLAS_SIZE = 512;
-
     public TextRenderer(
         ShaderProgram shaderProgram,
         int screenWidth,
@@ -328,7 +326,7 @@ class TextRenderer {
         string path = Path.Combine(FontLoader.FONT_DIR, fileName);
 
         FontLoader fontLoader = new FontLoader(path, size);
-        Atlas atlas = new Atlas(ATLAS_SIZE, ATLAS_SIZE);
+        Atlas atlas = new Atlas(Atlas.ATLAS_SIZE, Atlas.ATLAS_SIZE);
 
         fontLoaders[key] = fontLoader;
         atlases[key] = atlas;

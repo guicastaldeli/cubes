@@ -4,6 +4,7 @@ using App.Root.Player;
 using App.Root.Text;
 using App.Root.UI;
 using App.Root.Utils;
+using App.Root.Mesh;
 using OpenTK.Mathematics;
 
 [ClassRegistryIgnore]
@@ -20,10 +21,16 @@ class ChamberDialog : UI {
 
     private bool initialized = false;
 
+    private ChamberEntity chamberEntity = null!;
     private PlayerController playerController = null!;
 
     public ChamberDialog() : base(PATH, CHAMBER_DIALOG_ID) {
         
+    }
+
+    // Set Chamber Entity
+    public void setChamberEntity(ChamberEntity chamberEntity) {
+        this.chamberEntity = chamberEntity;
     }
 
     // Set Player Controller
@@ -64,11 +71,12 @@ class ChamberDialog : UI {
         Show
     
         */
-    public void show() {
-        var label = getElementById("deposit");
-        if(label != null) label.visible = true;
-    
-        visible = true;
+    private void show(TextEntity text, dynamic els) {
+        if(!chamberEntity.deposited) {
+            text.setElementVisible(els.deposit.id);
+        } else {
+            text.setElementVisible(els.plusPoints.id);
+        }
     }
 
     /**
@@ -105,15 +113,33 @@ class ChamberDialog : UI {
         Activate
     
         */
-    public void activate() {
-        var raycaster = playerController.getRaycaster();
-        raycaster.onHit += (string? id) => {
-            if(id == ChamberEntity.CHAMBER_ENTITY_ID) {
-                show();
+    public void activate(Mesh mesh) {
+        string entityId = ChamberEntity.CHAMBER_ENTITY_ID;
+
+        UI.uiController.register(this);
+        
+        (float x, float y, float z) entityPos = chamberEntity.pos;
+        Vector3 pos = new Vector3(entityPos.x, entityPos.y, entityPos.z);
+
+        float dist = 8.0f;
+
+        var text = mesh.getTextEntityRenderer()!.add(entityId, PATH, pos, maxDistance: dist);
+        
+        chamberEntity.storedPos = text.getWorldPosition();
+        var els = get();
+
+        playerController.getRaycaster().onHit += (string? id) => {
+            if(id == entityId) {
+                text.setVisible(true);
+                show(text, els);
+                playerController.getMode().setBlocked(true);
             } else {
-                hide();
+                text.setVisible(false);
+                playerController.getMode().setBlocked(false);
             }
         };
+
+        chamberEntity.streamEvent(text, els);
     }
 
     /**
@@ -134,7 +160,7 @@ class ChamberDialog : UI {
         textEntity.refresh(elId);
 
         string id = $"chamber_point_{elId}_y";
-        Vector3 pos = ChamberEntity.storedPos;
+        Vector3 pos = chamberEntity.storedPos;
 
         setPosition(textEntity);
 
@@ -162,7 +188,7 @@ class ChamberDialog : UI {
     
         */
     private void setPosition(TextEntity textEntity) {
-        textEntity.setWorldPosition(new Vector3(ChamberEntity.storedPos));
+        textEntity.setWorldPosition(new Vector3(chamberEntity.storedPos));
     }
 
     private void setPosition(TextEntity textEntity, float x, float y, float z) {

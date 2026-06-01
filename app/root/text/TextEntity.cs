@@ -137,7 +137,10 @@ class TextEntity {
     // Get Font Key
     private string getFontKey(UIElement el) {
         string key = el.fontFamily;
-        textRenderer.ensureFont(key);
+        float size = 64.0f;
+
+        textRenderer.ensureFont(key, size);
+
         return key;
     }
 
@@ -149,26 +152,23 @@ class TextEntity {
         float textWidth = textRenderer.getTextWidth(resolvedText, el.scale, fontKey);
         FontMetrics fontMetrics = textRenderer.getFontMetrics(fontKey);
 
-        int width = Math.Max(64, (int)(textWidth + 20));
-        int height = Math.Max(32, (int)(fontMetrics.ascent * el.scale + fontMetrics.descent * el.scale + 16));
-
-        width = NextPow2.R(width);
-        height = NextPow2.R(height);
+        float totalHeight = (fontMetrics.ascent + fontMetrics.descent) * el.scale;
+        int width = Math.Max(1, (int)textWidth);
+        int height = Math.Max(1, (int)totalHeight);
 
         return (width, height);
     }
 
     // Get Texture X
     private float getTextureX(UIElement el, int width) {
-        float normX = el.x / (float)window.getWidth();
-        float val = normX * width;
+        float val = width - textRenderer.getTextWidth(DocParser.Resolve(el.text), el.scale, getFontKey(el));
         return val;
     }
 
     // Get Texture Y
     private float getTextureY(UIElement el, int height) {
-        float normY = el.y / (float)window.getHeight();
-        float val = normY * height;
+        FontMetrics metrics = textRenderer.getFontMetrics(getFontKey(el));
+        float val = height - (metrics.ascent + metrics.descent) * el.scale;
         return val;
     }
 
@@ -184,6 +184,17 @@ class TextEntity {
     // Get Element by Id
     public UIElement? getElementById(string elId) {
         return uiData != null ? DocParser.getElementById(uiData, elId) : null;
+    }
+
+    // Set Scale
+    public void setScale(float scale) {
+        if(uiData == null) return;
+
+        this.scale = scale;
+        foreach(var el in uiData.elements) {
+            if(skip(el)) continue;
+            setMatrix(getMeshId(el.id), el);
+        }
     }
 
     /**

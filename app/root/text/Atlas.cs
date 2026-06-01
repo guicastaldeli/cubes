@@ -2,6 +2,8 @@ namespace App.Root.Text;
 using OpenTK.Graphics.OpenGL;
 
 class Atlas {
+    public static readonly int ATLAS_SIZE = 1024;
+
     private int textureId;
     private int width;
     private int height;
@@ -83,9 +85,11 @@ class Atlas {
             return true;
         }
 
-        if(cursorX + glyph.bitmapWidth > width) {
+        int padding = 1;
+
+        if(cursorX + glyph.bitmapWidth + padding > width) {
             cursorX = 0;
-            cursorY += rowHeight;
+            cursorY += rowHeight + padding;
             rowHeight = 0;
         }
         if(cursorY + glyph.bitmapHeight > height) return false;
@@ -106,13 +110,19 @@ class Atlas {
         glyph.texHeight = (float)glyph.bitmapHeight / height;
         glyph.textureId = textureId;
 
-        cursorX += glyph.bitmapWidth;
+        cursorX += glyph.bitmapWidth + padding;
         glyphs.Add(glyph);
+
         updateTex();
+
         return true;
     }
 
-    // Cleanup
+    /**
+    
+        Cleanup
+    
+        */
     public void cleanup() {
         if(textureId != 0) GL.DeleteTexture(textureId);
     }
