@@ -183,15 +183,17 @@ class CollisionManager {
                     );
                 }
 
-                Vector3 vel = rigidBody.getVelocity();
-                float dot = Vector3.Dot(vel, collision.normal);
-                if(dot < 0) {
-                    vel -= collision.normal * dot;
-                    rigidBody.setVelocity(vel);
-                }
-
                 if(collision.normal.Y > 0.5f) {
                     groundFound = true;
+
+                    Vector3 pos = rigidBody.getPosition();
+                    BBox colliderBox = collision.otherCollider!.getBBox();
+                    BBox playerBox = rigidBody.getBBox();
+
+                    float halfHeight = (playerBox.maxY - playerBox.minY) / 2.0f;
+                    pos.Y = colliderBox.maxY + halfHeight;
+                    rigidBody.setPosition(pos);
+                    
                     Vector3 v = rigidBody.getVelocity();
                     v.Y = 0;
                     rigidBody.setVelocity(v);

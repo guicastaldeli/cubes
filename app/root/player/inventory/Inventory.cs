@@ -174,6 +174,7 @@ class Inventory {
     
         */
     public void open() {
+        // Open Key
         Mapper.key(Keys.I, pressed => {
             if(!pressed) return;
             if(ChatController.getInstance().isOpen()) return;
@@ -193,6 +194,8 @@ class Inventory {
                 input.lockMouse();
             action();
         });
+
+        // Close Key
         Mapper.key(Keys.Escape, pressed => {
             if(!pressed) return;
 

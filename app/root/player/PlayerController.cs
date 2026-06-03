@@ -218,6 +218,7 @@ class PlayerController : DataEntry {
             rigidBody.setVelocity(targetVel);
         } else {
             rigidBody.setGravityEnabled(true);
+            
             rigidBody.setVelocity(new Vector3(
                 targetVel.X,
                 currentVel.Y,
@@ -300,9 +301,8 @@ class PlayerController : DataEntry {
         };
 
         if(!moveMap.TryGetValue(dir, out var entry)) return;
-
-        Mapper.key(entry.key, entry.apply);
-        entry.apply(pressed);
+        if(!Mapper.hasKey<PlayerController>(entry.key)) Mapper.key(entry.key, entry.apply);
+        //entry.apply(pressed);
     }
 
     // Update

@@ -86,10 +86,10 @@ class InputChat {
 
     /**
     
-        Key Event
+        On Key Down
     
         */
-    public void keyEvent(Keys key) {
+    public void onKeyDown(Keys key) {
         map ??= new() {
             { Keys.Escape, ChatActions.CLOSE },
             { Keys.T, ChatActions.OPEN },

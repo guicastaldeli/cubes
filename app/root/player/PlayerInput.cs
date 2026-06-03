@@ -15,6 +15,7 @@ static class Mapper {
     private static readonly Dictionary<Type, List<Keys>> bindings = new();
     private static readonly Dictionary<Type, Action<Keys, bool>> handlers = new();
     private static readonly Dictionary<Keys, Action<bool>> keyActions = new();
+    private static readonly HashSet<Keys> heldKeys = new();
 
     /**
     
@@ -23,9 +24,7 @@ static class Mapper {
         */
     public static void set<T>() {
         currentType = typeof(T);
-        if(!bindings.ContainsKey(currentType)) {
-            bindings[currentType] = new List<Keys>();
-        }
+        bindings[currentType] = new List<Keys>();
     }
 
     public static void set<T>(Keys k) {
@@ -71,8 +70,11 @@ static class Mapper {
         handlers[type] = handler;
     }
 
-    public static bool hasKey(Keys k) {
-        bool val = keyActions.ContainsKey(k);
+    public static bool hasKey<T>(Keys k) {
+        var type = typeof(T);
+        bool val = bindings.ContainsKey(type) &&
+            bindings[type].Contains(k);
+
         return val;
     }
 
@@ -82,6 +84,13 @@ static class Mapper {
     
         */
     public static void dispatch(Keys key, bool pressed) {
+        if(pressed) {
+            if(heldKeys.Contains(key)) return;
+            heldKeys.Add(key);
+        } else {
+            heldKeys.Remove(key);
+        }
+        
         foreach(var (type, keys) in bindings) {
             if(keys.Contains(key) && handlers.TryGetValue(type, out var handler)) {
                 handler(key, pressed);
