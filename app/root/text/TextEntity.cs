@@ -271,6 +271,10 @@ class TextEntity {
         int tex = GL.GenTexture();
         int rbo = GL.GenRenderbuffer();
 
+        float r = el.color[0];
+        float g = el.color[1];
+        float b = el.color[2];
+
         GL.BindTexture(TextureTarget.Texture2D, tex);
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
@@ -286,11 +290,6 @@ class TextEntity {
         GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
         
         GL.Viewport(0, 0, width, height);
-
-        float r = el.color[0];
-        float g = el.color[1];
-        float b = el.color[2];
-
         GL.ClearColor(r, g, b, 0);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 

@@ -122,7 +122,7 @@ class ChamberDialog : UI {
         Vector3 pos = new Vector3(entityPos.x, entityPos.y, entityPos.z);
 
         float dist = 8.0f;
-        float scale = 1.0f;
+        float scale = 0.5f;
 
         var textEntity = mesh.getTextEntityRenderer()!.addV(entityId, PATH, pos, scale, dist);
         chamberEntity.storedPos = textEntity.getWorldPosition();
