@@ -1,14 +1,23 @@
 namespace App.Root.Player.Inventory;
+using App.Root.UI;
 using System.Globalization;
 
-class InventoryUI : UI.UI {
+class InventoryUI : UI {
     public static string INVENTORY_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "player/inventory/");
     public static string PATH = INVENTORY_DIR + "inventory.xml"; 
 
     private Inventory inventory = null!;
 
     public InventoryUI() : base(PATH, Inventory.ID) {
+        var inventoryInstance = inventory = new Inventory(
+            shaderProgram, 
+            input, 
+            textRenderer!,
+            uiController
+        );
+
         init();
+        inventoryInstance.open();
     }
 
     // Get Inventory
@@ -53,8 +62,6 @@ class InventoryUI : UI.UI {
         base.onWindowResize(width, height);
 
         inventory = build()!;
-        inventory.setShaderProgram(shaderProgram);
-        inventory.setTextRenderer(textRenderer!);
     }
 
     /**
@@ -75,8 +82,6 @@ class InventoryUI : UI.UI {
         */
     private void init() {
         inventory = build()!;
-        inventory.setShaderProgram(shaderProgram);
-        inventory.setTextRenderer(textRenderer!);
     }
 
     /**
@@ -107,7 +112,7 @@ class InventoryUI : UI.UI {
         float slotWidthPct = float.Parse(swp, CultureInfo.InvariantCulture);
         float slotHeightPct = float.Parse(shp, CultureInfo.InvariantCulture);
 
-        return new Inventory(
+        var instance = inventory.I(
             screenWidth, screenHeight,
             bgEl.x, bgEl.y,
             bgEl.width, bgEl.height,
@@ -115,5 +120,7 @@ class InventoryUI : UI.UI {
             edgePct, topPct, gapPct,
             slotWidthPct, slotHeightPct
         );
+
+        return instance;
     }
 }

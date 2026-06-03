@@ -9,8 +9,101 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
     Mapper
 
     */
-class Mapper {
+static class Mapper {
+    private static Type? currentType = null;
 
+    private static readonly Dictionary<Type, List<Keys>> bindings = new();
+    private static readonly Dictionary<Type, Action<Keys, bool>> handlers = new();
+    private static readonly Dictionary<Keys, Action<bool>> keyActions = new();
+
+    /**
+    
+        Set
+    
+        */
+    public static void set<T>() {
+        currentType = typeof(T);
+        if(!bindings.ContainsKey(currentType)) {
+            bindings[currentType] = new List<Keys>();
+        }
+    }
+
+    public static void set<T>(Keys k) {
+        set<T>();
+        key(k);
+    }
+
+    /**
+    
+        Key
+    
+        */
+    public static void key(Keys k) {
+        if(currentType == null) return;
+        if(!bindings[currentType].Contains(k)) {
+            bindings[currentType].Add(k);
+        }
+    }
+
+    public static void key(Keys k, Action<bool> action) {
+        if(currentType == null) return;
+        if(!bindings[currentType].Contains(k)) {
+            bindings[currentType].Add(k);
+        }
+
+        keyActions[k] = action;
+    }
+
+    public static void onKey<T>(Action<Keys, bool> handler) {
+        handlers[typeof(T)] = handler;
+    }
+
+    public static void onKey<T>(Keys[] keys, Action<Keys, bool> handler) {
+        var type = typeof(T);
+        if(!bindings.ContainsKey(type)) return;
+
+        foreach(var k in keys) {
+            if(!bindings[type].Contains(k)) {
+                bindings[type].Add(k);
+            }
+        }
+
+        handlers[type] = handler;
+    }
+
+    public static bool hasKey(Keys k) {
+        bool val = keyActions.ContainsKey(k);
+        return val;
+    }
+
+    /**
+    
+        Dispatch
+    
+        */
+    public static void dispatch(Keys key, bool pressed) {
+        foreach(var (type, keys) in bindings) {
+            if(keys.Contains(key) && handlers.TryGetValue(type, out var handler)) {
+                handler(key, pressed);
+            }
+        }
+
+        if(keyActions.TryGetValue(key, out var action)) {
+            action(pressed);
+        }
+    }
+
+    /**
+    
+        Clear
+    
+        */
+    public static void clear() {
+        bindings.Clear();
+        handlers.Clear();
+        keyActions.Clear();
+        currentType = null;
+    }
 }
 
 /**
@@ -30,6 +123,11 @@ class PlayerInput {
         this.playerController = playerController;
     }
 
+    // Get Player Controller
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
     // Set Key State
     public void setKeyState(Keys key, bool pressed) {
         int idx = (int)key;
@@ -37,7 +135,7 @@ class PlayerInput {
             keyPressed[idx] = pressed;
         }
 
-        setMode(key, pressed);
+        Mapper.dispatch(key, pressed);
     }
 
     // Is Key Down
@@ -50,22 +148,6 @@ class PlayerInput {
     // Handle Mouse
     public void handleMouse(float xOffset, float yOffset) {
         playerController.getCamera().handleMouse(xOffset, yOffset);
-    }
-
-    // Keyboard Callback
-    public void keyboardCallback() {
-        playerController.updatePosition(PlayerController.MovDir.FORWARD, keyPressed[(int)Keys.W]);
-        playerController.updatePosition(PlayerController.MovDir.BACKWARD, keyPressed[(int)Keys.S]);
-        playerController.updatePosition(PlayerController.MovDir.LEFT, keyPressed[(int)Keys.A]);
-        playerController.updatePosition(PlayerController.MovDir.RIGHT, keyPressed[(int)Keys.D]);
-        playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[(int)Keys.Space]);
-        playerController.updatePosition(PlayerController.MovDir.DOWN, keyPressed[(int)Keys.LeftShift]);
-        if(keyPressed[(int)Keys.F] && !fKeyPressed) {
-            playerController.toggleFlyMode();
-            fKeyPressed = true;
-        } else if(!keyPressed[(int)Keys.F]) {
-            fKeyPressed = false;
-        }
     }
 
     // On Mouse Button
@@ -81,72 +163,6 @@ class PlayerInput {
             }
 
             return;
-        }
-    }
-
-    /**
-    
-        Inventory
-
-        */
-    // Get Inventory
-    public InventoryUI? getInventory() {
-        InventoryUI? val = input.getUIController().get<InventoryUI>(Inventory.Inventory.ID);
-        return val;
-    }
-
-    // Open Inventory
-    public void openInventory(Keys key) {
-        if(ChatController.getInstance().isOpen()) return;
-        
-        bool pauseOverlay = input.onPauseOverlayOpen();
-        if(pauseOverlay) return;
-
-        bool kv = key == Keys.I;
-        if(kv) {
-            var uiController = input.getUIController();
-            uiController.toggle(Inventory.Inventory.ID);
-
-            bool isActive = uiController.getActive() == Inventory.Inventory.ID;
-            
-            var raycaster = playerController.getRaycaster();
-            if(raycaster != null) raycaster.setActive(!isActive);
-            
-            Action action = isActive ? () =>
-                input.unlockMouse() : () =>
-                input.lockMouse();
-            action();
-        }
-    }
-
-    // Is Inventory Open
-    public bool isInventoryOpen() {
-        var uiController = input.getUIController();
-        var inventoryUI = uiController.get<InventoryUI>(Inventory.Inventory.ID);
-        return inventoryUI!.isOpen();
-    }
-
-    // Hide Inventory
-    public void hideInventory() {
-        if(isInventoryOpen()) {
-            var uiController = input.getUIController();
-            uiController.hide();
-        }
-    }
-
-    /**
-    
-        Mode
-
-        */
-    private void setMode(Keys key, bool pressed) {
-        Mode mode = playerController.getMode();
-        
-        if(key == Keys.Q) {
-            mode.handleInput(Slot.LEFT, pressed);
-        }
-        else if(key == Keys.E) {
-            mode.handleInput(Slot.RIGHT, pressed);
         }
     }
 }

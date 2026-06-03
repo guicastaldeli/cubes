@@ -18,6 +18,11 @@ class ChatController {
     private int maxMessages = 8;
     private bool boxVisible = false;
 
+    public ChatController() {
+        Input.AddPause<ChatController>(() => isOpen());
+    }
+
+    // Get Instance
     public static ChatController getInstance() {
         instance ??= new ChatController();
         return instance;

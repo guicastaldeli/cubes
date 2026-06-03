@@ -9,6 +9,9 @@ namespace App.Root.Player;
 using App.Root.Mesh;
 using App.Root.Utils;
 using OpenTK.Mathematics;
+using App.Root.Player.Inventory;
+using AppWindow = App.Root.Window;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 /**
 
@@ -104,7 +107,7 @@ class Position {
 
     */
 class Mode {
-    private Window window;
+    private AppWindow window;
     private Camera camera;
     private Mesh mesh;
     private PlayerController playerController;
@@ -127,7 +130,7 @@ class Mode {
     private bool blocked = false;
 
     public Mode(
-        Window window,
+        AppWindow window,
         Camera camera,
         Mesh mesh, 
         PlayerController playerController
@@ -138,6 +141,9 @@ class Mode {
         this.playerController = playerController;
         
         this.position = new Position(camera, mesh);
+
+        Mapper.set<Mode>();
+        updateMode();
     }
 
     // Get Current Mode
@@ -200,11 +206,10 @@ class Mode {
         */
     // Update Preview
     private void updatePreview(Slot slot) {
-        var invInstance = playerController.getPlayerInput() .getInventory();
+        var invInstance = Inventory.Inventory.getInstance();
         
         if(invInstance != null) {
-            var inv = invInstance.getInventory();
-            var mainSlot = inv.getActiveSlot();
+            var mainSlot = invInstance.getActiveSlot();
             if(!mainSlot.isEmpty && mainSlot.def != null) {
                 showPreview(slot, mainSlot.def);
             } else {
@@ -394,9 +399,9 @@ class Mode {
         if(currentMode != Modes.GETTER) return;
 
         if(activeSlot.HasValue) {
-            var invInstance = playerController.getPlayerInput().getInventory();
+            var invInstance = Inventory.Inventory.getInstance();
             if(invInstance != null) {
-                var slot = invInstance.getInventory().getActiveSlot();
+                var slot = invInstance.getActiveSlot();
                 if(slot.def != lastPreviewedDef) {
                     updatePreview(activeSlot.Value);
                     lastPreviewedDef = slot.def;
@@ -423,6 +428,19 @@ class Mode {
                 hidePreview(slot);
             }
         }
+    }
+
+    private void updateMode() {
+        var map = new Dictionary<Keys, Slot> {
+            { Keys.Q, Slot.LEFT },
+            { Keys.E, Slot.RIGHT }
+        };
+
+        Mapper.onKey<Mode>(map.Keys.ToArray(), (key, pressed) => {
+            if(map.TryGetValue(key, out var slot)) {
+                handleInput(slot, pressed);
+            }
+        });
     }
 
     /**

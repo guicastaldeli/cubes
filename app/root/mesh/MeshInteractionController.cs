@@ -9,6 +9,7 @@ namespace App.Root.Mesh;
 using System.Data;
 using App.Root.Collider;
 using App.Root.Player;
+using App.Root.Player.Inventory;
 using App.Root.Utils;
 using App.Root.World;
 using OpenTK.Mathematics;
@@ -93,11 +94,9 @@ class MeshInteractionController {
         mesh.removeData(hit);
         WorldUpdater.getInstance().removeMesh(hit);
 
-        var inventory = 
-            input.getPlayerInput()
-            .getInventory();
+        var inventory = Inventory.getInstance();
         if(inventory != null) {            
-            inventory.getInventory().addItem(def);
+            inventory.addItem(def);
         }
 
         heldMesh = def;
@@ -109,11 +108,10 @@ class MeshInteractionController {
     
         */
     public void onPlace() {
-        var inventoryInstance = input.getPlayerInput().getInventory();
+        var inventoryInstance = Inventory.getInstance();
         if(inventoryInstance == null) return;
 
-        var inventory = inventoryInstance.getInventory();
-        var mainSlot = inventory.getActiveSlot();
+        var mainSlot = inventoryInstance.getActiveSlot();
         if(mainSlot.isEmpty || mainSlot.def == null) return;
 
         PlacedMeshDef def = mainSlot.def;

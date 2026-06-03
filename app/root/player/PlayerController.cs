@@ -4,8 +4,10 @@ using App.Root.Info;
 using App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.World;
-using App.Root.World.Platform;
+using WPlatform = App.Root.World.Platform.Platform;
+using AppWindow = App.Root.Window;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class PlayerController : DataEntry {
     /**
@@ -13,7 +15,7 @@ class PlayerController : DataEntry {
         Movement Direction
     
         */
-    public enum MovDir {
+    public enum MoveDir {
         FORWARD,
         BACKWARD,
         LEFT,
@@ -22,9 +24,24 @@ class PlayerController : DataEntry {
         DOWN
     }
 
+    /**
+    
+        Player Mode
+    
+        */
+    public enum PlayerMode {
+        NORMAL,
+        FLY
+    }
+
+    /**
+    
+        Player Controller main
+    
+        */
     public static PlayerController? instance;
 
-    private Window window;
+    private AppWindow window;
     private Camera camera;
     private Input input;
     private PlayerInput playerInput;
@@ -47,7 +64,8 @@ class PlayerController : DataEntry {
     private float sizeZ = 1.0f;
     private Vector3 size;
     
-    private float movSpeed = 10.0f;
+    private bool normalMode = true;
+    private float moveSpeed = 10.0f;
     private bool movingForward = false;
     private bool movingBackward = false;
     private bool movingLeft = false;
@@ -55,8 +73,6 @@ class PlayerController : DataEntry {
     private bool movingUp = false;
     private bool movingDown = false;
     private float jumpForce = 8.0f;
-
-    private bool flyMode = false;
     private float flySpeed = 10.0f;
 
     private Network? network;
@@ -67,8 +83,10 @@ class PlayerController : DataEntry {
     private string id = "";
     private string username = InfoController.getInstance().getUserInfo().getUsername();
 
+    private Dictionary<MoveDir, (Keys key, Action<bool> apply)>? moveMap;
+
     public PlayerController(
-        Window window,
+        AppWindow window,
         Input input, 
         ShaderProgram shaderProgram,
         Mesh mesh
@@ -95,10 +113,14 @@ class PlayerController : DataEntry {
         this.raycaster = new Raycaster(camera, mesh);
 
         this.mode = new Mode(window, camera, mesh, this);
+
+        Mapper.set<PlayerController>();
+        
+        init();   
     }
 
     // Get Window
-    public Window getWindow() {
+    public AppWindow getWindow() {
         return window;
     }
 
@@ -172,14 +194,14 @@ class PlayerController : DataEntry {
         Movement
 
         */
-    private void applyMov() {
+    private void applyMove() {
         Vector3 front = camera.getFront();
         Vector3 right = camera.getRight();
 
         Vector3 horizontalFront = Vector3.Normalize(new Vector3(front.X, 0.0f, front.Z));
         Vector3 horizontalRight = Vector3.Normalize(new Vector3(right.X, 0.0f, right.Z));
 
-        float speed = flyMode ? flySpeed : movSpeed;
+        float speed = normalMode ? moveSpeed : flySpeed;
         Vector3 currentVel = rigidBody.getVelocity();
         Vector3 targetVel = Vector3.Zero;
 
@@ -187,7 +209,7 @@ class PlayerController : DataEntry {
         if(movingBackward) targetVel -= horizontalFront * speed;
         if(movingLeft) targetVel -= horizontalRight * speed;
         if(movingRight) targetVel += horizontalRight * speed;
-        if(flyMode) {
+        if(!normalMode) {
             if(movingUp) targetVel.Y = speed;
             else if(movingDown) targetVel.Y = -speed;
             else targetVel.Y = 0;
@@ -213,13 +235,12 @@ class PlayerController : DataEntry {
         }
     }
 
-    public void toggleFlyMode() {
-        flyMode = !flyMode;
-        Console.WriteLine("Fly mode: " + (flyMode ? "ON" : "OFF"));
-    }
-
-    public bool isInFlyMode() {
-        return flyMode;
+    private void applyJump(bool pressed) {
+        if(normalMode) {
+            if(pressed) jump();
+        } else {
+            movingUp = pressed;
+        }
     }
 
     /**
@@ -231,7 +252,7 @@ class PlayerController : DataEntry {
         if(network != null) id = network.userId ?? id;
         playerMesh.set(true);
 
-        Vector3? spawn = Platform.height;
+        Vector3? spawn = WPlatform.height;
         if(spawn.HasValue) {
             setPosition(
                 spawn.Value.X, 
@@ -256,32 +277,37 @@ class PlayerController : DataEntry {
         Update
 
         */
-    public void updatePosition(MovDir dir, bool pressed) {
-        switch(dir) {
-            case MovDir.FORWARD:
-                movingForward = pressed;
-                break;
-            case MovDir.BACKWARD:
-                movingBackward = pressed;
-                break;
-            case MovDir.LEFT:
-                movingLeft = pressed;
-                break;
-            case MovDir.RIGHT:
-                movingRight = pressed;
-                break;
-            case MovDir.UP:
-                if(flyMode) movingUp = pressed;
-                else if(pressed) jump();
-                break;
-            case MovDir.DOWN:
-                movingDown = pressed;
-                break;
-        }
+    // Update Mode
+    public void updateMode(PlayerMode mode) {
+        Mapper.key(Keys.F, pressed => {
+            if(!pressed) return;
+            normalMode = !normalMode;
+
+            mode = normalMode ? PlayerMode.NORMAL : PlayerMode.FLY;
+            Console.WriteLine("Mode: " + mode);
+        });
     }
 
+    // Update Position
+    public void updatePosition(MoveDir dir, bool pressed) {
+        moveMap ??= new() {
+            { MoveDir.FORWARD, (Keys.W, p => movingForward = p)  },
+            { MoveDir.BACKWARD, (Keys.S, p => movingBackward = p) },
+            { MoveDir.LEFT, (Keys.A, p => movingLeft = p) },
+            { MoveDir.RIGHT, (Keys.D, p => movingRight = p) },
+            { MoveDir.UP, (Keys.Space, applyJump) },    
+            { MoveDir.DOWN, (Keys.LeftShift, p => movingDown = p) },
+        };
+
+        if(!moveMap.TryGetValue(dir, out var entry)) return;
+
+        Mapper.key(entry.key, entry.apply);
+        entry.apply(pressed);
+    }
+
+    // Update
     public void update() {
-        applyMov();
+        applyMove();
         rigidBody.update();
 
         if(collisionManager != null) {
@@ -320,6 +346,18 @@ class PlayerController : DataEntry {
             position.X, position.Y, position.Z,
             camera.getYaw(), camera.getPitch()
         );
+    }
+
+    /**
+    
+        Init
+    
+        */
+    private void init() {
+        updateMode(PlayerMode.NORMAL);
+        foreach(var dir in Enum.GetValues<MoveDir>()) {
+            updatePosition(dir, false);
+        }
     }
 
     /**

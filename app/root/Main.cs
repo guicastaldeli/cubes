@@ -131,6 +131,7 @@ class Main {
 
         uiController = new UIController(
             shaderProgram,
+            input,
             mesh,
             Window.WIDTH, Window.HEIGHT
         );

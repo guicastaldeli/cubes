@@ -4,16 +4,23 @@
 
     */
 namespace App.Root.Player.Inventory;
+using App.Root.Chat;
 using App.Root.Mesh;
 using App.Root.Screen;
 using App.Root.Shaders;
 using App.Root.Text;
+using App.Root.UI;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class Inventory {
     public const string ID = "inventory";
     
+    public static Inventory? instance;
+
     private ShaderProgram shaderProgram = null!;
+    private Input input = null!;
     private TextRenderer textRenderer = null!;
+    private UIController uiController = null!;
 
     public Grid grid = null!;
     public Slot slot = null!;
@@ -36,7 +43,21 @@ class Inventory {
     
     private int activeSlotIndex = -1;
  
+    public Inventory() {}
     public Inventory(
+        ShaderProgram shaderProgram,
+        Input input, 
+        TextRenderer textRenderer,
+        UIController uiController
+    ) {
+        this.shaderProgram = shaderProgram;
+        this.input = input;
+        this.textRenderer = textRenderer;
+        this.uiController = uiController;
+
+        Mapper.set<Inventory>();
+    }
+    public Inventory I(
         int screenWidth,
         int screenHeight,
         int startX, 
@@ -51,6 +72,8 @@ class Inventory {
         float slotWidthPct,
         float slotHeightPct
     ) {
+        instance = this;
+
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.width = width;
@@ -66,16 +89,13 @@ class Inventory {
         this.slotHeightPct = slotHeightPct;
         
         build();
+        return this;
     }
 
-    // Set Shader Program
-    public void setShaderProgram(ShaderProgram shaderProgram) {
-        this.shaderProgram = shaderProgram;
-    }
-
-    // Set Text Renderer
-    public void setTextRenderer(TextRenderer textRenderer) {
-        this.textRenderer = textRenderer;
+    // Get Instance
+    public static Inventory getInstance() {
+        instance??= new Inventory();
+        return instance;
     }
     
     // Add Item
@@ -146,6 +166,41 @@ class Inventory {
 
     public void setActiveSlot(int index) {
         activeSlotIndex = index;
+    }
+
+    /**
+
+        Open
+    
+        */
+    public void open() {
+        Mapper.key(Keys.I, pressed => {
+            if(!pressed) return;
+            if(ChatController.getInstance().isOpen()) return;
+            if(input.onPauseOverlayOpen()) return;
+
+            uiController.toggle(ID);
+            bool isActive = uiController.getActive() == ID;
+
+            var playerInput = input.getPlayerInput();
+            if(playerInput != null) {
+                var raycaster = input.getPlayerInput().getPlayerController().getRaycaster();
+                if(raycaster != null) raycaster.setActive(!isActive);
+            }
+            
+            Action action = isActive ? () =>
+                input.unlockMouse() : () =>
+                input.lockMouse();
+            action();
+        });
+        Mapper.key(Keys.Escape, pressed => {
+            if(!pressed) return;
+
+            if(uiController.getActive() != ID) return;
+            uiController.hide();
+
+            input.lockMouse();
+        });
     }
 
     /**

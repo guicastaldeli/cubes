@@ -11,6 +11,7 @@ class UIController {
     
     public ShaderProgram shaderProgram;
     public Mesh.Mesh mesh;
+    private Input input;
     private PlayerController? playerController = null!;
 
     private Dictionary<string, UI> uis = new();
@@ -20,6 +21,7 @@ class UIController {
 
     public UIController(
         ShaderProgram shaderProgram,
+        Input input,
         Mesh.Mesh mesh,
         int screenWidth,
         int screenHeight
@@ -27,10 +29,13 @@ class UIController {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.shaderProgram = shaderProgram;
+        this.input = input;
         this.mesh = mesh;
 
-        UI.init(screenWidth, screenHeight, this, shaderProgram, mesh);
+        UI.init(screenWidth, screenHeight, this, shaderProgram, input, mesh);
         init();
+
+        Input.AddPause<UIController>(() => getIsVisible());
     }
     
     // Player Controller

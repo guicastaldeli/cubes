@@ -8,6 +8,7 @@ class UI : UIHandler {
     public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ui/");
 
     public static ShaderProgram shaderProgram = null!;
+    public static Input input = null!;
     public static Mesh.Mesh mesh = null!;
     public static UIController uiController = null!;
 
@@ -34,6 +35,7 @@ class UI : UIHandler {
         int screenHeight,
         UIController uiController,
         ShaderProgram shaderProgram,
+        Input input,
         Mesh.Mesh mesh
     ) {
         UI.screenWidth = screenWidth;
@@ -41,12 +43,12 @@ class UI : UIHandler {
 
         UI.uiController = uiController;
         UI.shaderProgram = shaderProgram;
+        UI.input = input;
         UI.mesh = mesh;
 
         UI.textRenderer = new TextRenderer(shaderProgram, screenWidth, screenHeight);
         //UI.textRenderer.loadFont("arial", "arial.ttf", 16.0f);
     }
-
     public UI(string uiName) {
         this.uiName = uiName;
         //Console.WriteLine($"UI '{uiName}' initialized");

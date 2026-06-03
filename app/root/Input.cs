@@ -38,10 +38,13 @@ class Input {
     public bool pauseOverlayOpen = false;
 
     private static Dictionary<string, (string eventId, Keys key)> keyListeners = new();
+    private static Dictionary<Type, Func<bool>> pauseChecks = new();
 
     public Input(Window window, Tick tick) {
         this.window = window;
         this.tick = tick;
+
+        Input.AddPause<Input>(() => pauseOverlayOpen);
     }
 
     // Screen Controller
@@ -134,9 +137,8 @@ class Input {
         // Screen Controller
         screenController.handleKeyPress((int)key, KeyAction.Press);
 
-        // Player Input Map
+        // Player Input
         if(playerInput != null) {
-            playerInput.openInventory(key);
             playerInput.setKeyState(key, true);
         }
 
@@ -153,15 +155,13 @@ class Input {
 
     /**
     
-        On Pause
+        Pause
     
         */
+    // On Pause
     private void onPause() {
         // Screen Controller
         if(!screenController.isRunning()) return;
-
-        // Inventory
-        if(playerInput != null) playerInput.hideInventory();
         
         // Multiplayer
         bool isMultiplayer = network!.isConnected;
@@ -171,6 +171,7 @@ class Input {
         activePauseScreen();
     }
 
+    // Active Pause Screen
     private void activePauseScreen() {
         pauseOverlayOpen = !pauseOverlayOpen;
         
@@ -181,6 +182,11 @@ class Input {
             lockMouse();
             screenController.closeOverlay();
         }
+    }
+
+    // Add Pause
+    public static void AddPause<T>(Func<bool> cond) {
+        pauseChecks[typeof(T)] = cond;
     }
 
     /**
@@ -207,7 +213,6 @@ class Input {
         
         if(ChatController.getInstance().isOpen()) return;
 
-        if(playerInput != null && playerInput.isInventoryOpen()) return;
         if(playerInput != null) playerInput.onMouseButton(button);
     }
 
@@ -236,24 +241,23 @@ class Input {
     
         */
     public void update() {
-        if(pauseUpdate()) return;
+        if(updatePause()) return;
 
         var mouse = window.MouseState;
         float xOffset = mouse.Delta.X;
         float yOffset = -mouse.Delta.Y;
 
         playerInput?.handleMouse(xOffset, yOffset);
-        playerInput?.keyboardCallback();
     }
 
-    private bool pauseUpdate() {
-        bool val = playerInput == null || 
-            tick.isPaused() || 
-            pauseOverlayOpen ||
-            ChatController.getInstance().isOpen() ||
-            playerInput.isInventoryOpen();
+    private bool updatePause() {
+        if(playerInput  == null) return true;
 
-        return val;
+        foreach(var check in pauseChecks.Values) {
+            if(check()) return true;
+        }
+
+        return false;
     }
 
     /**
