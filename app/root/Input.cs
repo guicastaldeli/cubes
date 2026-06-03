@@ -29,7 +29,7 @@ class Input {
 
     private ScreenController screenController = null!;
     private UIController uiController = null!;
-    private PlayerInputMap? playerInputMap = null!;
+    private PlayerInput? playerInput = null!;
     private Network network = null!;
 
     private InputChat? inputChat;
@@ -62,13 +62,13 @@ class Input {
         return uiController;
     }
     
-    // Player Input Map
-    public void setPlayerInputMap(PlayerInputMap playerInputMap) {
-        this.playerInputMap = playerInputMap;
+    // Player Input
+    public void setPlayerInput(PlayerInput playerInput) {
+        this.playerInput = playerInput;
     }
 
-    public PlayerInputMap getPlayerInputMap() {
-        return playerInputMap!;
+    public PlayerInput getPlayerInput() {
+        return playerInput!;
     }
 
     // Set Network
@@ -135,9 +135,9 @@ class Input {
         screenController.handleKeyPress((int)key, KeyAction.Press);
 
         // Player Input Map
-        if(playerInputMap != null) {
-            playerInputMap.openInventory(key);
-            playerInputMap.setKeyState(key, true);
+        if(playerInput != null) {
+            playerInput.openInventory(key);
+            playerInput.setKeyState(key, true);
         }
 
         stream(key, KeyAction.Press);
@@ -146,7 +146,7 @@ class Input {
     private void onKeyUp(Keys key) {
         if(inputVoip != null) inputVoip.onKeyUp(key);
         screenController.handleKeyPress((int)key, KeyAction.Release);
-        playerInputMap?.setKeyState(key, false);
+        playerInput?.setKeyState(key, false);
 
         stream(key, KeyAction.Release);
     }
@@ -161,7 +161,7 @@ class Input {
         if(!screenController.isRunning()) return;
 
         // Inventory
-        if(playerInputMap != null) playerInputMap.hideInventory();
+        if(playerInput != null) playerInput.hideInventory();
         
         // Multiplayer
         bool isMultiplayer = network!.isConnected;
@@ -207,8 +207,8 @@ class Input {
         
         if(ChatController.getInstance().isOpen()) return;
 
-        if(playerInputMap != null && playerInputMap.isInventoryOpen()) return;
-        if(playerInputMap != null) playerInputMap.onMouseButton(button);
+        if(playerInput != null && playerInput.isInventoryOpen()) return;
+        if(playerInput != null) playerInput.onMouseButton(button);
     }
 
     public void setMouse() {
@@ -242,16 +242,16 @@ class Input {
         float xOffset = mouse.Delta.X;
         float yOffset = -mouse.Delta.Y;
 
-        playerInputMap?.handleMouse(xOffset, yOffset);
-        playerInputMap?.keyboardCallback();
+        playerInput?.handleMouse(xOffset, yOffset);
+        playerInput?.keyboardCallback();
     }
 
     private bool pauseUpdate() {
-        bool val = playerInputMap == null || 
+        bool val = playerInput == null || 
             tick.isPaused() || 
             pauseOverlayOpen ||
             ChatController.getInstance().isOpen() ||
-            playerInputMap.isInventoryOpen();
+            playerInput.isInventoryOpen();
 
         return val;
     }

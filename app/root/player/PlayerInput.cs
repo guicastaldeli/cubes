@@ -1,18 +1,31 @@
 namespace App.Root.Player;
-
 using App.Root.Chat;
 using App.Root.Mesh;
 using App.Root.Player.Inventory;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-class PlayerInputMap {
+/**
+
+    Mapper
+
+    */
+class Mapper {
+
+}
+
+/**
+
+    Player Input main class
+
+    */
+class PlayerInput {
     private Input input;
     private PlayerController playerController;
     
     private bool[] keyPressed = new bool[(int) Keys.LastKey + 1];
     private bool fKeyPressed = false;
 
-    public PlayerInputMap(Input input, PlayerController playerController) {
+    public PlayerInput(Input input, PlayerController playerController) {
         this.input = input;
         this.playerController = playerController;
     }

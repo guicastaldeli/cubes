@@ -200,10 +200,8 @@ class Mode {
         */
     // Update Preview
     private void updatePreview(Slot slot) {
-        var invInstance = 
-            playerController
-                .getPlayerInputMap()
-                .getInventory();
+        var invInstance = playerController.getPlayerInput() .getInventory();
+        
         if(invInstance != null) {
             var inv = invInstance.getInventory();
             var mainSlot = inv.getActiveSlot();
@@ -396,7 +394,7 @@ class Mode {
         if(currentMode != Modes.GETTER) return;
 
         if(activeSlot.HasValue) {
-            var invInstance = playerController.getPlayerInputMap().getInventory();
+            var invInstance = playerController.getPlayerInput().getInventory();
             if(invInstance != null) {
                 var slot = invInstance.getInventory().getActiveSlot();
                 if(slot.def != lastPreviewedDef) {

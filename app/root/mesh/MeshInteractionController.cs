@@ -94,7 +94,7 @@ class MeshInteractionController {
         WorldUpdater.getInstance().removeMesh(hit);
 
         var inventory = 
-            input.getPlayerInputMap()
+            input.getPlayerInput()
             .getInventory();
         if(inventory != null) {            
             inventory.getInventory().addItem(def);
@@ -109,7 +109,7 @@ class MeshInteractionController {
     
         */
     public void onPlace() {
-        var inventoryInstance = input.getPlayerInputMap().getInventory();
+        var inventoryInstance = input.getPlayerInput().getInventory();
         if(inventoryInstance == null) return;
 
         var inventory = inventoryInstance.getInventory();

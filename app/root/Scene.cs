@@ -139,7 +139,7 @@ class Scene {
     }
 
     private void setInput() {
-        input.setPlayerInputMap(playerController.getPlayerInputMap());
+        input.setPlayerInput(playerController.getPlayerInput());
         input.lockMouse();
     }
 

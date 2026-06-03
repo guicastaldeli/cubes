@@ -27,7 +27,7 @@ class PlayerController : DataEntry {
     private Window window;
     private Camera camera;
     private Input input;
-    private PlayerInputMap playerInputMap;
+    private PlayerInput playerInput;
     private RigidBody rigidBody;
     private CollisionManager? collisionManager;
     private ShaderProgram shaderProgram;
@@ -84,7 +84,7 @@ class PlayerController : DataEntry {
         this.mesh = mesh;
 
         this.camera = new Camera();
-        this.playerInputMap = new PlayerInputMap(input, this);
+        this.playerInput = new PlayerInput(input, this);
         this.rigidBody = new RigidBody(position, size);
         this.playerMesh = new PlayerMesh(window, camera, this, mesh);
 
@@ -132,9 +132,9 @@ class PlayerController : DataEntry {
         return camera;
     }
 
-    // Get Input Map
-    public PlayerInputMap getPlayerInputMap() {
-        return playerInputMap;
+    // Get Player Input
+    public PlayerInput getPlayerInput() {
+        return playerInput;
     }
 
     // Get Raycaster
