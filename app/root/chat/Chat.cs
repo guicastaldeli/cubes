@@ -1,6 +1,7 @@
 namespace App.Root.Chat;
+using App.Root.UI;
 
-class Chat : UI.UI {
+class Chat : UI {
     public const string ID = "chat";
 
     public static string CHAT_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "chat/");

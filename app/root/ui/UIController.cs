@@ -1,16 +1,17 @@
 namespace App.Root.UI;
 using App.Root.Shaders;
-using System.Collections.Generic;
 using App.Root.Player;
-using System.Reflection;
 using App.Root.Utils;
+using App.Root.Mesh;
+using System.Collections.Generic;
+using System.Reflection;
 
 class UIController {
     public int screenWidth;
     public int screenHeight;
     
     public ShaderProgram shaderProgram;
-    public Mesh.Mesh mesh;
+    public Mesh mesh;
     private Input input;
     private PlayerController? playerController = null!;
 
@@ -22,7 +23,7 @@ class UIController {
     public UIController(
         ShaderProgram shaderProgram,
         Input input,
-        Mesh.Mesh mesh,
+        Mesh mesh,
         int screenWidth,
         int screenHeight
     ) {

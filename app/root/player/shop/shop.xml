@@ -7,5 +7,7 @@
         background="0,0,0,0.5" 
         scale="0.7" 
         visible="true"
-    />
+    >
+        <import src="world/points/points.xml" visible="true" />
+    </div>
 </shop>

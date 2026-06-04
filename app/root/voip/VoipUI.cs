@@ -1,6 +1,7 @@
 namespace App.Root.Voip;
+using App.Root.UI;
 
-class VoipUI : UI.UI {
+class VoipUI : UI {
     public const string ID = "voip";
 
     public static string VOIP_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "voip/");

@@ -6,7 +6,7 @@
     */
 namespace App.Root.Player.Inventory;
 using App.Root.Mesh;
-using App.Root.Text;
+using App.Root.UI;
 
 class Slot {
     public int index;
@@ -26,7 +26,7 @@ class Slot {
     public bool isFull => count >= maxStack;
     public PlacedMeshDef? def = null;
 
-    public UI.UIElement el;
+    public UIElement el;
 
     public Slot(
         int index,
@@ -45,7 +45,7 @@ class Slot {
         this.width = width;
         this.height = height;
 
-        el = new UI.UIElement(
+        el = new UIElement(
             "div", "", "",
             x, y, width, height,
             1.0f, new float[]{ 1f, 1f, 1f, 1f },

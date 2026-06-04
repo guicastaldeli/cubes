@@ -5,13 +5,14 @@ using App.Root.Physics;
 using App.Root.Player;
 using App.Root.Shaders;
 using App.Root.Utils;
+using App.Root.Mesh;
 
 [ClassRegistryIgnore]
 class World : WorldHandler {
     private Window window;
     private Tick tick;
     private ShaderProgram shaderProgram;
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     private CollisionManager collisionManager;
     private TimeCycle timeCycle;
     private Camera camera;
@@ -30,7 +31,7 @@ class World : WorldHandler {
         Window window,
         Tick tick,
         ShaderProgram shaderProgram,
-        Mesh.Mesh mesh, 
+        Mesh mesh, 
         WorldManager worldManager,
         CollisionManager collisionManager,
         TimeCycle timeCycle,
@@ -72,7 +73,7 @@ class World : WorldHandler {
     } 
 
     // Get Mesh
-    public Mesh.Mesh getMesh() {
+    public Mesh getMesh() {
         return mesh;
     }
 

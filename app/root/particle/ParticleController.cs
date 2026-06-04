@@ -5,14 +5,15 @@
     */
 namespace App.Root.Particle;
 using OpenTK.Mathematics;
+using App.Root.Mesh;
 
 class ParticleController {
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
 
     private List<ParticleEntity> particleEntities;
     private ParticleEntity? particleEntity;
 
-    public ParticleController(Mesh.Mesh mesh) {
+    public ParticleController(Mesh mesh) {
         this.mesh = mesh;
         this.particleEntities = new List<ParticleEntity>();
     }

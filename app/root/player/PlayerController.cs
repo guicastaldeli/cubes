@@ -4,6 +4,7 @@ using App.Root.Info;
 using App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.World;
+using App.Root.UI;
 using WPlatform = App.Root.World.Platform.Platform;
 using AppWindow = App.Root.Window;
 using OpenTK.Mathematics;
@@ -270,7 +271,7 @@ class PlayerController : DataEntry {
         */
     public void render() {
         raycaster.onRenderOutline?.Invoke();
-        UI.UI.uiController.generate();
+        UI.uiController.generate();
     }
 
     /**

@@ -7,6 +7,7 @@ namespace App.Root.World.Platform;
 using App.Root.Collider;
 using App.Root.Player;
 using App.Root.Utils;
+using App.Root.Mesh;
 
 class PlatformRegistry {
     /**
@@ -25,7 +26,7 @@ class PlatformRegistry {
 
         */
     private Window window;
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     private CollisionManager collisionManager;
     private Platform platform;
     private PlayerController playerController;
@@ -37,7 +38,7 @@ class PlatformRegistry {
 
     public PlatformRegistry(
         Window window,
-        Mesh.Mesh mesh, 
+        Mesh mesh, 
         CollisionManager collisionManager, 
         Platform platform,
         PlayerController playerController

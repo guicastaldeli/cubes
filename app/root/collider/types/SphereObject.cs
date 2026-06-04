@@ -2,9 +2,10 @@ namespace App.Root.Collider.Types;
 using App.Root.Collider;
 using App.Root.Player;
 using OpenTK.Mathematics;
+using App.Root.Mesh;
 
 class SphereObject : Collider {
-    private Mesh.Mesh? mesh = null!;
+    private Mesh? mesh = null!;
     private string? type = null!;
     private string id;
 
@@ -13,7 +14,7 @@ class SphereObject : Collider {
     private bool useProviders = false;
 
     public SphereObject(
-        Mesh.Mesh mesh, 
+        Mesh mesh, 
         string id, 
         string type
     ) {

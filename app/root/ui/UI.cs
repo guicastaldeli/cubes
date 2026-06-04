@@ -2,6 +2,7 @@ namespace App.Root.UI;
 using App.Root.Shaders;
 using App.Root.Text;
 using App.Root.Screen;
+using App.Root.Mesh;
 using System.Collections.Generic;
 
 class UI : UIHandler {
@@ -9,7 +10,7 @@ class UI : UIHandler {
 
     public static ShaderProgram shaderProgram = null!;
     public static Input input = null!;
-    public static Mesh.Mesh mesh = null!;
+    public static Mesh mesh = null!;
     public static UIController uiController = null!;
 
     public static TextRenderer? textRenderer;
@@ -36,7 +37,7 @@ class UI : UIHandler {
         UIController uiController,
         ShaderProgram shaderProgram,
         Input input,
-        Mesh.Mesh mesh
+        Mesh mesh
     ) {
         UI.screenWidth = screenWidth;
         UI.screenHeight = screenHeight;

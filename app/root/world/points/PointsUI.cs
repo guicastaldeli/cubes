@@ -1,16 +1,14 @@
-using App.Root.Screen;
-using App.Root.Utils;
-
 namespace App.Root.World.Points;
+using App.Root.Screen;
+using App.Root.UI;
 
-class PointsUI : UI.UI {
+class PointsUI : UI {
     public const string ID = "points";
     
     public static string POINTS_HUD_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/points/");
     public static string PATH = POINTS_HUD_DIR + "points.xml"; 
 
     public PointsUI() : base(PATH, ID) {
-        EnableGeneration = true;
         init();
     }
 

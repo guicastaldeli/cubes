@@ -1,9 +1,10 @@
 namespace App.Root.Player.Aim;
 using App.Root.Mesh;
 using App.Root.Resource;
+using App.Root.UI;
 using OpenTK.Graphics.OpenGL;
 
-class Aim : UI.UI {
+class Aim : UI {
     private static string ID = "aim";
     private static string TEX_PATH = "player/hud/aim.png";
     private static string MESH = "quad"; 

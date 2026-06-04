@@ -2,9 +2,10 @@
 <points>
     <label
         id="pointsLabel" 
-        x="5%" y="5%" 
+        x="15%" y="5%" 
         scale="1.0" 
-        color="0.0,0.0,0.0,1.0"
+        color="0.0,1.0,1.0,1.0"
+        visible="false"
     >
         POINTS: {0}{points}
     </label>

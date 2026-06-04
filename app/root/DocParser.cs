@@ -69,6 +69,49 @@ class DocParser {
         return text;
     }
 
+    private static void resolveImports(XmlElement root, string filePath) {
+        string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory);
+
+        var imports = root.SelectNodes(".//import")?.Cast<XmlNode>().ToList();
+        if(imports == null) return;
+
+        foreach(XmlNode node in imports) {
+            if(node is not XmlElement importEl) continue;
+
+            string src = importEl.GetAttribute("src");
+            string importPath = Path.Combine(baseDir, src);
+
+            if(!File.Exists(importPath)) {
+                Console.Error.WriteLine($"Import not found!: {importPath}");
+                root.RemoveChild(importEl);
+                continue;
+            }
+
+            XmlDocument importDoc = new XmlDocument();
+            importDoc.Load(importPath);
+
+            XmlElement importRoot = importDoc.DocumentElement!;
+            XmlNode parent = importEl.ParentNode!;
+
+            foreach(XmlNode child in importRoot.ChildNodes.Cast<XmlNode>().ToList()) {
+                if(child.NodeType != XmlNodeType.Element) continue;
+                XmlNode imported = root.OwnerDocument.ImportNode(child, true);
+
+                if(imported is XmlElement importedEl) {
+                    foreach(XmlAttribute attr in importEl.Attributes) {
+                        if(attr.Name == "src") continue;
+                        importedEl.SetAttribute(attr.Name, attr.Value);
+                    }
+                }
+
+                parent.InsertBefore(imported, importEl);
+            }
+
+            parent.RemoveChild(importEl);
+           // Console.WriteLine($"Importing: {importPath} exists: {File.Exists(importPath)}");
+        }
+    }
+
     /**
     
         Parse
@@ -81,8 +124,9 @@ class DocParser {
             document.Load(filePath);
 
             XmlElement root = document.DocumentElement!;
-            screenData.screenType = root.Name;
+            resolveImports(root, filePath);
 
+            screenData.screenType = root.Name;
             parseAttr(root, screenData.screenAttr);
             parseEl(root, screenData.elements, screenWidth, screenHeight, null);
         } catch(Exception err) {
@@ -98,8 +142,9 @@ class DocParser {
             document.Load(filePath);
 
             XmlElement root = document.DocumentElement!;
-            uiData.uiType = root.Name;
+            resolveImports(root, filePath);
 
+            uiData.uiType = root.Name;
             parseAttr(root, uiData.uiAttr);
             parseEl(root, uiData.elements, screenWidth, screenHeight, null);
         } catch(Exception err) {
