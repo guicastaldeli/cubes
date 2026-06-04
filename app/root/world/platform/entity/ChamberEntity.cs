@@ -118,7 +118,7 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         Points.Add(xp.Value);
 
         deposited = true;
-        DocParser.Replace("points", added);
+        DocParser.Replace("displayPoints", added);
 
         Vector3 entityColor = getMeshEntityColor(held);
         
