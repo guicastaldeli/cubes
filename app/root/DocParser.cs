@@ -276,18 +276,26 @@ class DocParser {
         int screenHeight,
         ScreenElement? parentElement
     ) {
-        string text = element.InnerText.Trim();
-        string id   = element.HasAttribute("id") ? element.GetAttribute("id") : "";
+        string text = "";
+        bool hasChildElements = element.ChildNodes.Cast<XmlNode>().Any(n => n.NodeType == XmlNodeType.Element);
 
-        int x = parseCoordinate(element, "x", screenWidth, 1280);
-        int y = parseCoordinate(element, "y", screenHeight, 720);
+        if(element.HasAttribute("text")) {
+            text = evaluateExpression(element.GetAttribute("text"));
+        } else if(!hasChildElements) {
+            text = evaluateExpression(element.InnerText.Trim());
+        }
+        
+        string id = element.HasAttribute("id") ? element.GetAttribute("id") : "";
+
+        int x = parseCoordinate(element, "x", screenWidth, Window.WIDTH);
+        int y = parseCoordinate(element, "y", screenHeight, Window.HEIGHT);
         if(parentElement != null) {
             x += parentElement.x;
             y += parentElement.y;
         }
 
-        int width  = parseSize(element, "width",  screenWidth,  1280, 100);
-        int height = parseSize(element, "height", screenHeight, 720,  50);
+        int width  = parseSize(element, "width",  screenWidth,  Window.WIDTH, 100);
+        int height = parseSize(element, "height", screenHeight, Window.HEIGHT, 50);
 
         float scale = element.HasAttribute("scale") ? float.Parse(element.GetAttribute("scale")) : 1.0f;
 
@@ -656,8 +664,16 @@ class DocParser {
         int screenHeight,
         UIElement? parentElement
     ) {
-        string text = element.InnerText.Trim();
-        string id   = element.HasAttribute("id") ? element.GetAttribute("id") : "";
+        string text = "";
+        bool hasChildElements = element.ChildNodes.Cast<XmlNode>().Any(n => n.NodeType == XmlNodeType.Element);
+
+        if(element.HasAttribute("text")) {
+            text = evaluateExpression(element.GetAttribute("text"));
+        } else if(!hasChildElements) {
+            text = evaluateExpression(element.InnerText.Trim());
+        }
+
+        string id = element.HasAttribute("id") ? element.GetAttribute("id") : "";
 
         int x = parseCoordinate(element, "x", screenWidth, 1280);
         int y = parseCoordinate(element, "y", screenHeight, 720);

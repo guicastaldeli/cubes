@@ -155,7 +155,7 @@ class UI : UIHandler {
         */
     public virtual void render() {
         if(!visible || textRenderer == null || uiData == null) return;
-
+        
         DocParser.renderUI(
             uiData,
             screenWidth,
