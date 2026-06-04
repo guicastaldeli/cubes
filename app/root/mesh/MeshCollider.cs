@@ -7,7 +7,6 @@
 namespace App.Root.Mesh;
 using App.Root.Collider;
 using App.Root.Collider.Types;
-using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
 
 /**
@@ -163,10 +162,10 @@ static class MeshCollider {
                 collisionManager.addStaticCollider(
                     new TriangleObject(
                         () => getInstancedPosition(colliderId),
-                        () => cachedVertices[meshType],
-                        () => cachedIndices[meshType],
-                        () => Vector3.One * instancedScales[colliderId],
-                        () => instancedBBoxes[colliderId],
+                        () => cachedVertices.TryGetValue(meshType, out var v) ? v : Array.Empty<float>(),
+                        () => cachedIndices.TryGetValue(meshType, out var i) ? i : Array.Empty<int>(),
+                        () => instancedScales.TryGetValue(colliderId, out var s) ? Vector3.One * s : Vector3.One,
+                        () => instancedBBoxes.TryGetValue(colliderId, out var b) ? b : new BBox(0,0,0,0,0,0),  // ← safe
                         colliderId
                     )
                 );

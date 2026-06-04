@@ -40,6 +40,7 @@ public static class Converter {
         To Rgba
     
         */
+    [ConverterKey("rgba")]
     public static float[] ToRgba(string hex) {
         var (r, g, b) = HexToRgb.C(hex);
         float a = 1.0f;
@@ -53,6 +54,7 @@ public static class Converter {
         To Rgba List
     
         */
+    [ConverterKey("rgbaList")]
     public static List<float[]> ToRgbaList(string hex, int count) {
         var (r, g, b) = HexToRgb.C(hex);
         float a = 1.0f;
@@ -67,6 +69,7 @@ public static class Converter {
         To Rotation List
     
         */
+    [ConverterKey("rotationList")]
     public static List<float> ToRotationList(float rotation, int count) {
         List<float> val = Enumerable.Repeat(rotation, count).ToList();
         return val;
@@ -78,12 +81,14 @@ public static class Converter {
     
         */
     // Tex Path
+    [ConverterKey("texPath")]
     public static List<string?> ToTexPath(string? texPath, int count) {
         List<string?> val = Enumerable.Repeat(texPath, count).ToList();
         return val;
     }
 
     // Tex Id
+    [ConverterKey("texId")]
     public static List<int>? ToTexId(int? texId, int count) {
         if(texId == null) return null;
         

@@ -10,6 +10,8 @@ using App.Root.Mesh;
 using App.Root.Physics;
 using App.Root.Utils;
 using OpenTK.Mathematics;
+using System.Collections;
+using System.Reflection;
 
 /**
 
@@ -17,27 +19,55 @@ using OpenTK.Mathematics;
 
     */
 public struct Instance {
-    public Vector3 Position;
+    [ConverterKey("positions")] public Vector3 Position;
+    [ConverterKey("rotations")] public float Rotation;
+    [Convert("rgba")] [ConverterKey("colors")] public string Color;
+    [ConverterKey("texpaths")] public string? Tex;
     public float Speed;
-    public float Rotation;
     public float Lifetime;
-    public string Color;
-    public string? Tex;
+
+    public static readonly Dictionary<string, MethodInfo> converters =
+        typeof(Converter)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Where(m => m.GetCustomAttribute<ConverterKey>() != null)
+            .ToDictionary(
+                m => m.GetCustomAttribute<ConverterKey>()!.Key,
+                m => m
+            );
 
     /**
-    
-        Data
+
+        Get
     
         */
-    // Main Data
-    private Instance Data() {
-        return this;
+    public Dictionary<string, object> GetData() {
+        var dict = new Dictionary<string, object>();
+
+        foreach(var field in typeof(Instance).GetFields(BindingFlags.Public | BindingFlags.Instance)) {
+            object? val = field.GetValue(this);
+            if(val == null) continue;
+
+            var keyAttr = field.GetCustomAttribute<ConverterKey>();
+            var converterAttr = field.GetCustomAttribute<ConvertAttribute>();
+            string dictKey = keyAttr?.Key ?? field.Name.ToLower();
+
+            if(converterAttr != null && converters.TryGetValue(converterAttr.Converter, out var method)) {
+                dict[dictKey] = method.Invoke(null, new[] { val })!;
+            } else {
+                dict[dictKey] = val;
+            }
+
+        }
+        
+        return dict;
     }
 
-    // Instance Data
-    public (Vector3 position, float[] color, float rotation, string? tex) InstData() {
-        var data = Data();
-        var val = (data.Position, Converter.ToRgba(data.Color), data.Rotation, data.Tex);
+    public static List<T> Get<T>(List<Instance> instances, string key) {
+        List<T> val = instances.Select(i => i.GetData())
+            .Where(d => d.ContainsKey(key) && d[key] is T)
+            .Select(d => (T)d[key])
+            .ToList();
+
         return val;
     }
 } 
@@ -243,10 +273,10 @@ class MeshEntitySpawner {
     
         */
     private float setSpeed() {
-        float val = 
-            MIN_SPEED + 
+        float val = MIN_SPEED + 
             (float)range.NextDouble() * 
             (MAX_SPEED - MIN_SPEED);
+        
         return val;
     }
 
@@ -266,8 +296,7 @@ class MeshEntitySpawner {
     
         */
     private float setLifetime() {
-        float lifetime = 
-            MIN_LIFETIME +
+        float lifetime =  MIN_LIFETIME +
             (float)range.NextDouble() * 
             (MAX_LIFETIME - MIN_LIFETIME);
         
@@ -339,15 +368,51 @@ class MeshEntitySpawner {
         Data
     
         */
-    private (List<Vector3>, List<float[]>, List<float>, List<string?>) getData(string id, List<Instance> list) {
-        var inst = list.Select(i => i.InstData()).ToList();
-        
-        var positions = inst.Select(d => d.position).ToList();
-        var colors = inst.Select(d => d.color).ToList();
-        var rotations = inst.Select(d => d.rotation).ToList();
-        var textures = inst.Select(d => d.tex).ToList();
+    private Dictionary<string, List<object>> getData(List<Instance> list) {
+        var result = new Dictionary<string, List<object>>();
 
-        return (positions, colors, rotations, textures);
+        foreach(var inst in list) {
+            foreach(var (key, val) in inst.GetData()) {
+                if(!result.ContainsKey(key)) result[key] = new List<object>();
+                result[key].Add(val);
+            }
+        }
+
+        return result;
+    }
+
+    public void syncData(string entityId) {
+        if(!instances.ContainsKey(entityId)) return;
+
+        var list = instances[entityId];
+        if(list.Count == 0) return;
+
+        var data = getData(list);
+        var renderer = mesh?.getMeshRenderer(entityId);
+        if(renderer == null) return;
+
+        bool isInit = renderer.getInstanceVboInitialized();
+
+        string methodName = isInit
+            ? nameof(MeshRenderer.updateInstanceData)
+            : nameof(MeshRenderer.setInstanceData);
+        var method = typeof(MeshRenderer).GetMethods()
+            .First(m => m.Name == methodName && m.GetParameters().Length > 1);
+    
+        var args = method.GetParameters().Select(p => {
+            string key = p.Name!.ToLower();
+
+            if(data.TryGetValue(key, out var val)) {
+                var listType = typeof(List<>).MakeGenericType(p.ParameterType.GetGenericArguments()[0]);
+                var result = (IList)Activator.CreateInstance(listType)!;
+                foreach(var item in val) result.Add(item);
+                return (object?)result;
+            }
+            
+            return Activator.CreateInstance(p.ParameterType);
+        }).ToArray();
+
+        method.Invoke(renderer, args);
     }
 
     /**
@@ -379,8 +444,7 @@ class MeshEntitySpawner {
                 MeshEntityCollider.update(id, i, inst.Position);
             }
 
-            var (positions, colors, rotations, textures) = getData(id, l);
-            mesh.getMeshRenderer(id)?.updateInstanceData(positions, colors, rotations, textures);
+            syncData(id);
             if(l.Count > 0) mesh.setPosition(id, l[0].Position);
 
         }
@@ -430,11 +494,8 @@ class MeshEntitySpawner {
 
             string? entityId = MeshEntityCollider.colliderToEntity.TryGetValue(colliderId, out var eid) ? eid : null;
             if(entityId == null) return;
-
             if(!instances.ContainsKey(entityId)) return;
             if(!instanceStates.ContainsKey(entityId)) return;
-
-            instanceStates[entityId] = State.ACTIVE;
 
             var ids = MeshEntityCollider.colliderIds.TryGetValue(entityId, out var list) ? list : null;
             if(ids == null) return;
@@ -446,7 +507,8 @@ class MeshEntitySpawner {
             ids.RemoveAt(index);
             MeshEntityCollider.colliderToEntity.Remove(colliderId);
             MeshCollider.removeInstanced(colliderId);
-            mesh?.removeInstance(entityId, index);
+
+            syncData(entityId);
         });
 
         // Instanced Place

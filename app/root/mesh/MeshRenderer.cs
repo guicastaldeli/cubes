@@ -22,7 +22,7 @@ class MeshRenderer : DataEntry {
     private int texCoordsVbo;
     private int vertexCount;
 
-    private int instanceVbo = 0;
+    public int instanceVbo = 0;
     private int instanceCount = 0;
     private int instanceRotationVbo = 0;
     public bool isInstanced = false;
@@ -77,7 +77,16 @@ class MeshRenderer : DataEntry {
         this.mesh = mesh;
     }
 
-    public List<Vector3> getCachedInstancePositions() => cachedInstancePositions;
+    // Get Cached Instance Positions
+    public List<Vector3> getCachedInstancePositions() {
+        return cachedInstancePositions;
+    }
+
+    // Get Instance VBO Initialized
+    public bool getInstanceVboInitialized() {
+        bool val = instanceVbo != 0;
+        return val;
+    }
 
     // Camera
     public void setCamera(Camera camera) {
@@ -149,30 +158,6 @@ class MeshRenderer : DataEntry {
     public void setModelMatrix(Matrix4 m) {
         modelMatrix = m;
     }
-
-    // Colors
-    public void updateColors(float[] colors) {
-        if(colorVbo == 0) {
-            colorVbo = GL.GenBuffer();
-
-            GL.BindVertexArray(vao);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, colorVbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, colors.Length * sizeof(float), colors, BufferUsageHint.DynamicDraw);
-            GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, 0, 0);
-            GL.EnableVertexAttribArray(2);
-            GL.BindVertexArray(0);
-
-            hasColors = true;
-
-            return;
-        }
-
-        hasColors = true;
-
-        GL.BindBuffer(BufferTarget.ArrayBuffer, colorVbo);
-        GL.BufferData(BufferTarget.ArrayBuffer, colors.Length * sizeof(float), colors, BufferUsageHint.DynamicDraw);
-        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-    } 
 
     // Network Controlled
     public void setNetworkControlled(bool val) {
@@ -490,11 +475,13 @@ class MeshRenderer : DataEntry {
         Update
 
         */
+    // Main
     public void update() {
         if(meshData == null) return;
         if(meshData.hasRotation() == true) updateRotation();
     }
 
+    // Update Rotation
     public void updateRotation() {
         if(networkControlled) return;
         if(meshData == null || !meshData.hasRotation()) return;
@@ -516,6 +503,31 @@ class MeshRenderer : DataEntry {
         }
     }
 
+    // Update Colors
+    public void updateColors(float[] colors) {
+        if(colorVbo == 0) {
+            colorVbo = GL.GenBuffer();
+
+            GL.BindVertexArray(vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, colorVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, colors.Length * sizeof(float), colors, BufferUsageHint.DynamicDraw);
+            GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, 0, 0);
+            GL.EnableVertexAttribArray(2);
+            GL.BindVertexArray(0);
+
+            hasColors = true;
+
+            return;
+        }
+
+        hasColors = true;
+
+        GL.BindBuffer(BufferTarget.ArrayBuffer, colorVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, colors.Length * sizeof(float), colors, BufferUsageHint.DynamicDraw);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+    } 
+
+    // Update Instance Data
     public void updateInstanceData(
         List<Vector3> positions, 
         List<float[]> colors, 
@@ -523,8 +535,9 @@ class MeshRenderer : DataEntry {
         List<string?>? texPaths = null,
         List<int>? texIds = null
     ) {
-        if(positions.Count != instanceCount) return;
+        //if(positions.Count != instanceCount) return;
 
+        instanceCount = positions.Count;
         cachedInstancePositions = positions;
         cachedInstanceRotations = rotations;
 

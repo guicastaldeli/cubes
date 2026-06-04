@@ -102,93 +102,42 @@ class MeshEntityGenerator : WorldHandler {
         Generate
     
         */
-    private void generate(Dictionary<string, MeshData> meshTypes) {
+    private void generateSource(EntityProps entity, MeshData data) {
+        MeshData meshData = MeshEntityFactory.clone(data);
+        meshData.isEntity = 1;
+        meshData.entityType = "mesh";
+
+        mesh.add(entity.Id, meshData);
+        mesh.setScale(entity.Id, entity.Scale);
+        mesh.setColor(entity.Id, entity.Color);
+        mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
+        if(entity.TexId.HasValue && entity.TexId > 0) mesh.setTexture(entity.Id, entity.TexId.Value, entity.Tex!);
+                
+        entitySpawner.render(entity);
+
+        var renderer = mesh.getMeshRenderer(entity.Id);
+        if(renderer != null) {
+            renderer.isInstanced = true;
+            renderer.isInteractive = true;
+        }
+        
+        entitySpawner.syncData(entity.Id);
+    }
+
+    private void generate(Dictionary<string, MeshData> meshTypes, bool setInitialized = false) {
         var entityProps = new Dictionary<string, EntityProps>();
         var entityInstances = new Dictionary<string, List<Instance>>();
 
         foreach(var (type, data) in meshTypes) {
-            var entities = MeshEntityFactory.generate(data, type);
-            
-            foreach(var entity in entities) {
+            foreach(var entity in MeshEntityFactory.generate(data, type)) {
+                generateSource(entity, data);
                 entityProps[entity.Id] = entity;
                 entityInstances[entity.Id] = entitySpawner.getInstances(entity.Id);
-
-                MeshData meshData = MeshEntityFactory.clone(data);
-                meshData.isEntity = 1;
-                meshData.entityType = "mesh";
-
-                mesh.add(entity.Id, meshData);
-                mesh.setScale(entity.Id, entity.Scale);
-                mesh.setColor(entity.Id, entity.Color);
-                mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
-                if(entity.TexId.HasValue && entity.TexId > 0) mesh.setTexture(entity.Id, entity.TexId.Value, entity.Tex!);
-                
-                entitySpawner.render(entity);
-
-                var entityData = mesh.getMeshRenderer(entity.Id);
-                if(entityData != null) {
-                    entityData.isInstanced = true;
-                    entityData.isInteractive = true;
-                    
-                    List<Vector3> position = entitySpawner.getPositions(entity.Id);
-                    List<float[]> color = Converter.ToRgbaList(entity.Color, position.Count);
-                    List<float> rotation = Converter.ToRotationList(entity.Rotation, position.Count); 
-                    List<string?> texPath = Converter.ToTexPath(meshData.texPath, position.Count);
-                    List<int>? texId = Converter.ToTexId(entity.TexId, position.Count);
-                    
-                    entityData.setInstanceData(position, color, rotation, texPath, texId);
-                }
             }
         }
 
-        MeshEntityFactory.setEvent(
-            MeshEntityCollider.colliderIds,
-            entityProps,
-            entityInstances
-        );
-
-        initialized = true;
-    }
-
-    private void generateNew(string type, MeshData data) {
-        var entityProps = new Dictionary<string, EntityProps>();
-        var entityInstances = new Dictionary<string, List<Instance>>();
-
-        var entities = MeshEntityFactory.generate(data, type);
-            
-        foreach(var entity in entities) {
-            MeshData meshData = MeshEntityFactory.clone(data);
-            meshData.isEntity = 1;
-
-            mesh.add(entity.Id, meshData);
-            mesh.setScale(entity.Id, entity.Scale);
-            mesh.setColor(entity.Id, entity.Color);
-            mesh.setRotationMatrix(entity.Id, RotationEntity.R(entity));
-            if(entity.TexId.HasValue && entity.TexId > 0) mesh.setTexture(entity.Id, entity.TexId.Value, entity.Tex!);
-                
-            entitySpawner.render(entity);
-            entityProps[entity.Id] = entity;
-            entityInstances[entity.Id] = entitySpawner.getInstances(entity.Id);
-
-            var entityData = mesh.getMeshRenderer(entity.Id);
-            if(entityData != null) {
-                entityData.isInstanced = true;
-                entityData.isInteractive = true;
-                    
-                List<Vector3> position = entitySpawner.getPositions(entity.Id);
-                List<float[]> color = Converter.ToRgbaList(entity.Color, position.Count);
-                List<float> rotation = Converter.ToRotationList(entity.Rotation, position.Count); 
-                List<string?> texture = Converter.ToTexPath(meshData.texPath, position.Count);
-                    
-                entityData.setInstanceData(position, color, rotation, texture);
-            }
-        }
-
-        MeshEntityFactory.setEvent(
-            MeshEntityCollider.colliderIds,
-            entityProps,
-            entityInstances
-        );
+        MeshEntityFactory.setEvent(MeshEntityCollider.colliderIds, entityProps, entityInstances);
+        if(setInitialized) initialized = true;
     }
 
     /**
@@ -199,7 +148,7 @@ class MeshEntityGenerator : WorldHandler {
     public override void render() {
         if(!initialized) {
             var meshTypes = load();
-            generate(meshTypes);
+            generate(meshTypes, setInitialized: true);
 
             initialized = true;
         }
@@ -218,7 +167,7 @@ class MeshEntityGenerator : WorldHandler {
             var meshTypes = load();
 
             if(meshTypes.TryGetValue(meshType, out MeshData? data)) {
-                generateNew(meshType, data);
+                generate(new Dictionary<string, MeshData> { [meshType] = data });
             }
         }
     }
