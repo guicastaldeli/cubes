@@ -1,5 +1,4 @@
 namespace App.Root.Screen.Main.Server;
-using App.Root.Input;
 using App.Root.Player;
 using App.Root.Utils;
 
@@ -33,7 +32,7 @@ class ServerDialogAction {
     
         */
     public dynamic get() {
-        return ElementEntry.C(id => serverDialog.getElementById(id), Elements);
+        return ElementEntry.C(id => serverDialog.getMainScreen().getElementById(id), Elements);
     }
 
     /**
@@ -50,7 +49,7 @@ class ServerDialogAction {
             int.Parse(maxPlayersEl);
 
         network.host(port, maxPlayers);
-        serverDialog.mainScreen.getScene().init();
+        serverDialog.getMainScreen().getScene().init();
     }
 
     /**
@@ -65,13 +64,13 @@ class ServerDialogAction {
 
         network.join(ip, int.Parse(port));
 
-        serverDialog.mainScreen.getScene().init();
+        serverDialog.getMainScreen().getScene().init();
     }
 
     // Back
     public void back() {
         serverDialog.hide();
-        serverDialog.mainScreen.show();
+        serverDialog.getMainScreen().show();
         
         network.stop();
     }

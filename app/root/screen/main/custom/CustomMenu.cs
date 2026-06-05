@@ -1,14 +1,15 @@
 namespace App.Root.Screen.Main.Custom;
 using App.Root.Input;
+using App.Root.Utils;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-class CustomMenu : Screen {
-    public static string PATH = DIR + "main/custom/custom_menu.xml";
+class CustomMenu : MainScreenHandler {
+    public const string ID = "custom_menu";
+    public static string PATH = Screen.DIR + "main/custom/custom_menu.xml";
 
-    public MainScreen mainScreen;
     private CustomMenuActions customMenuActions;
 
-    public CustomMenu(MainScreen mainScreen) : base(PATH, "custom_menu") {
+    public CustomMenu([Inject] MainScreen mainScreen) : base(PATH, ID) {
         this.mainScreen = mainScreen;
         this.customMenuActions = new CustomMenuActions(this);
 
@@ -17,6 +18,11 @@ class CustomMenu : Screen {
 
     private void registerInputs() {
         InputField.register("usernameInput");
+    }
+
+    // Get Main Screen
+    public MainScreen getMainScreen() {
+        return mainScreen;
     }
 
     // Check Click
@@ -40,6 +46,18 @@ class CustomMenu : Screen {
                 customMenuActions.back();
                 break;
         }
+    }
+
+    // Open
+    public override void open() {
+        mainScreen.hide();
+        show();
+    }
+
+    // Close
+    public override void close() {
+        hide();
+        mainScreen.show();
     }
 
     /**

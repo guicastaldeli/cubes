@@ -1,15 +1,17 @@
 namespace App.Root.Screen.Main.Server;
 using App.Root.Input;
+using App.Root.Utils;
+using AppWindow = App.Root.Window;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-class ServerDialog : Screen {
+class ServerDialog : MainScreenHandler {
+    private const string ID = "server_dialog";
     public static string PATH = DIR + "main/server/server_dialog.xml";
-
-    public MainScreen mainScreen;
     private ServerDialogAction serverDialogAction;
 
-    public ServerDialog(MainScreen mainScreen) : base(PATH, "server_dialog") {
+    public ServerDialog( [Inject] MainScreen mainScreen) : base(PATH, ID) {
         this.mainScreen = mainScreen;
+
         this.serverDialogAction = new ServerDialogAction(
             window, 
             screenController, 
@@ -25,6 +27,11 @@ class ServerDialog : Screen {
         InputField.register("maxPlayersInput");
         InputField.register("ipInput");
         InputField.register("joinPortInput");
+    }
+
+    // Get Main Screen
+    public MainScreen getMainScreen() {
+        return mainScreen;
     }
 
     // Check Click
@@ -53,6 +60,18 @@ class ServerDialog : Screen {
         }
     }
 
+    // Open
+    public override void open() {
+        mainScreen.hide();
+        show();
+    }
+
+    // Close
+    public override void close() {
+        hide();
+        mainScreen.show();
+    }
+
     /**
     
         On Window Resize
@@ -69,8 +88,8 @@ class ServerDialog : Screen {
 
         */
     public override void update() {
-        if(scene.isInit()) {
-            scene.update();
+        if(mainScreen.getScene().isInit()) {
+            mainScreen.getScene().update();
             return;
         }
         base.update();    
@@ -82,8 +101,8 @@ class ServerDialog : Screen {
 
         */ 
     public override void render() {
-        if(scene.isInit()) {
-            scene.render();
+        if(mainScreen.getScene().isInit()) {
+            mainScreen.getScene().render();
             return;
         }
         base.render();

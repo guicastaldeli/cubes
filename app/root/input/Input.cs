@@ -202,15 +202,13 @@ class Input {
         */
     private void onMouseMove(int x, int y) {
         uiController.handleMouseMove(x, y);
-
-        InputField.handleClick(x, y);
-
         if(screenController.isRunning() && !pauseOverlayOpen) return;
         screenController.handleMouseMove(x, y);
     }
 
     private void onMouseClick(int x, int y) {
         uiController.handleMouseClick(x, y, 0, 1);
+        InputField.handleClick(x, y);
         if(screenController.isRunning() && !pauseOverlayOpen) return;
         screenController.checkClick(x, y);
     }

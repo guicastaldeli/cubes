@@ -133,6 +133,27 @@ class ScreenController {
         }
         return null;
     }
+
+    /**
+    
+        Register
+    
+        */
+    public void register(Screen screen, Screen? parent = null) {
+        screens[screen.screenName] = screen;
+
+        if(parent != null) {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine($"Registered Screen! -- via [{parent.screenName}]: {screen.screenName}");
+            Console.ResetColor();
+        } else {
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
+            Console.WriteLine($"Registered Screen!: {screen.screenName}");
+            Console.ResetColor();
+        }
+
+        Console.ResetColor();
+    }
  
     /**
     

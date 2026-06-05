@@ -13,12 +13,17 @@ class MainScreen : Screen {
     public ServerDialog serverDialog;
     public CustomMenu customMenu;
 
+    private MainScreenRegistry mainScreenRegistry;
+
     public MainScreen() : base(PATH, ID) {
         this.mainScreenAction = new MainScreenAction(screenController, this);
 
-        this.clientDialog = new ClientDialog(this);
-        this.serverDialog = new ServerDialog(this);
-        this.customMenu = new CustomMenu(this);
+        mainScreenRegistry = new MainScreenRegistry(this);
+        mainScreenRegistry.init();
+
+        this.clientDialog = mainScreenRegistry.get<ClientDialog>()!;
+        this.serverDialog = mainScreenRegistry.get<ServerDialog>()!;
+        this.customMenu = mainScreenRegistry.get<CustomMenu>()!;
 
         this.updateScreen();
     }
@@ -61,49 +66,27 @@ class MainScreen : Screen {
 
     // Handle Mouse Move
     public override void handleMouseMove(int mouseX, int mouseY) {
-        if(clientDialog.isActive()) {
-            clientDialog.handleMouseMove(mouseX, mouseY);
-            return;
+        if(mainScreenRegistry.anyActive()) { 
+            mainScreenRegistry.handleMouseMove(mouseX, mouseY); 
+            return; 
         }
-        if(serverDialog.isActive()) {
-            serverDialog.handleMouseMove(mouseX, mouseY);
-            return;
-        }
-        if(customMenu.isActive()) {
-            customMenu.handleMouseMove(mouseX, mouseY);
-            return;
-        }
+        
         base.handleMouseMove(mouseX, mouseY);
     }
 
     // Handle Key Press
     public override void handleKeyPress(int key, int action) {
-        if(clientDialog.isActive()) {
-            clientDialog.handleKeyPress(key, action);
-            return;
+        if(mainScreenRegistry.anyActive()) { 
+            mainScreenRegistry.handleKeyPress(key, action); 
+            return; 
         }
-        if(serverDialog.isActive()) {
-            serverDialog.handleKeyPress(key, action);
-            return;
-        }
-        if(customMenu.isActive()) {
-            customMenu.handleKeyPress(key, action);
-            return;
-        }
+
         base.handleKeyPress(key, action);
     }
 
     // Check Click
     public override string? checkClick(int mouseX, int mouseY) {
-        if(clientDialog.isActive()) {
-            return clientDialog.checkClick(mouseX, mouseY);
-        }
-        if(serverDialog.isActive()) {
-            return serverDialog.checkClick(mouseX, mouseY);
-        }
-        if(customMenu.isActive()) {
-            return customMenu.checkClick(mouseX, mouseY);
-        }
+        if(mainScreenRegistry.anyActive()) return mainScreenRegistry.checkClick(mouseX, mouseY);
         return base.checkClick(mouseX, mouseY);
     }
 
@@ -116,10 +99,7 @@ class MainScreen : Screen {
         base.onWindowResize(width, height);
 
         updateScreen();
-
-        clientDialog.onWindowResize(width, height);
-        serverDialog.onWindowResize(width, height);
-        customMenu.onWindowResize(width, height);
+        mainScreenRegistry.onWindowResize(width, height);
     }
 
     /**
@@ -128,18 +108,11 @@ class MainScreen : Screen {
 
         */ 
     public override void update() {
-        if(clientDialog.isActive()) {
-            clientDialog.update();
+        if(mainScreenRegistry.anyActive()) {
+            mainScreenRegistry.update();
             return;
         }
-        if(serverDialog.isActive()) {
-            serverDialog.update();
-            return;
-        }
-        if(customMenu.isActive()) {
-            customMenu.update();
-            return;
-        }
+
         base.update();    
     }
 
@@ -154,18 +127,11 @@ class MainScreen : Screen {
 
         */
     public override void render() {
-        if(clientDialog.isActive()) {
-            clientDialog.render();
+        if(mainScreenRegistry.anyActive()) {
+            mainScreenRegistry.render();
             return;
         }
-        if(serverDialog.isActive()) {
-            serverDialog.render();
-            return;
-        }
-        if(customMenu.isActive()) {
-            customMenu.render();
-            return;
-        }
+
         base.render();
     }
 
@@ -175,10 +141,6 @@ class MainScreen : Screen {
 
         */
     public void reset() {
-        clientDialog.setActive(false);
-        serverDialog.setActive(false);
-        customMenu.setActive(false);
-
         show();
     }
 }

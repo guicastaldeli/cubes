@@ -19,7 +19,7 @@ class CustomMenuActions {
     
         */
     public dynamic get() {
-        return ElementEntry.C(id => customMenu.getElementById(id), Elements);
+        return ElementEntry.C(id => customMenu.getMainScreen().getElementById(id), Elements);
     }
 
     // Confirm
@@ -28,7 +28,7 @@ class CustomMenuActions {
         if(string.IsNullOrWhiteSpace(inputEl)) return;
 
         InfoController.getInstance().getUserInfo().setUsername(inputEl);
-        customMenu.mainScreen.getMainScreenAction().refreshUsername();
+        customMenu.getMainScreen().getMainScreenAction().refreshUsername();
 
         back();
     }
@@ -36,6 +36,6 @@ class CustomMenuActions {
     // Back
     public void back() {
         customMenu.hide();
-        customMenu.mainScreen.show();
+        customMenu.getMainScreen().show();
     }
 }

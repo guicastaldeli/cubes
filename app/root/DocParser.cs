@@ -634,8 +634,8 @@ class DocParser {
         if(screenData == null || screenData.elements.Count == 0) return;
 
         foreach(var el in screenData.elements) {
-            if(el.template != null) {
-                el.text = Resolve(el.template);
+            if(el.template != null && el.template.Contains('{')) {
+                el.text = DocParser.Resolve(el.template);
             }
         }
         foreach(var el in screenData.elements) {
@@ -966,7 +966,7 @@ class DocParser {
         if(uiData == null || uiData.elements.Count == 0) return;
 
         foreach(var el in uiData.elements) {
-            if(el.template != null) {
+            if(el.template != null && el.template.Contains('{')) {
                 el.text = DocParser.Resolve(el.template);
             }
         }

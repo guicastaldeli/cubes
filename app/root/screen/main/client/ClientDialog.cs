@@ -1,13 +1,14 @@
 namespace App.Root.Screen.Main.Client;
 using App.Root.Screen.Main.Server;
+using App.Root.Utils;
 
-class ClientDialog : Screen {
-    public static readonly string PATH = DIR + "main/client/client_dialog.xml";
-
-    public MainScreen mainScreen;
+class ClientDialog : MainScreenHandler {
+    private const string ID = "client_dialog";
+    public static readonly string PATH = Screen.DIR + "main/client/client_dialog.xml";
+    
     private ClientDialogAction clientDialogAction;
 
-    public ClientDialog(MainScreen mainScreen) : base(PATH, "client_dialog") {
+    public ClientDialog([Inject] MainScreen mainScreen) : base(PATH, ID) {
         this.mainScreen = mainScreen;
         this.clientDialogAction = new ClientDialogAction(
             window, 
@@ -15,6 +16,11 @@ class ClientDialog : Screen {
             this,
             network
         );
+    }
+
+    // Get Main Screen
+    public MainScreen getMainScreen() {
+        return mainScreen;
     }
 
     // Handle Action
@@ -27,6 +33,18 @@ class ClientDialog : Screen {
                 clientDialogAction.back();
                 break;
         }
+    }
+
+    // Open
+    public override void open() {
+        mainScreen.hide();
+        show();
+    }
+
+    // Close
+    public override void close() {
+        hide();
+        mainScreen.show();
     }
 
     /**
@@ -44,8 +62,8 @@ class ClientDialog : Screen {
 
         */
     public override void update() {
-        if(scene.isInit()) {
-            if(!tick.isPaused()) scene.update();
+        if(mainScreen.getScene().isInit()) {
+            if(!tick.isPaused()) mainScreen.getScene().update();
             return;
         }  
         base.update();  
@@ -57,8 +75,8 @@ class ClientDialog : Screen {
 
         */
     public override void render() {
-        if(scene.isInit()) {
-            scene.render();
+        if(mainScreen.getScene().isInit()) {
+            mainScreen.getScene().render();
             return;
         }
         base.render();

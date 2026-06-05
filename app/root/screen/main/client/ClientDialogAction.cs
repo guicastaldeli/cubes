@@ -21,13 +21,13 @@ class ClientDialogAction {
 
     // Start
     public void start() {
-        clientDialog.mainScreen.getScene().init();
+        clientDialog.getMainScreen().getScene().init();
     }
 
     // Back
     public void back() {
         clientDialog.hide();
-        clientDialog.mainScreen.show();
+        clientDialog.getMainScreen().show();
         
         network.stop();
     }
