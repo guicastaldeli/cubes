@@ -14,7 +14,7 @@ class Shop {
         this.input = input;
         this.uiController = uiController;
 
-        Mapper.set<Shop>();
+        Mapper.Set<Shop>();
     }
 
     /**
@@ -24,7 +24,7 @@ class Shop {
         */
     public void open() {
         // Open Key
-        Mapper.key(Keys.O, pressed => {
+        Mapper.Key(Keys.O, pressed => {
             if(!pressed) return;
             if(ChatController.getInstance().isOpen()) return;
             if(input.onPauseOverlayOpen()) return;
@@ -39,7 +39,7 @@ class Shop {
         });
 
         // Close Key
-        Mapper.key(Keys.Escape, pressed => {
+        Mapper.Key(Keys.Escape, pressed => {
             if(!pressed) return;
             if(uiController.getActive() != ID) return;
 

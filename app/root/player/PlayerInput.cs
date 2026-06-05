@@ -1,7 +1,5 @@
 namespace App.Root.Player;
-using App.Root.Chat;
 using App.Root.Mesh;
-using App.Root.Player.Inventory;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 /**
@@ -12,24 +10,36 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 static class Mapper {
     private static Type? currentType = null;
 
-    private static readonly Dictionary<Type, List<Keys>> bindings = new();
-    private static readonly Dictionary<Type, Action<Keys, bool>> handlers = new();
+    private static readonly Dictionary<Type, List<Keys>> keyBindings = new();
+    private static readonly Dictionary<Type, Action<Keys, bool>> keyHandlers = new();
     private static readonly Dictionary<Keys, Action<bool>> keyActions = new();
     private static readonly HashSet<Keys> heldKeys = new();
+
+    private static readonly Dictionary<Type, List<int>> mouseBindings = new();
+    private static readonly Dictionary<Type, Action<int, bool>> mouseHandlers = new();
+    private static readonly Dictionary<int, Action> mouseActions = new();
+    private static readonly HashSet<(Type, int)> registeredMouse = new();
 
     /**
     
         Set
     
         */
-    public static void set<T>() {
+    public static void Set<T>() {
         currentType = typeof(T);
-        bindings[currentType] = new List<Keys>();
+        if(!keyBindings.ContainsKey(typeof(T))) keyBindings[typeof(T)] = new();
+        if(!mouseBindings.ContainsKey(typeof(T))) mouseBindings[typeof(T)] = new();
+        
     }
 
-    public static void set<T>(Keys k) {
-        set<T>();
-        key(k);
+    public static void Set<T>(Keys k) {
+        Set<T>();
+        Key(k);
+    }
+
+    public static void Set<T>(int button) {
+        Set<T>();
+        Mouse(button);
     }
 
     /**
@@ -37,45 +47,91 @@ static class Mapper {
         Key
     
         */
-    public static void key(Keys k) {
+    public static void Key(Keys k) {
         if(currentType == null) return;
-        if(!bindings[currentType].Contains(k)) {
-            bindings[currentType].Add(k);
+        if(!keyBindings[currentType].Contains(k)) {
+            keyBindings[currentType].Add(k);
         }
     }
 
-    public static void key(Keys k, Action<bool> action) {
-        if(currentType == null) return;
-        if(!bindings[currentType].Contains(k)) {
-            bindings[currentType].Add(k);
-        }
-
+    public static void Key(Keys k, Action<bool> action) {
+        Key(k);
         keyActions[k] = action;
     }
 
-    public static void onKey<T>(Action<Keys, bool> handler) {
-        handlers[typeof(T)] = handler;
+    /**
+    
+        Mouse
+    
+        */
+    public static void Mouse(int button) {
+        if(currentType == null) return;
+
+        if(!mouseBindings.ContainsKey(currentType)) {
+            mouseBindings[currentType] = new();
+        }
+        if(!mouseBindings[currentType].Contains(button)) {
+            mouseBindings[currentType].Add(button);
+        }
     }
 
-    public static void onKey<T>(Keys[] keys, Action<Keys, bool> handler) {
-        var type = typeof(T);
-        if(!bindings.ContainsKey(type)) return;
+    public static void Mouse<T>(int button, Action action) {
+        Mouse(button);
+        mouseActions[button] = action;
+    }
 
+    public static void Mouse(int button, Action action) {
+        if(currentType == null) return;
+
+        var key = (currentType, button);
+        if(registeredMouse.Contains(key)) return;
+        registeredMouse.Add(key);
+
+        if(!mouseBindings.ContainsKey(currentType)) mouseBindings[currentType] = new();
+        if(!mouseBindings[currentType].Contains(button)) mouseBindings[currentType].Add(button);
+
+        mouseActions[button] = action;
+    }
+
+    /**
+    
+        Has
+    
+        */
+    public static bool HasKey<T>(Keys k) {
+        bool val = keyBindings.ContainsKey(typeof(T)) && keyBindings[typeof(T)].Contains(k);
+        return val;
+    }
+
+    public static bool HasMouse<T>(int b) {
+        bool val = mouseBindings.ContainsKey(typeof(T)) && mouseBindings[typeof(T)].Contains(b);
+        return val;
+    }
+
+    /**
+    
+        On
+    
+        */
+    public static void On<T>(Action<int, bool> handler) {
+        mouseHandlers[typeof(T)] = handler;
+    }
+
+    public static void On<T>(Action<Keys, bool> handler) {
+        keyHandlers[typeof(T)] = handler;
+    }
+
+    public static void On<T>(Keys[] keys, Action<Keys, bool> handler) {
+        var type = typeof(T);
+        if(!keyBindings.ContainsKey(type)) return;
+        
         foreach(var k in keys) {
-            if(!bindings[type].Contains(k)) {
-                bindings[type].Add(k);
+            if(!keyBindings[type].Contains(k)) {
+                keyBindings[type].Add(k);
             }
         }
 
-        handlers[type] = handler;
-    }
-
-    public static bool hasKey<T>(Keys k) {
-        var type = typeof(T);
-        bool val = bindings.ContainsKey(type) &&
-            bindings[type].Contains(k);
-
-        return val;
+        keyHandlers[type] = handler;
     }
 
     /**
@@ -83,16 +139,16 @@ static class Mapper {
         Dispatch
     
         */
-    public static void dispatch(Keys key, bool pressed) {
+    public static void Dispatch(bool pressed, Keys key) {
         if(pressed) {
             if(heldKeys.Contains(key)) return;
             heldKeys.Add(key);
         } else {
             heldKeys.Remove(key);
         }
-        
-        foreach(var (type, keys) in bindings) {
-            if(keys.Contains(key) && handlers.TryGetValue(type, out var handler)) {
+            
+        foreach(var (type, keys) in keyBindings) {
+            if(keys.Contains(key) && keyHandlers.TryGetValue(type, out var handler)) {
                 handler(key, pressed);
             }
         }
@@ -102,15 +158,31 @@ static class Mapper {
         }
     }
 
+    public static void Dispatch(bool pressed, int button) {
+        foreach(var (type, buttons) in mouseBindings) {
+            if(buttons.Contains(button) && mouseHandlers.TryGetValue(type, out var handler)) {
+                handler(button, pressed);
+            }
+        }
+
+        if(mouseActions.TryGetValue(button, out var action)) {
+            action();
+        }
+    }
+
     /**
     
         Clear
     
         */
-    public static void clear() {
-        bindings.Clear();
-        handlers.Clear();
+    public static void Clear() {
+        keyBindings.Clear();
+        keyHandlers.Clear();
         keyActions.Clear();
+
+        mouseBindings.Clear();
+        mouseHandlers.Clear();
+        
         currentType = null;
     }
 }
@@ -144,7 +216,7 @@ class PlayerInput {
             keyPressed[idx] = pressed;
         }
 
-        Mapper.dispatch(key, pressed);
+        Mapper.Dispatch(pressed, key);
     }
 
     // Is Key Down
@@ -160,18 +232,12 @@ class PlayerInput {
     }
 
     // On Mouse Button
-    public void onMouseButton(int button) {
+    public void onMouseButton(int button, bool pressed) {
         Mode mode = playerController.getMode();
         
         if(mode.getCurrentMode() == Modes.GETTER) {
-            MeshInteractionController meshInteractionController = playerController.getMesh().getMeshInteractionController();
-            if(meshInteractionController != null) {
-                if(button == 0) meshInteractionController.onBreak();
-                if(button == 1) meshInteractionController.onPlace();
-                mode.executeAction();
-            }
-
-            return;
+            Mapper.Dispatch(pressed, button);
+            if(pressed) mode.executeAction();
         }
     }
 }

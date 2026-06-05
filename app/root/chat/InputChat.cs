@@ -32,7 +32,7 @@ class InputChat {
         this.screenController = screenController;
         this.network = network;
 
-        Mapper.set<InputChat>();
+        Mapper.Set<InputChat>();
     }
 
     // Close
@@ -97,7 +97,7 @@ class InputChat {
         };
 
         if(map.TryGetValue(key, out var action)) {
-            Mapper.key(key);
+            Mapper.Key(key);
             handleAction(action);
             return;
         }

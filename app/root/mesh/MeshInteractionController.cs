@@ -53,6 +53,8 @@ class MeshInteractionController {
             collisionManager, 
             raycaster
         );
+
+        Mapper.Set<MeshInteractionController>();
     }
     
     // Get Held Mesh
@@ -66,6 +68,8 @@ class MeshInteractionController {
     
         */
     public void onBreak() {
+        Mapper.Mouse(0, onBreak);
+
         string? hit = raycaster.cast();
         if(hit == null) return;
         if(!MeshInteractionRegistry.getInstance().isBreakable(hit)) return;
@@ -108,6 +112,8 @@ class MeshInteractionController {
     
         */
     public void onPlace() {
+        Mapper.Mouse(1, onPlace);
+
         var inventoryInstance = Inventory.getInstance();
         if(inventoryInstance == null) return;
 

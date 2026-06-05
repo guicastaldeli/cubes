@@ -115,7 +115,7 @@ class PlayerController : DataEntry {
 
         this.mode = new Mode(window, camera, mesh, this);
 
-        Mapper.set<PlayerController>();
+        Mapper.Set<PlayerController>();
         
         init();   
     }
@@ -281,7 +281,7 @@ class PlayerController : DataEntry {
         */
     // Update Mode
     public void updateMode(PlayerMode mode) {
-        Mapper.key(Keys.F, pressed => {
+        Mapper.Key(Keys.F, pressed => {
             if(!pressed) return;
             normalMode = !normalMode;
 
@@ -291,7 +291,7 @@ class PlayerController : DataEntry {
     }
 
     // Update Position
-    public void updatePosition(MoveDir dir, bool pressed) {
+    public void updatePosition(MoveDir dir) {
         moveMap ??= new() {
             { MoveDir.FORWARD, (Keys.W, p => movingForward = p)  },
             { MoveDir.BACKWARD, (Keys.S, p => movingBackward = p) },
@@ -302,7 +302,7 @@ class PlayerController : DataEntry {
         };
 
         if(!moveMap.TryGetValue(dir, out var entry)) return;
-        if(!Mapper.hasKey<PlayerController>(entry.key)) Mapper.key(entry.key, entry.apply);
+        if(!Mapper.HasKey<PlayerController>(entry.key)) Mapper.Key(entry.key, entry.apply);
         //entry.apply(pressed);
     }
 
@@ -357,7 +357,7 @@ class PlayerController : DataEntry {
     private void init() {
         updateMode(PlayerMode.NORMAL);
         foreach(var dir in Enum.GetValues<MoveDir>()) {
-            updatePosition(dir, false);
+            updatePosition(dir);
         }
     }
 

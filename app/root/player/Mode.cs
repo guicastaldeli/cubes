@@ -142,7 +142,7 @@ class Mode {
         
         this.position = new Position(camera, mesh);
 
-        Mapper.set<Mode>();
+        Mapper.Set<Mode>();
         updateMode();
     }
 
@@ -436,7 +436,7 @@ class Mode {
             { Keys.E, Slot.RIGHT }
         };
 
-        Mapper.onKey<Mode>(map.Keys.ToArray(), (key, pressed) => {
+        Mapper.On<Mode>(map.Keys.ToArray(), (key, pressed) => {
             if(map.TryGetValue(key, out var slot)) {
                 handleInput(slot, pressed);
             }

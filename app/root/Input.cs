@@ -213,7 +213,7 @@ class Input {
         
         if(ChatController.getInstance().isOpen()) return;
 
-        if(playerInput != null) playerInput.onMouseButton(button);
+        if(playerInput != null) playerInput.onMouseButton(button, pressed);
     }
 
     public void setMouse() {
