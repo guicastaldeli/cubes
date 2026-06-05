@@ -1,4 +1,5 @@
 
+using System.Collections;
 using System.Reflection;
 
 /**
@@ -31,6 +32,7 @@ public sealed class SkipResetAttribute : Attribute {}
     */
 public static class StateManager {
     private static readonly Dictionary<object, Dictionary<FieldInfo, object?>> snapshots = new();
+    private static readonly Dictionary<Type, Dictionary<FieldInfo, object?>> staticSnapshots = new();
 
     /**
      * 
@@ -50,6 +52,57 @@ public static class StateManager {
             Array.Copy(arr, clone, arr.Length);
 
             return clone;
+        }
+
+        if(type.IsGenericType) {
+            var def = type.GetGenericTypeDefinition();
+
+            if(def == typeof(List<>)) {
+                var clone = Activator.CreateInstance(type);
+                var add = type.GetMethod("Add")!;
+                foreach(var item in (IEnumerable)value) {
+                    add.Invoke(clone, new[] { item });
+                }
+
+                return clone;
+            }
+            if(def == typeof(HashSet<>)) {
+                var clone = Activator.CreateInstance(type);
+                var add = type.GetMethod("Add")!;
+                foreach(var item in (IEnumerable)value) {
+                    add.Invoke(clone, new[] { item });
+                }
+
+                return clone;
+            }
+            if(def == typeof(Dictionary<,>)) {
+                var clone = Activator.CreateInstance(type);
+                var add = type.GetMethod("Add")!;
+                foreach(DictionaryEntry pair in (IDictionary)value) {
+                    add.Invoke(clone, new[] { pair.Key, pair.Value });
+                }
+
+                return clone;
+            }
+            if(def == typeof(Queue<>)) {
+                var clone = Activator.CreateInstance(type);
+                var enqueue = type.GetMethod("Enqueue")!;
+                foreach(var item in (IEnumerable)value) {
+                    enqueue.Invoke(clone, new[] { item });
+                }
+
+                return clone;
+            }
+            if(def == typeof(Stack<>)) {
+                var clone = Activator.CreateInstance(type);
+                var push = type.GetMethod("Push")!;
+                var items = ((IEnumerable)value).Cast<object>().Reverse();
+                foreach(var item in items) {
+                    push.Invoke(clone, new[] { item });
+                }
+
+                return clone;
+            }
         }
 
         return value;
@@ -105,6 +158,36 @@ public static class StateManager {
         Console.ResetColor();
     }
 
+    public static void SRegister(Type type) {
+        if(type.GetCustomAttribute<ManagedStateAttribute>() == null) {
+            throw new InvalidOperationException(
+                $"[StateManager] '{type.Name}' must be decorated with [ManagedState] to register."
+            );
+        }
+
+        var fields = new Dictionary<FieldInfo, object?>();
+        foreach(var field in type.GetFields(
+            BindingFlags.Static |
+            BindingFlags.NonPublic |
+            BindingFlags.Public |
+            BindingFlags.DeclaredOnly
+        )) {
+            if(field.GetCustomAttribute<SkipResetAttribute>() != null) continue;
+            fields[field] = DeepClone(field.GetValue(null));
+        }
+
+        staticSnapshots[type] = fields;
+
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
+        Console.WriteLine($"[StateManager] Registered (Static): {type.Name}");
+        Console.ResetColor();
+    }
+
+    /**
+     * 
+     * Unregister
+     *
+     */
     public static void Unregister(object instance) {
         snapshots.Remove(instance);
     }
@@ -127,6 +210,19 @@ public static class StateManager {
         }
     }
 
+    public static void SReset(Type type) {
+        if(!staticSnapshots.TryGetValue(type, out var snapshot)) {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine($"[StateManager] WARN: No snapshot for {type.Name}");
+            Console.ResetColor();
+            return;
+        }
+
+        foreach(var (field, value) in snapshot) {
+            field.SetValue(null, DeepClone(value));
+        }
+    }
+
     public static void ResetAll() {
         Console.ForegroundColor = ConsoleColor.Magenta;
         Console.WriteLine($"[StateManager] Soft reset — {snapshots.Count} instances");
@@ -134,6 +230,13 @@ public static class StateManager {
 
         foreach(var instance in snapshots.Keys) {
             Reset(instance);
+        }
+
+        foreach(var type in staticSnapshots.Keys) {
+            var snapshot = staticSnapshots[type];
+            foreach(var (field, value) in snapshot) {
+                field.SetValue(null, DeepClone(value));
+            }
         }
     }
 }

@@ -6,8 +6,13 @@
     */
 namespace App.Root.Mesh;
 
+[ManagedState]
 static class MeshRegistry {
     private static HashSet<string> runtimeIds = new();
+
+    static MeshRegistry() {
+        StateManager.SRegister(typeof(MeshRegistry));
+    }
 
     // Is Runtime
     public static bool isRuntime(string id) {
@@ -15,27 +20,27 @@ static class MeshRegistry {
     }
 
     /**
-     * 
-     * Register
      *
+     * Register
+     *    
      */
     public static void register(string id) {
         runtimeIds.Add(id);
     }
 
     /**
-     * 
+     *
      * Unregister
-     * 
+     *    
      */
     public static void unregister(string id) {
         runtimeIds.Remove(id);
     }
 
     /**
-     * 
-     * Clear
      *
+     * Clear
+     *    
      */
     public static void clear() {
         runtimeIds.Clear();

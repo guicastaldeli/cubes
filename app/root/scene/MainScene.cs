@@ -166,7 +166,7 @@ class MainScene {
         playerController.getCamera().update();
 
         mesh.update();
-        mesh.renderOrtoT();
+       // mesh.renderOrtoT();
         worldManager.update();
 
         playerController.getNetworkPlayer()?.update();
@@ -181,7 +181,7 @@ class MainScene {
      *
      */
     public void init() {
-        reset();
+        if(initialized) reset();
         setInput();
         window.queueOnRenderThread(() => {
             mesh.init();
@@ -213,7 +213,8 @@ class MainScene {
     public void reset() {
         initialized = false;
         screenController.running = false;
-
+        Controller.Reset();
+        /*
         NetworkUpdate.clear();
         Data.getInstance().clearAll();
         ServerSnapshot.getInstance().clearAll();
@@ -245,5 +246,6 @@ class MainScene {
         if(network != null) worldManager.setNetwork(network);
 
         //EventStream.clear();
+        */
     }
 }

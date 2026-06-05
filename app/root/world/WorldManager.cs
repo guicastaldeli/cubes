@@ -5,6 +5,7 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using App.Root.Mesh;
 
+[ManagedState]
 [ClassRegistryIgnore]
 class WorldManager {
     private Window window;
@@ -46,6 +47,8 @@ class WorldManager {
         this.world = new World(window, tick, shaderProgram, mesh, this, collisionManager, timeCycle, camera, playerController);
         this.worldBroadcaster = new WorldBroadcaster(this);
         this.networkWorld = new NetworkWorld(this);
+
+        StateManager.Register(this);
     }
 
     // Get Player Controller

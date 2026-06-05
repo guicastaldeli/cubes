@@ -9,8 +9,6 @@ class Network {
     private Port port;
     private DataSnapshot? cachedSnapshot = null;
 
-    private NetworkUpdate networkUpdate = null!;
-
     public bool isConnected => client?.connected ?? false;
     public string? userId => client?.userId;
     public string? username => 
@@ -65,19 +63,6 @@ class Network {
     // Is Host
     public bool isHost() {
         return server != null;
-    }
-
-    /**
-     * 
-     * Update
-     *
-     */
-    public void initNetworkUpdate() {
-        networkUpdate = new NetworkUpdate();
-    }
-    
-    public NetworkUpdate getNetworkUpdate() {
-        return networkUpdate;
     }
 
     /**

@@ -14,8 +14,9 @@ abstract class NetworkUpdateHandler {
     Network Update main class.
 
     */
+[ManagedState]
 class NetworkUpdate {
-    private static NetworkUpdate? instance;
+    [SkipReset] private static NetworkUpdate? instance;
 
     public static NetworkUpdate getInstance() {
         instance ??= new NetworkUpdate();
@@ -24,17 +25,33 @@ class NetworkUpdate {
 
     private List<NetworkUpdateHandler> handlers = new();
 
-    // Register
+    private NetworkUpdate() {
+        StateManager.Register(this);
+    }
+
+    /**
+     *
+     * Register
+     *    
+     */
     public static void register(NetworkUpdateHandler handler) {
         getInstance().handlers.Add(handler);
     }
 
-    // Update
+    /**
+     *
+     * Update
+     *    
+     */
     public void update() {
         foreach(var handler in handlers) handler.update();
     }
 
-    // Clear
+    /**
+     *
+     * Clear
+     *    
+     */
     public static void clear() {
         getInstance().handlers.Clear();
     }

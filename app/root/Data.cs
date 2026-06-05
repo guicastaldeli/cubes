@@ -6,6 +6,7 @@ enum DataType {
     WORLD
 }
 
+[ManagedState]
 class Data {
     private static Data? instance;
     private Dictionary<DataType, List<DataEntry>> entries = new();
@@ -13,6 +14,10 @@ class Data {
     public static Data getInstance() {
         instance ??= new Data();
         return instance;
+    }
+
+    private Data() {
+        StateManager.Register(this);
     }
 
     /**

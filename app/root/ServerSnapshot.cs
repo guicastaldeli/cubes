@@ -1,26 +1,43 @@
 namespace App.Root;
 
+[ManagedState]
 class ServerSnapshot {
-    private static ServerSnapshot? instance;
+    [SkipReset] private static ServerSnapshot? instance;
     private Dictionary<DataType, List<DataEntry>> entries = new();
 
     public static ServerSnapshot getInstance() {
         instance ??= new ServerSnapshot();
         return instance;
     }
+
+    private ServerSnapshot() {
+        StateManager.Register(this);
+    }
     
-    // Register
+    /**
+     *
+     * Register
+     *    
+     */
     public void register(DataType type, DataEntry entry) {
         if(!entries.ContainsKey(type)) entries[type] = new();
         entries[type].Add(entry);
     }
 
-    // Snapshot
+    /**
+     *
+     * Snapshot
+     *    
+     */
     public DataSnapshot snapshot() {
         return new DataSnapshot(entries);
     }
 
-    // Clear
+    /**
+     *
+     * Clear
+     *    
+     */
     public void clearAll() {
         entries.Clear();
     }

@@ -118,6 +118,12 @@ class Aim : UI {
      */
     public override void update() {
         base.update();
+
+        var renderer = mesh.getMeshRenderer(ID);
+        if(renderer != null) {
+            bool paused = input.onPauseOverlayOpen();
+            renderer.setVisible(!paused);
+        }
     }
 
     public void updatePosition() {

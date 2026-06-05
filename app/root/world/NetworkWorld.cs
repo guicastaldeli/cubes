@@ -9,6 +9,8 @@ class NetworkWorld : NetworkUpdateHandler {
     private WorldManager worldManager;
     private Network? network;
 
+    private bool isMultiplayer = false;
+
     public NetworkWorld(WorldManager worldManager) {
         this.worldManager = worldManager;
         NetworkUpdate.register(this);
@@ -16,6 +18,7 @@ class NetworkWorld : NetworkUpdateHandler {
 
     public void setNetwork(Network network) {
         this.network = network;
+        isMultiplayer = true;
     }
 
     private void spawnClient() {
@@ -25,7 +28,7 @@ class NetworkWorld : NetworkUpdateHandler {
     
     public override void update() {
         if(network == null) {
-            Console.WriteLine("NetworkWorld: network is null");
+            if(isMultiplayer) Console.WriteLine("NetworkWorld: network is null");
             return;
         }
         if(network.isHost()) return;

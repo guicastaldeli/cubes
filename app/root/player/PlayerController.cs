@@ -11,6 +11,7 @@ using AppWindow = App.Root.Window;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
+[ManagedState]
 class PlayerController : DataEntry {
     /**
      * 
@@ -119,6 +120,8 @@ class PlayerController : DataEntry {
         Mapper.Set<PlayerController>();
         
         init();   
+
+        StateManager.Register(this);
     }
 
     // Get Window
@@ -271,7 +274,7 @@ class PlayerController : DataEntry {
      *
      */
     public void render() {
-        raycaster.onRenderOutline?.Invoke();
+        if(!input.onPauseOverlayOpen()) raycaster.onRenderOutline?.Invoke();
         UI.uiController.generate();
     }
 

@@ -8,6 +8,7 @@ using App.Root.Input;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.ES11;
 
+[ManagedState]
 class Mesh {
     public static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/mesh/");
 
@@ -34,6 +35,8 @@ class Mesh {
         this.input = input;
 
         this.particleController = new ParticleController(this);
+
+        StateManager.Register(this);
     }
 
     // Set Camera

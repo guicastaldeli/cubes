@@ -3,6 +3,7 @@ using App.Root.Collider.Types;
 using App.Root.Player;
 using OpenTK.Mathematics;
 
+[ManagedState]
 class CollisionManager {
     public enum CollisionType {
         STATIC_OBJECT,
@@ -12,6 +13,10 @@ class CollisionManager {
     private List<Collider> staticColliders = new();
     public List<string> pendingRemovals = new();
     private List<string> removedIds = new();
+
+    public CollisionManager() {
+        StateManager.Register(this);
+    }
 
     // Add Static Collider
     public void addStaticCollider(Collider coll) {
