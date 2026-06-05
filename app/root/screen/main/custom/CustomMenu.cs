@@ -5,7 +5,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class CustomMenu : MainScreenHandler {
     public const string ID = "custom_menu";
-    public static string PATH = Screen.DIR + "main/custom/custom_menu.xml";
+    public static string PATH = DIR + "main/custom/custom_menu.xml";
 
     private CustomMenuActions customMenuActions;
 

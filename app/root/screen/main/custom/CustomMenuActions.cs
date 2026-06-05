@@ -19,7 +19,7 @@ class CustomMenuActions {
     
         */
     public dynamic get() {
-        return ElementEntry.C(id => customMenu.getMainScreen().getElementById(id), Elements);
+        return ElementEntry.C(id => customMenu.getElementById(id), Elements);
     }
 
     // Confirm

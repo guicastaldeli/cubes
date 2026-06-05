@@ -65,6 +65,10 @@ class UIController {
         return null;
     }
 
+    public Dictionary<string, UI> getUIs() {
+        return uis;
+    }
+
     /**
     
         Show
