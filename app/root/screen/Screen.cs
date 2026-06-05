@@ -175,10 +175,10 @@ class Screen : ScreenHandler {
     }
 
     /**
-    
-        Render
-
-        */
+     * 
+     * Render
+     *
+     */
     public virtual void render() {
         if(!active || textRenderer == null || screenData == null) return;
 
@@ -192,10 +192,10 @@ class Screen : ScreenHandler {
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public virtual void update() {
         if(lastMouseX >= 0 && lastMouseY >= 0) {
             handleMouseMove(lastMouseX, lastMouseY);
@@ -203,10 +203,10 @@ class Screen : ScreenHandler {
     }
 
     /**
-    
-        On Window Resize
-
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public virtual void onWindowResize(int width, int height) {
         screenWidth = width;
         screenHeight = height;
@@ -222,10 +222,10 @@ class Screen : ScreenHandler {
     }
 
     /**
-    
-        Reset
-
-        */
+     * 
+     * Reset
+     *
+     */
     public void resetMouse() {
         lastMouseX = -1;
         lastMouseY = -1;

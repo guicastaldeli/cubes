@@ -24,19 +24,19 @@ class RigidBody {
     }
 
     /**
-
-        Apply Force
-    
-        */
+     * 
+     * Apply Force
+     *
+     */
     public void applyForce(Vector3 force) {
         acceleration += force / mass;
     }
 
     /**
-
-        Position
-    
-        */
+     * 
+     * Position
+     *
+     */
     public void setPosition(Vector3 position) {
         this.position = new Vector3(position);
     }
@@ -46,10 +46,10 @@ class RigidBody {
     }
 
     /**
-
-        Velocity
-    
-        */
+     * 
+     * Velocity
+     *
+     */
     public void setVelocity(Vector3 velocity) { 
         this.velocity = new Vector3(velocity);
     }
@@ -59,10 +59,10 @@ class RigidBody {
     }
 
     /**
-
-        Size
-    
-        */
+     * 
+     * Size
+     *
+     */
     public void setSize(Vector3 size) {
         this.size = new Vector3(size);
     }
@@ -72,10 +72,10 @@ class RigidBody {
     }
 
     /**
-
-        On Surface
-    
-        */
+     * 
+     * On Surface
+     *
+     */
     public void setOnSurface(bool onSurface) {
         this.onSurface = onSurface;
     }
@@ -85,10 +85,10 @@ class RigidBody {
     }
 
     /**
-
-        Mass
-    
-        */
+     * 
+     * Mass
+     *
+     */
     public void setMass(float mass) {
         this.mass = mass;
     }
@@ -98,10 +98,10 @@ class RigidBody {
     }
 
     /**
-
-        Gravity
-    
-        */
+     * 
+     * Gravity
+     *
+     */
     public float getGravity() {
         return gravity;
     }
@@ -123,10 +123,10 @@ class RigidBody {
     }
 
     /**
-
-        BBox
-    
-        */
+     * 
+     * BBox
+     *
+     */
     public BBox getBBox() {
         return new BBox(
             position.X - size.X / 2,
@@ -139,10 +139,10 @@ class RigidBody {
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         float deltaTime = Tick.getDeltaTimeI();
         deltaTime = MathF.Min(deltaTime, 0.1f);

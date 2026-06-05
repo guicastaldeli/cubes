@@ -30,10 +30,10 @@ class WorldBoundary {
     }
 
     /**
-    
-        Apply
-    
-        */
+     * 
+     * Apply
+     *
+     */
     public void apply() {
         Vector3 pos = rigidBody.getPosition();
         Vector3? spawn = Platform.Platform.height;

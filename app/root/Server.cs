@@ -7,23 +7,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-/**
-
-
-    !!! IMPORTANT REMINDER !!!
-
-    Fix the multiplayer, the chunks,
-    the meshes, the player falling when enter
-    everyhting etc...
-
-    Also, see why the Aim its causing the
-    multiplayer crash!!!
-
-
-    **World meshes fixed!.
-    
-    */
-
 class Server {
     private ServerDataManager serverDataManager;
 
@@ -53,10 +36,10 @@ class Server {
     }
 
     /**
-    
-        Start
-    
-        */
+     * 
+     * Start
+     *
+     */
     public void start() {
         int bufferSize = 65536;
         udpServer = new UdpClient(port);
@@ -152,10 +135,10 @@ class Server {
     }
 
     /**
-    
-        Send
-    
-        */
+     * 
+     * Send
+     *
+     */
     public void send(Packet packet, IPEndPoint endPoint) {
         try {
             var packets = PacketChuncking.chunk(packet);
@@ -176,10 +159,10 @@ class Server {
     }
 
     /**
-    
-        Stop
-    
-        */
+     * 
+     * Stop
+     *
+     */
     public void stop() {
         running = false;
         udpServer?.Close();

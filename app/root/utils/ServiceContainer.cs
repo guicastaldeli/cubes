@@ -11,19 +11,19 @@ public class ServiceContainer {
     private static bool activeSRegister = false;
 
     /**
-    
-        Has
-    
-        */
+     * 
+     * Has
+     *
+     */
     public bool Has(Type type) {
         return services.ContainsKey(type);
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public object? Get(Type type) {
         return services.ContainsKey(type) ? services[type] : null;
     }
@@ -34,10 +34,10 @@ public class ServiceContainer {
     }
 
     /**
-    
-        Register
-    
-        */
+     * 
+     * Register
+     *
+     */
     public void Register<T>(T service) where T : class {
         services[typeof(T)] = service;
     }
@@ -47,10 +47,10 @@ public class ServiceContainer {
     }
 
     /**
-    
-        SRegister
-    
-        */
+     * 
+     * SRegister
+     *
+     */
     public void SRegister<T>(T service) where T : class {
         services[typeof(T)] = service;
     }

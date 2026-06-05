@@ -27,19 +27,19 @@ class ServerDialogAction {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public dynamic get() {
         return ElementEntry.C(id => serverDialog.getMainScreen().getElementById(id), Elements);
     }
 
     /**
-    
-        Host Server
-
-        */
+     * 
+     * Host
+     *
+     */
     public void hostServer() {
         int port = network.getPort().get();
 
@@ -53,10 +53,10 @@ class ServerDialogAction {
     }
 
     /**
-    
-        Join Server
-
-        */
+     * 
+     * Join
+     *
+     */
     public void joinServer() {
         string ip = get().ipInput.text;
         string port = get().joinPortInput.text;
@@ -67,7 +67,11 @@ class ServerDialogAction {
         serverDialog.getMainScreen().getMainScene().init();
     }
 
-    // Back
+    /**
+     * 
+     * Back
+     *
+     */
     public void back() {
         serverDialog.hide();
         serverDialog.getMainScreen().show();

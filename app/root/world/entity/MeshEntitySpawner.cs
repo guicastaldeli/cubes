@@ -36,10 +36,10 @@ public struct Instance {
             );
 
     /**
-
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public Dictionary<string, object> GetData() {
         var dict = new Dictionary<string, object>();
 
@@ -82,10 +82,10 @@ static class SpawnPoint {
     private static BoundaryObject boundaryObject = null!;
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public static void init(CollisionManager collisionManager) {
         SpawnPoint.collisionManager = collisionManager;
         if(isInit()) initCollider();
@@ -103,10 +103,10 @@ static class SpawnPoint {
     }
 
     /**
-    
-        Spawn Point
-    
-        */
+     * 
+     * Spawn Point
+     *
+     */
     public static (Vector3 center, Vector3 size) get() {
         var dist = boundaryObject.getBoundaryDistance();
 
@@ -134,20 +134,20 @@ static class SpawnPoint {
     */
 class MeshEntitySpawner {
     /**
-    
-        Mesh Entity State
-    
-        */
+     * 
+     * Mesh Entity State
+     *
+     */
     private enum State {
         SLEEP,
         ACTIVE
     }
 
     /**
-    
-        Mesh Entity main
-    
-        */
+     * 
+     * Mesh Entity Main
+     *
+     */
     public static float SPAWN_AREA = 50.0f;
 
     private Tick? tick;
@@ -216,10 +216,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Position
-    
-        */
+     * 
+     * Position
+     *
+     */
     public List<Vector3> getPositions(string id) {
         List<Vector3> val = instances[id].Select(i => i.Position).ToList();
         return val;
@@ -248,10 +248,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Rotation
-    
-        */
+     * 
+     * Rotation
+     *
+     */
     private float setRotation() {
         float f = 360.0f;
         float val = (float)(range.NextDouble() * f);
@@ -268,10 +268,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Speed
-    
-        */
+     * 
+     * Speed
+     *
+     */
     private float setSpeed() {
         float val = MIN_SPEED + 
             (float)range.NextDouble() * 
@@ -281,20 +281,20 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Color
-    
-        */
+     * 
+     * Color
+     *
+     */
     private string setColor(EntityProps entity) {
         string val = entity.Color;
         return val;
     }
 
     /**
-    
-        Lifetime
-    
-        */
+     * 
+     * Lifetime
+     *
+     */
     private float setLifetime() {
         float lifetime =  MIN_LIFETIME +
             (float)range.NextDouble() * 
@@ -305,10 +305,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Wrap
-    
-        */
+     * 
+     * Wrap
+     *
+     */
     private bool wrap(float deltaTime, ref Instance inst, string entityId, int index) {
         float l = 0.0f;
         inst.Lifetime -= deltaTime;
@@ -331,20 +331,20 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Texture
-    
-        */
+     * 
+     * Texture
+     *
+     */
     private string? setTexture(EntityProps entity) {
         string? val = entity.Tex;
         return val;
     }
 
     /**
-    
-        Spawn
-    
-        */
+     * 
+     * Spawn
+     *
+     */
     private Instance spawn(EntityProps entity) {
         Instance e = new Instance {
             Position = setPosition(),
@@ -364,10 +364,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Data
-    
-        */
+     * 
+     * Data
+     *
+     */
     private Dictionary<string, List<object>> getData(List<Instance> list) {
         var result = new Dictionary<string, List<object>>();
 
@@ -416,10 +416,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     // Update
     public void update() {
         if(tick == null || mesh == null) return;
@@ -467,10 +467,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render(EntityProps entity) {
         var instanceList = 
             Enumerable.Repeat(entity, entity.Position.Count)
@@ -483,10 +483,10 @@ class MeshEntitySpawner {
     }
 
     /**
-
-        On Events
-
-        */
+     * 
+     * On Events
+     *
+     */
     private void onEvents() {
         // Instanced Break
         EventStream.on("instanced-break", (data) => {
@@ -519,10 +519,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Reset
-    
-        */
+     * 
+     * Reset
+     *
+     */
     private void reset(ref Instance inst) {        
         inst.Position = setPosition();
         inst.Speed = setSpeed();
@@ -530,10 +530,10 @@ class MeshEntitySpawner {
     }
 
     /**
-
-        Cleanup
-
-        */
+     * 
+     * Cleanup
+     *
+     */
     public void cleanup() {
         MeshEntityCollider.cleanup();
         instances.Clear();
@@ -554,10 +554,10 @@ class MeshEntitySpawner {
     }
 
     /**
-    
-        Remove
-    
-        */
+     * 
+     * Remove
+     *
+     */
     public void removeInstance(string entityId, int index) {
         if(!instances.ContainsKey(entityId)) return;
         if(index >= instances[entityId].Count) return;

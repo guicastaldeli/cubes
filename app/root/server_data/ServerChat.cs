@@ -16,10 +16,10 @@ class ServerChat : PacketHandler {
     }
 
     /**
-    
-        Handle
-
-        */
+     * 
+     * Handle
+     *
+     */
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketChat>(json);
         if(packet == null) return;

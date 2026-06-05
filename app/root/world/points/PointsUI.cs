@@ -23,37 +23,37 @@ class PointsUI : UI {
     }
 
     /**
-
-        On Window Resize
-    
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
     }
 
     /**
-
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         base.render();
     }
 
     /**
-
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         base.update();
     }
 
     /**
-
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     private void init() {
         EventStream.on("points-added", (data) => {
             if(data is not int total) return;

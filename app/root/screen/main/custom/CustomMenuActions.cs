@@ -14,10 +14,10 @@ class CustomMenuActions {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public dynamic get() {
         return ElementEntry.C(id => customMenu.getElementById(id), Elements);
     }

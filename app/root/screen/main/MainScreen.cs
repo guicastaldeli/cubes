@@ -91,10 +91,10 @@ class MainScreen : Screen {
     }
 
     /**
-    
-        On Window Resize
-
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
 
@@ -103,10 +103,10 @@ class MainScreen : Screen {
     }
 
     /**
-    
-        Update
-
-        */ 
+     * 
+     * Update
+     *
+     */
     public override void update() {
         if(mainScreenRegistry.anyActive()) {
             mainScreenRegistry.update();
@@ -122,10 +122,10 @@ class MainScreen : Screen {
     }
 
     /**
-    
-        Render
-
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         if(mainScreenRegistry.anyActive()) {
             mainScreenRegistry.render();
@@ -136,10 +136,10 @@ class MainScreen : Screen {
     }
 
     /**
-    
-        Reset
-
-        */
+     * 
+     * Reset
+     *
+     */
     public void reset() {
         show();
     }

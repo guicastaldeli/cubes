@@ -85,10 +85,10 @@ class Client {
     }
 
     /**
-    
-        Connect
-    
-        */
+     * 
+     * Connect
+     *
+     */
     public void connect(string ip, int port) {
         serverEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
         udpClient = new UdpClient();
@@ -123,10 +123,10 @@ class Client {
     }
 
     /**
-    
-        Disconnect
-    
-        */
+     * 
+     * Disconnect
+     *
+     */
     public void disconnect() {
         if(connected) send(new PacketLeave {
             userId = userId
@@ -141,10 +141,10 @@ class Client {
     }
 
     /**
-    
-        Send
-    
-        */
+     * 
+     * Send
+     *
+     */
     public void send(Packet packet) {
         try {
             packet.userId = userId;

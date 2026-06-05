@@ -56,10 +56,10 @@ class Shape {
     }
     
     /**
-
-        Scaled Radius
-
-        */
+     * 
+     * Scaled Radius
+     *
+     */
     private static float getScaledRadius(Mesh mesh, string id) {
         Vector3 size = mesh.getSize(id);
         float baseRadius = Math.Max(size.X, Math.Max(size.Y, size.Z)) / 2.0f;
@@ -80,10 +80,10 @@ class Shape {
     }
 
     /**
-
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public Shape update() {
         if(data == null) return this;
 
@@ -176,10 +176,10 @@ class Raycaster {
     }
 
     /**
-    
-        Intersects
-    
-        */
+     * 
+     * Intersects
+     *
+     */
     // Main
     public bool intersects(
         Vector3 origin,
@@ -346,10 +346,10 @@ class Raycaster {
     }
 
     /**
-    
-        Cast
-    
-        */
+     * 
+     * Cast
+     *
+     */
     public string? cast() {
         if(!isActive) return null;
 
@@ -406,10 +406,10 @@ class Raycaster {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         if(!isActive) return;
 

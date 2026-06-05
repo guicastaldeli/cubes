@@ -170,10 +170,10 @@ class Inventory {
     }
 
     /**
-
-        Open
-    
-        */
+     * 
+     * Open
+     *
+     */
     public void open() {
         // Open Key
         Mapper.Key(Keys.I, pressed => {
@@ -208,10 +208,10 @@ class Inventory {
     }
 
     /**
-
-        Build
-
-        */
+     * 
+     * Build
+     *
+     */
     private void build() {
         int edgePadding = (int)(width * edgePaddingPct);
         int topPadding = (int)(height * topPaddingPct);
@@ -238,10 +238,10 @@ class Inventory {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         foreach(var s in grid.slots) {
             renderSlot(s);

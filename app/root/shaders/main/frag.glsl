@@ -48,86 +48,46 @@ vec4 setEntityColor(vec4 texColor) {
 }
 
 void main() {
-    /**
-
-        Text
-
-        */
+    // Text
     if(shaderType == 1) {
         setTextFrag();
     }
-    /**
-
-        UI
-
-        */
+    // UI
     else if(shaderType == 3) {
         setUIFrag();
     }
-    /**
-
-        Username
-
-        */
+    // Username
     else if(shaderType == 4) {
         setUsernameFrag();
     }
-    /**
-
-        Flat
-
-        */
+    // Flat
     else if(shaderType == 5) {
         setFlatFrag();
     }
-    /**
-
-        Outline
-
-        */
+    // Outline
     else if(shaderType == 6) {
         setOutlineFrag();
     }
-    /**
-
-        Particle
-
-        */
+    // Particle
     else if(shaderType == 7) {
         setParticleFrag();
     }
-    /**
-
-        Skybox
-
-        */
+    // Skybox
     else if(shaderType == 8) {
         setSkyboxFrag();
     }
     else if(shaderType == 9) {
         setStarFrag();
     }
-    /**
-
-        Hud
-
-        */
+    // Hud
     else if(shaderType == 10) {
         setHudFrag();
     }
-    /**
-
-        Text Entity
-
-        */
+    // Text Entity
     else if(shaderType == 11) {
         setTextEntityFrag();
     }
-    /**
-
-        Main
-
-        */
+    // Main
     else {
         vec4 baseColor;
         

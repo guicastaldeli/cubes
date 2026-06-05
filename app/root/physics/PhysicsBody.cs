@@ -31,10 +31,10 @@ class PhysicsBody {
     }
 
     /**
-
-        Position
-
-        */ 
+     * 
+     * Position
+     *
+     */
     public Vector3 getPosition() {
         return position;
     }
@@ -48,10 +48,10 @@ class PhysicsBody {
     }
 
     /**
-
-        Velocity
-
-        */ 
+     * 
+     * Velocity
+     *
+     */
     public Vector3 getVelocity() {
         return velocity;
     }
@@ -68,10 +68,10 @@ class PhysicsBody {
     }
 
     /**
-
-        On Surface
-
-        */ 
+     * 
+     * On Surface
+     *
+     */
     public bool isOnSurface() {
         return onSurface;
     }
@@ -90,10 +90,10 @@ class PhysicsBody {
     }
 
     /**
-    
-        Sleeping
-    
-        */
+     * 
+     * Sleeping
+     *
+     */
     public bool isSleepingState() {
         return isSleeping;
     }
@@ -104,10 +104,10 @@ class PhysicsBody {
     }
 
     /**
-    
-        Apply Gravity
-    
-        */
+     * 
+     * Apply Gravity
+     * 
+     */
     public void applyGravity(float deltaTime) {
         if(isSleeping) return;
 
@@ -125,10 +125,10 @@ class PhysicsBody {
     }
 
     /**
-    
-        Apply Impulse
-    
-        */
+     * 
+     * Apply Impulse
+     * 
+     */
     public void applyImpulse(Vector3 impulse) {
         velocity += impulse;
         isSleeping = false;
@@ -136,10 +136,10 @@ class PhysicsBody {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update(float deltaTime) {
         if(isSleeping) return;
 

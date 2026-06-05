@@ -10,10 +10,10 @@ public static class MapFont {
     );
 
     /**
-    
-        Normalize Key
-    
-        */
+     * 
+     * Normalize Key
+     *
+     */
     private static Dictionary<string, string> keyMap = new() {
         { "-", "" },
         { "_", "" },
@@ -31,10 +31,10 @@ public static class MapFont {
     }
 
     /**
-    
-        Resolve
-    
-        */
+     * 
+     * Resolve
+     *
+     */
     public static string R(string key) {
         if(File.Exists(Path.Combine(FontLoader.FONT_DIR, key + Ext.a))) {
             return key + Ext.a;

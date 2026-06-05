@@ -18,10 +18,10 @@ using NLua;
     */
 class Setter {
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     public static void set(LuaTable entities, Dictionary<string, MeshData> res) {
         foreach(var key in entities.Keys) {
             if(entities[key] is not LuaTable entry) continue;
@@ -98,10 +98,10 @@ class MeshEntityGenerator : WorldHandler {
     }
 
     /**
-    
-        Generate
-    
-        */
+     * 
+     * Generate
+     *
+     */
     private void generateSource(EntityProps entity, MeshData data) {
         MeshData meshData = MeshEntityFactory.clone(data);
         meshData.isEntity = 1;
@@ -141,10 +141,10 @@ class MeshEntityGenerator : WorldHandler {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         if(!initialized) {
             var meshTypes = load();
@@ -155,10 +155,10 @@ class MeshEntityGenerator : WorldHandler {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         entitySpawner.update();
 

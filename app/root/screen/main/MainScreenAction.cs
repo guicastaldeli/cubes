@@ -37,20 +37,19 @@ class MainScreenAction {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     * 
+     */
     public dynamic get() {
         return ElementEntry.C(id => mainScreen.getElementById(id), Elements);
     }
     
     /**
-
-        Info
-
-        */
-
+     * 
+     * Info
+     *
+     */
     // Username
     public void refreshUsername() {
         string username = InfoController.getInstance().getUserInfo().getUsername();

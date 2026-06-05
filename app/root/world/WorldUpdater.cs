@@ -42,10 +42,10 @@ class WorldUpdater {
     }
 
     /**
-    
-        Mesh
-    
-        */
+     * 
+     * Mesh
+     *
+     */
     // Add
     public void addMesh(
         string id,
@@ -147,10 +147,10 @@ class WorldUpdater {
     }
 
     /**
-    
-        Broadcast
-    
-        */
+     * 
+     * Broadcast
+     *
+     */
     public void broadcast(PacketMeshUpdate packet) {
         if(server != null) {
             foreach(var player in server.players.Values) {
@@ -165,10 +165,10 @@ class WorldUpdater {
     }
 
     /**
-
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init(
         Window window,
         Mesh mesh, 

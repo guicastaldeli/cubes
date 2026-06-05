@@ -65,10 +65,10 @@ class ShaderProgram {
     }
 
     /**
-    
-        Uniform
-
-        */
+     * 
+     * Uniform
+     *
+     */
     // Set Uniform
     public void setUniform(string name, float x, float y) {
         int loc = getUniformLocation(name);
@@ -137,10 +137,10 @@ class ShaderProgram {
     }
 
     /**
-    
-        Bind
-
-        */
+     * 
+     * Bind
+     *
+     */
     public void bind() {
         GL.UseProgram(programId);
     }

@@ -61,29 +61,29 @@ class CustomMenu : MainScreenHandler {
     }
 
     /**
-    
-        On Window Resize
-
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
         registerInputs();
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         base.update();    
     }
 
     /**
-    
-        Render
-
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         base.render();
     }

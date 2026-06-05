@@ -21,10 +21,10 @@ static class MeshEntityCollider {
     private static bool eventsRegistered = false;
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public static void init(
         Mesh mesh, 
         CollisionManager collisionManager,
@@ -67,10 +67,10 @@ static class MeshEntityCollider {
     }
 
     /**
-    
-        Resolve
-    
-        */
+     * 
+     * Resolve 
+     *
+     */
     // Entity Id
     public static string? resolveEntityId(string colliderId) {
         string? val = 
@@ -94,10 +94,10 @@ static class MeshEntityCollider {
     }
 
     /**
-    
-        Create
-
-        */
+     * 
+     * Create
+     *
+     */
     public static void create(EntityProps entity, List<Instance> list) {
         MeshData? data = mesh?.getData(entity.Id);
         if(data?.colliderShape == null) return;
@@ -122,10 +122,10 @@ static class MeshEntityCollider {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public static void update(string id, int i, Vector3 pos) {
         if(!colliderIds.ContainsKey(id)) return;
         if(i >= colliderIds[id].Count) return;
@@ -135,10 +135,10 @@ static class MeshEntityCollider {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     *
+     */
     public static void cleanup() {
         if(mesh == null || collisionManager == null) return;
 

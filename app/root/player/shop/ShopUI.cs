@@ -13,19 +13,19 @@ class ShopUI : UI {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         base.render();
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         base.update();
     }

@@ -22,10 +22,10 @@ class PauseScreen : Screen {
     }
 
     /**
-    
-        Handle
-    
-        */  
+     * 
+     * Handle
+     *
+     */
     // Handle Action
     public override void handleAction(string action) {
         switch(action) {
@@ -44,19 +44,19 @@ class PauseScreen : Screen {
     }
 
     /**
-    
-        Update
-    
-        */  
+     * 
+     * Update
+     *
+     */
     public override void update() {
         base.update();    
     }
 
     /**
-    
-        Render
-    
-        */  
+     * 
+     * Render
+     *
+     */
     public override void render() {
         base.render();
     }

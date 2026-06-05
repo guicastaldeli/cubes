@@ -94,10 +94,10 @@ class MeshModelLoader {
     }
 
     /**
-    
-        Parse
-    
-        */
+     * 
+     * Parse
+     *
+     */
     private static ModelData parseModelData(LuaTable table) {
         ModelData data = new ModelData();
 
@@ -153,10 +153,10 @@ class MeshModelLoader {
     }
     
     /**
-    
-        Load
-    
-        */
+     * 
+     * Load
+     *
+     */
     // Load Model
     public static MeshData loadModel(string fileName) {
         if(Path.GetExtension(fileName) == string.Empty) {

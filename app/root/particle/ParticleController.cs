@@ -28,10 +28,10 @@ class ParticleController {
     }
 
     /**
-    
-        Emit
-    
-        */
+     * 
+     * Emit
+     *
+     */
     public ParticleEntity emit(
         Vector3 position,
         Vector3 color,
@@ -64,10 +64,10 @@ class ParticleController {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         List<ParticleEntity> entitiesToRemove = new List<ParticleEntity>();
         
@@ -83,10 +83,10 @@ class ParticleController {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         foreach(ParticleEntity entity in particleEntities) {
             entity.render();
@@ -94,10 +94,10 @@ class ParticleController {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     * 
+     */
     public void cleanup() {
         foreach(ParticleEntity entity in particleEntities) {
             entity.cleanup();

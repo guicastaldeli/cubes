@@ -21,10 +21,10 @@ static class Mapper {
     private static readonly HashSet<(Type, int)> registeredMouse = new();
 
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     public static void Set<T>() {
         currentType = typeof(T);
         if(!keyBindings.ContainsKey(typeof(T))) keyBindings[typeof(T)] = new();
@@ -43,10 +43,10 @@ static class Mapper {
     }
 
     /**
-    
-        Key
-    
-        */
+     * 
+     * Key
+     *
+     */
     public static void Key(Keys k) {
         if(currentType == null) return;
         if(!keyBindings[currentType].Contains(k)) {
@@ -60,10 +60,10 @@ static class Mapper {
     }
 
     /**
-    
-        Mouse
-    
-        */
+     * 
+     * Mouse
+     *
+     */
     public static void Mouse(int button) {
         if(currentType == null) return;
 
@@ -89,10 +89,10 @@ static class Mapper {
     }
 
     /**
-    
-        Has
-    
-        */
+     * 
+     * Has
+     *
+     */
     public static bool HasKey<T>(Keys k) {
         bool val = keyBindings.ContainsKey(typeof(T)) && keyBindings[typeof(T)].Contains(k);
         return val;
@@ -104,10 +104,10 @@ static class Mapper {
     }
 
     /**
-    
-        On
-    
-        */
+     * 
+     * On
+     *
+     */
     public static void On<T>(Action<int, bool> handler) {
         mouseHandlers[typeof(T)] = handler;
     }
@@ -130,10 +130,10 @@ static class Mapper {
     }
 
     /**
-    
-        Dispatch
-    
-        */
+     * 
+     * Dispatch
+     *
+     */
     public static void Dispatch(bool pressed, Keys key) {
         if(pressed) {
             if(heldKeys.Contains(key)) return;
@@ -166,10 +166,10 @@ static class Mapper {
     }
 
     /**
-    
-        Clear
-    
-        */
+     * 
+     * Clear
+     *
+     */
     public static void Clear() {
         keyBindings.Clear();
         keyHandlers.Clear();

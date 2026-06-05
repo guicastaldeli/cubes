@@ -72,24 +72,21 @@ class Window : NativeWindow {
         return HEIGHT;
     }
 
-    /**
-    
-        Render
-    
-        */
+    // Queue on Render Thread
     public void queueOnRenderThread(Action action) {
         pendingActions.Enqueue(action);
     }
 
+    // Add Persistent Action
     public void addPersistentAction(Action action) {
         persistentRenderActions.Add(action);
     }
 
     /**
-    
-        Run
-    
-        */
+     * 
+     * Run
+     *
+     */
     public void run(Action renderCallback) {
         Thread thread = new Thread(() => {
             Context.MakeCurrent();
@@ -113,10 +110,10 @@ class Window : NativeWindow {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void updateTitle(int tickCount, int fps) {
         if(Controller.getInstance(Instance.PROD)) {
             Title = TITLE;

@@ -99,10 +99,10 @@ class ShaderLoader {
     }
 
     /**
-    
-        Load
-
-        */
+     * 
+     * Load
+     *
+     */
     public static string load(string fileName) {
         if(loadedShaders.ContainsKey(fileName)) return loadedShaders[fileName];
 

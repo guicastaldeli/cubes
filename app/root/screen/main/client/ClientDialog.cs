@@ -48,19 +48,19 @@ class ClientDialog : MainScreenHandler {
     }
 
     /**
-    
-        On Window Resize
-
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         if(mainScreen.getMainScene().isInit()) {
             if(!tick.isPaused()) mainScreen.getMainScene().update();
@@ -70,10 +70,10 @@ class ClientDialog : MainScreenHandler {
     }
 
     /**
-    
-        Render
-
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         if(mainScreen.getMainScene().isInit()) {
             mainScreen.getMainScene().render();

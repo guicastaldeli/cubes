@@ -7,10 +7,10 @@ namespace App.Root.Utils;
 
 public static class FloatToHex {
     /**
-
-        Convert
-
-        */
+     * 
+     * Convert
+     *
+     */
     public static string? C(float[]? colors) {
         if(colors == null || colors.Length < 3) return null;
 

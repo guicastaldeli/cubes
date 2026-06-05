@@ -26,10 +26,10 @@ class ServerJoin : PacketHandler {
     }
 
     /**
-    
-        Handle
-
-        */
+     * 
+     * Handle
+     *
+     */
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketJoin>(json);
         if(packet == null) return;

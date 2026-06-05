@@ -62,10 +62,10 @@ class Color {
     }
 
     /**
-
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public static void init(Tick tick, ShaderProgram shaderProgram, Skybox skybox, TimeCycle timeCycle) {
         Color.tick = tick;
         Color.shaderProgram = shaderProgram;
@@ -83,10 +83,10 @@ class Color {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public static void update() {
         if(data == null) return;
         currentColor = getCurrent();
@@ -159,10 +159,10 @@ class Skybox : WorldHandler {
     }
 
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     private void set() {
         MeshData data = MeshDataLoader.load(MESH);
         data.shaderType = 8;
@@ -178,10 +178,10 @@ class Skybox : WorldHandler {
     }
 
     /**
-    
-        Render
-
-        */  
+     * 
+     * Render
+     *
+     */
     public override void render() {
         if(!initialized) {
             set();
@@ -191,10 +191,10 @@ class Skybox : WorldHandler {
     }
 
     /**
-    
-        Update
-
-        */ 
+     * 
+     * Update
+     *
+     */
     public override void update() {
         Color.update();
 
@@ -268,20 +268,20 @@ class Skybox : WorldHandler {
         private static bool currentVisibility = true;
 
         /**
-        
-            Init
-        
-            */
+         * 
+         * Init
+         *
+         */
         public static void init(Tick tick, Mesh mesh) {
             SkyboxStar.tick = tick;
             SkyboxStar.mesh = mesh;
         }
 
         /**
-        
-            Set
-        
-            */
+         * 
+         * Set
+         *
+         */
         public static void set() {
             MeshData data = MeshDataLoader.load(STAR_MESH);
             data.shaderType = 9;
@@ -334,10 +334,10 @@ class Skybox : WorldHandler {
         }
 
         /**
-        
-            Generate
-        
-            */
+         * 
+         * Generate
+         *
+         */
         public static (List<Vector3>, List<float[]>, List<float>) generate() {
             var positions = new List<Vector3>();
             var colors = new List<float[]>();
@@ -374,10 +374,10 @@ class Skybox : WorldHandler {
         }
 
         /**
-        
-            Update
-        
-            */
+         * 
+         * Update
+         *
+         */
         public static void update() {
             int currentPeriod = Period.getNumber(Period.getCurrent()!);
             if(currentPeriod != prevPeriodType) {

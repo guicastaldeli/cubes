@@ -5,10 +5,10 @@ public static class AnimationController {
     private static Dictionary<string, float> offsets = new();
 
     /**
-    
-        Play
-    
-        */
+     * 
+     * Play
+     *
+     */
     public static void Play(
         string id,
         float start,
@@ -31,19 +31,19 @@ public static class AnimationController {
     }
 
     /**
-    
-        Stop
-    
-        */
+     * 
+     * Stop
+     *
+     */
     public static void Stop(string id) {
         animations.Remove(id);
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public static void Update() {
         float deltaTime = Tick.getDeltaTimeI();
 

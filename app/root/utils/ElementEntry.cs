@@ -10,10 +10,10 @@ using App.Root.UI;
 
 static class ElementEntry {
     /**
-
-        Entry
-    
-        */
+     * 
+     * Entry
+     *
+     */
     public class Entry<T> : DynamicObject {
         public readonly string id;
         public T? el;
@@ -73,10 +73,10 @@ static class ElementEntry {
     }
 
     /**
-    
-        Object
-    
-        */
+     * 
+     * Object
+     *
+     */
     public class Object<T> : DynamicObject {
         private Dictionary<string, Entry<T>> map = new();
 
@@ -100,10 +100,10 @@ static class ElementEntry {
     }
 
     /**
-    
-        Create
-    
-        */
+     * 
+     * Create
+     *
+     */
     public static dynamic C<T>(Func<string, T?> resolver, IEnumerable<string> ids) {
         Object val = new Object<T>(resolver, ids.ToArray());
         return val;

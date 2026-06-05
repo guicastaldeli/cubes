@@ -115,10 +115,10 @@ class ScreenController {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public Screen? get(string screenName) {
         return screens.GetValueOrDefault(screenName);
     }
@@ -131,10 +131,10 @@ class ScreenController {
     }
 
     /**
-    
-        Register
-    
-        */
+     * 
+     * Register
+     *
+     */
     public void register(Screen screen, Screen? parent = null) {
         screens[screen.screenName] = screen;
 
@@ -152,30 +152,30 @@ class ScreenController {
     }
  
     /**
-    
-        Render
-
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         prevScreen?.render();
         if(currentScreen != prevScreen) currentScreen?.render();
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         prevScreen?.update();
         if(currentScreen != null) currentScreen.update();
     }
 
     /**
-    
-        Init
-
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         var baseType = typeof(Screen);
         var types = Assembly.GetExecutingAssembly()

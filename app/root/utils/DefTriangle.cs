@@ -17,10 +17,10 @@ public static class DefTriangle {
     public static Vector3 scale;
 
     /**
-
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     // Raycaster
     public static void r(Vector3 dir, Vector3 origin) {
         DefTriangle.dir = dir;
@@ -37,10 +37,10 @@ public static class DefTriangle {
     }
 
     /**
-    
-        Test
-    
-        */
+     * 
+     * Test
+     *
+     */
     public static void t(Vector3 a, Vector3 b, Vector3 c) {
         Vector3 edge1 = b - a;
         Vector3 edge2 = c - a;
@@ -67,10 +67,10 @@ public static class DefTriangle {
     }
 
     /**
-    
-        Get Vertices
-    
-        */
+     * 
+     * Get Vertices
+     *
+     */
     public static Vector3 getVert(int i) {
         Vector3 val = new Vector3(
             verts[i*3+0] * scale.X + pos.X,

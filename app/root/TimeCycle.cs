@@ -55,10 +55,10 @@ class Period {
     }
 
     /**
-
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public static void init(TimeCycle timeCycle) {
         Period.timeCycle = timeCycle;
         data = new Lua();
@@ -66,10 +66,10 @@ class Period {
     }
 
     /**
-
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public static void update() {
         if(data == null) return;
         currentPeriod = getCurrent();
@@ -151,10 +151,10 @@ class TimeCycle {
     }
 
     /**
-    
-        Time
-    
-        */
+     * 
+     * Time
+     *
+     */
     public void setTime(int hour, int min) {
         float totalHours = hour + (min / minDiv);
         currentTime = (totalHours / hourDiv) * DAY_DURATION;
@@ -182,10 +182,10 @@ class TimeCycle {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         currentTime += tick.getDeltaTime() * timeSpeed;
         if(currentTime >= DAY_DURATION) {
@@ -203,10 +203,10 @@ class TimeCycle {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     *
+     */
     public void cleanup() {
         Period.data.Dispose();
     }

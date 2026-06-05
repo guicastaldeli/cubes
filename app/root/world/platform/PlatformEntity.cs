@@ -11,20 +11,20 @@ using App.Root.Mesh;
 
 class PlatformRegistry {
     /**
-
-        Platform Registry Handler
-
-        */
+     * 
+     * Platform Registry Handler
+     *
+     */
     public abstract class PlatformRegistryHandler {
         public virtual void render() {}
         public virtual void update() {}
     }
     
     /**
-
-        Platform Registry main
-
-        */
+     * 
+     * Platform Registry main
+     *
+     */
     private Window window;
     private Mesh mesh;
     private CollisionManager collisionManager;
@@ -57,10 +57,10 @@ class PlatformRegistry {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         if(isRegistryed) return;
 
@@ -73,19 +73,19 @@ class PlatformRegistry {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         foreach(var e in el) e.render();
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         foreach(var e in el) e.update();
     }

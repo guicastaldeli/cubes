@@ -8,10 +8,10 @@ using App.Root.Mesh;
 
 public static class IsEntity {
     /**
-    
-        Check
-    
-        */
+     * 
+     * Check
+     *
+     */
     // Default Checker
     public static void C(MeshData data, bool? isEntity) {
         data.isEntity = (isEntity == true) ? 1 : 0;

@@ -13,10 +13,10 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class PlayerController : DataEntry {
     /**
-    
-        Movement Direction
-    
-        */
+     * 
+     * Movement Direction
+     *
+     */
     public enum MoveDir {
         FORWARD,
         BACKWARD,
@@ -27,20 +27,20 @@ class PlayerController : DataEntry {
     }
 
     /**
-    
-        Player Mode
-    
-        */
+     * 
+     * Player Mode
+     *
+     */
     public enum PlayerMode {
         NORMAL,
         FLY
     }
 
     /**
-    
-        Player Controller main
-    
-        */
+     * 
+     * Player Controller main
+     *
+     */
     public static PlayerController? instance;
 
     private AppWindow window;
@@ -177,10 +177,10 @@ class PlayerController : DataEntry {
     }
 
     /**
-
-        Position
-
-        */
+     * 
+     * Position
+     *
+     */
     public void setPosition(float x, float y, float z) {
         position = new Vector3(x, y, z);
         rigidBody.setPosition(position);
@@ -192,10 +192,10 @@ class PlayerController : DataEntry {
     }
 
     /**
-
-        Movement
-
-        */
+     * 
+     * Movement
+     *
+     */
     private void applyMove() {
         Vector3 front = camera.getFront();
         Vector3 right = camera.getRight();
@@ -247,10 +247,10 @@ class PlayerController : DataEntry {
     }
 
     /**
-
-        Set
-
-        */
+     * 
+     * Set
+     *
+     */
     public void set() {
         if(network != null) id = network.userId ?? id;
         playerMesh.set(true);
@@ -266,20 +266,20 @@ class PlayerController : DataEntry {
     }
     
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         raycaster.onRenderOutline?.Invoke();
         UI.uiController.generate();
     }
 
     /**
-
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     // Update Mode
     public void updateMode(PlayerMode mode) {
         Mapper.Key(Keys.F, pressed => {
@@ -327,10 +327,10 @@ class PlayerController : DataEntry {
     }
 
     /**
-
-        Network
-
-        */
+     * 
+     * Network
+     *
+     */
     public void setNetwork(Network network) {
         this.network = network;
     }
@@ -352,10 +352,10 @@ class PlayerController : DataEntry {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     private void init() {
         updateMode(PlayerMode.NORMAL);
         foreach(var dir in Enum.GetValues<MoveDir>()) {
@@ -365,7 +365,7 @@ class PlayerController : DataEntry {
 
     /**
     
-        --- Data Entry ---
+        Data Entry
 
         */
     public static string getId() {

@@ -58,19 +58,19 @@ class ChamberDialog : UI {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public dynamic get() {
         return ElementEntry.C(id => getElementById(id), Elements);
     }
     
     /**
-    
-        Show
-    
-        */
+     * 
+     * Show
+     *
+     */
     private void show(TextEntity text, dynamic els) {
         if(!chamberEntity.deposited) {
             text.setElementVisible(els.deposit.id);
@@ -80,39 +80,39 @@ class ChamberDialog : UI {
     }
 
     /**
-    
-        Hide
-    
-        */
+     * 
+     * Hide
+     *
+     */
     public void hide() {
         visible = false;
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         if(initialized) return;
         initialized = true;
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         if(!visible) return;
         base.render();
     }
 
     /**
-    
-        Activate
-    
-        */
+     * 
+     * Activate
+     *
+     */
     public void activate(Mesh mesh) {
         string entityId = ChamberEntity.CHAMBER_ENTITY_ID;
 
@@ -144,10 +144,10 @@ class ChamberDialog : UI {
     }
 
     /**
-    
-        Animation
-    
-        */
+     * 
+     * Animation
+     *
+     */
     // Set Animation
     public void setAnimation(TextEntity textEntity, dynamic els, Vector3 color) {
         setAnimationPoint(textEntity, els, color);
@@ -184,10 +184,10 @@ class ChamberDialog : UI {
     }
 
     /**
-    
-        Set Position
-    
-        */
+     * 
+     * Set Position
+     *
+     */
     private void setPosition(TextEntity textEntity) {
         textEntity.setWorldPosition(new Vector3(chamberEntity.storedPos));
     }

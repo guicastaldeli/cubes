@@ -66,10 +66,10 @@ class ParticleEntity {
     }
 
     /**
-
-        Id
-    
-        */
+     * 
+     * Id
+     *
+     */
     // Set
     private string setId() {
         string val = $"{INSTANCED_ID}_{counter++}";
@@ -93,92 +93,92 @@ class ParticleEntity {
     }
 
     /**
-    
-        Set Vel Num
-    
-        */
+     * 
+     * Set Vel Num
+     *
+     */
     public void setVelNum(Vector3 velNum) {
         this.velNum = velNum;
     }
 
     /**
-    
-        Set Color
-    
-        */
+     * 
+     * Set Color
+     *
+     */
     public void setColor(Vector3 color) {
         this.color = color;
     }
 
     /**
-    
-        Set Size
-    
-        */
+     * 
+     * Set Size
+     *
+     */
     public void setSize(float size) {
         this.size = size;
         mesh.setScale(id, size);
     }
 
     /**
-    
-        Set Speed
-    
-        */
+     * 
+     * Set Speed
+     *
+     */
     public void setSpeed(float speed) {
         this.speed = speed;
     }
 
     /**
-    
-        Set Amount
-    
-        */
+     * 
+     * Set Amount
+     *
+     */
     public void setAmount(int amount) {
         this.amount = amount;
     }
 
     /**
-    
-        Set Lifetime
-    
-        */
+     * 
+     * Set Lifetime
+     *
+     */
     public void setLifetime(float lifetime) {
         this.lifetime = lifetime;
     }
 
     /**
-    
-        Is Active
-    
-        */
+     * 
+     * Is Active
+     *
+     */
     public bool isActiveEntity() {
         return isActive;
     }
 
     /**
-    
-        Set Spawn Radius
-    
-        */
+     * 
+     * Set Spawn Radius
+     *
+     */
     public void setSpawnRadius(float spawnRadius) {
         this.spawnRadius = spawnRadius;
     }
 
     /**
-    
-        Set Target Y
-    
-        */
+     * 
+     * Set Target Y
+     *
+     */
     public void setTargetY(float targetY) {
         this.targetY = targetY;
     }
 
     /**
-    
-        Set Motion
-    
-        */
+     * 
+     * Set Motion
+     *
+     */
     public void setMotion(bool enable, float swayAmplitude, float swayFrequency) {
         this.enableMotion = enable;
         this.swayAmplitude = swayAmplitude;
@@ -190,10 +190,10 @@ class ParticleEntity {
     }
 
     /**
-    
-        Setup
-    
-        */
+     * 
+     * Setup
+     *
+     */
     private void setup() {
         if(mesh.hasMesh(id)) return;
         
@@ -218,10 +218,10 @@ class ParticleEntity {
     }
 
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     public void set(Vector3 position, bool vel, float targetY = 0.0f, Func<Vector3>? colorSupplier = null) {
         this.targetY = targetY;
         this.vel = vel;
@@ -293,10 +293,10 @@ class ParticleEntity {
 
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         if(!isActive) return;
 
@@ -363,10 +363,10 @@ class ParticleEntity {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         if(!isActive) return;
 
@@ -374,10 +374,10 @@ class ParticleEntity {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     *
+     */
     public void cleanup() {
         mesh.remove(id);
         particles.Clear();

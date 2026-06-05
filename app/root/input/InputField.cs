@@ -49,19 +49,19 @@ class InputField {
     }
 
     /**
-    
-        Register
-    
-        */
+     * 
+     * Register
+     *
+     */
     public static void register(string id) {
         fields[id] = new KeyboardInput();
     }
 
     /**
-    
-        Handle Click
-    
-        */
+     * 
+     * Handle Click
+     *
+     */
     public static void handleClick(int mouseX, int mouseY) {
         focusedId = null;
         foreach(var (id, _) in fields) {
@@ -74,10 +74,10 @@ class InputField {
     }
 
     /**
-    
-        Handle Key Press
-    
-        */
+     * 
+     * Handle Key Press
+     *
+     */
     public static void handleKeyPress(Keys key, int action) {
         if(focusedId == null) return;
         if(fields.TryGetValue(focusedId, out var handler)) {
@@ -87,10 +87,10 @@ class InputField {
     }
 
     /**
-    
-        Sync
-    
-        */
+     * 
+     * Sync
+     *
+     */
     private static void sync(string id) {
         if(!fields.TryGetValue(id, out var handler)) return;
         var el = getElement(id);
@@ -98,10 +98,10 @@ class InputField {
     }
 
     /**
-    
-        Clear
-    
-        */
+     * 
+     * Clear
+     *
+     */
     public static void clear(string id) {
         if(fields.TryGetValue(id, out var h)) {
             h.clear();

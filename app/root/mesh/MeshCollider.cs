@@ -63,10 +63,10 @@ static class MeshCollider {
     }
 
     /**
-    
-        Cached
-    
-        */
+     * 
+     * Cached
+     *
+     */
     // Cache Mesh Data
     private static void cacheMeshData(string meshType, MeshData data) {
         if(cachedVertices.ContainsKey(meshType)) return;
@@ -95,20 +95,20 @@ static class MeshCollider {
     }
 
     /**
-
-        Init
-
-        */
+     * 
+     * Init
+     *
+     */
     public static void init(Mesh mesh, CollisionManager collisionManager) {
         MeshCollider.mesh = mesh;
         MeshCollider.collisionManager = collisionManager; 
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public static IEnumerable<(string id, string meshType, Vector3 position, float scale)> getInstancedColliders() {
         foreach(var (colliderId, meshType) in instancedMeshTypes) {
             if(instancedPositions.TryGetValue(colliderId, out Vector3 pos) &&
@@ -119,10 +119,10 @@ static class MeshCollider {
     }
 
     /**
-
-        Set
-
-        */
+     * 
+     * Set
+     *
+     */
     public static void setInstanced(
         MeshData data, 
         string colliderId,
@@ -174,10 +174,10 @@ static class MeshCollider {
     }
 
     /**
-
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public static void update(MeshData data, string id) {
         if(data == null) return;
 
@@ -209,10 +209,10 @@ static class MeshCollider {
     }
 
     /**
-    
-        Remove
-    
-        */
+     * 
+     * Remove
+     *
+     */
     public static void removeInstanced(string colliderId) {
         collisionManager.removeCollider(colliderId);
         collisionManager.processRemovals();

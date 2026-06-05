@@ -9,10 +9,10 @@ using App.Root.Physics;
 
 static class MeshPhysics {
     /**
-
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public static void update(MeshData data, string id, PhysicsType? type) {
         if(data == null) return;
 

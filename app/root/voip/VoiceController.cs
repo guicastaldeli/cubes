@@ -60,10 +60,10 @@ class VoiceController {
     }
 
     /**
-    
-        Receive
-
-        */
+     * 
+     * Receive
+     *
+     */
     public void receive(string userId, byte[] encodedAudio, int sequence) {
         if(!audioSources.TryGetValue(userId, out var source)) {
             source = new PlayerAudioSource();
@@ -73,10 +73,10 @@ class VoiceController {
     }
 
     /**
-    
-        Start
-
-        */
+     * 
+     * Start
+     *
+     */
     public void start() {
         encoder = OpusCodecFactory.CreateEncoder(
             SAMPLE_RATE,
@@ -94,10 +94,10 @@ class VoiceController {
     }
 
     /**
-    
-        Stop
-
-        */
+     * 
+     * Stop
+     *
+     */
     public void stop() {
         waveIn?.StopRecording();
         waveIn?.Dispose();

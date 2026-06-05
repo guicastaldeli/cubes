@@ -46,10 +46,10 @@ class DocParser {
     }
 
     /**
-    
-        Replace
-    
-        */
+     * 
+     * Replace
+     *
+     */
     public static void Replace(string key, string val) {
         variables[key] = val;
     }
@@ -60,10 +60,10 @@ class DocParser {
     }
 
     /**
-    
-        Resolve
-    
-        */
+     * 
+     * Resolve
+     *
+     */
     public static string Resolve(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
@@ -161,10 +161,10 @@ class DocParser {
     }
 
     /**
-    
-        Parse
-
-        */
+     * 
+     * Parse
+     *
+     */
     public static ScreenData parseScreen(string filePath, int screenWidth, int screenHeight) {
         ScreenData screenData = new ScreenData(filePath);
         try {
@@ -315,10 +315,10 @@ class DocParser {
         getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "div");
 
     /**
-    
-        Create Element
-
-        */
+     * 
+     * Create Element
+     *
+     */
     private static ScreenElement? createScreenElement(
         XmlElement element,
         string type,
@@ -504,10 +504,10 @@ class DocParser {
     }
 
     /**
-    
-        Get Elements
-
-        */
+     * 
+     * Get Elements
+     *
+     */
     public static List<ScreenElement> getElementsByType(ScreenData screenData, string type) {
         var result = new List<ScreenElement>();
         foreach(var el in screenData.elements) {
@@ -553,10 +553,10 @@ class DocParser {
     }
 
     /**
-    
-        Render Element
-
-        */
+     * 
+     * Render Elements
+     *
+     */
     public static void renderScreenElement(
         ScreenElement element,
         int screenWidth,
@@ -620,10 +620,10 @@ class DocParser {
     }
 
     /**
-    
-        Render Screen
-
-        */
+     * 
+     * Render Screen
+     *
+     */
     public static void renderScreen(
         ScreenData? screenData,
         int screenWidth,
@@ -703,10 +703,10 @@ class DocParser {
     }
 
     /**
-    
-        Create UI Element
-
-        */
+     * 
+     * Create UI Element
+     *
+     */
     private static UIElement? createUIElement(
         XmlElement element,
         string type,
@@ -952,10 +952,10 @@ class DocParser {
     }
 
     /**
-    
-        Render UI
-
-        */
+     * 
+     * Render UI
+     *
+     */
     public static void renderUI(
         UIData? uiData,
         int screenWidth,
@@ -1039,10 +1039,10 @@ class DocParser {
     }
 
     /**
-    
-        Cleanup
-
-        */
+     * 
+     * Cleanup
+     *
+     */
     public static void cleanup() {
         if(uiVao != 0) GL.DeleteVertexArray(uiVao);
         if(uiVbo != 0) GL.DeleteBuffer(uiVbo);
@@ -1051,10 +1051,10 @@ class DocParser {
     }
 
     /**
-    
-        Evaluate Expression
-
-        */
+     * 
+     * Evaluate Expression
+     *
+     */
     private static string evaluateExpression(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 

@@ -77,10 +77,10 @@ class TextRenderer {
     }
 
     /**
-    
-        Setup
-
-        */
+     * 
+     * Setup
+     *
+     */
     private void setupBuffers() {
         vao = GL.GenVertexArray();
         vbo = GL.GenBuffer();
@@ -108,10 +108,10 @@ class TextRenderer {
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     private void updateQuad(float x, float y, float w, float h, Glyph glyph, float[] color) {
         float r = color[0], g = color[1], b = color[2], a = color.Length > 3 ? color[3] : 1.0f;
         float[] verts = {
@@ -131,10 +131,10 @@ class TextRenderer {
     }
 
     /**
-    
-        Render
-
-        */
+     * 
+     * Render
+     *
+     */
     public void renderText(
         string text,
         float x,
@@ -317,10 +317,10 @@ class TextRenderer {
     }
 
     /**
-    
-        Load
-
-        */
+     * 
+     * Load
+     *
+     */
     public void loadFont(string key, string fileName, float size = 16.0f) {
         if(fontLoaders.ContainsKey(key)) return;
         string path = Path.Combine(FontLoader.FONT_DIR, fileName);

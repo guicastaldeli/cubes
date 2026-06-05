@@ -67,10 +67,10 @@ class MainScreenRegistry {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public T? get<T>() where T : MainScreenHandler {
         T? val = el.OfType<T>().FirstOrDefault();
         return val;
@@ -81,10 +81,10 @@ class MainScreenRegistry {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         foreach(var handler in el) {
             if(handler.isActive()) {
@@ -94,10 +94,10 @@ class MainScreenRegistry {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         foreach(var handler in el) {
             if(handler.isActive()) {
@@ -107,10 +107,10 @@ class MainScreenRegistry {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         if(isRegistered) return;
 

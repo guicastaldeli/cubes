@@ -17,10 +17,10 @@ class ClientMeshUpdate : PacketHandler {
     }
 
     /**
-    
-        Handle
-
-        */
+     * 
+     * Handle
+     *
+     */
     public void handle(string json) {
         var packet = Packet.deserialize<PacketMeshUpdate>(json);
         if(packet == null) return;

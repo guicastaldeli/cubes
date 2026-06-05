@@ -10,20 +10,20 @@ public static class Xp {
     private const int MAX_POINTS = 999;
 
     /**
-    
-        Range
-    
-        */
+     * 
+     * Range
+     *
+     */
     public static int Range() {
         int val = range.Next(1, 100);
         return val;
     }
 
     /**
-    
-        Convert to Points
-    
-        */
+     * 
+     * Convert to Points
+     *
+     */
     public static int ConvertToPoints(int xp) {
         float normalized = (float)(xp - MIN_XP) / (MAX_XP - MIN_XP);
         

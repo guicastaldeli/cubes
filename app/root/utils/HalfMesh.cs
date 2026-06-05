@@ -1,14 +1,13 @@
+namespace App.Root.Utils;
 using App.Root.Mesh;
 using OpenTK.Mathematics;
 
-namespace App.Root.Utils;
-
 public static class HalfMesh {
     /**
-
-        Half Height
-    
-        */
+     * 
+     * Half Height
+     *
+     */
     public static float HalfHeight(MeshData data, Vector3 scale) {
         float[]? vertices = data.getVertices();
         if(vertices == null) return 0.5f;
@@ -28,10 +27,10 @@ public static class HalfMesh {
     }
 
     /**
-
-        Half Extents
-    
-        */
+     * 
+     * Half Extents
+     *
+     */
     public static Vector3 HalfExtents(MeshData data, Vector3 scale) {
         float[]? vertices = data.getVertices();
         if(vertices == null) return Vector3.One * 0.5f;

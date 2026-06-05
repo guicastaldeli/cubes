@@ -16,10 +16,10 @@ class ServerPing : PacketHandler {
     }
 
     /**
-    
-        Handle
-
-        */
+     * 
+     * Handle
+     *
+     */
     public void handle(string json, IPEndPoint remote) {
         var packet = Packet.deserialize<PacketPing>(json);
         if(packet?.userId == null) return;

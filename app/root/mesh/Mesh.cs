@@ -68,10 +68,10 @@ class Mesh {
     }
 
     /**
-    
-        Mesh Renderer
-    
-        */
+     * 
+     * Mesh Renderer
+     *
+     */
     public MeshRenderer? getMeshRenderer(string id) {
         MeshRenderer? val = 
             meshRendererMap.TryGetValue(id, out var r) ?
@@ -86,10 +86,10 @@ class Mesh {
     }
 
     /**
-    
-        Mesh Interaction Controller
-    
-        */
+     * 
+     * Mesh Interaction Controller
+     *
+     */
     public void initMeshInteractionController() {
         this.meshInteractionController = new MeshInteractionController(
             window,
@@ -106,20 +106,20 @@ class Mesh {
     }
 
     /**
-    
-        Has Mesh
-    
-        */
+     * 
+     * Has Mesh
+     *
+     */
     public bool hasMesh(string id) {
         bool val = meshRendererMap.ContainsKey(id);
         return val;
     }
 
     /**
-    
-        Get Data
-    
-        */
+     * 
+     * Get Data
+     *
+     */
     public MeshData? getData(string id) {
         MeshData? val = 
             meshDataMap.TryGetValue(id, out var d) ?
@@ -130,10 +130,10 @@ class Mesh {
     }
 
     /**
-    
-        Position
-    
-        */
+     * 
+     * Position
+     *
+     */
     public void setPosition(string id, Vector3 position) {
         getMeshRenderer(id)?.setPosition(position);
     }
@@ -158,10 +158,10 @@ class Mesh {
     }
 
     /**
-    
-        Scale
-    
-        */
+     * 
+     * Scale
+     *
+     */
     public void setScale(string id, Vector3 scale) {
         getMeshRenderer(id)?.setScale(scale);
     }
@@ -185,10 +185,10 @@ class Mesh {
     }
 
     /**
-    
-        Set Texture
-    
-        */
+     * 
+     * Set Texture
+     *
+     */
     public void setTexture(string id, int texId) {
         getMeshRenderer(id)?.setTex(texId);
     }
@@ -198,46 +198,46 @@ class Mesh {
     }
 
     /**
-    
-        Set Model Matrix
-    
-        */
+     * 
+     * Set Model Matrix
+     *
+     */
     public void setModelMatrix(string id, Matrix4 matrix) {
         getMeshRenderer(id)?.setModelMatrix(matrix);
     }
 
     /**
-    
-        Set Rotation Matrix
-    
-        */
+     * 
+     * Set Rotation Matrix
+     *
+     */
     public void setRotationMatrix(string id, Matrix4 matrix) {
         getMeshRenderer(id)?.setRotationMatrix(matrix);
     }
 
     /**
-    
-        Set Network Controlled
-    
-        */
+     * 
+     * Set Network Controlled
+     *
+     */
     public void setNetworkControlled(string id, bool val) {
         getMeshRenderer(id)?.setNetworkControlled(val);
     }
 
     /**
-    
-        Set Visible
-    
-        */
+     * 
+     * Set Visible
+     *
+     */
     public void setVisible(string id, bool visible) {
         getMeshRenderer(id)?.setVisible(visible);
     }
 
     /**
-    
-        Set Color
-    
-        */
+     * 
+     * Set Color
+     *
+     */
     public void setColor(string id, string hex) {
         MeshData? data = getData(id);
         MeshRenderer? renderer = getMeshRenderer(id);
@@ -249,10 +249,10 @@ class Mesh {
     }
     
     /**
-    
-        Get Size
-    
-        */
+     * 
+     * Get Size
+     *
+     */
     public Vector3 getSize(string id) {
         MeshData? data = getData(id);
         if(data == null) return Vector3.One;
@@ -289,10 +289,10 @@ class Mesh {
     }
 
     /**
-    
-        Get BBox
-    
-        */
+     * 
+     * Get BBox
+     *
+     */
     public BBox getBBox(string id) {
         MeshData? meshData = getData(id);
         MeshRenderer? renderer = getMeshRenderer(id);
@@ -350,10 +350,10 @@ class Mesh {
     }
 
     /**
-    
-        On Window Resize
-
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public void onWindowResize(int width, int height) {
         if(meshRenderer != null) {
             meshRenderer.setupSceneFramebuffer(width, height);
@@ -365,10 +365,10 @@ class Mesh {
     }
 
     /**
-    
-        Add
-
-        */
+     * 
+     * Add
+     *
+     */
     public void add(string id) {
         MeshData data = MeshDataLoader.load(id);
         addToMap(id, data);
@@ -395,10 +395,10 @@ class Mesh {
     }
 
     /**
-    
-        Data
-
-        */
+     * 
+     * Data
+     *
+     */
     public void addData(MeshData data, Vector3 position, float scale) {
         meshDataMap[data.id] = data;
         dataPositions[data.id] = position;
@@ -417,10 +417,10 @@ class Mesh {
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         if(particleController != null) {
             particleController.update();
@@ -432,10 +432,10 @@ class Mesh {
     }
 
     /**
-    
-        Render
-
-        */
+     * 
+     * Render
+     *
+     */
     // Main
     public void render() {
         if(particleController != null) {
@@ -534,10 +534,10 @@ class Mesh {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         meshRenderer = new MeshRenderer(window, shaderProgram, this);
         meshRenderer.setupSceneFramebuffer(window.getWidth(), window.getHeight());
@@ -546,10 +546,10 @@ class Mesh {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     *
+     */
     public void cleanup() {
         if(particleController != null) {
             particleController.cleanup();
@@ -563,10 +563,10 @@ class Mesh {
     }
 
     /**
-    
-        Remove
-    
-        */
+     * 
+     * Remove
+     *
+     */
     // Default Remove
     public void remove(string id) {
         if(meshRendererMap.TryGetValue(id, out var meshRenderer)) {

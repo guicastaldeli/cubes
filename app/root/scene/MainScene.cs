@@ -75,14 +75,22 @@ class MainScene {
         return tick;
     }
 
-    // Set Screen Controller
+    // Screen Controller
     public void setScreenController(ScreenController screenController) {
         this.screenController = screenController;
     }
 
-    // Set UI Controller
+    public ScreenController getScreenController() {
+        return screenController;
+    }
+
+    // UI Controller
     public void setUIController(UIController uiController) {
         this.uiController = uiController;
+    }
+
+    public UIController getUIController() {
+        return uiController;
     }
 
     // Set Network
@@ -101,20 +109,20 @@ class MainScene {
     }
 
     /**
-    
-        On Window Resize
-    
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public void onWindowResize(int width, int height) {
         getCamera().updateAspectRatio(width, height);
         mesh.onWindowResize(width, height);
     }
 
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     private void set() {
         bool isClient = 
             network == null ||
@@ -145,10 +153,10 @@ class MainScene {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         timeCycle.update();
         
@@ -168,10 +176,10 @@ class MainScene {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         reset();
         setInput();
@@ -184,10 +192,10 @@ class MainScene {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         if(!initialized) return;
 
@@ -198,10 +206,10 @@ class MainScene {
     }
 
     /**
-    
-        Reset
-
-        */
+     * 
+     * Reset
+     *
+     */
     public void reset() {
         initialized = false;
         screenController.running = false;

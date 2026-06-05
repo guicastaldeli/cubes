@@ -86,19 +86,19 @@ class Input {
     }
 
     /**
-    
-        Listen
-     
-        */
+     * 
+     * Listen
+     *
+     */
     public static void listen(string eventId, Keys key) {
         keyListeners[eventId] = (eventId, key);
     }
 
     /**
-    
-        Stream
-    
-        */
+     * 
+     * Stream
+     *
+     */
     private static void stream(Keys key, int action) {
         foreach(var (eventId, bind) in keyListeners) {
             if(bind.key == key) {
@@ -108,10 +108,10 @@ class Input {
     }
 
     /**
-    
-        Keys
-    
-        */
+     * 
+     * Keys
+     *
+     */
     private void setKeys() {
         window.onKeyDown -= onKeyDown;
         window.onKeyUp -= onKeyUp;
@@ -160,10 +160,10 @@ class Input {
     }
 
     /**
-    
-        Pause
-    
-        */
+     * 
+     * Pause
+     *
+     */
     // On Pause
     private void onPause() {
         // Screen Controller
@@ -196,10 +196,10 @@ class Input {
     }
 
     /**
-    
-        Mouse
-    
-        */
+     * 
+     * Mouse
+     *
+     */
     private void onMouseMove(int x, int y) {
         uiController.handleMouseMove(x, y);
         if(screenController.isRunning() && !pauseOverlayOpen) return;
@@ -240,10 +240,10 @@ class Input {
 
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         if(updatePause()) return;
 
@@ -265,10 +265,10 @@ class Input {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         setMouse();
         setKeys();

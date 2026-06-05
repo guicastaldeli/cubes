@@ -122,10 +122,10 @@ public class MeshData {
     }
 
     /**
-    
-        Instance
-
-        */
+     * 
+     * Instance
+     *
+     */
     public bool isInstanced {
         get;
         set;
@@ -137,10 +137,10 @@ public class MeshData {
     } = new();
 
     /**
-    
-        Vertices
-
-        */
+     * 
+     * Vertices
+     *
+     */
     public void setVertices(float[] v) {
         data[DataType.VERTICES] = v;
     }
@@ -161,10 +161,10 @@ public class MeshData {
     }
 
     /**
-    
-        Indices
-
-        */
+     * 
+     * Indices
+     *
+     */
     public void setIndices(int[] i) {
         data[DataType.INDICES] = i;
     }
@@ -185,10 +185,10 @@ public class MeshData {
     }
 
     /**
-    
-        Colors
-
-        */
+     * 
+     * Colors
+     *
+     */
     public void setColors(float[] c) {
         colors = c;
         data[DataType.COLORS] = c;
@@ -229,10 +229,10 @@ public class MeshData {
     }
 
     /**
-    
-        Normals
-
-        */
+     * 
+     * Normals
+     *
+     */
     public void setNormals(float[] norm) {
         data[DataType.NORMALS] = norm;
     }
@@ -247,10 +247,10 @@ public class MeshData {
     }
 
     /**
-    
-        Tex Coords
-
-        */
+     * 
+     * Tex Coords
+     *
+     */
     public void setTexCoords(float[] t) {
         data[DataType.TEX_COORDS] = t;
     }
@@ -265,10 +265,10 @@ public class MeshData {
     }
 
     /**
-    
-        Position
-
-        */
+     * 
+     * Position
+     *
+     */
     public void setPosition(Vector3 p) {
         data[DataType.POSITION] = p;
     }
@@ -283,10 +283,10 @@ public class MeshData {
     }
 
     /**
-    
-        Scale
-
-        */
+     * 
+     * Scale
+     *
+     */
     public void setScale(float[] s) {
         data[DataType.SCALE] = s;
     }
@@ -314,10 +314,10 @@ public class MeshData {
     }
 
     /**
-    
-        Rotation
-    
-        */
+     * 
+     * Rotation
+     *
+     */
     public void setRotation(Vector3 r) {
         data[DataType.ROTATION] = r;
     }
@@ -358,10 +358,10 @@ public class MeshData {
     }
 
     /**
-    
-        Data
-
-        */
+     * 
+     * Data
+     *
+     */
     public bool hasData(DataType type) {
         bool val = data.ContainsKey(type);
         return val;

@@ -57,10 +57,10 @@ class Main {
     }
 
     /**
-    
-        Set
-
-        */
+     * 
+     * Set
+     *
+     */
     private void set() {
         /* TEST COLORS ~~-~~-~-~- */
         if(Controller.getInstance(Instance.PROD)) {
@@ -79,10 +79,10 @@ class Main {
     }
     
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     private void update() {
         tick.update();
         window.updateTitle(tick.getTickCount(), tick.getFps());
@@ -93,20 +93,20 @@ class Main {
     }
 
     /**
-    
-        Render
-
-        */ 
+     * 
+     * Render
+     *
+     */
     private void render() {
         screenController.render();
         uiController.render();
     }
 
     /**
-    
-        Init
-
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         mainScene = new MainScene(
             window, 
@@ -146,10 +146,10 @@ class Main {
     }
     
     /**
-    
-        Run
-
-        */
+     * 
+     * Run
+     *
+     */
     public void run() {
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         window.run(() => {

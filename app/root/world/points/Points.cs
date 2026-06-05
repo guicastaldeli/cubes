@@ -10,10 +10,10 @@ public static class Points {
     }
 
     /**
-    
-        Add
-    
-        */
+     * 
+     * Add
+     *
+     */
     public static void Add(int xp) {
         int added = Xp.ConvertToPoints(xp);
         TOTAL += added;
@@ -21,10 +21,10 @@ public static class Points {
     }
 
     /**
-    
-        Reset
-    
-        */
+     * 
+     * Reset
+     *
+     */
     public static void reset() {
         TOTAL = 0;
     }

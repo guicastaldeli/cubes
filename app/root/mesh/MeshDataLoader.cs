@@ -23,10 +23,10 @@ class MeshDataLoader {
     }
 
     /**
-    
-        Parse
-    
-        */
+     * 
+     * Parse
+     *
+     */
     private static MeshData parse(Lua data, string meshId) {
         string meshType = data["meshType"] as string ?? meshId;
         MeshData meshData = new MeshData(meshId, meshType);
@@ -50,10 +50,10 @@ class MeshDataLoader {
     } 
 
     /**
-    
-        Load
-    
-        */ 
+     * 
+     * Load
+     *
+     */
     public static MeshData load(string meshId) {
         string file = meshId.ToLower() + ".lua";
         string path = Path.Combine(Mesh.DATA_DIR, file);

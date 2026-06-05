@@ -64,10 +64,10 @@ class MeshInteractionController {
     }
 
     /**
-    
-        On Break
-    
-        */
+     * 
+     * On Break
+     *
+     */
     public void onBreak() {
         string? hit = raycaster.cast();
         if(hit == null) return;
@@ -106,10 +106,10 @@ class MeshInteractionController {
     }
 
     /**
-    
-        On Place
-    
-        */
+     * 
+     * On Place
+     *
+     */
     public void onPlace() {
         var inventoryInstance = Inventory.getInstance();
         if(inventoryInstance == null) return;

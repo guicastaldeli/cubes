@@ -7,10 +7,10 @@ namespace App.Root.Utils;
 
 public static class HexToInt {
     /**
-
-        Convert
-
-        */
+     * 
+     * Convert
+     *
+     */
     public static int C(string hex) {
         hex = hex.Replace("#", "");
 

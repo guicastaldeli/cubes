@@ -8,10 +8,10 @@ using NLua;
 
 public static class TableToFloat {
     /**
-
-        Convert
-
-        */
+     * 
+     * Convert
+     *
+     */
     public static float[] T(LuaTable? t, int count) {
         var arr = new float[count];
         if(t == null) return arr;

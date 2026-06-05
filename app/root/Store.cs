@@ -40,10 +40,10 @@ class Store {
     }
     
     /**
-    
-        Load
-
-        */
+     * 
+     * Load
+     *
+     */
     public void load() {
         if(!File.Exists(filePath)) return;
         foreach(var line in File.ReadAllLines(filePath)) {
@@ -58,10 +58,10 @@ class Store {
     }
 
     /**
-    
-        Save
-
-        */
+     * 
+     * Save
+     *
+     */
     public void save() {
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
         File.WriteAllLines(filePath, data.Select(v => kv(v)));

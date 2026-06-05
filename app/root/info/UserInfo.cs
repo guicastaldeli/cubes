@@ -2,10 +2,10 @@ namespace App.Root.Info;
 
 class UserInfo {
     /**
-
-        Store
-
-        */
+     * 
+     * Store
+     *
+     */
     private readonly Store store;
     private string? tempId = null;
 
@@ -49,11 +49,10 @@ class UserInfo {
     }
 
     /**
-
-        Fields
-
-        */
-
+     * 
+     * Fields
+     *
+     */
     // Id
     public static readonly InfoField<string> ID = new(
         key: "id",

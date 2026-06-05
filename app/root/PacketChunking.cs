@@ -21,11 +21,11 @@ class PacketChuncking {
         return val;
     }
     
-    /*
-    
-        Chunk
-    
-        */
+    /**
+     * 
+     * Chunk
+     *
+     */
     public static List<Packet> chunk(Packet packet) {
         string json = packet.serialize();
         byte[] data = Encoding.UTF8.GetBytes(json);

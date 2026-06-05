@@ -38,86 +38,46 @@ uniform int isInv;
 #include "../world/star.vert.glsl"
 
 void main() {
-    /**
-
-        Text
-
-        */
+    // Text
     if(shaderType == 1) {
         setTextVert();
     }
-    /**
-
-        UI
-
-        */
+    // UI
     else if(shaderType == 3) {
         setUIVert();
     }
-    /**
-
-        Username
-
-        */
+    // Username
     else if(shaderType == 4) {
         setUsernameVert();
     }
-    /**
-
-        Flat
-
-        */
+    // Flat
     else if(shaderType == 5) {
         setFlatVert();
     }
-    /**
-
-        Outline
-
-        */
+    // Outline
     else if(shaderType == 6) {
         setOutlineVert();
     }
-    /**
-
-        Particle
-
-        */
+    // Particle
     else if(shaderType == 7) {
         setParticleVert();
     }
-    /**
-
-        Skybox and Stars
-
-        */
+    // Skybox
     else if(shaderType == 8) {
         setSkyboxVert();
     }
     else if(shaderType == 9) {
         setStarVert();
     }
-    /**
-
-        Hud
-
-        */
+    // Hud
     else if(shaderType == 10) {
         setHudVert();
     }
-    /**
-
-        Text Entity
-
-        */
+    // Text Entity
     else if(shaderType == 11) {
         setTextEntityVert();
     }
-    /**
- 
-        Main
-
-        */
+    // Main
     else {
         vec3 pos = aPos;
 

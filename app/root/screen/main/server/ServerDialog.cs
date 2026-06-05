@@ -73,20 +73,20 @@ class ServerDialog : MainScreenHandler {
     }
 
     /**
-    
-        On Window Resize
-
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
         registerInputs();
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         if(mainScreen.getMainScene().isInit()) {
             mainScreen.getMainScene().update();
@@ -96,10 +96,10 @@ class ServerDialog : MainScreenHandler {
     }
 
     /**
-    
-        Render
-
-        */ 
+     * 
+     * Render
+     *
+     */
     public override void render() {
         if(mainScreen.getMainScene().isInit()) {
             mainScreen.getMainScene().render();

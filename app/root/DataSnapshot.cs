@@ -15,10 +15,10 @@ class DataSnapshot {
     }
 
     /**
-    
-        Convert Elements
-    
-        */
+     * 
+     * Convert Elements
+     *
+     */
     public void convertEls() {
         var converted = new Dictionary<DataType, List<Dictionary<string, object>>>();
         foreach(var (type, list) in data) {
@@ -45,10 +45,10 @@ class DataSnapshot {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public List<Dictionary<string, object>> get(DataType type) {
         return data.TryGetValue(type, out var list) ? 
             list : 

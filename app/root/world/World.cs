@@ -93,28 +93,28 @@ class World : WorldHandler {
     }
 
     /**
-
-        Get
-    
-        */ 
+     * 
+     * Get
+     *
+     */
     public T? get<T>() where T : WorldHandler {
         return el.OfType<T>().FirstOrDefault();
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         foreach(var e in el) e.render();
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         foreach(var e in el) e.update();
         worldBoundary.apply();
@@ -123,10 +123,10 @@ class World : WorldHandler {
     }
 
     /**
-
-        Register
-    
-        */ 
+     * 
+     * Register
+     *
+     */
     private void Register() {
         if(isRegistered) return;
 

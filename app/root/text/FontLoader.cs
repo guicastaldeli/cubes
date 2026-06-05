@@ -62,10 +62,10 @@ class FontLoader {
     }
 
     /**
-    
-        Load
-
-        */
+     * 
+     * Load
+     *
+     */
     public unsafe Glyph? loadGlyph(char c) {
         fixed(byte* ptr = fontData) {
             int glyphIndex = StbTrueType.stbtt_FindGlyphIndex(fontInfo, c);

@@ -53,10 +53,10 @@ class WeatherData {
     private static Lua data = null!;
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public static void init(Weather weather) {
         WeatherData.weather = weather;
         data = new Lua();
@@ -207,10 +207,10 @@ class Weather : WorldHandler {
     }
 
     /**
-    
-        World Height
-    
-        */
+     * 
+     * World Height
+     *
+     */
     public float getWorldMinHeight() {
         var boundary = world.getWorldBoundary().getBoundaryObject();
         if(boundary != null) {
@@ -232,10 +232,10 @@ class Weather : WorldHandler {
     }
 
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     private void set() {
         WeatherData.init(this);
         WeatherData.setMinHeight();
@@ -258,10 +258,10 @@ class Weather : WorldHandler {
     }
 
     /**
-    
-        Particle Emitter
-    
-        */
+     * 
+     * Particle Emitter
+     *
+     */
     // Start Emitter
     private void startPartEmitter() {
         partEmitTimer = partEmitInterval;
@@ -286,19 +286,19 @@ class Weather : WorldHandler {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         //base.render();
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     // Update
     public override void update() {
         if(!initialized) {

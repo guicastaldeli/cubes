@@ -77,10 +77,10 @@ class TextureLoader {
     }
 
     /**
-    
-        Load
-    
-        */
+     * 
+     * Load
+     *
+     */
     public static TextureData loadTexData(string fileName) {
         string path = Path.Combine(DIR, fileName);
         try {

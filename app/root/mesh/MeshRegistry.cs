@@ -15,28 +15,28 @@ static class MeshRegistry {
     }
 
     /**
-    
-        Register
-    
-        */
+     * 
+     * Register
+     *
+     */
     public static void register(string id) {
         runtimeIds.Add(id);
     }
 
     /**
-    
-        Unregister
-    
-        */
+     * 
+     * Unregister
+     * 
+     */
     public static void unregister(string id) {
         runtimeIds.Remove(id);
     }
 
     /**
-    
-        Clear
-    
-        */
+     * 
+     * Clear
+     *
+     */
     public static void clear() {
         runtimeIds.Clear();
     }

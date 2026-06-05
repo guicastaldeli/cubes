@@ -16,10 +16,10 @@ class ClientChat : PacketHandler {
     }
 
     /**
-    
-        Handle
-
-        */
+     * 
+     * Handle
+     *
+     */
     public void handle(string json) {
         var packet = Packet.deserialize<PacketChat>(json);
         if(packet == null || packet.message == null) return;

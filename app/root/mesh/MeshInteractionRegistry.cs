@@ -79,10 +79,10 @@ class MeshInteractionRegistry {
     }
 
     /**
-    
-        Register
-
-        */
+     * 
+     * Register
+     *
+     */
     public void setRegister(string id, State b, PlacedMeshDef def) {
         breakMap[id] = b;
         defMap[id] = def;
@@ -175,10 +175,10 @@ class MeshInteractionRegistry {
     }
 
     /**
-    
-        Unregister
-
-        */
+     * 
+     * Unregister
+     *
+     */
     public void unregister(string id) {
         breakMap.Remove(id);
         defMap.Remove(id);

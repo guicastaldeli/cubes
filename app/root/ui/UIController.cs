@@ -50,10 +50,10 @@ class UIController {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public UI? get(string uiType) {
         return uis.GetValueOrDefault(uiType);
     }
@@ -70,10 +70,10 @@ class UIController {
     }
 
     /**
-    
-        Show
-    
-        */
+     * 
+     * Show
+     *
+     */
     public void show(string uiType) {
         if(active != null && active != uiType) hide();
 
@@ -87,10 +87,10 @@ class UIController {
     }
 
     /**
-    
-        Hide
-    
-        */
+     * 
+     * Hide
+     *
+     */
     public void hide() {
         currentUI?.onHide();
         active = null;
@@ -99,10 +99,10 @@ class UIController {
     }
     
     /**
-    
-        Toggle
-    
-        */
+     * 
+     * Toggle
+     *
+     */
     public void toggle(string uiType) {
         if(active == uiType) {
             hide();
@@ -120,10 +120,10 @@ class UIController {
     }
 
     /**
-    
-        Handle
-    
-        */
+     * 
+     * Handle
+     *
+     */
     // Key Press
     public bool handleKeyPress(int key, int action) {
         return currentUI != null && handleCurrentKeyPress(key, action);
@@ -160,10 +160,10 @@ class UIController {
     }
 
     /**
-    
-        On Window Resize
-    
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public void onWindowResize(int width, int height) {
         screenWidth = width;
         screenHeight = height;
@@ -171,10 +171,10 @@ class UIController {
     }
 
     /**
-    
-        Generate
-    
-        */
+     * 
+     * Generate
+     *
+     */
     public void generate() {
         foreach(var ui in uis.Values) {
             if(ui.EnableGeneration) ui.generate();
@@ -182,38 +182,38 @@ class UIController {
     }
 
     /**
-    
-        Register
-    
-        */
+     * 
+     * Register
+     *
+     */
     public void register(UI ui) {
         uis[ui.uiName] = ui;
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         foreach(var ui in uis.Values) ui.update();
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         mesh.renderOrto();
         foreach(var ui in uis.Values) ui.render();
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     private void init() {
         var baseType = typeof(UI);
         var types = Assembly.GetExecutingAssembly()

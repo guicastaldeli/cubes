@@ -30,10 +30,10 @@ class ChatController {
     }
 
     /**
-    
-        Chat
-    
-        */
+     * 
+     * Chat
+     *
+     */
     public void setChat(Chat chat) {
         this.chat = chat;
     }
@@ -88,10 +88,10 @@ class ChatController {
     }
 
     /**
-    
-        Open
-    
-        */
+     * 
+     * Open
+     *
+     */
     public bool isOpen() {
         return opened;
     }
@@ -104,10 +104,10 @@ class ChatController {
     }
 
     /**
-    
-        Close
-    
-        */
+     * 
+     * Close
+     *
+     */
     public void close() {
         opened = false;
         keyboardInput.clear();
@@ -120,10 +120,10 @@ class ChatController {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         if(!boxVisible || opened) return;
 
@@ -136,10 +136,10 @@ class ChatController {
     }
 
     /**
-    
-        Show
-    
-        */
+     * 
+     * Show
+     *
+     */
     public void show() {
         if(!opened && !messageAdded) return;
         

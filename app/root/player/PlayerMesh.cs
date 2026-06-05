@@ -129,10 +129,10 @@ class PlayerMesh {
     }
 
     /**
-    
-        Set 
-
-        */
+     * 
+     * Set
+     *
+     */
     public void set(bool local) {
         MeshRegistry.register(PLAYER_ID);
 
@@ -170,10 +170,10 @@ class PlayerMesh {
     }
 
     /**
-    
-        Hide 
-
-        */
+     * 
+     * Hide
+     *
+     */
     private void hideArm(Slot slot) {
         if(slot == Slot.CENTER) return;
 
@@ -191,10 +191,10 @@ class PlayerMesh {
     
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         if(!mesh.hasMesh(PLAYER_ID)) return;
 

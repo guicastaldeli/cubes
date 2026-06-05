@@ -4,39 +4,39 @@ public static class XpRegistry {
     private static Dictionary<string, int> map = new();
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public static int? Get(string id) {
         int? val = map.TryGetValue(id, out var xp) ? xp : null;
         return val;
     }
 
     /**
-    
-        Register
-    
-        */
+     * 
+     * Register
+     *
+     */
     public static void Register(string id, int xp) {
         map[id] = xp;
     }
 
     /**
-    
-        Remove
-    
-        */
+     * 
+     * Remove
+     *
+     */
     public static void Remove(string id) {
         map.Remove(id);
     }
 
 
     /**
-    
-        Clear
-    
-        */
+     * 
+     * Clear
+     *
+     */
     public static void Clear() {
         map.Clear();
     }

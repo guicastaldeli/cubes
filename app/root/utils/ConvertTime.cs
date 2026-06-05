@@ -7,10 +7,10 @@ namespace App.Root.Utils;
 
 public static class ConvertTime {
     /**
-
-        Time Unit
-
-        */
+     * 
+     * Time Unit
+     *
+     */
     public enum TimeUnit {
         Seconds,
         Minutes,
@@ -22,10 +22,10 @@ public static class ConvertTime {
     private const float MINS_PER_HOUR = 60.0f;
 
     /**
-    
-        Convert
-    
-        */
+     * 
+     * Convert
+     *
+     */
     private static readonly Dictionary<(TimeUnit, TimeUnit), Func<float, float>> ConversionFactor = new() {
         [(TimeUnit.Minutes, TimeUnit.Seconds)] = val => val * SECS_PER_MIN,
         [(TimeUnit.Hours, TimeUnit.Seconds)] = val => val * SECS_PER_HOUR,
@@ -41,10 +41,10 @@ public static class ConvertTime {
     }
 
     /**
-    
-        Utils
-    
-        */
+     * 
+     * Utils...
+     *
+     */
     public static float MinutesToSeconds(float min) {
         float val = Convert(min, TimeUnit.Minutes, TimeUnit.Seconds);
         return val;

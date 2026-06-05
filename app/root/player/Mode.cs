@@ -180,10 +180,10 @@ class Mode {
     }
 
     /**
-
-        Set
-
-        */
+     * 
+     * Set
+     *
+     */
     public void set(Modes mode, Slot slot) {
         if(currentMode == mode) return;
 
@@ -200,10 +200,10 @@ class Mode {
     }
 
     /**
-
-        Preview
-
-        */
+     * 
+     * Preview
+     *
+     */
     // Update Preview
     private void updatePreview(Slot slot) {
         var invInstance = Inventory.Inventory.getInstance();
@@ -304,10 +304,10 @@ class Mode {
     }
 
     /**
-    
-        Handle Input
-
-        */
+     * 
+     * Handle Input
+     *
+     */
     public void handleInput(Slot slot, bool pressed) {
         if(blocked) return;
         
@@ -391,10 +391,10 @@ class Mode {
     }
 
     /**
-
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         if(currentMode != Modes.GETTER) return;
 
@@ -444,10 +444,10 @@ class Mode {
     }
 
     /**
-    
-        Execute Action
-
-        */
+     * 
+     * Execute Action
+     *
+     */
     public void executeAction() {
         if(currentMode != Modes.GETTER) return;
         if(!activeSlot.HasValue) return;

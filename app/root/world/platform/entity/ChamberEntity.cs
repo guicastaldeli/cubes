@@ -103,10 +103,10 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     }
 
     /**
-    
-        Deposit
-    
-        */
+     * 
+     * Deposit
+     *
+     */
     private void deposit(TextEntity textEntity, dynamic els) {
         var held = mesh.getMeshInteractionController().getHeldMesh();
         if(held == null) return;
@@ -133,10 +133,10 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     }
 
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     public void set() {
         if(initialized) return;
         initialized = true;
@@ -170,29 +170,29 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     }
 
     /**
-
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         set();
         base.render();
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         base.update();
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     private void init() {
         chamberDialog.setChamberEntity(this);
         chamberDialog.setPlayerController(playerController);

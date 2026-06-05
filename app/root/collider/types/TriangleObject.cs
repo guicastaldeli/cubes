@@ -84,10 +84,10 @@ class TriangleObject : Collider {
     }
 
     /**
-    
-        Build
-    
-        */
+     * 
+     * Build
+     *
+     */
     private void build() {
         if(useProviders) {
             verts = verticesProvider?.Invoke();
@@ -164,10 +164,10 @@ class TriangleObject : Collider {
     }
 
     /**
-    
-        Check
-    
-        */
+     * 
+     * Check
+     *
+     */
     // Check Collision
     public CollisionResult checkCollision(BBox box) {
         if(!built) build();

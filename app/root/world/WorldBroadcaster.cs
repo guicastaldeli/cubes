@@ -9,10 +9,10 @@ class WorldBroadcaster {
     }
 
     /**
-    
-        Set
-
-        */
+     * 
+     * Set
+     *
+     */
     public void set() {
         var server = worldManager.getNetwork()?.getServer();
         var client = worldManager.getNetwork()?.getClient();
@@ -25,10 +25,10 @@ class WorldBroadcaster {
     }
 
     /**
-    
-        Broadcast
-
-        */
+     * 
+     * Broadcast
+     *
+     */
     public void broadcast() {
         var serverSnapshot = ServerSnapshot.getInstance().snapshot();
         var worldSnapshot = Data.getInstance().snapshot();
@@ -47,10 +47,10 @@ class WorldBroadcaster {
     }
 
     /**
-    
-        Start
-
-        */
+     * 
+     * Start
+     *
+     */
     public void start() {
         if(worldManager.getServer() != null) {
             worldManager.getServer()!.onTick = () => broadcast();

@@ -90,10 +90,10 @@ class Controller {
     }
 
     /**
-
-        Init
-
-        */
+     * 
+     * Init
+     *
+     */
     private void init(string[] args) {
         string? mode = args.FirstOrDefault()?.ToLower();
         var instances = getInstances();
@@ -107,15 +107,19 @@ class Controller {
     }
 
     /**
-
-        Run
-
-        */
+     * 
+     * Run
+     *
+     */
     public void run() {
         main.run();
     }
 
-    // Error
+    /**
+     * 
+     * Error
+     *
+     */
     public static bool hasError(
         string? mode,
         Dictionary<string, Instance> instances,
@@ -133,5 +137,18 @@ class Controller {
 
     public static string? getError() {
         return error;
+    }
+
+    /**
+     * 
+     * Reset
+     *
+     */
+    public static void Reset() {
+        StateManager.ResetAll();
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("[Controller] Soft reset complete.");
+        Console.ResetColor();
     }
 }

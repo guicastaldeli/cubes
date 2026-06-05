@@ -5,10 +5,10 @@ using System.Text;
 
 class PacketReassember {
     /**
-    
-        Chunk Buffer
-    
-        */
+     * 
+     * Chunk Buffer
+     *
+     */
     private class ChunkBuffer {
         public Dictionary<int, byte[]> chunks = new();
         public int totalChunks;
@@ -17,10 +17,10 @@ class PacketReassember {
     }
 
     /**
-    
-        Packet Reassembler main
-    
-        */
+     * 
+     * Packet Reassembler main
+     *
+     */
     private ConcurrentDictionary<string, ChunkBuffer> buffers = new();
     private const int BUFFER_TIMEOUT_MS = 5000;
 

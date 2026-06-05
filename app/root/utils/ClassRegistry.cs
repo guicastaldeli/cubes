@@ -32,10 +32,10 @@ class ClassRegistry {
     }
     
     /**
-    
-        Logs
-    
-        */
+     * 
+     * Logs
+     *
+     */
     private void success(string label, Type type) {
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"Registered [{label}]: {type.Name}");
@@ -49,10 +49,10 @@ class ClassRegistry {
     }
 
     /**
-    
-        Create Instance
-    
-        */
+     * 
+     * Create Instance
+     *
+     */
     private T? CreateInstance<T>(Type type) where T : class {
         var constructors = type.GetConstructors().OrderByDescending(c => c.GetParameters().Length);
 
@@ -89,10 +89,10 @@ class ClassRegistry {
     }
 
     /**
-    
-        Register
-    
-        */
+     * 
+     * Register
+     *
+     */
     // Register
     public List<T> Register<T>() where T : class {
         registrationMode[typeof(T)] = false;
@@ -183,10 +183,10 @@ class ClassRegistry {
     }
 
     /**
-    
-        Clear
-    
-        */
+     * 
+     * Clear
+     *
+     */
     public void Clear() {
         afterHooks.Clear();
         registrationMode.Clear();

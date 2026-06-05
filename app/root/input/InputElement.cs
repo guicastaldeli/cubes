@@ -29,10 +29,10 @@ class InputElement {
     }
 
     /**
-    
-        From
-    
-        */
+     * 
+     * From
+     *
+     */
     public static InputElement? From(ScreenElement? el) {
         if(el == null) return null;
         return new InputElement(el.containsPoint, () => el.text, v => el.text = v);

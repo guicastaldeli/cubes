@@ -67,10 +67,10 @@ class Camera {
     }
 
     /**
-    
-        Position
-    
-        */
+     * 
+     * Position
+     *
+     */
     public void setPosition(float x, float y, float z) {
         position = new Vector3(x, y, z);
     }
@@ -120,10 +120,10 @@ class Camera {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     private void updateVectors() {
         float yawRad = MathHelper.DegreesToRadians(yaw);
         float pitchRad = MathHelper.DegreesToRadians(pitch);

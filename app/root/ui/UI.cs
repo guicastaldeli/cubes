@@ -141,19 +141,19 @@ class UI : UIHandler {
     }
 
     /**
-    
-        Generate
-    
-        */
+     * 
+     * Generate
+     *
+     */
     public virtual void generate() {
         onShow();
     }
 
     /**
-    
-        Render
-
-        */
+     * 
+     * Render 
+     *
+     */
     public virtual void render() {
         if(!visible || textRenderer == null || uiData == null) return;
         
@@ -196,10 +196,10 @@ class UI : UIHandler {
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public virtual void update() {
         if(lastMouseX >= 0 && lastMouseY >= 0) {
             handleMouseMove(lastMouseX, lastMouseY);
@@ -207,10 +207,10 @@ class UI : UIHandler {
     }
 
     /**
-    
-        On Window Resize
-
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public virtual void onWindowResize(int width, int height) {
         UI.screenWidth = width;
         UI.screenHeight = height;

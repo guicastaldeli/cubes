@@ -170,19 +170,19 @@ class MeshRenderer : DataEntry {
     }
 
     /**
-    
-        On Window Resize
-
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public void onWindowResize(int width, int height) {
         setupStencilFramebuffer(width, height);
     }
 
     /**
-    
-        Data
-    
-        */
+     * 
+     * Data
+     *
+     */
     public void setData(MeshData data) {
         meshData = data;
         isDynamic = data.isDynamic;
@@ -276,10 +276,10 @@ class MeshRenderer : DataEntry {
     }
 
     /**
-    
-        Position
-    
-        */
+     * 
+     * Position
+     *
+     */
     public Vector3 getPosition() {
         return new Vector3(position);
     }
@@ -314,10 +314,10 @@ class MeshRenderer : DataEntry {
     }
 
     /**
-    
-        Buffers
-
-        */
+     * 
+     * Buffers
+     *
+     */
     // Main Buffers
     private void createBuffers() {
         if(meshData == null) return;
@@ -471,10 +471,10 @@ class MeshRenderer : DataEntry {
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     // Main
     public void update() {
         if(meshData == null) return;
@@ -592,10 +592,10 @@ class MeshRenderer : DataEntry {
     }
 
     /**
-    
-        Render
-
-        */
+     * 
+     * Render
+     *
+     */
     // Main
     public bool getVisible() => visible;
     public void render() {
@@ -1032,10 +1032,10 @@ class MeshRenderer : DataEntry {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     *
+     */
     public void cleanup() {
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
@@ -1051,10 +1051,10 @@ class MeshRenderer : DataEntry {
     }
 
     /**
-    
-        Remove
-    
-        */
+     * 
+     * Remove
+     * 
+     */
     public void removeInstance(int index) {
         if(index < 0 || index >= cachedInstancePositions.Count) return;
 
@@ -1079,7 +1079,7 @@ class MeshRenderer : DataEntry {
 
     /**
     
-        --- Data Entry ---
+        Data Entry
     
         */ 
     public void setId(string id) {

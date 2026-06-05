@@ -198,10 +198,10 @@ class TextEntity {
     }
 
     /**
-    
-        Refresh
-    
-        */
+     * 
+     * Refresh
+     *
+     */
     public void refresh(string elId) {
         if(uiData == null) return;
 
@@ -212,10 +212,10 @@ class TextEntity {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void updateText(string elId, string text) {
         if(uiData == null) return;
 
@@ -230,10 +230,10 @@ class TextEntity {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     // Render
     public void render() {
         if(!initialized || uiData == null || camera == null) {
@@ -313,10 +313,10 @@ class TextEntity {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init() {
         if(initialized || uiData == null) return;
 
@@ -342,10 +342,10 @@ class TextEntity {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     *
+     */
     public void cleanup() {
         foreach(var tex in elTextures.Values) GL.DeleteTexture(tex);
         elTextures.Clear();

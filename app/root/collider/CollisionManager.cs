@@ -33,10 +33,10 @@ class CollisionManager {
     }
 
     /**
-    
-        Get Collider
-    
-        */
+     * 
+     * Get Collider
+     *
+     */
     public List<Collider> getColliders() {
         return staticColliders.ToList();
     }
@@ -51,10 +51,10 @@ class CollisionManager {
     }
 
     /**
-    
-        Remove
-    
-        */
+     * 
+     * Remove
+     *
+     */
     public void removeCollider(Collider coll) {
         pendingRemovals.Add(coll.getId());
     }
@@ -78,10 +78,10 @@ class CollisionManager {
     }
 
     /**
-    
-        Check Collision
-
-        */
+     * 
+     * Check Collision
+     *
+     */
     public List<CollisionResult> checkCollision(RigidBody rigidBody) {
         BBox bodyBounds = rigidBody.getBBox();
         List<CollisionResult> results = new();
@@ -141,10 +141,10 @@ class CollisionManager {
     }
 
     /**
-    
-        Resolve Collision
-
-        */
+     * 
+     * Resolve Collision
+     *
+     */
     public void resolveCollision(RigidBody rigidBody, List<CollisionResult> collisions) {
         if(collisions.Count == 0) {
             rigidBody.setOnSurface(false);
@@ -241,10 +241,10 @@ class CollisionManager {
     } 
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         processRemovals();
 

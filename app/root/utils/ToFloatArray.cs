@@ -9,10 +9,10 @@ using NLua;
 
 public static class ToFloatArray {
     /**
-
-        Convert
-
-        */
+     * 
+     * Convert
+     *
+     */
     public static float[] C(LuaTable table) {
         int len = table.Values.Count;
         float[] arr = new float[len];

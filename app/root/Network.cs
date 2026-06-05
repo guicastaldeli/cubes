@@ -68,10 +68,10 @@ class Network {
     }
 
     /**
-    
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public void initNetworkUpdate() {
         networkUpdate = new NetworkUpdate();
     }
@@ -81,10 +81,10 @@ class Network {
     }
 
     /**
-    
-        Host
-
-        */
+     * 
+     * Host
+     *
+     */
     public void host(int port, int maxPlayers) {
         server = new Server(port, maxPlayers);
         server.start();

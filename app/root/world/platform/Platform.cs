@@ -255,10 +255,10 @@ class Platform : WorldHandler {
         */
 
     /**
-    
-        Set
-
-        */ 
+     * 
+     * Set
+     *
+     */
     private void setMesh(List<Vector3> positions) {
         var renderer = mesh.getMeshRenderer(GRID_ID);
         if(renderer != null) {
@@ -318,10 +318,10 @@ class Platform : WorldHandler {
     }
 
     /**
-    
-        Render
-
-        */  
+     * 
+     * Render
+     *
+     */
     public override void render() {
         if(!initialized) {
             platformRegistry.render();
@@ -339,10 +339,10 @@ class Platform : WorldHandler {
     }
 
     /**
-    
-        Update
-
-        */ 
+     * 
+     * Update
+     *
+     */
     public override void update() {
         frameCounter++;
 
@@ -354,10 +354,10 @@ class Platform : WorldHandler {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     private void init() {
         platformRegistry.init();
     }

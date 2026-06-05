@@ -63,10 +63,10 @@ class Aim : UI {
     }
 
     /**
-
-        On Window Resize
-    
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public override void onWindowResize(int width, int height) {
         var data = mesh.getData(ID);
         if(data != null) data.screenTexOverride = screenTexHandle;
@@ -91,10 +91,10 @@ class Aim : UI {
     }
 
     /**
-
-        Generate
-    
-        */
+     * 
+     * Generate
+     *
+     */
     public override void generate() {
         if(!initialized) {
             set();
@@ -103,19 +103,19 @@ class Aim : UI {
     }
 
     /**
-
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         base.render();
     }
 
     /**
-
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public override void update() {
         base.update();
     }

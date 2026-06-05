@@ -11,10 +11,10 @@ static class EventStream {
     private static Dictionary<string, List<Action<object>>> subscribers = new();
 
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set
+     *
+     */
     public static void set(string streamId, object data) {
         events[streamId] = data;
 
@@ -36,10 +36,10 @@ static class EventStream {
     }
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public static T? get<T>(string streamId) where T : class {
         if(events.TryGetValue(streamId, out var data)) {
             T? val = data as T;
@@ -57,10 +57,10 @@ static class EventStream {
     }
 
     /**
-    
-        On
-    
-        */
+     * 
+     * On
+     *
+     */
     public static void on(string streamId, Action<object> handler) {
         if(!subscribers.ContainsKey(streamId)) {
             subscribers[streamId] = new List<Action<object>>();
@@ -70,10 +70,10 @@ static class EventStream {
     }
 
     /**
-    
-        Select
-    
-        */
+     * 
+     * Select
+     *
+     */
     public static TResult? select<T, TResult>(string streamId, Func<T, TResult> selector) where T : class {
         T? data = get<T>(streamId);
         if(data == null) return default;
@@ -81,10 +81,10 @@ static class EventStream {
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public static void update(string streamId, Action<dynamic> updater) {
         if(!events.TryGetValue(streamId, out var data)) return;
 
@@ -98,19 +98,19 @@ static class EventStream {
     }
 
     /**
-    
-        Remove
-    
-        */
+     * 
+     * Remove
+     *
+     */
     public static void remove(string streamId) {
         events.Remove(streamId);
     }
 
     /**
-    
-        Clear
-    
-        */
+     * 
+     * Clear
+     *
+     */
     public static void clear() {
         subscribers.Clear();
         events.Clear();

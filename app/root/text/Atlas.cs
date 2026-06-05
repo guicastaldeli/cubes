@@ -43,10 +43,10 @@ class Atlas {
     }
 
     /**
-    
-        Texture
-
-        */
+     * 
+     * Texture
+     *
+     */
     public int getTextureId() {
         return textureId;
     }
@@ -69,10 +69,10 @@ class Atlas {
     }
 
     /**
-    
-        Glyph
-
-        */
+     * 
+     * Glyph
+     *
+     */
     public Glyph? getGlyph(char c) {
         return glyphs.Find(g => g.codepoint == c);
     }
@@ -119,10 +119,10 @@ class Atlas {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     *
+     */
     public void cleanup() {
         if(textureId != 0) GL.DeleteTexture(textureId);
     }

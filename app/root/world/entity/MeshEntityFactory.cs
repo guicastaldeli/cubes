@@ -36,10 +36,10 @@ public record EntityProps(
     */
 public static class Converter {
     /**
-    
-        To Rgba
-    
-        */
+     * 
+     * To Rgba
+     *
+     */
     [ConverterKey("rgba")]
     public static float[] ToRgba(string hex) {
         var (r, g, b) = HexToRgb.C(hex);
@@ -50,10 +50,10 @@ public static class Converter {
     }
 
     /**
-    
-        To Rgba List
-    
-        */
+     * 
+     * To Rgba List
+     *
+     */
     [ConverterKey("rgbaList")]
     public static List<float[]> ToRgbaList(string hex, int count) {
         var (r, g, b) = HexToRgb.C(hex);
@@ -65,10 +65,10 @@ public static class Converter {
     }
 
     /**
-    
-        To Rotation List
-    
-        */
+     * 
+     * To Rotation List
+     *
+     */
     [ConverterKey("rotationList")]
     public static List<float> ToRotationList(float rotation, int count) {
         List<float> val = Enumerable.Repeat(rotation, count).ToList();
@@ -76,10 +76,10 @@ public static class Converter {
     }
 
     /**
-    
-        To Texture
-    
-        */
+     * 
+     * To Texture
+     *
+     */
     // Tex Path
     [ConverterKey("texPath")]
     public static List<string?> ToTexPath(string? texPath, int count) {
@@ -177,10 +177,10 @@ class MeshEntityFactory {
     }
 
     /**
-    
-        Clone
-    
-        */
+     * 
+     * Clone
+     *
+     */
     public static MeshData clone(MeshData src) {
         MeshData c = new MeshData(src.id, src.meshType);
 
@@ -217,10 +217,10 @@ class MeshEntityFactory {
     }
 
     /**
-    
-        Set
-    
-        */
+     * 
+     * Set 
+     *
+     */
     // Set Event
     public static void setEvent(
         Dictionary<string, List<string>> colliderIds, 
@@ -245,10 +245,10 @@ class MeshEntityFactory {
     }
 
     /**
-    
-        Generate
-    
-        */
+     * 
+     * Generate
+     *
+     */
     public static EntityProps setGeneration(MeshData data, string meshType) {        
         int min = 1;
         int max = 15;

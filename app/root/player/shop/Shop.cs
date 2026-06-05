@@ -18,10 +18,10 @@ class Shop {
     }
 
     /**
-    
-        Open
-    
-        */
+     * 
+     * Open
+     *
+     */
     public void open() {
         // Open Key
         Mapper.Key(Keys.O, pressed => {
@@ -49,10 +49,10 @@ class Shop {
     }
 
     /**
-    
-        Close
-    
-        */
+     * 
+     * Close
+     *
+     */
     public void close() {
         
     }

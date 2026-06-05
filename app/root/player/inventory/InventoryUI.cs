@@ -54,10 +54,10 @@ class InventoryUI : UI {
     }
 
     /**
-
-        On Window Resize
-    
-        */
+     * 
+     * On Window Resize
+     *
+     */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
 
@@ -65,10 +65,10 @@ class InventoryUI : UI {
     }
 
     /**
-
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public override void render() {
         if(!visible) return;
         base.render();
@@ -76,19 +76,19 @@ class InventoryUI : UI {
     }
 
     /**
-
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     private void init() {
         inventory = build()!;
     }
 
     /**
-
-        Build
-    
-        */
+     * 
+     * Build
+     *
+     */
     private Inventory? build() {        
         var bgEl = getElementById("inventory");
         if(bgEl == null) return null;

@@ -67,10 +67,10 @@ class InputChat {
     }
 
     /**
-    
-        Handle Action
-    
-        */
+     * 
+     * Handle Action
+     *
+     */
     private void handleAction(ChatActions action) {
         switch(action) {
             case ChatActions.CLOSE: 
@@ -86,10 +86,10 @@ class InputChat {
     }
 
     /**
-    
-        On Key Down
-    
-        */
+     * 
+     * On Key Down
+     *
+     */
     public void onKeyDown(Keys key) {
         map ??= new() {
             { Keys.Escape, ChatActions.CLOSE },

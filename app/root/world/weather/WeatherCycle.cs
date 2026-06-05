@@ -60,10 +60,10 @@ class WeatherCycle {
     }
 
     /**
-    
-        Next
-    
-        */
+     * 
+     * Next
+     *
+     */
     private void next(bool force = false) {
         string next = weigthedRandom();
         if(next == currentName && !force) next = weigthedRandom();
@@ -91,20 +91,20 @@ class WeatherCycle {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init(List<WeatherEntry> entries) {
         this.entries = entries;
         next(force: true);
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update(float deltaTime) {
         timer += deltaTime;
         if(timer >= duration) next();

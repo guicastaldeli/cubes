@@ -24,10 +24,10 @@ class PauseScreenAction {
     }
 
     /**
-    
-        Resume
-    
-        */
+     * 
+     * Resume
+     *
+     */
     public void resume() {
         if(!network.isConnected) tick.setPaused(false);
         input.lockMouse();
@@ -36,10 +36,10 @@ class PauseScreenAction {
     }
 
     /**
-    
-        Back to Menu
-    
-        */
+     * 
+     * Back to Menu
+     *
+     */
     public void backToMenu() {
         tick.setPaused(false);
 

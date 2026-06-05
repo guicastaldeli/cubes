@@ -42,10 +42,10 @@ class Shape {
     }
 
     /**
-
-        Update
-
-        */
+     * 
+     * Update
+     *
+     */
     public void update(string id) {
         switch(data.colliderShape) {
             case MeshType.CUBE:
@@ -143,11 +143,6 @@ class CollisionChecker {
 
     */
 class PhysicsRegistry {
-    /**
-
-        Physics Entry
-
-        */
     public class Entry {
         public string id;
         public PhysicsType type;
@@ -273,10 +268,10 @@ class PhysicsRegistry {
     }
 
     /**
-    
-        Dynamic
-    
-        */
+     * 
+     * Dynamic
+     *
+     */
     // Get All Dynamic Objects
     public List<Entry> getDynamicObjects() {
         return entries.Values
@@ -300,10 +295,10 @@ class PhysicsRegistry {
     }
 
     /**
-    
-        Register
-    
-        */
+     * 
+     * Register
+     *
+     */
     public void register(string id, MeshData data, PhysicsType type) {
         if(entries.ContainsKey(id)) {
             Console.WriteLine($"PhysicsRegistry: {id} already registered");
@@ -320,10 +315,10 @@ class PhysicsRegistry {
     }
 
     /**
-    
-        Unregister
-    
-        */
+     * 
+     * Unregister
+     *
+     */
     public void unregister(string id) {
         if(entries.TryGetValue(id, out var entry)) {
             if(collisionManager != null && entry.collider != null) {
@@ -335,20 +330,20 @@ class PhysicsRegistry {
     }
 
     /**
-    
-        Init
-    
-        */
+     * 
+     * Init
+     *
+     */
     public void init(Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
     }
 
     /**
-    
-        Update
-    
-        */
+     * 
+     * Update
+     *
+     */
     public void update() {
         float deltaTime = Tick.getDeltaTimeI();
         
@@ -381,10 +376,10 @@ class PhysicsRegistry {
     }
 
     /**
-    
-        Cleanup
-    
-        */
+     * 
+     * Cleanup
+     *
+     */
     public void cleanup() {
         foreach(var entry in entries.Values) {
             if(collisionManager != null && entry.collider != null) {

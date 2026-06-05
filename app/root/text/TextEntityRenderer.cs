@@ -31,20 +31,20 @@ class TextEntityRenderer {
     } 
 
     /**
-    
-        Get
-    
-        */
+     * 
+     * Get
+     *
+     */
     public TextEntity? get(string id) {
         TextEntity? val = entities.TryGetValue(id, out var e) ? e : null;
         return val;
     }
 
     /**
-
-        Add
-    
-        */
+     * 
+     * Add
+     *
+     */
     public TextEntity add(
         string id,
         string path,
@@ -72,19 +72,19 @@ class TextEntityRenderer {
     }
 
     /**
-    
-        Render
-    
-        */
+     * 
+     * Render
+     *
+     */
     public void render() {
         foreach(var e in entities.Values) e.render();
     }
 
     /**
-    
-        Remove
-    
-        */
+     * 
+     * Remove
+     *
+     */
     public void remove(string id) {
         entities.TryGetValue(id, out var e);
         e?.cleanup();
