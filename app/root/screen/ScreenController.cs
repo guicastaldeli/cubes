@@ -101,10 +101,6 @@ class ScreenController {
     public void switchToOverlay(string screenType) {
         prevScreen = currentScreen;
 
-        foreach(var screen in screens.Values) screen.setActive(false);
-        currentScreen = null;
-        activeScreen = null;
-
         if(screens.TryGetValue(screenType, out var target)) {
             currentScreen = target;
             activeScreen = screenType;

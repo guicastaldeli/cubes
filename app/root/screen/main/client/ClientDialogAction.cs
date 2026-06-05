@@ -21,7 +21,7 @@ class ClientDialogAction {
 
     // Start
     public void start() {
-        clientDialog.getMainScreen().getScene().init();
+        clientDialog.getMainScreen().getMainScene().init();
     }
 
     // Back

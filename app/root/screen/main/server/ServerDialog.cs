@@ -88,8 +88,8 @@ class ServerDialog : MainScreenHandler {
 
         */
     public override void update() {
-        if(mainScreen.getScene().isInit()) {
-            mainScreen.getScene().update();
+        if(mainScreen.getMainScene().isInit()) {
+            mainScreen.getMainScene().update();
             return;
         }
         base.update();    
@@ -101,8 +101,8 @@ class ServerDialog : MainScreenHandler {
 
         */ 
     public override void render() {
-        if(mainScreen.getScene().isInit()) {
-            mainScreen.getScene().render();
+        if(mainScreen.getMainScene().isInit()) {
+            mainScreen.getMainScene().render();
             return;
         }
         base.render();

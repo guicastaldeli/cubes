@@ -16,7 +16,7 @@ class Screen : ScreenHandler {
     public static Window window = null!;
     public static ShaderProgram shaderProgram = null!;
     public static ScreenController screenController = null!;
-    public static MainScene scene = null!;
+    public static MainScene mainScene = null!;
     public static Network network = null!;
 
     public static TextRenderer? textRenderer;
@@ -37,7 +37,7 @@ class Screen : ScreenHandler {
         Window window,
         ShaderProgram shaderProgram,
         ScreenController screenController,
-        MainScene scene,
+        MainScene mainScene,
         Network network
     ) {
         Screen.tick = tick;
@@ -47,7 +47,7 @@ class Screen : ScreenHandler {
         Screen.screenHeight = screenHeight;
         Screen.shaderProgram = shaderProgram;
         Screen.screenController = screenController;
-        Screen.scene = scene;
+        Screen.mainScene = mainScene;
         Screen.network = network;
     }
 
@@ -70,8 +70,8 @@ class Screen : ScreenHandler {
         }
     }
 
-    public MainScene getScene() {
-        return scene;
+    public MainScene getMainScene() {
+        return mainScene;
     }
 
     public string? getScreenType() {

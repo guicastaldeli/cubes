@@ -62,8 +62,8 @@ class ClientDialog : MainScreenHandler {
 
         */
     public override void update() {
-        if(mainScreen.getScene().isInit()) {
-            if(!tick.isPaused()) mainScreen.getScene().update();
+        if(mainScreen.getMainScene().isInit()) {
+            if(!tick.isPaused()) mainScreen.getMainScene().update();
             return;
         }  
         base.update();  
@@ -75,8 +75,8 @@ class ClientDialog : MainScreenHandler {
 
         */
     public override void render() {
-        if(mainScreen.getScene().isInit()) {
-            mainScreen.getScene().render();
+        if(mainScreen.getMainScene().isInit()) {
+            mainScreen.getMainScene().render();
             return;
         }
         base.render();

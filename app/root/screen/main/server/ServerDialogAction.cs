@@ -49,7 +49,7 @@ class ServerDialogAction {
             int.Parse(maxPlayersEl);
 
         network.host(port, maxPlayers);
-        serverDialog.getMainScreen().getScene().init();
+        serverDialog.getMainScreen().getMainScene().init();
     }
 
     /**
@@ -64,7 +64,7 @@ class ServerDialogAction {
 
         network.join(ip, int.Parse(port));
 
-        serverDialog.getMainScreen().getScene().init();
+        serverDialog.getMainScreen().getMainScene().init();
     }
 
     // Back
