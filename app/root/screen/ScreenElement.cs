@@ -1,6 +1,7 @@
 namespace App.Root.Screen;
 using System.Collections.Generic;
 using App.Root.Text;
+using App.Root.UI;
 
 class ScreenElement {
     public string type;
@@ -106,6 +107,11 @@ class ScreenElement {
     public bool hasBorder() {
         bool val = borderWidth > 0.0f;
         return val;
+    }
+
+    // Get Text
+    public string getText() {
+        return text;
     }
 
     // Hover 

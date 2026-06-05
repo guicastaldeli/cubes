@@ -29,6 +29,22 @@ class DocParser {
         @"^'(.*?)'\.repeat\((\d+)\)$"
     );
 
+    // Split Instance Name
+    private static List<string>? splitInstanceName(string name, List<string> names) {
+        var result = new List<string>();
+
+        string remaning = name.ToLower();
+        while(remaning.Length > 0) {
+            string? match = names.FirstOrDefault(k => remaning.StartsWith(k));
+            if(match == null) return null;
+
+            result.Add(match);
+            remaning = remaning[match.Length..];
+        }
+
+        return result;
+    }
+
     /**
     
         Replace
@@ -112,6 +128,38 @@ class DocParser {
         }
     }
 
+    private static void resolveInstance(XmlElement root) {
+        var current = Controller.getCurrent();
+        var instances = Controller.getInstances();
+
+        var names = instances.Keys.OrderByDescending(k => k.Length).ToList();
+
+        string regex = ".//*";
+        var allElements = root.SelectNodes(regex)?.Cast<XmlNode>().OfType<XmlElement>();
+        if(allElements == null) return;
+        
+        var tagged = allElements.Where(el => {
+            var parts = splitInstanceName(el.LocalName, names);
+            return parts != null && parts.Count > 0 && parts.All(p => instances.ContainsKey(p));
+        }).ToList();
+
+        foreach(var el in tagged) {
+            var parts = splitInstanceName(el.LocalName, names)!;
+            bool matches = parts.Any(name => instances.TryGetValue(name, out var inst) && inst == current);
+
+            XmlNode parent = el.ParentNode!;
+
+            if(matches) {
+                foreach(XmlNode child in el.ChildNodes.Cast<XmlNode>().ToList()) {
+                    if(child.NodeType != XmlNodeType.Element) continue;
+                    parent.InsertBefore(child, el);
+                }
+            }
+
+            parent.RemoveChild(el);
+        }
+    }
+
     /**
     
         Parse
@@ -124,6 +172,7 @@ class DocParser {
             document.Load(filePath);
 
             XmlElement root = document.DocumentElement!;
+            resolveInstance(root);
             resolveImports(root, filePath);
 
             screenData.screenType = root.Name;
@@ -142,6 +191,7 @@ class DocParser {
             document.Load(filePath);
 
             XmlElement root = document.DocumentElement!;
+            resolveInstance(root);
             resolveImports(root, filePath);
 
             uiData.uiType = root.Name;

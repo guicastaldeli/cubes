@@ -145,7 +145,7 @@ class MainScreen : Screen {
 
     private void updateScreen() {
         mainScreenAction.refreshUsername();
-        mainScreenAction.handleId();
+        mainScreenAction.switchId();
     }
 
     /**

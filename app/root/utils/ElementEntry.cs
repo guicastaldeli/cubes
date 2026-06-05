@@ -47,7 +47,7 @@ static class ElementEntry {
             string key = binder.Name;
             
             if(map.TryGetValue(key, out var entry)) {
-                result = entry;
+                result = entry.el;
                 return true;
             }
             

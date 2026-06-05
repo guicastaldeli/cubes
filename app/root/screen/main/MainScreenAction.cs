@@ -1,7 +1,14 @@
 namespace App.Root.Screen.Main;
 using App.Root.Info;
+using App.Root.Utils;
 
 class MainScreenAction {
+    private static List<string> Elements = new() {
+        "usernameInfoLabel",
+        "idInfoLabel",
+        "idBtn"
+    };
+
     private ScreenController screenController;
     private MainScreen mainScreen;
 
@@ -28,6 +35,15 @@ class MainScreenAction {
         mainScreen.hide();
         mainScreen.customMenu.setActive(true);
     }
+
+    /**
+    
+        Get
+    
+        */
+    public dynamic get() {
+        return ElementEntry.C(id => mainScreen.getElementById(id), Elements);
+    }
     
     /**
 
@@ -37,46 +53,27 @@ class MainScreenAction {
 
     // Username
     public void refreshUsername() {
-        var label = mainScreen.getElementById("usernameInfoLabel");
-        if(label != null) {
-            string username = InfoController.getInstance()
-                .getUserInfo()
-                .getUsername();
-            string val = $"User: {username}";
-            label.text = val;
-        }
+        string username = InfoController.getInstance().getUserInfo().getUsername();
+        DocParser.Replace("username", username);
     }
 
     // Id
-    public void handleId() {
-        if(Controller.getInstance(Instance.DEV) ||
-            Controller.getInstance(Instance.DEBUG)
-        ) {
-            showId();
-            switchId();
-        }
-    }
-
     public void generateTempId() {
         InfoController.getInstance().getUserInfo().switchTempId();
         switchId();
     }
 
     private void showId() {
-        var label = mainScreen.getElementById("idInfoLabel");
-        var button = mainScreen.getElementById("idBtn");
+        ScreenElement? label = get().idInfoLabel;
+        ScreenElement? button = get().idBtn;
         if(label != null && button != null) {
             label.visible = true;
             button.visible = true;
         }
     }
 
-    private void switchId() {
-        var label = mainScreen.getElementById("idInfoLabel");
-        if(label != null) {
-            string id = InfoController.getInstance().getUserInfo().getId();
-            string val = $"ID: {id}";
-            label.text = val;
-        }
+    public void switchId() {
+        string id = InfoController.getInstance().getUserInfo().getId();
+        DocParser.Replace("id", id);
     }
 }
