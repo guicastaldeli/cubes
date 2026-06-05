@@ -2,6 +2,7 @@ namespace App.Root.Screen;
 using App.Root.Shaders;
 using App.Root.Text;
 using App.Root.Input;
+using App.Root.Scene;
 using System.Collections.Generic;
 
 class Screen : ScreenHandler {
@@ -15,7 +16,7 @@ class Screen : ScreenHandler {
     public static Window window = null!;
     public static ShaderProgram shaderProgram = null!;
     public static ScreenController screenController = null!;
-    public static Scene scene = null!;
+    public static MainScene scene = null!;
     public static Network network = null!;
 
     public static TextRenderer? textRenderer;
@@ -36,7 +37,7 @@ class Screen : ScreenHandler {
         Window window,
         ShaderProgram shaderProgram,
         ScreenController screenController,
-        Scene scene,
+        MainScene scene,
         Network network
     ) {
         Screen.tick = tick;
@@ -69,7 +70,7 @@ class Screen : ScreenHandler {
         }
     }
 
-    public Scene getScene() {
+    public MainScene getScene() {
         return scene;
     }
 
@@ -101,7 +102,16 @@ class Screen : ScreenHandler {
         return val;
     }
 
-    public List<ScreenElement> getEleentsByType(string type) {
+    public static ScreenElement? getElementByIdI(string id) {
+        ScreenData screenData = screenController.currentScreen!.screenData!;
+        ScreenElement? val = screenData != null ? 
+            DocParser.getElementById(screenData, id) : 
+            null;
+
+        return val;
+    }
+
+    public List<ScreenElement> getElementsByType(string type) {
         List<ScreenElement> val = 
             screenData != null ? 
             DocParser.getElementsByType(screenData, type) :

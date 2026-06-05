@@ -8,30 +8,26 @@ class CustomMenu : Screen {
     public MainScreen mainScreen;
     private CustomMenuActions customMenuActions;
 
-    public InputField inputField;
-
-    public CustomMenu(MainScreen mainScreen) :
-    base(PATH, "custom_menu") {
+    public CustomMenu(MainScreen mainScreen) : base(PATH, "custom_menu") {
         this.mainScreen = mainScreen;
         this.customMenuActions = new CustomMenuActions(this);
-        this.inputField = new InputField(this);
 
         this.registerInputs();
     }
 
     private void registerInputs() {
-        inputField.register("usernameInput");
+        InputField.register("usernameInput");
     }
 
     // Check Click
     public override string? checkClick(int mouseX, int mouseY) {
-        inputField.handleClick(mouseX, mouseY);
+        InputField.handleClick(mouseX, mouseY);
         return base.checkClick(mouseX, mouseY);
     }
 
     // Handle Key Press
     public override void handleKeyPress(int key, int action) {
-        inputField.handleKeyPress((Keys)key, action);
+        InputField.handleKeyPress((Keys)key, action);
     }
 
     // Handle Action
@@ -53,8 +49,6 @@ class CustomMenu : Screen {
         */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
-
-        inputField = new InputField(this);
         registerInputs();
     }
 

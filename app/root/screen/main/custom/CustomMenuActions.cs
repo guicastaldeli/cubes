@@ -24,11 +24,10 @@ class CustomMenuActions {
 
     // Confirm
     public void confirm() {
-        ScreenElement inputEl = get().usernameInput;
-        string text = inputEl.getText();
-        if(string.IsNullOrWhiteSpace(text)) return;
+        string inputEl = get().usernameInput.text;
+        if(string.IsNullOrWhiteSpace(inputEl)) return;
 
-        InfoController.getInstance().getUserInfo().setUsername(text);
+        InfoController.getInstance().getUserInfo().setUsername(inputEl);
         customMenu.mainScreen.getMainScreenAction().refreshUsername();
 
         back();

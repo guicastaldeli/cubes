@@ -2,6 +2,7 @@ namespace App.Root.Screen;
 using App.Root;
 using App.Root.Shaders;
 using App.Root.Input;
+using App.Root.Scene;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -13,7 +14,7 @@ class ScreenController {
     private Input input;
     private Window window;
     private ShaderProgram shaderProgram;
-    private Scene? scene;
+    private MainScene? scene;
     private Network network;
 
     public Dictionary<string, Screen> screens = new();
@@ -28,7 +29,7 @@ class ScreenController {
         Input input,
         Window window,
         ShaderProgram shaderProgram,
-        Scene scene,
+        MainScene scene,
         Network network,
         int screenWidth,
         int screenHeight

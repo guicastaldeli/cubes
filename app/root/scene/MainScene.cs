@@ -1,4 +1,4 @@
-namespace App.Root;
+namespace App.Root.Scene;
 using App.Root.Player;
 using App.Root.Shaders;
 using App.Root.Collider;
@@ -9,17 +9,17 @@ using App.Root.Mesh;
 using App.Root.UI;
 using App.Root.Input;
 
-class Scene {
+class MainScene {
     private Window window;
     private Tick tick;
     private ShaderProgram shaderProgram;
-    private Input.Input input;
+    private Input input;
     private PlayerController playerController;
     private CollisionManager collisionManager;
     private Network? network;
     
     private TimeCycle timeCycle;
-    private Mesh.Mesh mesh;
+    private Mesh mesh;
     private WorldManager worldManager;
 
     private TextRenderer textRenderer = null!;
@@ -28,12 +28,12 @@ class Scene {
 
     public bool initialized = false;
 
-    public Scene(
+    public MainScene(
         Window window, 
         Tick tick,
         ShaderProgram shaderProgram, 
-        Input.Input input,
-        Mesh.Mesh mesh
+        Input input,
+        Mesh mesh
     ) {
         this.window = window;
         this.tick = tick;
@@ -211,7 +211,7 @@ class Scene {
         ServerSnapshot.getInstance().clearAll();
         MeshRegistry.clear();
 
-        mesh = new Mesh.Mesh(
+        mesh = new Mesh(
             window, 
             shaderProgram, 
             input

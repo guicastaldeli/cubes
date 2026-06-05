@@ -1,11 +1,11 @@
 namespace App.Root;
 using App.Root.Animation;
+using App.Root.Scene;
 using App.Root.Screen;
 using App.Root.Screen.Main;
 using App.Root.Shaders;
 using App.Root.UI;
 using App.Root.Voip;
-using App.Root.Input;
 using OpenTK.Graphics.OpenGL;
 
 class Main {
@@ -16,7 +16,7 @@ class Main {
     private Mesh.Mesh mesh;
     private Network network;
 
-    private Scene scene = null!;
+    private MainScene mainScene = null!;
     private ScreenController screenController = null!;
     private UIController uiController = null!;
 
@@ -45,7 +45,7 @@ class Main {
     public void handleResize(int width, int height) {
         GL.Viewport(0, 0, width, height);
 
-        scene?.onWindowResize(width, height);
+        mainScene?.onWindowResize(width, height);
         
         uiController.onWindowResize(width, height);
         screenController.onWindowResize(width, height);
@@ -108,27 +108,27 @@ class Main {
 
         */
     public void init() {
-        scene = new Scene(
+        mainScene = new MainScene(
             window, 
             tick,
             shaderProgram, 
             input,
             mesh
         );
-        scene.setNetwork(network);
+        mainScene.setNetwork(network);
         
         screenController = new ScreenController(
             tick,
             input,
             window,
             shaderProgram,
-            scene,
+            mainScene,
             network,
             Window.WIDTH, Window.HEIGHT
         );
         switchToMainScreen();
 
-        scene.setScreenController(screenController);
+        mainScene.setScreenController(screenController);
 
         uiController = new UIController(
             shaderProgram,
@@ -142,7 +142,7 @@ class Main {
         input.setNetwork(network);
         input.init();
 
-        scene.setUIController(uiController);
+        mainScene.setUIController(uiController);
     }
     
     /**

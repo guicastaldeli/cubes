@@ -1,25 +1,21 @@
 namespace App.Root.Input;
+using App.Root.Screen;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class InputField {
-    private Dictionary<string, KeyboardInput> fields = new();
-    private string? focusedId = null;
-    private Screen.Screen screen;
-
-    public InputField(Screen.Screen screen) {
-        this.screen = screen;
-    }
+    private static Dictionary<string, KeyboardInput> fields = new();
+    private static string? focusedId = null;
 
     // Register
-    public void register(string id) {
+    public static void register(string id) {
         fields[id] = new KeyboardInput();
     }
 
     // Handle Click
-    public void handleClick(int mouseX, int mouseY) {
+    public static void handleClick(int mouseX, int mouseY) {
         focusedId = null;
         foreach(var (id, _) in fields) {
-            var el = screen.getElementById(id);
+            var el = Screen.getElementByIdI(id);
             if(el != null && el.containsPoint(mouseX, mouseY)) {
                 focusedId = id;
                 break;
@@ -28,7 +24,7 @@ class InputField {
     }
 
     // Handle Key Press
-    public void handleKeyPress(Keys key, int action) {
+    public static void handleKeyPress(Keys key, int action) {
         if(focusedId == null) return;
         if(fields.TryGetValue(focusedId, out var handler)) {
             handler.handleKey(key, action);
@@ -37,21 +33,21 @@ class InputField {
     }
 
     // Sync
-    private void sync(string id) {
+    private static void sync(string id) {
         if(!fields.TryGetValue(id, out var handler)) return;
-        var el = screen.getElementById(id);
+        var el = Screen.getElementByIdI(id);
         if(el != null) el.text = handler.getText();
     }
 
     // Get Text
-    public string getText(string id) {
+    public static string getText(string id) {
         return fields.TryGetValue(id, out var h) ? 
             h.getText() : 
             "";
     }
 
     // Clear
-    public void clear(string id) {
+    public static void clear(string id) {
         if(fields.TryGetValue(id, out var h)) {
             h.clear();
             sync(id);
@@ -59,11 +55,11 @@ class InputField {
     }
 
     // Focus
-    public bool isFocused(string id) {
+    public static bool isFocused(string id) {
         return focusedId == id;
     }
 
-    public bool isFocus() {
+    public static bool isFocus() {
         return focusedId != null;
     }
 }

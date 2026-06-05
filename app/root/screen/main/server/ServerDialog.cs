@@ -7,10 +7,8 @@ class ServerDialog : Screen {
 
     public MainScreen mainScreen;
     private ServerDialogAction serverDialogAction;
-    public InputField inputField;
 
-    public ServerDialog(MainScreen mainScreen) : 
-    base(PATH, "server_dialog") {
+    public ServerDialog(MainScreen mainScreen) : base(PATH, "server_dialog") {
         this.mainScreen = mainScreen;
         this.serverDialogAction = new ServerDialogAction(
             window, 
@@ -19,26 +17,25 @@ class ServerDialog : Screen {
             network
         );
         
-        this.inputField = new InputField(this);
         registerInputs();
     }
 
     private void registerInputs() {
-        inputField.register("portInput");
-        inputField.register("maxPlayersInput");
-        inputField.register("ipInput");
-        inputField.register("joinPortInput");
+        InputField.register("portInput");
+        InputField.register("maxPlayersInput");
+        InputField.register("ipInput");
+        InputField.register("joinPortInput");
     }
 
     // Check Click
     public override string? checkClick(int mouseX, int mouseY) {
-        inputField.handleClick(mouseX, mouseY);
+        InputField.handleClick(mouseX, mouseY);
         return base.checkClick(mouseX, mouseY);
     }
 
     // Handle Key Press
     public override void handleKeyPress(int key, int action) {
-        inputField.handleKeyPress((Keys)key, action);
+        InputField.handleKeyPress((Keys)key, action);
     }
 
     // Handle Action
@@ -63,8 +60,6 @@ class ServerDialog : Screen {
         */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
-
-        inputField = new InputField(this);
         registerInputs();
     }
 

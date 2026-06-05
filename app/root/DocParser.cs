@@ -635,7 +635,7 @@ class DocParser {
 
         foreach(var el in screenData.elements) {
             if(el.template != null) {
-                el.text = DocParser.Resolve(el.template);
+                el.text = Resolve(el.template);
             }
         }
         foreach(var el in screenData.elements) {

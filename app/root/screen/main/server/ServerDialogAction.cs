@@ -1,7 +1,15 @@
 namespace App.Root.Screen.Main.Server;
+using App.Root.Input;
 using App.Root.Player;
+using App.Root.Utils;
 
 class ServerDialogAction {
+    private static List<string> Elements = new() {
+        "maxPlayersInput",
+        "ipInput",
+        "joinPortInput"
+    };
+
     private Window window;
     private ScreenController screenController;
     private ServerDialog serverDialog;
@@ -21,13 +29,22 @@ class ServerDialogAction {
 
     /**
     
+        Get
+    
+        */
+    public dynamic get() {
+        return ElementEntry.C(id => serverDialog.getElementById(id), Elements);
+    }
+
+    /**
+    
         Host Server
 
         */
     public void hostServer() {
         int port = network.getPort().get();
 
-        string maxPlayersEl = serverDialog.inputField.getText("maxPlayersInput");
+        string maxPlayersEl = get().maxPlayersInput.text;
         int maxPlayers = string.IsNullOrEmpty(maxPlayersEl) ?
             ServerPlayer.SERVER_MAX_PLAYERS :
             int.Parse(maxPlayersEl);
@@ -42,8 +59,8 @@ class ServerDialogAction {
 
         */
     public void joinServer() {
-        string ip = serverDialog.inputField.getText("ipInput");
-        string port = serverDialog.inputField.getText("joinPortInput");
+        string ip = get().ipInput.text;
+        string port = get().joinPortInput.text;
         if(string.IsNullOrEmpty(ip) || string.IsNullOrEmpty(port)) return;
 
         network.join(ip, int.Parse(port));

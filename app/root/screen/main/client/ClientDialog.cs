@@ -7,8 +7,7 @@ class ClientDialog : Screen {
     public MainScreen mainScreen;
     private ClientDialogAction clientDialogAction;
 
-    public ClientDialog(MainScreen mainScreen) : 
-    base(PATH, "client_dialog") {
+    public ClientDialog(MainScreen mainScreen) : base(PATH, "client_dialog") {
         this.mainScreen = mainScreen;
         this.clientDialogAction = new ClientDialogAction(
             window, 

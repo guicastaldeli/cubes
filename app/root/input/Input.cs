@@ -129,6 +129,11 @@ class Input {
             inputVoip.onKeyDown(key);
         }    
 
+        if(InputField.isFocus()) {
+            InputField.handleKeyPress(key, KeyAction.Press);
+            return;
+        }
+
         // Pause
         if(key == Keys.Escape) {
             onPause();
@@ -197,6 +202,9 @@ class Input {
         */
     private void onMouseMove(int x, int y) {
         uiController.handleMouseMove(x, y);
+
+        InputField.handleClick(x, y);
+
         if(screenController.isRunning() && !pauseOverlayOpen) return;
         screenController.handleMouseMove(x, y);
     }
