@@ -1,9 +1,8 @@
 namespace App.Root.Screen;
 using App.Root;
 using App.Root.Shaders;
-using App.Root.Screen.Main;
+using App.Root.Input;
 using System.Collections.Generic;
-using App.Root.Screen.Pause;
 using System.Reflection;
 
 class ScreenController {

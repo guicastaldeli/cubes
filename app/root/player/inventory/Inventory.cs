@@ -10,6 +10,7 @@ using App.Root.Screen;
 using App.Root.Shaders;
 using App.Root.Text;
 using App.Root.UI;
+using App.Root.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class Inventory {

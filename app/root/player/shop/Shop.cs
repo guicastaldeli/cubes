@@ -1,8 +1,8 @@
+namespace App.Root.Player.Shop;
 using App.Root.Chat;
 using App.Root.UI;
+using App.Root.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-
-namespace App.Root.Player.Shop;
 
 class Shop {
     public const string ID = "shop";

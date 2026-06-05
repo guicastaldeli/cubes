@@ -1,6 +1,6 @@
-using App.Root.Screen.Main;
-
 namespace App.Root.Screen.Pause;
+using App.Root.Screen.Main;
+using App.Root.Input;
 
 class PauseScreenAction {
     private Tick tick;

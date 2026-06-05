@@ -7,12 +7,13 @@ using App.Root.Screen;
 using App.Root.World;
 using App.Root.Mesh;
 using App.Root.UI;
+using App.Root.Input;
 
 class Scene {
     private Window window;
     private Tick tick;
     private ShaderProgram shaderProgram;
-    private Input input;
+    private Input.Input input;
     private PlayerController playerController;
     private CollisionManager collisionManager;
     private Network? network;
@@ -31,7 +32,7 @@ class Scene {
         Window window, 
         Tick tick,
         ShaderProgram shaderProgram, 
-        Input input,
+        Input.Input input,
         Mesh.Mesh mesh
     ) {
         this.window = window;

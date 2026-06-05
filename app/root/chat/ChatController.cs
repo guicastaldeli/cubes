@@ -1,5 +1,6 @@
 namespace App.Root.Chat;
 using App.Root.UI;
+using App.Root.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class ChatController {

@@ -1,10 +1,11 @@
-namespace App.Root;
+namespace App.Root.Input;
 using App.Root.Chat;
 using App.Root.Player;
 using App.Root.Screen;
 using App.Root.Screen.Pause;
 using App.Root.UI;
 using App.Root.Voip;
+using AppWindow = App.Root.Window;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -24,7 +25,7 @@ public static class KeyAction {
 
     */
 class Input {
-    private Window window;
+    private AppWindow window;
     private Tick tick;
 
     private ScreenController screenController = null!;
@@ -40,11 +41,11 @@ class Input {
     private static Dictionary<string, (string eventId, Keys key)> keyListeners = new();
     private static Dictionary<Type, Func<bool>> pauseChecks = new();
 
-    public Input(Window window, Tick tick) {
+    public Input(AppWindow window, Tick tick) {
         this.window = window;
         this.tick = tick;
 
-        Input.AddPause<Input>(() => pauseOverlayOpen);
+        AddPause<Input>(() => pauseOverlayOpen);
     }
 
     // Screen Controller
@@ -208,11 +209,8 @@ class Input {
 
     private void onMouseButton(int button, bool pressed) {
         if(!pressed) return;
-
         if(!screenController.isRunning() || pauseOverlayOpen) return;
-        
         if(ChatController.getInstance().isOpen()) return;
-
         if(playerInput != null) playerInput.onMouseButton(button, pressed);
     }
 

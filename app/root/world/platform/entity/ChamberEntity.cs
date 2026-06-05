@@ -10,15 +10,15 @@ using App.Root.Mesh;
 using App.Root.Player;
 using App.Root.Resource;
 using App.Root.Utils;
-using App.Root.UI;
 using App.Root.Text;
 using App.Root.World.Points;
 using App.Root.World.Entity;
-using OpenTK.Mathematics;
+using App.Root.Screen;
+using App.Root.Input;
 using AppWindow = App.Root.Window;
 using WorldPlatform = Root.World.Platform.Platform;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using App.Root.Screen;
+using OpenTK.Mathematics;
 
 class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     public const string CHAMBER_ENTITY_ID = "chamber";

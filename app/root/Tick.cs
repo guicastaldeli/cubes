@@ -25,7 +25,7 @@ class Tick {
         instance = this;
         TICK_RATE = 1.0f / TICKS_PER_SEC;
         
-        Input.AddPause<Tick>(() => isPaused());
+        Input.Input.AddPause<Tick>(() => isPaused());
     }
 
     // Get Current Time

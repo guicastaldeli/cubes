@@ -2,6 +2,7 @@ namespace App.Root.Chat;
 using App.Root.Packets;
 using App.Root.Player;
 using App.Root.Screen;
+using App.Root.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 /**

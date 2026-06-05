@@ -1,4 +1,5 @@
 namespace App.Root.Screen.Main.Server;
+using App.Root.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class ServerDialog : Screen {
@@ -17,8 +18,8 @@ class ServerDialog : Screen {
             this,
             network
         );
-        this.inputField = new InputField(this);
         
+        this.inputField = new InputField(this);
         registerInputs();
     }
 

@@ -1,4 +1,5 @@
 namespace App.Root.Screen.Main.Custom;
+using App.Root.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class CustomMenu : Screen {

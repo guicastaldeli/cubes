@@ -5,13 +5,14 @@ using App.Root.Screen.Main;
 using App.Root.Shaders;
 using App.Root.UI;
 using App.Root.Voip;
+using App.Root.Input;
 using OpenTK.Graphics.OpenGL;
 
 class Main {
     private Window window;
     private Tick tick;
     private ShaderProgram shaderProgram;
-    private Input input;
+    private Input.Input input;
     private Mesh.Mesh mesh;
     private Network network;
 
@@ -23,7 +24,7 @@ class Main {
         this.window = new Window();
         this.tick = new Tick();
         this.shaderProgram = new ShaderProgram();
-        this.input = new Input(window, tick);
+        this.input = new Input.Input(window, tick);
 
         this.mesh = new Mesh.Mesh(
             window, 

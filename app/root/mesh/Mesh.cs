@@ -2,10 +2,11 @@ namespace App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.Player;
 using App.Root.Collider;
-using OpenTK.Mathematics;
-using OpenTK.Graphics.ES11;
 using App.Root.Particle;
 using App.Root.Text;
+using App.Root.Input;
+using OpenTK.Mathematics;
+using OpenTK.Graphics.ES11;
 
 class Mesh {
     public static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/mesh/");
