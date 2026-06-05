@@ -302,7 +302,7 @@ class PlayerController : DataEntry {
         };
 
         if(!moveMap.TryGetValue(dir, out var entry)) return;
-        if(!Mapper.HasKey<PlayerController>(entry.key)) Mapper.Key(entry.key, entry.apply);
+        Mapper.Key(entry.key, entry.apply);
         //entry.apply(pressed);
     }
 

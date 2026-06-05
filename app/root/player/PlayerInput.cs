@@ -75,11 +75,6 @@ static class Mapper {
         }
     }
 
-    public static void Mouse<T>(int button, Action action) {
-        Mouse(button);
-        mouseActions[button] = action;
-    }
-
     public static void Mouse(int button, Action action) {
         if(currentType == null) return;
 
@@ -165,7 +160,7 @@ static class Mapper {
             }
         }
 
-        if(mouseActions.TryGetValue(button, out var action)) {
+        if(pressed && mouseActions.TryGetValue(button, out var action)) {
             action();
         }
     }
@@ -179,9 +174,12 @@ static class Mapper {
         keyBindings.Clear();
         keyHandlers.Clear();
         keyActions.Clear();
+        keyActions.Clear();
 
         mouseBindings.Clear();
         mouseHandlers.Clear();
+        mouseActions.Clear();
+        registeredMouse.Clear();
         
         currentType = null;
     }
