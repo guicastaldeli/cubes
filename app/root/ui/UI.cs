@@ -64,7 +64,7 @@ class UI : UIHandler {
             //Console.WriteLine($"UI '{uiName}' initialized: {uiData?.elements.Count ?? 0} elements");
         } catch(Exception err) {
             Console.Error.WriteLine($"Failed to init UI '{uiName}': {err.Message}");
-        }        
+        }
     }
 
     // Get Text Renderer

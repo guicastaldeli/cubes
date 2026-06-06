@@ -7,6 +7,7 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using App.Root.Mesh;
 
+[ManagedState]
 [ClassRegistryIgnore]
 class World : WorldHandler {
     private Window window;
@@ -24,6 +25,7 @@ class World : WorldHandler {
     private bool isRegistered = false;
     
     private List<WorldHandler> el = new();
+    [SkipReset] List<WorldHandler> prevEl = new();
 
     public const float WORLD_BOUNDARY = 25.0f;
     
@@ -67,6 +69,8 @@ class World : WorldHandler {
 
         PhysicsRegistry.getInstance().init(mesh, collisionManager);
 
+        StateManager.Register(this);
+
         Register();
         
         setBoundary();
@@ -107,6 +111,7 @@ class World : WorldHandler {
      *
      */
     public override void render() {
+        if(!isRegistered) Register();
         foreach(var e in el) e.render();
     }
 
@@ -130,9 +135,14 @@ class World : WorldHandler {
     private void Register() {
         if(isRegistered) return;
 
+        foreach(var handler in prevEl) {
+            StateManager.Unregister(handler);
+        }
+
         var registry = new ClassRegistry(ServiceContainer);
         el = registry.ORegister<WorldHandler>();
 
+        prevEl = new List<WorldHandler>(el);
         isRegistered = true;
     }
 }

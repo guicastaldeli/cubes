@@ -61,7 +61,14 @@ class Main {
      * Set
      *
      */
-    private void set() {
+    private void set() {        
+        GL.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
+
+        GL.Enable(EnableCap.DepthTest);
+        GL.Disable(EnableCap.CullFace);
+    }
+
+    private void glColor() {
         /* TEST COLORS ~~-~~-~-~- */
         if(Controller.getInstance(Instance.PROD)) {
             GL.ClearColor(0.2f, 0.3f, 0.8f, 1.0f);
@@ -71,11 +78,6 @@ class Main {
             GL.ClearColor(6.0f, 2.5f, 0.5f, 1.0f);
         }
         /* ~]~]]]~]] */
-        
-        GL.Viewport(0, 0, Window.WIDTH, Window.HEIGHT);
-
-        GL.Enable(EnableCap.DepthTest);
-        GL.Disable(EnableCap.CullFace);
     }
     
     /**
@@ -144,6 +146,16 @@ class Main {
 
         mainScene.setUIController(uiController);
     }
+
+    /**
+     *
+     * Clear
+     *
+     */
+    private void clear() {
+        glColor();
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+    }
     
     /**
      * 
@@ -151,8 +163,8 @@ class Main {
      *
      */
     public void run() {
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         window.run(() => {
+            clear();
             render();
             update();
         });

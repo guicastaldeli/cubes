@@ -94,7 +94,6 @@ class Window : NativeWindow {
             while(!IsExiting) {
                 while(pendingActions.TryDequeue(out var action)) action();
 
-                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
                 renderCallback();
 
                 foreach(var action in persistentRenderActions) action();

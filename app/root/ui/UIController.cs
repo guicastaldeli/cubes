@@ -4,9 +4,10 @@ using App.Root.Player;
 using App.Root.Utils;
 using App.Root.Mesh;
 using App.Root.Input;
-using System.Collections.Generic;
 using System.Reflection;
+using System.Collections.Generic;
 
+[ManagedState]
 class UIController {
     public int screenWidth;
     public int screenHeight;
@@ -38,6 +39,8 @@ class UIController {
         init();
 
         Input.AddPause<UIController>(() => getIsVisible());
+
+        StateManager.Register(this);
     }
     
     // Player Controller

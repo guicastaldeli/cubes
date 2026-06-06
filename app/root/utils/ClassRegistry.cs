@@ -175,7 +175,7 @@ class ClassRegistry {
     public void PRegister<TParent, T>(Action<List<T>> onComplete) 
         where TParent : class
         where T : class {
-        ClassRegistry.after<TParent>(() => {
+        after<TParent>(() => {
             bool ordered = registrationMode.GetValueOrDefault(typeof(TParent), true);
             var result = ordered ? ORegister<T>() : Register<T>();
             onComplete(result);

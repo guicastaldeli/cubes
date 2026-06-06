@@ -96,6 +96,9 @@ class Aim : UI {
      *
      */
     public override void generate() {
+        if(initialized && mesh.getMeshRenderer(ID) == null) {
+            initialized = false;
+        }
         if(!initialized) {
             set();
             initialized = true;

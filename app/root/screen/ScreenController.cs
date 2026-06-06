@@ -6,6 +6,7 @@ using App.Root.Scene;
 using System.Collections.Generic;
 using System.Reflection;
 
+[ManagedState]
 class ScreenController {
     public int screenWidth;
     public int screenHeight;
@@ -54,6 +55,8 @@ class ScreenController {
             network
         );
         this.init();
+
+        StateManager.Register(this);
     }
 
     // Screen Active

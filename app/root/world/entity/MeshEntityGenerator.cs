@@ -8,7 +8,6 @@ namespace App.Root.World.Entity;
 using App.Root.Collider;
 using App.Root.Mesh;
 using App.Root.Utils;
-using OpenTK.Mathematics;
 using NLua;
 
 /**
@@ -147,10 +146,10 @@ class MeshEntityGenerator : WorldHandler {
      */
     public override void render() {
         if(!initialized) {
+            MeshEntityCollider.cleanup();
+
             var meshTypes = load();
             generate(meshTypes, setInitialized: true);
-
-            initialized = true;
         }
     }
 
