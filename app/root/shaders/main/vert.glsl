@@ -8,6 +8,7 @@ layout(location = 4) in vec3 aInstanceOffset;
 layout(location = 5) in vec4 aInstanceColor;
 layout(location = 6) in vec4 aInstanceRotation;
 layout(location = 7) in int aInstanceTexId;
+layout(location = 8) in float aInstanceScale;
 
 out vec4 vColor;
 out vec2 vTexCoord;
@@ -92,7 +93,7 @@ void main() {
                 -sinA, 0.0, cosA
             );
 
-            pos = instanceRotation * pos;
+            pos = instanceRotation * (aPos * aInstanceScale);
             pos += aInstanceOffset;
             
             vWorldPos = pos;

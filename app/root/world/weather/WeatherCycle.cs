@@ -35,6 +35,8 @@ class WeatherCycle {
 
     public event Action<string, string>? onWeatherChanged;
 
+    private bool forced = false;
+
     // Get Current
     public string getCurrent() {
         return currentName;
@@ -57,6 +59,14 @@ class WeatherCycle {
         }
         
         return entries[0].Name!;
+    }
+
+    // Force Weather
+    public void forceWeather(string weather) {
+        prevName = currentName;
+        currentName = weather;
+        forced = true;
+        onWeatherChanged?.Invoke(prevName, currentName);
     }
 
     /**
@@ -106,6 +116,8 @@ class WeatherCycle {
      *
      */
     public void update(float deltaTime) {
+        if(forced) return;
+        
         timer += deltaTime;
         if(timer >= duration) next();
     }

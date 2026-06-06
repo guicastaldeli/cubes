@@ -339,7 +339,16 @@ class ParticleEntity {
             instanceColors[i][2] = particle.color.Z;
             instanceColors[i][3] = alpha;
             
-            needsUpdate = true;
+            Vector3 newPos = particle.position + new Vector3(
+                particle.vel.X * deltaTime,
+                particle.vel.Y * deltaTime,
+                particle.vel.Z * deltaTime
+            );
+            if(newPos != particle.position) {
+                particle.position = newPos;
+                instancePositions[i] = newPos;
+                needsUpdate = true;
+            }
         }
 
         if(needsUpdate) {
@@ -382,5 +391,11 @@ class ParticleEntity {
         mesh.remove(id);
         particles.Clear();
         instancePositions.Clear();
+    }
+    
+    private void clear() {
+        instancePositions.Clear();
+        instanceColors.Clear();
+        particles.Clear();
     }
 }

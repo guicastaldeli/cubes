@@ -22,12 +22,14 @@ class MeshRenderer : DataEntry {
     private int texCoordsVbo;
     private int vertexCount;
 
+    public bool isInstanced = false;
     public int instanceVbo = 0;
     private int instanceCount = 0;
     private int instanceRotationVbo = 0;
-    public bool isInstanced = false;
+    private int instanceScaleVbo = 0;
     private List<Vector3> cachedInstancePositions = new();
     private List<float> cachedInstanceRotations = new();
+    private List<float> cachedInstanceScales = new();
 
     private int stencilFbo = 0;
     private int stencilTexture = 0;
@@ -198,7 +200,8 @@ class MeshRenderer : DataEntry {
         List<float[]>? colors = null, 
         List<float>? rotations = null,
         List<string?>? texPaths = null,
-        List<int>? texIds = null
+        List<int>? texIds = null,
+        List<float>? scales = null
     ) {
         if(positions.Count == 0) return;
 
@@ -206,7 +209,8 @@ class MeshRenderer : DataEntry {
         if(colors != null) cachedInstanceColors = colors;
         if(rotations != null) cachedInstanceRotations = rotations;
         if(texPaths != null) cachedInstanceTexPaths = texPaths;
-        
+        if(scales != null) cachedInstanceScales = scales;
+
         List<int> texId = TextureLoader.setInstancedTex(this, positions, texIds, texPaths);
 
         instanceCount = positions.Count;
@@ -270,6 +274,17 @@ class MeshRenderer : DataEntry {
             GL.VertexAttribIPointer(7, 1, VertexAttribIntegerType.Int, 0, 0);
             GL.EnableVertexAttribArray(7);
             GL.VertexAttribDivisor(7, 1);
+        }
+
+        if(scales != null && scales.Count == positions.Count) {
+            float[] scaleData = scales.ToArray();
+
+            if(instanceScaleVbo == 0) instanceScaleVbo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, instanceScaleVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, scaleData.Length * sizeof(float), scaleData, BufferUsageHint.DynamicDraw);
+            GL.VertexAttribPointer(8, 1, VertexAttribPointerType.Float, false, 0, 0);
+            GL.EnableVertexAttribArray(8);
+            GL.VertexAttribDivisor(8, 1);
         }
 
         GL.BindVertexArray(0);
@@ -533,13 +548,15 @@ class MeshRenderer : DataEntry {
         List<float[]> colors, 
         List<float> rotations,
         List<string?>? texPaths = null,
-        List<int>? texIds = null
+        List<int>? texIds = null,
+        List<float>? scales = null
     ) {
         //if(positions.Count != instanceCount) return;
 
         instanceCount = positions.Count;
         cachedInstancePositions = positions;
         cachedInstanceRotations = rotations;
+        if(scales != null) cachedInstanceScales = scales;
 
         List<int> texId = TextureLoader.setInstancedTex(this, positions, texIds, texPaths);
 
@@ -585,6 +602,13 @@ class MeshRenderer : DataEntry {
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, instanceTexIdVbo);
             GL.BufferData(BufferTarget.ArrayBuffer, texIdData.Length * sizeof(int), texIdData, BufferUsageHint.DynamicDraw);
+        }
+
+        if(scales != null && scales.Count == positions.Count && instanceScaleVbo != 0) {
+            float[] scaleData = scales.ToArray();
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, instanceScaleVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, scaleData.Length * sizeof(float), scaleData, BufferUsageHint.DynamicDraw);
         }
 
         GL.BindVertexArray(0);
@@ -965,6 +989,7 @@ class MeshRenderer : DataEntry {
             }
         }
 
+
         GL.BindVertexArray(0);
         shaderProgram.unbind();
     }
@@ -1069,6 +1094,7 @@ class MeshRenderer : DataEntry {
         cachedInstanceRotations.RemoveAt(index);
         if(cachedInstanceTexPaths.Count > index) cachedInstanceTexPaths.RemoveAt(index);
         if(cacheInstanceTexIds.Count > index) cacheInstanceTexIds.RemoveAt(index);
+        cachedInstanceScales.RemoveAt(index);
 
         instanceCount = cachedInstancePositions.Count;
 
@@ -1078,7 +1104,8 @@ class MeshRenderer : DataEntry {
                 cachedInstanceColors, 
                 cachedInstanceRotations, 
                 cachedInstanceTexPaths,
-                cacheInstanceTexIds
+                cacheInstanceTexIds,
+                cachedInstanceScales
             );
         }
     }

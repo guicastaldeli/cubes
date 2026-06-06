@@ -21,6 +21,7 @@ using System.Reflection;
 public struct Instance {
     [ConverterKey("positions")] public Vector3 Position;
     [ConverterKey("rotations")] public float Rotation;
+    [ConverterKey("scales")] public float Scale;
     [Convert("rgba")] [ConverterKey("colors")] public string Color;
     [ConverterKey("texpaths")] public string? Tex;
     public float Speed;
@@ -369,7 +370,8 @@ class MeshEntitySpawner {
             Rotation = setRotation(),
             Lifetime = setLifetime(),
             Color = setColor(entity),
-            Tex = setTexture(entity)
+            Tex = setTexture(entity),
+            Scale = entity.Scale
         };
 
         return e;

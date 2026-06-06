@@ -16,7 +16,7 @@ void setFlatVert() {
            -sinA, 0.0, cosA
         );
 
-        vec3 pos = instanceRotation * aPos;
+        vec3 pos = instanceRotation * (aPos * aInstanceScale);
         pos += aInstanceOffset;
         gl_Position = uProjection * uView * vec4(pos, 1.0);
     } else {

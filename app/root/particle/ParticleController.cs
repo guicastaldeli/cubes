@@ -69,16 +69,12 @@ class ParticleController {
      *
      */
     public void update() {
-        List<ParticleEntity> entitiesToRemove = new List<ParticleEntity>();
-        
-        foreach(ParticleEntity entity in particleEntities) {
-            entity.update();
-            if(!entity.isActiveEntity()) {
-                entitiesToRemove.Add(entity);
+        for(int i = particleEntities.Count - 1; i >= 0; i--) {
+            particleEntities[i].update();
+            if(!particleEntities[i].isActiveEntity()) {
+                particleEntities[i].cleanup();
+                particleEntities.RemoveAt(i);
             }
-        }
-        foreach(ParticleEntity entity in entitiesToRemove) {
-            particleEntities.Remove(entity);
         }
     }
 

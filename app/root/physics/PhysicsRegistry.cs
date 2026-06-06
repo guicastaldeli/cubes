@@ -138,8 +138,7 @@ class CollisionChecker {
 
 /**
 
-    Main Physics Registry
-    class.
+    Main Physics Registry class.
 
     */
 [ManagedState]
@@ -165,6 +164,12 @@ class PhysicsRegistry {
     private CollisionChecker collisionChecker;
 
     private Dictionary<string, Entry> entries = new();
+
+    private List<Entry> cachedDynamic = new();
+    private List<Entry> cachedReceivers = new();
+    private HashSet<string> cachedDynamicIds = new();
+    private List<CollisionResult> cachedAllColls = new();
+    private bool entriesUsed = true;
 
     private PhysicsRegistry() {
         this.collisionChecker = new CollisionChecker();
@@ -229,6 +234,17 @@ class PhysicsRegistry {
         entry.physicsBody.setOnSurface(foundSurface);
     }
 
+    // Rebuild Cache
+    private void rebuildCache() {
+        if(!entriesUsed) return;
+
+        cachedDynamic = entries.Values.Where(e => e.type == PhysicsType.DYNAMIC).ToList();
+        cachedReceivers = entries.Values.Where(e => e.type == PhysicsType.RECEIVER).ToList();
+        cachedDynamicIds = cachedDynamic.Select(e => e.id).ToHashSet();
+
+        entriesUsed = false;
+    }
+
     /**
     
         Receivers
@@ -236,9 +252,8 @@ class PhysicsRegistry {
         */
     // Get All Receivers
     public List<Entry> getReceivers() {
-        return entries.Values
-            .Where(e => e.type == PhysicsType.RECEIVER)
-            .ToList();
+        rebuildCache();
+        return cachedReceivers;
     }
 
     // Check Collision with Receivers
@@ -253,10 +268,9 @@ class PhysicsRegistry {
         }
 
         if(collisionManager != null) {
-            var dynamicIds = getDynamicObjects().Select(e => e.id).ToHashSet();
             foreach(var collider in collisionManager.getColliders()) {
-                if(dynamicIds.Contains(collider.getId())) continue;
-
+                if(cachedDynamicIds.Contains(collider.getId())) continue;
+                
                 var result = collisionChecker.update(collider, bbox);
                 if(result.collided) results.Add(result);
             }
@@ -272,9 +286,8 @@ class PhysicsRegistry {
      */
     // Get All Dynamic Objects
     public List<Entry> getDynamicObjects() {
-        return entries.Values
-            .Where(e => e.type == PhysicsType.DYNAMIC)
-            .ToList();
+        rebuildCache();
+        return cachedDynamic;
     }
 
     // Check Collision with Dynamic Objects
@@ -309,6 +322,7 @@ class PhysicsRegistry {
         updater.update(id);
 
         entries[id] = entry;
+        entriesUsed = true;
         Console.WriteLine($"PhysicsRegistry: Registered {id} as {type}");
     }
 
@@ -322,7 +336,9 @@ class PhysicsRegistry {
             if(collisionManager != null && entry.collider != null) {
                 collisionManager.removeCollider(entry.collider);
             }
+            
             entries.Remove(id);
+            entriesUsed = true;
             Console.WriteLine($"PhysicsRegistry: Unregistered {id}");
         }
     }
@@ -366,11 +382,12 @@ class PhysicsRegistry {
             var receiverColls = checkCollisionWithReceivers(bbox);
             var dynamicColls = checkCollisionWithDynamic(entry.id, bbox);
 
-            var allColls = new List<CollisionResult>();
-            allColls.AddRange(receiverColls);
-            allColls.AddRange(dynamicColls);
-            if(allColls.Count > 0) {
-                resolveCollisions(entry, allColls);
+            cachedAllColls.Clear();
+            cachedAllColls.AddRange(receiverColls);
+            cachedAllColls.AddRange(dynamicColls);
+
+            if(cachedAllColls.Count > 0) {
+                resolveCollisions(entry, cachedAllColls);
             } else {
                 entry.physicsBody.setOnSurface(false);
             }

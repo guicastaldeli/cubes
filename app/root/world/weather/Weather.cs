@@ -246,15 +246,16 @@ class Weather : WorldHandler {
     }
 
     private void test() {
-        string currentWeather = weatherCycle.getCurrent();
-        int weatherValue = getWeatherValue(currentWeather);
+        string v = WeatherType.RAIN;
+        
+        weatherCycle.forceWeather(v);
+
+        int weatherValue = getWeatherValue(v);
         currentTemp = WeatherData.getTempConfig(weatherValue);
         prevTemp = null;
         tempTransition = 1.0f;
 
-        if(currentWeather != WeatherType.NORMAL) {
-            startPartEmitter();
-        }
+        startPartEmitter();
     }
 
     /**
@@ -303,6 +304,7 @@ class Weather : WorldHandler {
     public override void update() {
         if(!initialized) {
             set();
+            test();
             initialized = true;
         }
 
