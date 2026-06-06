@@ -427,7 +427,22 @@ class Raycaster {
                     int index = list.IndexOf(d);
                     if(index >= 0) {
                         Vector3 pos = MeshCollider.getInstancedPosition(d);
-                        mesh.renderOutlineAll(d, id, pos, index);
+                        string meshType = MeshCollider.instancedMeshTypes.TryGetValue(d, out var mt) ? mt : id;
+                        
+                        int globalIndex = 0;
+                        
+                        foreach(var (otherId, otherList) in instanced) {
+                            if(otherId == id) break;
+                            string otherMeshType = MeshCollider.instancedMeshTypes.Count > 0 &&
+                                otherList.Count > 0 &&
+                                MeshCollider.instancedMeshTypes.TryGetValue(otherList[0], out var omt) && omt == meshType ?
+                                omt : "";
+                            if(otherMeshType == meshType) globalIndex += otherList.Count;
+                        }
+
+                        globalIndex += index;
+                        mesh.renderOutlineAll(d, meshType, pos, globalIndex);
+                        
                         return;
                     }
                 }

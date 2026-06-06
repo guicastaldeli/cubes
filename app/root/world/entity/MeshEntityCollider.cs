@@ -16,6 +16,8 @@ static class MeshEntityCollider {
     public static Dictionary<string, List<string>> colliderIds = new();
     public static Dictionary<string, string> colliderToEntity = new();
 
+    private static Dictionary<string, Vector3> lastPositions = new();
+
     public static Action<string>? onEntityRemoved;
 
     private static bool eventsRegistered = false;
@@ -99,7 +101,7 @@ static class MeshEntityCollider {
      *
      */
     public static void create(EntityProps entity, List<Instance> list) {
-        MeshData? data = mesh?.getData(entity.Id);
+        MeshData? data = mesh?.getData(entity.MeshType);
         if(data?.colliderShape == null) return;
 
         if(mesh != null && !mesh.hasMesh(entity.MeshType)) {
@@ -131,6 +133,11 @@ static class MeshEntityCollider {
         if(i >= colliderIds[id].Count) return;
 
         string colliderId = colliderIds[id][i];
+        if(lastPositions.TryGetValue(colliderId, out Vector3 last)) {
+            if(Vector3.DistanceSquared(last, pos) < 0.01f) return;
+        }
+
+        lastPositions[colliderId] = pos;
         MeshCollider.updateInstanced(colliderId, pos);
     }
 
@@ -151,9 +158,11 @@ static class MeshEntityCollider {
 
         colliderIds.Clear();
         colliderToEntity.Clear();
+        lastPositions.Clear();
     }
 
     public static void cleanupRemoved() {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
         if(collisionManager == null || mesh == null) return;
 
         collisionManager.processRemovals();
@@ -191,5 +200,8 @@ static class MeshEntityCollider {
         }
 
         collisionManager.clearRemoved();
+
+        sw.Stop();
+        if(sw.ElapsedMilliseconds > 1) Console.WriteLine($"cleanupRemoved: {sw.ElapsedMilliseconds}ms | colliders: {colliderIds.Count}");
     }
 }

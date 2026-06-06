@@ -11,6 +11,9 @@ class CollisionManager {
     }
 
     private List<Collider> staticColliders = new();
+    private List<Collider> interactionColliders = new();
+    private HashSet<string> colliderIdSet = new();
+    
     public List<string> pendingRemovals = new();
     private List<string> removedIds = new();
 
@@ -21,20 +24,30 @@ class CollisionManager {
     // Add Static Collider
     public void addStaticCollider(Collider coll) {
         staticColliders.Add(coll);
+        colliderIdSet.Add(coll.getId());
+    }
+
+    // Add Interaction Collider
+    public void addInteractionCollider(Collider coll) {
+        interactionColliders.Add(coll);
+        colliderIdSet.Add(coll.getId());
     }
 
     // Collider Exists
     public bool colliderExists(string id) {
         if(pendingRemovals.Contains(id)) return false;
         if(removedIds.Contains(id)) return false;
-        
-        bool val = staticColliders.Any(c => c.getId() == id);
-        return val;
+        return colliderIdSet.Contains(id);
     }
 
     // Clear Removed
     public void clearRemoved() {
         removedIds.Clear();
+    }
+
+    // Get Pending Removals Count
+    public int getPendingRemovalsCount() {
+        return pendingRemovals.Count;
     }
 
     /**
@@ -74,8 +87,10 @@ class CollisionManager {
         var snapshot = pendingRemovals.ToList();
         pendingRemovals.Clear();
 
-        foreach(var id in pendingRemovals) {
+        foreach(var id in snapshot) {
             staticColliders.RemoveAll(c => c.getId() == id);
+            interactionColliders.RemoveAll(c => c.getId() == id);
+            colliderIdSet.Remove(id);
             removedIds.Add(id);
         }
         

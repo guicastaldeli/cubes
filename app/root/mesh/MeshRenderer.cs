@@ -597,8 +597,14 @@ class MeshRenderer : DataEntry {
      *
      */
     // Main
-    public bool getVisible() => visible;
     public void render() {
+        /*
+        int total = mesh.getMeshRendererMap().Count;
+        int instanced = mesh.getMeshRendererMap().Values.Count(r => r.isInstanced);
+        int staticM = mesh.getMeshRendererMap().Values.Count(r => !r.isInstanced);
+        int entityTypes = mesh.getMeshRendererMap().Values.Count(r => r.isInstanced && r.isInteractive);
+        Console.WriteLine($"Total: {total} | Instanced: {instanced} | Static: {staticM} | EntityTypes: {entityTypes}");
+        */
         if(mesh == null) {
             Console.Error.WriteLine("Mesh is null!");
             return;

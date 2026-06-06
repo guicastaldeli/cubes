@@ -98,7 +98,7 @@ static class SpawnPoint {
 
     private static void initCollider() {
         var collider = new BoundaryObject(MeshEntitySpawner.SPAWN_AREA);
-        collisionManager.addStaticCollider(collider);
+        collisionManager.addInteractionCollider(collider);
         boundaryObject = collider;
     }
 
@@ -168,8 +168,20 @@ class MeshEntitySpawner {
     private Dictionary<string, List<Instance>> instances = new();
     private Dictionary<string, State> instanceStates = new();
 
+    private Dictionary<string, string> entityIdToMeshType = new();
     private Dictionary<string, (MeshData data, Vector3 position)> pendingPhysics = new();
-    
+
+    private static MethodInfo? cachedUpdateMethod = null;
+    private static MethodInfo? cachedSetMethod = null;
+    private static string[]? cachedParamNames = null;
+    private static Type[]? cachedUpdateParamTypes = null;
+    private static Type[]? cachedSetParamTypes = null;
+    private static FieldInfo[]? cachedFields = null;
+    private static Dictionary<FieldInfo, (string key, MethodInfo? converter)>? cachedFieldMeta = null;
+    private Dictionary<string, List<object>> cachedData = new();
+    private Dictionary<string, List<Instance>> cachedByMeshType = new();
+    private Dictionary<string, (object?[] args, IList[] lists)> cachedArgsByMeshType = new();
+
     public MeshEntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
         this.tick = tick;
         this.mesh = mesh;
@@ -213,6 +225,11 @@ class MeshEntitySpawner {
             list :
             new List<Instance>();
         return val;
+    }
+
+    // Register Mesh Type
+    public void registerMeshType(string entityId, string meshType) {
+        entityIdToMeshType[entityId] = meshType;
     }
 
     /**
@@ -369,50 +386,79 @@ class MeshEntitySpawner {
      *
      */
     private Dictionary<string, List<object>> getData(List<Instance> list) {
-        var result = new Dictionary<string, List<object>>();
-
-        foreach(var inst in list) {
-            foreach(var (key, val) in inst.GetData()) {
-                if(!result.ContainsKey(key)) result[key] = new List<object>();
-                result[key].Add(val);
+        if(cachedFields == null) {
+            cachedFields = typeof(Instance).GetFields(BindingFlags.Public | BindingFlags.Instance);
+            cachedFieldMeta = new();
+            foreach(var field in cachedFields) {
+                var keyAttr = field.GetCustomAttribute<ConverterKey>();
+                var converterAttr = field.GetCustomAttribute<ConvertAttribute>();
+                string key = keyAttr?.Key ?? field.Name.ToLower();
+                MethodInfo? converter = null;
+                if(converterAttr != null) Instance.converters.TryGetValue(converterAttr.Converter, out converter);
+                cachedFieldMeta[field] = (key, converter);
             }
         }
 
-        return result;
+        foreach(var l in cachedData.Values) l.Clear();
+
+        foreach(var inst in list) {
+            foreach(var field in cachedFields) {
+                object? val = field.GetValue(inst);
+                if(val == null) continue;
+
+                var (key, converter) = cachedFieldMeta![field];
+                object finalVal = converter != null ? converter.Invoke(null, new[] { val })! : val;
+
+                if(!cachedData.ContainsKey(key)) cachedData[key] = new List<object>();
+                cachedData[key].Add(finalVal);
+            }
+        }
+
+        return cachedData;
     }
 
-    public void syncData(string entityId) {
-        if(!instances.ContainsKey(entityId)) return;
+    public void syncData(string meshType, List<Instance> allInstances) {
+        if(allInstances.Count == 0) return;
 
-        var list = instances[entityId];
-        if(list.Count == 0) return;
-
-        var data = getData(list);
-        var renderer = mesh?.getMeshRenderer(entityId);
+        var renderer = mesh?.getMeshRenderer(meshType);
         if(renderer == null) return;
 
+        if(cachedUpdateMethod == null || cachedSetMethod == null) {
+            var methods = typeof(MeshRenderer).GetMethods();
+            cachedUpdateMethod = methods.First(m => m.Name == nameof(MeshRenderer.updateInstanceData) && m.GetParameters().Length > 1);
+            cachedSetMethod = methods.First(m => m.Name == nameof(MeshRenderer.setInstanceData) && m.GetParameters().Length > 1);
+            cachedParamNames = cachedUpdateMethod.GetParameters().Select(p => p.Name!.ToLower()).ToArray();
+            cachedUpdateParamTypes = cachedUpdateMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            cachedSetParamTypes = cachedSetMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+        }
+
         bool isInit = renderer.getInstanceVboInitialized();
+        var method = isInit ? cachedUpdateMethod! : cachedSetMethod;
+        var paramTypes = isInit ? cachedUpdateParamTypes! : cachedSetParamTypes!;
 
-        string methodName = isInit
-            ? nameof(MeshRenderer.updateInstanceData)
-            : nameof(MeshRenderer.setInstanceData);
-        var method = typeof(MeshRenderer).GetMethods()
-            .First(m => m.Name == methodName && m.GetParameters().Length > 1);
-    
-        var args = method.GetParameters().Select(p => {
-            string key = p.Name!.ToLower();
+        var data = getData(allInstances);
 
+        if(!cachedArgsByMeshType.TryGetValue(meshType, out var cached)) {
+            var lists = cachedParamNames!.Select((key, i) => {
+                var elemType = paramTypes[i].GetGenericArguments()[0];
+                var listType = typeof(List<>).MakeGenericType(elemType);
+                return (IList)Activator.CreateInstance(listType)!;
+            }).ToArray();
+
+            var args = lists.Cast<object?>().ToArray();
+            cached = (args, lists);
+            cachedArgsByMeshType[meshType] = cached;
+        }
+
+        for(int i = 0; i < cachedParamNames!.Length; i++) {
+            string key = cachedParamNames[i];
+            cached.lists[i].Clear();
             if(data.TryGetValue(key, out var val)) {
-                var listType = typeof(List<>).MakeGenericType(p.ParameterType.GetGenericArguments()[0]);
-                var result = (IList)Activator.CreateInstance(listType)!;
-                foreach(var item in val) result.Add(item);
-                return (object?)result;
+                foreach(var item in val) cached.lists[i].Add(item);
             }
-            
-            return Activator.CreateInstance(p.ParameterType);
-        }).ToArray();
+        }
 
-        method.Invoke(renderer, args);
+        method.Invoke(renderer, cached.args);
     }
 
     /**
@@ -444,12 +490,26 @@ class MeshEntitySpawner {
                 MeshEntityCollider.update(id, i, inst.Position);
             }
 
-            syncData(id);
             if(l.Count > 0) mesh.setPosition(id, l[0].Position);
-
         }
 
+        updateData();
         updatePhysics();
+    }
+
+    // Update Data
+    private void updateData() {
+        foreach(var l in cachedByMeshType.Values) l.Clear();
+
+        foreach(var (id, l) in instances) {
+            string meshType = entityIdToMeshType.TryGetValue(id, out var t) ? t : id;
+            if(!cachedByMeshType.ContainsKey(meshType)) cachedByMeshType[meshType] = new();
+            cachedByMeshType[meshType].AddRange(l);
+        }
+
+        foreach(var (meshType, allInstances) in cachedByMeshType) {
+            syncData(meshType, allInstances);
+        }
     }
 
     // Update Physics
@@ -508,7 +568,9 @@ class MeshEntitySpawner {
             MeshEntityCollider.colliderToEntity.Remove(colliderId);
             MeshCollider.removeInstanced(colliderId);
 
-            syncData(entityId);
+            string meshType = entityIdToMeshType.TryGetValue(entityId, out var t) ? t : entityId;
+            var allInstances = instances.Where(kvp => entityIdToMeshType.TryGetValue(kvp.Key, out var mt) && mt == meshType).SelectMany(kvp => kvp.Value).ToList();
+            syncData(meshType, allInstances);
         });
 
         // Instanced Place
@@ -540,6 +602,9 @@ class MeshEntitySpawner {
     }
     
     private void cleanupEntity() {
+        if(MeshEntityCollider.colliderIds.Count == 0) return;
+        if(collisionManager.getPendingRemovalsCount() == 0) return;
+        
         MeshEntityCollider.cleanupRemoved();
 
         var removedEntities = instances.Keys

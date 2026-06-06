@@ -81,7 +81,21 @@ class MeshInteractionController {
             foreach(var (entityId, colliderList) in instanced) {
                 int index = colliderList.IndexOf(hit);
                 if(index >= 0) {
-                    mesh.removeInstance(entityId, index);
+                    string meshType = MeshCollider.instancedMeshTypes.TryGetValue(hit, out var mt) ? mt : entityId;
+
+                    int globalIndex = 0;
+                    
+                    foreach(var (otherId, otherList) in instanced) {
+                        if(otherId == entityId) break;
+                        string otherMeshType = otherList.Count > 0 &&
+                            MeshCollider.instancedMeshTypes.TryGetValue(otherList[0], out var omt) && omt == meshType ?
+                            omt : "";
+                        if(otherMeshType == meshType) globalIndex += otherList.Count;
+                    }
+
+                    globalIndex += index;
+                    mesh.removeInstance(meshType, globalIndex);
+
                     break;
                 }
             }
