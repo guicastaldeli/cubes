@@ -2,9 +2,9 @@ namespace App.Root.World.Skybox;
 using App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.Utils;
+using App.Root.Player;
 using OpenTK.Mathematics;
 using NLua;
-using App.Root.Player;
 
 /**
 
@@ -76,10 +76,13 @@ class Color {
         
         string originalDir = Directory.GetCurrentDirectory();
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-        
         data.DoFile(DATA_PATH);
-
         Directory.SetCurrentDirectory(originalDir);
+
+        update();
+        updateColorValue();
+        
+        reset();
     }
 
     /**
@@ -117,6 +120,17 @@ class Color {
             transitionProgress += tick.getDeltaTime() * transitionSpeed;
             if(transitionProgress > 1.0f) transitionProgress = 1.0f;
         }
+    }
+
+    /**
+     *
+     * Reset
+     *
+     */
+    private static void reset() {
+        prevTopColor = currentTopColor;
+        prevBottomColor = currentBottomColor;
+        transitionProgress = 1.0f;
     }
 }
 
@@ -174,7 +188,12 @@ class Skybox : WorldHandler {
 
         SkyboxStar.set();
 
+        Color.update();
         Color.updateColors();
+
+        reset();
+
+        updateShader();
     }
 
     /**
@@ -215,7 +234,7 @@ class Skybox : WorldHandler {
         SkyboxStar.update();
     }
 
-    private void updateShader() {
+    public void updateShader() {
         shaderProgram.setUniform("cameraY", camera.getPosition().Y);
         
         shaderProgram.setUniformb("periodType", Period.getNumber(Period.getCurrent()!));
@@ -230,6 +249,17 @@ class Skybox : WorldHandler {
         
         shaderProgram.setUniform("transitionProgress", Color.transitionProgress);
         shaderProgram.setUniform("starTransition", SkyboxStar.getTransitionProgress());
+    }
+
+    /**
+     *
+     * Reset
+     *
+     */
+    private void reset() {
+        Color.prevTopColor = Color.currentTopColor;
+        Color.prevBottomColor = Color.currentBottomColor;
+        Color.transitionProgress = 1.0f;
     }
 
     /**
@@ -283,6 +313,8 @@ class Skybox : WorldHandler {
          *
          */
         public static void set() {
+            reset();
+            
             MeshData data = MeshDataLoader.load(STAR_MESH);
             data.shaderType = 9;
 
@@ -436,6 +468,21 @@ class Skybox : WorldHandler {
                     currentVisibility = false;
                 }
             }
+        }
+
+        /**
+         *
+         * Reset
+         *
+         */
+        private static void reset() {
+            int currentPeriod = Period.getNumber(Period.getCurrent()!);
+            prevPeriodType = currentPeriod;
+            targetVisibility = isVisible(currentPeriod);
+            visible = targetVisibility;
+            currentVisibility = targetVisibility;
+            transitionProgress = targetVisibility ? 1.0f : 0.0f;
+            isTransitioning = false;
         }
     }
 }

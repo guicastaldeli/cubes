@@ -28,6 +28,10 @@ class MainScene {
 
     public bool initialized = false;
 
+    private float SHOW_DELAY = 1.0f;
+    private float SHOW_TIMER = 0.0f;
+    private bool ReadyToShow = false;
+
     public MainScene(
         Window window, 
         Tick tick,
@@ -173,6 +177,17 @@ class MainScene {
 
         network?.pollAndCache();
         NetworkUpdate.getInstance().update();
+
+        updateShow();
+    }
+
+    private void updateShow() {
+        if(!ReadyToShow) {
+            SHOW_TIMER += tick.getDeltaTime();
+            if(SHOW_TIMER >= SHOW_DELAY) {
+                ReadyToShow = true;
+            }   
+        }
     }
 
     /**
@@ -200,6 +215,7 @@ class MainScene {
         if(!initialized) return;
 
         screenController.running = true;
+        if(!ReadyToShow) return;
 
         mesh.render();
         playerController.render();
@@ -212,40 +228,10 @@ class MainScene {
      */
     public void reset() {
         initialized = false;
+        ReadyToShow = false;
+        SHOW_TIMER = 0.0f;
         screenController.running = false;
+
         Controller.Reset();
-        /*
-        NetworkUpdate.clear();
-        Data.getInstance().clearAll();
-        ServerSnapshot.getInstance().clearAll();
-        MeshRegistry.clear();
-
-        mesh = new Mesh(
-            window, 
-            shaderProgram, 
-            input
-        );
-        collisionManager = new CollisionManager();
-        playerController = new PlayerController(
-            window, 
-            input,
-            shaderProgram, 
-            mesh
-        );
-        
-        worldManager = new WorldManager(
-            window,
-            tick,
-            shaderProgram,
-            mesh, 
-            collisionManager, 
-            playerController,
-            timeCycle,
-            playerController.getCamera()
-        );
-        if(network != null) worldManager.setNetwork(network);
-
-        //EventStream.clear();
-        */
     }
 }

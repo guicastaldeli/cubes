@@ -107,6 +107,10 @@ public static class StateManager {
 
         return value;
     }
+
+    public static bool isRegistered(object instance) {
+        return snapshots.ContainsKey(instance);
+    }
     
     /**
      * 

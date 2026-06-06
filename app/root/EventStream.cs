@@ -6,9 +6,14 @@
     */
 namespace App.Root;
 
+[ManagedState]
 static class EventStream {
     private static Dictionary<string, object> events = new();
     private static Dictionary<string, List<Action<object>>> subscribers = new();
+
+    static EventStream() {
+        StateManager.SRegister(typeof(EventStream));
+    }
 
     /**
      * 

@@ -142,6 +142,7 @@ class CollisionChecker {
     class.
 
     */
+[ManagedState]
 class PhysicsRegistry {
     public class Entry {
         public string id;
@@ -166,9 +167,6 @@ class PhysicsRegistry {
     private Dictionary<string, Entry> entries = new();
 
     private PhysicsRegistry() {
-        this.mesh = null;
-        this.collisionManager = null;
-
         this.collisionChecker = new CollisionChecker();
     }
 
@@ -337,6 +335,10 @@ class PhysicsRegistry {
     public void init(Mesh mesh, CollisionManager collisionManager) {
         this.mesh = mesh;
         this.collisionManager = collisionManager;
+
+        if(!StateManager.isRegistered(this)) {
+            StateManager.Register(this);
+        }
     }
 
     /**

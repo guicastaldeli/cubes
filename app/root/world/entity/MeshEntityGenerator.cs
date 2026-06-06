@@ -48,6 +48,7 @@ class Setter {
     Mesh Entity Generator main class.
 
     */
+[ManagedState]
 class MeshEntityGenerator : WorldHandler {
     private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/MeshEntity.lua");
     
@@ -70,6 +71,8 @@ class MeshEntityGenerator : WorldHandler {
         MeshEntityCollider.onEntityRemoved += meshType => {
             generationQueue.Enqueue(meshType);
         };
+
+        StateManager.Register(this);
     }
 
     /**
@@ -146,10 +149,10 @@ class MeshEntityGenerator : WorldHandler {
      */
     public override void render() {
         if(!initialized) {
-            MeshEntityCollider.cleanup();
-
             var meshTypes = load();
             generate(meshTypes, setInitialized: true);
+
+            initialized = true;
         }
     }
 

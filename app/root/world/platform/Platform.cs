@@ -268,6 +268,9 @@ class Platform : WorldHandler {
     }
 
     private void set(bool renderMesh = true) {
+        height = null;
+        topSurfaceY = null;
+        
         setPosition();
         MeshRegistry.register(GRID_ID);
 
