@@ -1,14 +1,8 @@
 namespace App.Root.Info;
 
 class InfoController {
-    private static string INFO_DIR = Path.GetFullPath(
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
-            "..", "..", "..", "root", ".INFO-DATA")
-    );
-    private static string META_FILE = Path.Combine(
-        INFO_DIR, 
-        "inf.meta.dat"
-    );
+    private static string INFO_DIR = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "root", ".INFO-DATA"));
+    private static string META_FILE = Path.Combine(INFO_DIR, "inf.meta.dat");
     
     private static InfoController? instance;
     private readonly Store store;
