@@ -5,6 +5,23 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using App.Root.Mesh;
 
+/**
+
+    Main world interface
+    handler to general world
+    objets, etc...
+
+    */
+abstract class WorldHandler {
+    public virtual void render() {}
+    public virtual void update() {}
+}
+
+/**
+
+    World Manager main class
+
+    */
 [ManagedState]
 [ClassRegistryIgnore]
 class WorldManager {

@@ -6,6 +6,28 @@ using App.Root.Mesh;
 using App.Root.Input;
 using System.Collections.Generic;
 
+/**
+
+    UI Handler
+
+    */
+interface UIHandler {
+    void render() {}
+    void render(UIElement uiElement) {}
+    void handleAction(string action) {}
+    void handleKeyPress(int key, int action) {}
+    void handleMouseMove(int mouseX, int mouseY) {}
+    void onWindowResize(int width, int height) {}
+    void onShow() {}
+    void onHide() {}
+    void update() {}
+}
+
+/**
+
+    UI main class
+
+    */
 class UI : UIHandler {
     public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ui/");
 

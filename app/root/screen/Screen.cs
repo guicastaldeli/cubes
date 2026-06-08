@@ -5,6 +5,25 @@ using App.Root.Input;
 using App.Root.Scene;
 using System.Collections.Generic;
 
+/**
+
+    Screen Handler
+
+    */
+interface ScreenHandler {
+    void render() {}
+    void update() {}
+    void handleAction(string action) {}
+    void handkeKeyPress(int key, int action) {}
+    void handleMouseMove(int mosueX, int mouseY) {}
+    void onWindowResize(int width, int height) {}
+}
+
+/**
+
+    Screen main class
+
+    */
 class Screen : ScreenHandler {
     public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screen/");
     
