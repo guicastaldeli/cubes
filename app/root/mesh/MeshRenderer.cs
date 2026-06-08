@@ -943,6 +943,12 @@ class MeshRenderer : DataEntry {
                     GL.BufferData(BufferTarget.ArrayBuffer, rotation.Length * sizeof(float), rotation, BufferUsageHint.DynamicDraw);
                 }
 
+                if(instanceScaleVbo != 0 && cachedInstanceScales.Count > instanceIndex) {
+                    float[] scaleData = { cachedInstanceScales[instanceIndex] };
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, instanceScaleVbo);
+                    GL.BufferData(BufferTarget.ArrayBuffer, scaleData.Length * sizeof(float), scaleData, BufferUsageHint.DynamicDraw);
+                }
+
                 drawCount = 1;
             }
 
@@ -976,6 +982,12 @@ class MeshRenderer : DataEntry {
 
                     GL.BindBuffer(BufferTarget.ArrayBuffer, instanceRotationVbo);
                     GL.BufferData(BufferTarget.ArrayBuffer, rotationData.Length * sizeof(float), rotationData, BufferUsageHint.DynamicDraw);
+                }
+
+                if(instanceScaleVbo != 0 && cachedInstanceScales.Count > 0) {
+                    float[] scaleData = cachedInstanceScales.ToArray();
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, instanceScaleVbo);
+                    GL.BufferData(BufferTarget.ArrayBuffer, scaleData.Length * sizeof(float), scaleData, BufferUsageHint.DynamicDraw);
                 }
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

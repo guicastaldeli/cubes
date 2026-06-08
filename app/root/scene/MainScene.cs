@@ -165,13 +165,12 @@ class MainScene {
         timeCycle.update();
         
         input.update();
-
-        playerController.update();
         playerController.getCamera().update();
 
-        mesh.update();
-       // mesh.renderOrtoT();
         worldManager.update();
+        mesh.update();
+
+        playerController.update();
 
         playerController.getNetworkPlayer()?.update();
 

@@ -133,10 +133,6 @@ static class MeshEntityCollider {
         if(i >= colliderIds[id].Count) return;
 
         string colliderId = colliderIds[id][i];
-        if(lastPositions.TryGetValue(colliderId, out Vector3 last)) {
-            if(Vector3.DistanceSquared(last, pos) < 0.01f) return;
-        }
-
         lastPositions[colliderId] = pos;
         MeshCollider.updateInstanced(colliderId, pos);
     }
