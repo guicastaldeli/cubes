@@ -21,6 +21,9 @@ class DocParser {
 
     private static Dictionary<string, string> variables = new();
 
+    private static readonly int WINDOW_WIDTH = Window.WIDTH;
+    private static readonly int WINDOW_HEIGHT = Window.HEIGHT;
+
     private static readonly (string a, string b, string c, string d, string repeat) Exp = (
         @"\$\{(.*?)\}",
         @"\{(\w+)\}",
@@ -337,15 +340,15 @@ class DocParser {
         
         string id = element.HasAttribute("id") ? element.GetAttribute("id") : "";
 
-        int x = parseCoordinate(element, "x", screenWidth, Window.WIDTH);
-        int y = parseCoordinate(element, "y", screenHeight, Window.HEIGHT);
+        int x = parseCoordinate(element, "x", screenWidth, WINDOW_WIDTH);
+        int y = parseCoordinate(element, "y", screenHeight, WINDOW_HEIGHT);
         if(parentElement != null) {
             x += parentElement.x;
             y += parentElement.y;
         }
 
-        int width  = parseSize(element, "width",  screenWidth,  Window.WIDTH, 100);
-        int height = parseSize(element, "height", screenHeight, Window.HEIGHT, 50);
+        int width  = parseSize(element, "width",  screenWidth,  WINDOW_WIDTH, 100);
+        int height = parseSize(element, "height", screenHeight, WINDOW_HEIGHT, 50);
 
         float scale = element.HasAttribute("scale") ? float.Parse(element.GetAttribute("scale")) : 1.0f;
 
@@ -725,15 +728,15 @@ class DocParser {
 
         string id = element.HasAttribute("id") ? element.GetAttribute("id") : "";
 
-        int x = parseCoordinate(element, "x", screenWidth, 1280);
-        int y = parseCoordinate(element, "y", screenHeight, 720);
+        int x = parseCoordinate(element, "x", screenWidth, WINDOW_WIDTH);
+        int y = parseCoordinate(element, "y", screenHeight, WINDOW_HEIGHT);
         if(parentElement != null) {
             x += parentElement.x;
             y += parentElement.y;
         }
 
-        int width  = parseSize(element, "width",  screenWidth,  1280, 100);
-        int height = parseSize(element, "height", screenHeight, 720,  50);
+        int width  = parseSize(element, "width",  screenWidth,  WINDOW_WIDTH, 100);
+        int height = parseSize(element, "height", screenHeight, WINDOW_HEIGHT,  50);
 
         float scale = element.HasAttribute("scale") ? float.Parse(element.GetAttribute("scale")) : 1.0f;
 
