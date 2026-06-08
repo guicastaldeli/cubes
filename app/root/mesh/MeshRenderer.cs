@@ -99,61 +99,9 @@ class MeshRenderer : DataEntry {
         return camera;
     }
 
-    // Scale
-    public void setScale(Vector3 scale) {
-        this.scale = scale;
-        hasScale = true;
-    }
-
-    public void setScale(float scale) {
-        setScale(new Vector3(scale, scale, scale));
-    }
-
-    public void setScale(float x, float y, float z) {
-        setScale(new Vector3(x, y, z));
-    }
-
-    public Vector3 getScale() {
-        return new Vector3(scale);
-    }
-
-    public bool isScaled() {
-        return hasScale;
-    }
-
     // Rotation Matrix
     public void setRotationMatrix(Matrix4 matrix) {
         rotationMatrix = matrix;
-    }
-
-    // Texture
-    public void setTex(int id) {
-        if(id > 0) {
-            texId = id;
-            hasTex = true;
-        } else {
-            texId = -1;
-            hasTex = false;
-        }
-    }
-
-    public void setTex(int id, string path = "") {
-        this.texPath = path;
-        if(id > 0) {
-            texId = id;
-            hasTex = true;
-        } else {
-            texId = -1;
-            hasTex = false;
-        }
-    }
-
-    public string getTexPath() {
-        return texPath;
-    }
-
-    public int getTexId() {
-        return texId;
     }
 
     // Model Matrix
@@ -291,6 +239,76 @@ class MeshRenderer : DataEntry {
     }
 
     /**
+     *
+     * Texture
+     *
+     */
+    public void setTex(int id) {
+        if(id > 0) {
+            texId = id;
+            hasTex = true;
+        } else {
+            texId = -1;
+            hasTex = false;
+        }
+    }
+
+    public void setTex(int id, string path = "") {
+        this.texPath = path;
+        if(id > 0) {
+            texId = id;
+            hasTex = true;
+        } else {
+            texId = -1;
+            hasTex = false;
+        }
+    }
+
+    public string getTexPath() {
+        return texPath;
+    }
+
+    public int getTexId() {
+        return texId;
+    }
+
+    /**
+     *
+     * Scale
+     *
+     */
+    public void setScale(Vector3 scale) {
+        this.scale = scale;
+        hasScale = true;
+    }
+
+    public void setScale(float scale) {
+        setScale(new Vector3(scale, scale, scale));
+    }
+
+    public void setScale(float x, float y, float z) {
+        setScale(new Vector3(x, y, z));
+    }
+
+    public Vector3 getScale() {
+        return new Vector3(scale);
+    }
+
+    public bool isScaled() {
+        return hasScale;
+    }
+
+    private void setInstancedScales(List<Vector3> positions) {
+        float[] scaleData = Enumerable.Repeat(1.0f, positions.Count).ToArray();
+        if(instanceScaleVbo == 0) instanceScaleVbo = GL.GenBuffer();
+        GL.BindBuffer(BufferTarget.ArrayBuffer, instanceScaleVbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, scaleData.Length * sizeof(float), scaleData, BufferUsageHint.StaticDraw);
+        GL.VertexAttribPointer(8, 1, VertexAttribPointerType.Float, false, 0, 0);
+        GL.EnableVertexAttribArray(8);
+        GL.VertexAttribDivisor(8, 1);
+    }
+
+    /**
      * 
      * Position
      *
@@ -325,6 +343,9 @@ class MeshRenderer : DataEntry {
         GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
         GL.EnableVertexAttribArray(4);
         GL.VertexAttribDivisor(4, 1);
+        
+        setInstancedScales(positions);
+
         GL.BindVertexArray(0);
     }
 
