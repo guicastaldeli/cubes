@@ -4,6 +4,7 @@
 
     */
 namespace App.Root.World.Platform;
+using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
@@ -14,6 +15,7 @@ using App.Root.Resource;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 
+[Chunked(renderDistance: 8)]
 class Platform : WorldHandler {
     private Mesh mesh;
     private CollisionManager collisionManager;
@@ -32,6 +34,10 @@ class Platform : WorldHandler {
     private float spacing = 1.0f;
 
     private bool initialized = false;
+
+    private Dictionary<ChunkCoord, List<string>> chunkCollliders = new();
+    private List<Vector3> allPositions = new();
+    private bool positionsUsed = false;
     
     public Platform(
         [Inject] Window window,
@@ -318,6 +324,16 @@ class Platform : WorldHandler {
         }
 
         initialized = true;
+    }
+
+    /**
+     * 
+     * Chunk
+     *
+     */
+    // On Chunk Load
+    public override void onChunkLoad(ChunkCoord coord, ChunkData data) {
+        base.onChunkLoad(coord, data);
     }
 
     /**

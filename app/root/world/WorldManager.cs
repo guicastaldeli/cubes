@@ -4,6 +4,7 @@ using App.Root.Player;
 using App.Root.Shaders;
 using App.Root.Utils;
 using App.Root.Mesh;
+using App.Root.Chunk;
 
 /**
 
@@ -12,7 +13,7 @@ using App.Root.Mesh;
     objets, etc...
 
     */
-abstract class WorldHandler {
+abstract class WorldHandler : ChunkHandler {
     public virtual void render() {}
     public virtual void update() {}
 }
@@ -33,6 +34,7 @@ class WorldManager {
     private PlayerController playerController;
     private TimeCycle timeCycle;
     private Camera camera;
+    private ChunkManager chunkManager;
 
     private Network? network;
     private Server? server;
@@ -50,7 +52,8 @@ class WorldManager {
         CollisionManager collisionManager,
         PlayerController playerController,
         TimeCycle timeCycle,
-        Camera camera
+        Camera camera,
+        ChunkManager chunkManager
     ) {
         this.window = window;
         this.tick = tick;
@@ -60,8 +63,20 @@ class WorldManager {
         this.playerController = playerController;
         this.timeCycle = timeCycle;
         this.camera = camera;
+        this.chunkManager = chunkManager;
 
-        this.world = new World(window, tick, shaderProgram, mesh, this, collisionManager, timeCycle, camera, playerController);
+        this.world = new World(
+            window, 
+            tick, 
+            shaderProgram, 
+            mesh, 
+            this, 
+            collisionManager, 
+            timeCycle, 
+            camera, 
+            playerController,
+            chunkManager
+        );
         this.worldBroadcaster = new WorldBroadcaster(this);
         this.networkWorld = new NetworkWorld(this);
 

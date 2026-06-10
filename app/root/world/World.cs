@@ -6,6 +6,7 @@ using App.Root.Player;
 using App.Root.Shaders;
 using App.Root.Utils;
 using App.Root.Mesh;
+using App.Root.Chunk;
 
 [ManagedState]
 [ClassRegistryIgnore]
@@ -17,6 +18,7 @@ class World : WorldHandler {
     private CollisionManager collisionManager;
     private TimeCycle timeCycle;
     private Camera camera;
+    private ChunkManager chunkManager;
 
     private WorldManager worldManager;
     private WorldBoundary worldBoundary;
@@ -38,7 +40,8 @@ class World : WorldHandler {
         CollisionManager collisionManager,
         TimeCycle timeCycle,
         Camera camera,
-        PlayerController playerController
+        PlayerController playerController,
+        ChunkManager chunkManager
     ) {
         this.window = window;
         this.tick = tick;
@@ -48,6 +51,7 @@ class World : WorldHandler {
         this.collisionManager = collisionManager;
         this.timeCycle = timeCycle;
         this.camera = camera;
+        this.chunkManager = chunkManager;
 
         ServiceContainer.Register(window);
         ServiceContainer.Register(tick);
@@ -58,6 +62,7 @@ class World : WorldHandler {
         ServiceContainer.Register(timeCycle);
         ServiceContainer.Register(camera);
         ServiceContainer.Register(playerController);
+        ServiceContainer.Register(chunkManager);
         ServiceContainer.SRegister(this);
 
         WorldUpdater.getInstance().init(window, mesh, collisionManager);
@@ -141,6 +146,8 @@ class World : WorldHandler {
 
         var registry = new ClassRegistry(ServiceContainer);
         el = registry.ORegister<WorldHandler>();
+
+        chunkManager.registerHandlers(el.Cast<ChunkHandler>().ToList());
 
         prevEl = new List<WorldHandler>(el);
         isRegistered = true;

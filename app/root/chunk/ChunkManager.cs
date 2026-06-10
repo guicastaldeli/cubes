@@ -42,7 +42,13 @@ class ChunkManager {
 
     private bool initialized = false;
 
-    public ChunkManager(Window window, Camera camera, Mesh mesh, CollisionManager collisionManager, PlayerController playerController) {
+    public ChunkManager(
+        Window window, 
+        Camera camera, 
+        Mesh mesh, 
+        CollisionManager collisionManager, 
+        PlayerController playerController
+    ) {
         this.window = window;
         this.camera = camera;
         this.mesh = mesh;

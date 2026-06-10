@@ -8,6 +8,7 @@ using App.Root.World;
 using App.Root.Mesh;
 using App.Root.UI;
 using App.Root.Input;
+using App.Root.Chunk;
 
 class MainScene {
     private Window window;
@@ -25,6 +26,8 @@ class MainScene {
     private TextRenderer textRenderer = null!;
     private ScreenController screenController = null!;
     private UIController uiController = null!;
+
+    private ChunkManager chunkManager;
 
     public bool initialized = false;
 
@@ -57,6 +60,14 @@ class MainScene {
 
         this.collisionManager = new CollisionManager();
 
+        this.chunkManager = new ChunkManager(
+            window, 
+            getCamera(), 
+            mesh, 
+            collisionManager, 
+            playerController
+        );
+
         this.worldManager = new WorldManager(
             window, 
             tick,
@@ -65,7 +76,8 @@ class MainScene {
             collisionManager, 
             playerController,
             timeCycle,
-            playerController.getCamera()
+            getCamera(),
+            chunkManager
         );
     }
 
@@ -167,6 +179,7 @@ class MainScene {
         input.update();
         playerController.getCamera().update();
 
+        chunkManager.update();
         worldManager.update();
         mesh.update();
 
@@ -218,6 +231,7 @@ class MainScene {
 
         mesh.render();
         playerController.render();
+        chunkManager.render();
     }
 
     /**
