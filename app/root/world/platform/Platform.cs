@@ -28,10 +28,10 @@ class Platform : WorldHandler {
     (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
     private Vector3 offset = Vector3.Zero;
     
-    private int sizeX = 10;
-    private int sizeY = 3;
-    private int sizeZ = 10;
-    private float spacing = 1.0f;
+    private const int CHUNK_X = 16;
+    private const int CHUNK_Y = 16;
+    private const int CHUNK_Z = 16;
+    private const float SPACING = 1.0f;
 
     private bool initialized = false;
 
@@ -64,7 +64,7 @@ class Platform : WorldHandler {
     // Set Client
     public void setClient() {
         if(initialized) return;
-        set(renderMesh: false);
+        setPlatform(renderMesh: false);
     } 
 
     // Set Position
@@ -75,7 +75,7 @@ class Platform : WorldHandler {
     // Height
     public Vector3 getHeight() {
         Vector3 meshSize = mesh.getSize(GRID_ID);
-        float topY = offset.Y + (sizeY * spacing) + (meshSize.Y / 2.0f);
+        float topY = offset.Y + (CHUNK_Y * SPACING) + (meshSize.Y / 2.0f);
         Vector3 res = new Vector3(offset.X, topY, offset.Z); 
         return res;
     }
@@ -262,6 +262,7 @@ class Platform : WorldHandler {
      * Set
      *
      */
+    // Set Mesh
     private void setMesh(List<Vector3> positions) {
         var renderer = mesh.getMeshRenderer(GRID_ID);
         if(renderer != null) {
@@ -270,7 +271,21 @@ class Platform : WorldHandler {
         }
     }
 
-    private void set(bool renderMesh = true) {
+    // Set Bounds
+    private (float wx, float wy, float wz)? setBounds(Vector3 chunkOrigin, int x, int y, int z) {
+        float wx = chunkOrigin.X + x * SPACING;
+        float wy = chunkOrigin.Y + y * SPACING;
+        float wz = chunkOrigin.Z + z * SPACING;
+
+        if(wx < 0 || wx >= CHUNK_X ||
+            wy < 0 || wy >= CHUNK_Y || 
+            wz < 0 || wz >= CHUNK_Z) return null;
+
+        return (wx, wy, wz); 
+    }
+
+    // Set Platform
+    private void setPlatform(bool renderMesh = true) {
         if(!initialized) {
             height = null;
             topSurfaceY = null;
@@ -291,10 +306,6 @@ class Platform : WorldHandler {
             var renderer = mesh.getMeshRenderer(GRID_ID);
             if(renderer != null) renderer.isInstanced = true;
 
-            platformRegistry.render();
-            set2();
-            set3();
-
             initialized = true;
         }
 
@@ -311,22 +322,25 @@ class Platform : WorldHandler {
 
         var positions = new List<Vector3>();
 
-        for(int x = 0; x < ChunkCoord.SIZE; x++) {
-            for(int z = 0; z < ChunkCoord.SIZE; z++) {
-                Vector3 pos = new Vector3(
-                    chunkOrigin.X + x * spacing,
-                    0.0f,
-                    chunkOrigin.Z + z * spacing
-                );
+        int count = ChunkCoord.SIZE * ChunkCoord.SIZE * ChunkCoord.SIZE;
+        for(int i = 0; i < count; i++) {
+            int x = i % ChunkCoord.SIZE;
+            int y = (i / ChunkCoord.SIZE) % ChunkCoord.SIZE;
+            int z = i / (ChunkCoord.SIZE * ChunkCoord.SIZE);
 
-                string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}_{x}_{z}";
-                colliderIds.Add(colliderId);
-                positions.Add(pos);
+            var bounds = setBounds(chunkOrigin, x, y, z);
+            if(bounds == null) continue;
 
-                collisionManager.addStaticCollider(new StaticObject(
-                    pos, half2.X, half2.Y, half2.Z, colliderId
-                ));
-            }
+            var (wx, wy, wz) = bounds.Value;
+            Vector3 pos = new Vector3(wx, wy, wz);
+
+            string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}_{x}_{z}";
+            colliderIds.Add(colliderId);
+            positions.Add(pos);
+
+            collisionManager.addStaticCollider(new StaticObject(
+                pos, half2.X, half2.Y, half2.Z, colliderId
+            ));
         }
 
         chunkColliders[coord] = colliderIds;
@@ -348,12 +362,13 @@ class Platform : WorldHandler {
      */
     private void merge() {
         Console.WriteLine($"[Platform] merge() called - IsUsed: {ChunkPositions.IsUsed(GRID_ID)}");
-    if(ChunkPositions.IsUsed(GRID_ID)) {
-        var merged = ChunkPositions.GetMerged(GRID_ID);
-        Console.WriteLine($"[Platform] uploading {merged.Count} positions to GPU");
-        mesh.getMeshRenderer(GRID_ID)?.setInstancePositions(merged);
-        ChunkPositions.ClearUsed(GRID_ID);
-    }
+        
+        if(ChunkPositions.IsUsed(GRID_ID)) {
+            var merged = ChunkPositions.GetMerged(GRID_ID);
+            Console.WriteLine($"[Platform] uploading {merged.Count} positions to GPU");
+            mesh.getMeshRenderer(GRID_ID)?.setInstancePositions(merged);
+            ChunkPositions.ClearUsed(GRID_ID);
+        }
     }
 
     /**
@@ -373,7 +388,7 @@ class Platform : WorldHandler {
             */
         }
 
-        set();
+        setPlatform();
     }
 
     /**
