@@ -12,9 +12,64 @@ using System.Reflection;
 
     */
 abstract class ChunkHandler {
-    public virtual void onChunkLoad(ChunkCoord coord, ChunkData data) {}
-    public virtual void onChunkUnload(ChunkCoord coord) {}
+    public virtual void render() {}
+    public virtual void unrender() {}
+    public virtual void update() {}
 }
+
+/**
+
+    Chunk Positions class
+
+    */
+static class ChunkPositions {
+    private static Dictionary<string, Dictionary<ChunkCoord, List<Vector3>>> handlerPositions = new();
+    private static Dictionary<string, bool> handlerUsed = new();
+
+    // Is Used
+    public static bool IsUsed(string handlerId) {
+        bool val = handlerUsed.TryGetValue(handlerId, out var used) && used;
+        return val;
+    }
+
+    // Clear Used
+    public static void ClearUsed(string handlerId) {
+        handlerUsed[handlerId] = false;
+    }
+
+    /**
+     *
+     * Add
+     *
+     */
+    public static void Add(string handlerId, ChunkCoord coord, List<Vector3> positions) {
+        if(!handlerPositions.ContainsKey(handlerId)) handlerPositions[handlerId] = new();
+        handlerPositions[handlerId][coord] = positions;
+        handlerUsed[handlerId] = true;
+    }
+
+    /**
+     *
+     * Remove
+     *
+     */
+    public static void Remove(string handlerId, ChunkCoord coord) {
+        if(handlerPositions.TryGetValue(handlerId, out var map)) map.Remove(coord);
+        handlerUsed[handlerId] = true;
+    }
+
+    /**
+     *
+     * Get Merged
+     *
+     */
+    public static List<Vector3> GetMerged(string handlerId) {
+        if(!handlerPositions.TryGetValue(handlerId, out var map)) return new();
+        
+        List<Vector3> val = map.Values.SelectMany(p => p).ToList();
+        return val;
+    }
+} 
 
 /**
 
@@ -28,36 +83,43 @@ class ChunkManager {
     private Window window;
     private Camera camera;
     private Mesh mesh;
-    private CollisionManager collisionManager;
     private PlayerController playerController;
+
+    private List<ChunkHandler> chunkedHandlers = new();
+    private List<ChunkHandler> globalHandlers = new();
 
     private Dictionary<ChunkCoord, ChunkData> chunkDataMap = new();
     private HashSet<ChunkCoord> activeChunks = new();
+    private Dictionary<ChunkHandler, HashSet<ChunkCoord>> handlerActiveChunks = new();
 
     private Queue<ChunkCoord> loadQueue = new();
     private Queue<ChunkCoord> unloadQueue = new();
-    private List<ChunkHandler> chunkedHandlers = new();
 
     private ChunkCoord lastPlayerChunk = new ChunkCoord(int.MaxValue, 0, int.MaxValue);
 
     private bool initialized = false;
 
-    public ChunkManager(
-        Window window, 
-        Camera camera, 
-        Mesh mesh, 
-        CollisionManager collisionManager, 
-        PlayerController playerController
-    ) {
+    public ChunkManager(Window window, Camera camera, Mesh mesh, PlayerController playerController) {
         this.window = window;
         this.camera = camera;
         this.mesh = mesh;
-        this.collisionManager = collisionManager;
         this.playerController = playerController;
+    }
+
+    // Get Active Chunks
+    public HashSet<ChunkCoord> getActiveChunks() {
+        return activeChunks;
+    }
+
+    // Get Chunk Data
+    public ChunkData? getChunkData(ChunkCoord coord) {
+        ChunkData? val = chunkDataMap.TryGetValue(coord, out var data) ? data : null;
+        return val;
     }
 
     // Recalculate Chunks
     private void recalculateChunks(ChunkCoord playerChunk) {
+        Console.WriteLine($"[ChunkManager] recalculating chunks for player at {playerChunk}");
         var shouldBeActive = new HashSet<ChunkCoord>();
 
         for(int dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) {
@@ -80,30 +142,15 @@ class ChunkManager {
     // Queue Loads
     private void queueLoads(HashSet<ChunkCoord> shouldBeActive) {
         foreach(var coord in shouldBeActive) {
-            if(!activeChunks.Contains(coord)) {
-                loadQueue.Enqueue(coord);
-            }
+            if(!activeChunks.Contains(coord)) loadQueue.Enqueue(coord);
         }
     }
 
     // Queue Unloads
     private void queueUnloads(HashSet<ChunkCoord> shouldBeActive) {
         foreach(var coord in activeChunks) {
-            if(!shouldBeActive.Contains(coord)) {
-                unloadQueue.Enqueue(coord);
-            }
+            if(!shouldBeActive.Contains(coord)) unloadQueue.Enqueue(coord);
         }
-    }
-
-    // Get Active Chunjs
-    public HashSet<ChunkCoord> getActiveChunks() {
-        return activeChunks;
-    }
-
-    // Get Chunk Data
-    public ChunkData? getChunkData(ChunkCoord coord) {
-        ChunkData? val = chunkDataMap.TryGetValue(coord, out var data) ? data : null;
-        return val;
     }
 
     /**
@@ -111,18 +158,24 @@ class ChunkManager {
      * Process Queues
      *
      */
-    private void processQueues() {
-        while(unloadQueue.Count > 0) {
-            var coord = unloadQueue.Dequeue();
-            unloadChunk(coord);
-        }
-
+    // Process Load Queue
+    private void processLoadQueue() {
         int loaded = 0;
         while(loadQueue.Count > 0 && loaded < MAX_LOAD_PER_FRAME) {
             var coord = loadQueue.Dequeue();
             if(!activeChunks.Contains(coord)) {
                 loadChunk(coord);
                 loaded++;
+            }
+        }
+    }
+    
+    // Process Unload Queue
+    private void processUnloadQueue() {
+        while(unloadQueue.Count > 0) {
+            var coord = unloadQueue.Dequeue();
+            if(activeChunks.Contains(coord)) {
+                window.queueOnRenderThread(() => unloadChunk(coord));
             }
         }
     }
@@ -133,6 +186,7 @@ class ChunkManager {
      *
      */
     private void loadChunk(ChunkCoord coord) {
+        Console.WriteLine($"[ChunkManager] loadChunk called for {coord}");
         if(!chunkDataMap.TryGetValue(coord, out var data)) {
             data = ChunkGenerator.generate(coord);
             chunkDataMap[coord] = data;
@@ -140,11 +194,13 @@ class ChunkManager {
 
         activeChunks.Add(coord);
 
-        window.queueOnRenderThread(() => {
-            foreach(var handler in chunkedHandlers) {
-                handler.onChunkLoad(coord, data);
-            }
-        });
+        foreach(var handler in chunkedHandlers) {
+            ContextChunk.Set(coord);
+            handler.render();
+
+            ContextChunk.Clear();
+            handlerActiveChunks[handler].Add(coord);
+        }
 
         Console.WriteLine($"[ChunkManager] Loaded {coord}");
     }
@@ -158,11 +214,13 @@ class ChunkManager {
         if(!activeChunks.Contains(coord)) return;
         activeChunks.Remove(coord);
 
-        window.queueOnRenderThread(() => {
-            foreach(var handler in chunkedHandlers) {
-                handler.onChunkUnload(coord);
-            }
-        });
+        foreach(var handler in chunkedHandlers) {
+            ContextChunk.Set(coord);
+            handler.unrender();
+
+            ContextChunk.Clear();
+            handlerActiveChunks[handler].Remove(coord);
+        }
 
         Console.WriteLine($"[ChunkManager] Unloaded {coord}");
     }
@@ -174,13 +232,23 @@ class ChunkManager {
      */
     public void registerHandlers(List<ChunkHandler> handlers) {
         chunkedHandlers.Clear();
+        globalHandlers.Clear();
+        handlerActiveChunks.Clear();
         
         foreach(var handler in handlers) {
             var attr = handler.GetType().GetCustomAttribute<ChunkedAttribute>();
             if(attr != null) {
                 chunkedHandlers.Add(handler);
+                handlerActiveChunks[handler] = new HashSet<ChunkCoord>();
+
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"[ChunkManager] Registered chunked handler: {handler.GetType().Name}");
+                Console.WriteLine($"[ChunkManager] Chunked: {handler.GetType().Name}");
+                Console.ResetColor();
+            } else {
+                globalHandlers.Add(handler);
+
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                Console.WriteLine($"[ChunkManager] Global: {handler.GetType().Name}");
                 Console.ResetColor();
             }
         }
@@ -206,6 +274,12 @@ class ChunkManager {
             initialized = true;
             Console.WriteLine($"[ChunkManager] Initialized with {chunkDataMap.Count} saved chunks.");
         }
+
+        foreach(var handler in globalHandlers) {
+            handler.render();
+        }
+
+        processLoadQueue();
     }
 
     /**
@@ -216,6 +290,15 @@ class ChunkManager {
     public void update() {
         if(!initialized) return;
 
+        foreach(var handler in globalHandlers) {
+            handler.update();
+        }
+        foreach(var handler in chunkedHandlers) {
+            if(handlerActiveChunks[handler].Count > 0) {
+                handler.update();
+            }
+        }
+
         Vector3 playerPos = playerController.getCamera().getPosition();
         ChunkCoord playerChunk = ChunkCoord.FromWorldPosition(playerPos.X, playerPos.Y, playerPos.Z);
 
@@ -224,6 +307,7 @@ class ChunkManager {
             recalculateChunks(playerChunk);
         }
 
-        processQueues();
+        processUnloadQueue();
+        processLoadQueue();
     }
 }

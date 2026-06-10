@@ -117,7 +117,7 @@ class World : WorldHandler {
      */
     public override void render() {
         if(!isRegistered) Register();
-        foreach(var e in el) e.render();
+        chunkManager.render();
     }
 
     /**
@@ -126,7 +126,7 @@ class World : WorldHandler {
      *
      */
     public override void update() {
-        foreach(var e in el) e.update();
+        chunkManager.update();
         worldBoundary.apply();
 
         PhysicsRegistry.getInstance().update();

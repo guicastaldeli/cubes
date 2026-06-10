@@ -14,8 +14,7 @@ using App.Root.Chunk;
 
     */
 abstract class WorldHandler : ChunkHandler {
-    public virtual void render() {}
-    public virtual void update() {}
+    
 }
 
 /**

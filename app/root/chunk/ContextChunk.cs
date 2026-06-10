@@ -1,7 +1,7 @@
 namespace App.Root.Chunk;
 
 static class ContextChunk {
-    [ThreadStatic] 
+    [ThreadStatic]
     private static ChunkCoord? _current;
 
     public static ChunkCoord? current {

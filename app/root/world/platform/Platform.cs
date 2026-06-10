@@ -15,7 +15,7 @@ using App.Root.Resource;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 
-[Chunked(renderDistance: 8)]
+[Chunked]
 class Platform : WorldHandler {
     private Mesh mesh;
     private CollisionManager collisionManager;
@@ -35,9 +35,17 @@ class Platform : WorldHandler {
 
     private bool initialized = false;
 
-    private Dictionary<ChunkCoord, List<string>> chunkCollliders = new();
-    private List<Vector3> allPositions = new();
-    private bool positionsUsed = false;
+    private Dictionary<ChunkCoord, List<string>> chunkColliders = new();
+
+    public static Vector3? height {
+        get;
+        private set;
+    }
+
+    public static float? topSurfaceY {
+        get;
+        private set;
+    }
     
     public Platform(
         [Inject] Window window,
@@ -70,16 +78,6 @@ class Platform : WorldHandler {
         float topY = offset.Y + (sizeY * spacing) + (meshSize.Y / 2.0f);
         Vector3 res = new Vector3(offset.X, topY, offset.Z); 
         return res;
-    }
-
-    public static Vector3? height {
-        get;
-        private set;
-    }
-
-    public static float? topSurfaceY {
-        get;
-        private set;
     }
 
     /**
@@ -259,7 +257,6 @@ class Platform : WorldHandler {
         ****
 
         */
-
     /**
      * 
      * Set
@@ -274,47 +271,67 @@ class Platform : WorldHandler {
     }
 
     private void set(bool renderMesh = true) {
-        height = null;
-        topSurfaceY = null;
-        
-        setPosition();
-        MeshRegistry.register(GRID_ID);
+        if(!initialized) {
+            height = null;
+            topSurfaceY = null;
 
-        List<Vector3> positions = new();
-        float offsetX = -(sizeX / 2.0f) * spacing + offset.X;
-        float offsetZ = -(sizeZ / 2.0f) * spacing + offset.Z;
-        
-        mesh.add(GRID_ID, MESH);
-        MeshInteractionRegistry.getInstance().register(
-            GRID_ID,
-            State.GRID,
-            mesh,
-            PhysicsType.RECEIVER
-        );
+            mesh.add(GRID_ID, MESH);
+            MeshInteractionRegistry.getInstance().register(
+                GRID_ID,
+                State.GRID,
+                mesh,
+                PhysicsType.RECEIVER
+            );
 
-        height = getHeight();
-        Vector3 size = mesh.getSize(GRID_ID);
-        Vector3 half = size / 2.0f;
-        topSurfaceY = offset.Y + (sizeY - 1) * spacing + half.Y;
+            Vector3 size = mesh.getSize(GRID_ID);
+            Vector3 half = size / 2.0f;
+            topSurfaceY = half.Y;
+            height = new Vector3(0, topSurfaceY.Value, 0);
 
-        for(int x = 0; x < sizeX; x++) {
-            for(int y = 0; y < sizeY; y++) {
-                for(int z = 0; z < sizeZ; z++) {
-                    string id = $"cube_{x}_{y}_{z}";
+            var renderer = mesh.getMeshRenderer(GRID_ID);
+            if(renderer != null) renderer.isInstanced = true;
 
-                    float px = offsetX + x * spacing;
-                    float py = (y * spacing) + offset.Y;
-                    float pz = offsetZ + z * spacing;
-                    positions.Add(new Vector3(px, py, pz));
+            platformRegistry.render();
+            set2();
+            set3();
 
-                    collisionManager.addStaticCollider(new StaticObject(
-                        new Vector3(px, py, pz), 
-                        half.X, half.Y, half.Z,
-                        id
-                    ));
-                }
+            initialized = true;
+        }
+
+        Console.WriteLine($"[Platform] set() - hasChunk: {ContextChunk.hasChunk}");
+        if(!ContextChunk.hasChunk) return;
+        ChunkCoord coord = ContextChunk.current!.Value;
+        Console.WriteLine($"[Platform] generating chunk {coord}");
+        if(chunkColliders.ContainsKey(coord)) return;
+
+        var colliderIds = new List<string>();
+        Vector3 chunkOrigin = coord.ToWorldPosition();
+        Vector3 meshSize = mesh.getSize(GRID_ID);
+        Vector3 half2 = meshSize / 2.0f;
+
+        var positions = new List<Vector3>();
+
+        for(int x = 0; x < ChunkCoord.SIZE; x++) {
+            for(int z = 0; z < ChunkCoord.SIZE; z++) {
+                Vector3 pos = new Vector3(
+                    chunkOrigin.X + x * spacing,
+                    0.0f,
+                    chunkOrigin.Z + z * spacing
+                );
+
+                string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}_{x}_{z}";
+                colliderIds.Add(colliderId);
+                positions.Add(pos);
+
+                collisionManager.addStaticCollider(new StaticObject(
+                    pos, half2.X, half2.Y, half2.Z, colliderId
+                ));
             }
         }
+
+        chunkColliders[coord] = colliderIds;
+        Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
+        ChunkPositions.Add(GRID_ID, coord, positions);
 
         if(renderMesh) {
             setMesh(positions);
@@ -322,18 +339,41 @@ class Platform : WorldHandler {
         } else {
             mesh.remove(GRID_ID);
         }
-
-        initialized = true;
     }
 
     /**
      * 
-     * Chunk
+     * Merge
      *
      */
-    // On Chunk Load
-    public override void onChunkLoad(ChunkCoord coord, ChunkData data) {
-        base.onChunkLoad(coord, data);
+    private void merge() {
+        Console.WriteLine($"[Platform] merge() called - IsUsed: {ChunkPositions.IsUsed(GRID_ID)}");
+    if(ChunkPositions.IsUsed(GRID_ID)) {
+        var merged = ChunkPositions.GetMerged(GRID_ID);
+        Console.WriteLine($"[Platform] uploading {merged.Count} positions to GPU");
+        mesh.getMeshRenderer(GRID_ID)?.setInstancePositions(merged);
+        ChunkPositions.ClearUsed(GRID_ID);
+    }
+    }
+
+    /**
+     * 
+     * Load
+     *
+     */
+    private void load() {
+        if(!initialized) {
+            /*
+            platformRegistry.render();
+            set2();
+            set3();
+            set4();
+
+            spawnGrid("cube", new Vector3(4f, 3f, -3f), 5, 3);
+            */
+        }
+
+        set();
     }
 
     /**
@@ -342,19 +382,26 @@ class Platform : WorldHandler {
      *
      */
     public override void render() {
-        if(!initialized) {
-            platformRegistry.render();
+        load();
+        merge();
+    }
 
-            set();
+    /**
+     * 
+     * Unrender
+     *
+     */
+    public override void unrender() {
+        if(!ContextChunk.hasChunk) return;
+        ChunkCoord coord = ContextChunk.current!.Value;
 
-            set2();
-            set3();
-            //set4();
-            
-            spawnGrid("cube", new Vector3(4f, 3f, -3f), 5, 3);
-            
-            initialized = true;
+        if(chunkColliders.TryGetValue(coord, out var colliderIds)) {
+           foreach(var id in colliderIds) collisionManager.removeCollider(id);
+           collisionManager.processRemovals();
+           chunkColliders.Remove(coord); 
         }
+
+        ChunkPositions.Remove(GRID_ID, coord);
     }
 
     /**

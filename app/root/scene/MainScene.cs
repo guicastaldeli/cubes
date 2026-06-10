@@ -58,15 +58,14 @@ class MainScene {
             mesh
         );
 
-        this.collisionManager = new CollisionManager();
-
         this.chunkManager = new ChunkManager(
             window, 
             getCamera(), 
-            mesh, 
-            collisionManager, 
+            mesh,
             playerController
         );
+
+        this.collisionManager = new CollisionManager();
 
         this.worldManager = new WorldManager(
             window, 
@@ -179,7 +178,6 @@ class MainScene {
         input.update();
         playerController.getCamera().update();
 
-        chunkManager.update();
         worldManager.update();
         mesh.update();
 
@@ -231,7 +229,6 @@ class MainScene {
 
         mesh.render();
         playerController.render();
-        chunkManager.render();
     }
 
     /**
