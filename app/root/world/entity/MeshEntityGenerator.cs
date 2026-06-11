@@ -5,9 +5,12 @@
 
     */
 namespace App.Root.World.Entity;
+using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Mesh;
+using App.Root.Player;
 using App.Root.Utils;
+using OpenTK.Mathematics;
 using NLua;
 
 /**
@@ -48,6 +51,7 @@ class Setter {
     Mesh Entity Generator main class.
 
     */
+[Chunked]
 [ManagedState]
 class MeshEntityGenerator : WorldHandler {
     private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/MeshEntity.lua");
@@ -55,16 +59,23 @@ class MeshEntityGenerator : WorldHandler {
     private Tick tick;
     private Mesh mesh;
     private CollisionManager collisionManager;
+    private PlayerController playerController;
     private MeshEntitySpawner entitySpawner;
 
     private Queue<string> generationQueue = new();
 
     private bool initialized = false;
 
-    public MeshEntityGenerator([Inject] Tick tick, [Inject] Mesh mesh, [Inject] CollisionManager collisionManager) {
+    public MeshEntityGenerator(
+        [Inject] Tick tick, 
+        [Inject] Mesh mesh, 
+        [Inject] CollisionManager collisionManager,
+        [Inject] PlayerController playerController
+    ) {
         this.tick = tick;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
+        this.playerController = playerController;
     
         this.entitySpawner = new MeshEntitySpawner(tick, mesh, collisionManager);
     
@@ -173,7 +184,8 @@ class MeshEntityGenerator : WorldHandler {
      *
      */
     public override void update() {
-        entitySpawner.update();
+        Vector3 playerPosition = playerController.getCamera().getPosition();
+        entitySpawner.update(playerPosition);
 
         while(generationQueue.Count > 0) {
             string meshType = generationQueue.Dequeue();

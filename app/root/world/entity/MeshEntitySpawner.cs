@@ -4,6 +4,8 @@
 
     */
 namespace App.Root.World.Entity;
+
+using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
@@ -81,6 +83,7 @@ public struct Instance {
 static class SpawnPoint {
     private static CollisionManager collisionManager = null!;
     private static BoundaryObject boundaryObject = null!;
+    private static Vector3 playerPosition = Vector3.Zero;
 
     /**
      * 
@@ -110,21 +113,30 @@ static class SpawnPoint {
      */
     public static (Vector3 center, Vector3 size) get() {
         var dist = boundaryObject.getBoundaryDistance();
-
         float minY = boundaryObject.getMinHeight();
         float maxY = boundaryObject.getMaxHeight();
 
-        float centerX = 0.0f;
+        float centerX = playerPosition.X;
         float centerY = (minY + maxY) / 2.0f;
-        float z = -dist;
+        float z = playerPosition.Z - dist;
 
-        float width = maxY - minY;
+        float width = dist * 2.0f;
         float height = maxY - minY;
+        float depth = dist * 2.0f;
 
         return (
             new Vector3(centerX, centerY, z),
-            new Vector3(width, height, 0)
+            new Vector3(width, height, depth)
         );
+    }
+
+    /**
+     * 
+     * Update
+     *
+     */
+    public static void update(Vector3 pos) {
+        playerPosition = new Vector3(pos.X, 0.0f, 0.0f);
     }
 }
 
@@ -183,6 +195,8 @@ class MeshEntitySpawner {
     private Dictionary<string, List<Instance>> cachedByMeshType = new();
     private Dictionary<string, (object?[] args, IList[] lists)> cachedArgsByMeshType = new();
 
+    private Vector3 lastPlayerPosition = Vector3.Zero;
+
     public MeshEntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
         this.tick = tick;
         this.mesh = mesh;
@@ -195,8 +209,8 @@ class MeshEntitySpawner {
 
         onEvents();
         
-        MeshEntityCollider.init(mesh, collisionManager, this);
-        MeshEntityCollider.onEvents();
+        //MeshEntityCollider.init(mesh, collisionManager, this);
+        //MeshEntityCollider.onEvents();
     }
 
     // Get Boundary
@@ -216,8 +230,13 @@ class MeshEntitySpawner {
 
     // Is Outside
     public bool isOutside(Vector3 position) {
-        bool val = position.Z > endZ;
-        return val;
+        float maxDistX = SPAWN_AREA;
+        float maxDistZ = SPAWN_AREA;
+
+        bool outsizeX = MathF.Abs(position.X - lastPlayerPosition.X) > maxDistX;
+        bool outsizeZ = position.Z > lastPlayerPosition.Z + maxDistZ;
+
+        return outsizeX || outsizeZ;
     }
 
     // Get Instances
@@ -259,7 +278,7 @@ class MeshEntitySpawner {
 
         float x = center.X + (float)(range.NextDouble() * size.X - size.X / 2.0f);
         float y = center.Y + (float)(range.NextDouble() * size.Y - size.Y / 2.0f);
-        float z = center.Z;
+        float z = center.Z + (float)(range.NextDouble() * size.Z - size.Z / 2.0f);
 
         Vector3 val = new Vector3(x, y, z);
         return val;
@@ -327,7 +346,7 @@ class MeshEntitySpawner {
      * Wrap
      *
      */
-    private bool wrap(float deltaTime, ref Instance inst, string entityId, int index) {
+    private bool wrap(float deltaTime, ref Instance inst, string entityId, int index, Vector3 playerPosition) {
         float l = 0.0f;
         inst.Lifetime -= deltaTime;
 
@@ -469,8 +488,11 @@ class MeshEntitySpawner {
      *
      */
     // Update
-    public void update() {
+    public void update(Vector3 playerPosition) {
         if(tick == null || mesh == null) return;
+
+        SpawnPoint.update(playerPosition);
+        lastPlayerPosition = playerPosition;
 
         float deltaTime = tick.getDeltaTime() / 5.0f;
 
@@ -482,7 +504,7 @@ class MeshEntitySpawner {
             for(int i = 0; i < l.Count; i++) {
                 var inst = l[i];
 
-                if(wrap(deltaTime, ref inst, id, i)) {
+                if(wrap(deltaTime, ref inst, id, i, playerPosition)) {
                     l[i] = inst;
                     continue;
                 }

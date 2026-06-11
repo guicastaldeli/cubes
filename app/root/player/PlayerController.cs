@@ -68,7 +68,7 @@ class PlayerController : DataEntry {
     private Vector3 size;
     
     private bool normalMode = true;
-    private float moveSpeed = 10.0f;
+    private float moveSpeed = 30.0f;
     private bool movingForward = false;
     private bool movingBackward = false;
     private bool movingLeft = false;

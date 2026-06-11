@@ -96,7 +96,7 @@ class World : WorldHandler {
 
     public void setBoundary() {
         var boundary = new BoundaryObject(WorldBoundary.WORLD_BOUNDARY);
-        //collisionManager.addStaticCollider(boundary);
+        collisionManager.addStaticCollider(boundary);
     }
 
     /**
