@@ -28,8 +28,6 @@ class World : WorldHandler {
     
     private List<WorldHandler> el = new();
     [SkipReset] List<WorldHandler> prevEl = new();
-
-    public const float WORLD_BOUNDARY = 25.0f;
     
     public World(
         Window window,
@@ -97,8 +95,8 @@ class World : WorldHandler {
     }
 
     public void setBoundary() {
-        var boundary = new BoundaryObject(WORLD_BOUNDARY);
-        collisionManager.addStaticCollider(boundary);
+        var boundary = new BoundaryObject(WorldBoundary.WORLD_BOUNDARY);
+        //collisionManager.addStaticCollider(boundary);
     }
 
     /**

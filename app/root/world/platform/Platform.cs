@@ -28,9 +28,9 @@ class Platform : WorldHandler {
     (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
     private Vector3 offset = Vector3.Zero;
     
-    private const int CHUNK_X = 16;
-    private const int CHUNK_Y = 16;
-    private const int CHUNK_Z = 16;
+    private const int CHUNK_X = 1000;
+    private const int CHUNK_Y = 1;
+    private const int CHUNK_Z = 1000;
     private const float SPACING = 1.0f;
 
     private bool initialized = false;
@@ -343,6 +343,7 @@ class Platform : WorldHandler {
             ));
         }
 
+        if(positions.Count == 0) return;
         chunkColliders[coord] = colliderIds;
         Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
         ChunkPositions.Add(GRID_ID, coord, positions);

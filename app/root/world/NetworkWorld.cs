@@ -138,7 +138,7 @@ class NetworkWorld : NetworkUpdateHandler {
 
                     var bbox = mesh.getBBox(id);
                     worldManager.getCollisionManager()?.addStaticCollider(new StaticObject(bbox, id));
-                    worldManager.getCollisionManager()?.addStaticCollider(new BoundaryObject(World.WORLD_BOUNDARY));
+                    worldManager.getCollisionManager()?.addStaticCollider(new BoundaryObject(WorldBoundary.WORLD_BOUNDARY));
                 });
             } else {
                 mesh.setPosition(id, x, y, z);

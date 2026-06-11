@@ -160,12 +160,10 @@ class MeshEntityGenerator : WorldHandler {
      */
     public override void render() {
         if(!initialized) {
-            /*
             var meshTypes = load();
             generate(meshTypes, setInitialized: true);
 
             initialized = true;
-            */
         }
     }
 

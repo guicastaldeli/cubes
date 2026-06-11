@@ -6,7 +6,7 @@ readonly struct ChunkCoord {
     public readonly int cy;
     public readonly int cz;
 
-    public const int SIZE = 16;
+    public const int SIZE = 2;
     
     public static bool operator ==(ChunkCoord a, ChunkCoord b) => a.Equals(b);
     public static bool operator !=(ChunkCoord a, ChunkCoord b) => !a.Equals(b);

@@ -203,7 +203,7 @@ class Skybox : WorldHandler {
      */
     public override void render() {
         if(!initialized) {
-            set();
+            //set();
 
             initialized = true;
         }

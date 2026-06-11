@@ -14,6 +14,8 @@ class WorldBoundary {
     private RigidBody rigidBody;
     private CollisionManager collisionManager;
 
+    public const float WORLD_BOUNDARY = 25.0f;
+
     public WorldBoundary(PlayerController playerController, RigidBody rigidBody, CollisionManager collisionManager) {
         this.playerController = playerController;
         this.rigidBody = rigidBody;

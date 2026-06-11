@@ -110,6 +110,7 @@ void main() {
         vec4 weather = applyWeatherTemp(baseColor);
         vec4 fog = applyFog(weather);
         
-        fragColor = fog;
+        //fragColor = fog;
+        fragColor = baseColor;
     }
 }

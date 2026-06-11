@@ -283,7 +283,7 @@ class Weather : WorldHandler {
     }
 
     private float setPositionf() {
-        return World.WORLD_BOUNDARY;
+        return WorldBoundary.WORLD_BOUNDARY;
     }
 
     /**
