@@ -1,7 +1,7 @@
 namespace App.Root.Chunk;
 using OpenTK.Mathematics;
 
-readonly struct ChunkCoord {
+public readonly struct ChunkCoord {
     public readonly int cx;
     public readonly int cy;
     public readonly int cz;

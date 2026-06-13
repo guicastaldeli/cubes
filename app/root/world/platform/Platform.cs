@@ -309,10 +309,10 @@ class Platform : WorldHandler {
             initialized = true;
         }
 
-        Console.WriteLine($"[Platform] set() - hasChunk: {ContextChunk.hasChunk}");
+        //Console.WriteLine($"[Platform] set() - hasChunk: {ContextChunk.hasChunk}");
         if(!ContextChunk.hasChunk) return;
         ChunkCoord coord = ContextChunk.current!.Value;
-        Console.WriteLine($"[Platform] generating chunk {coord}");
+        //Console.WriteLine($"[Platform] generating chunk {coord}");
         if(chunkColliders.ContainsKey(coord)) return;
 
         var colliderIds = new List<string>();
@@ -345,12 +345,12 @@ class Platform : WorldHandler {
 
         if(positions.Count == 0) return;
         chunkColliders[coord] = colliderIds;
-        Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
+        //Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
         ChunkPositions.Add(GRID_ID, coord, positions);
 
         if(renderMesh) {
             setMesh(positions);
-            Console.WriteLine($"Platform draw calls: 1 (instanced {positions.Count} cubes)");
+            //Console.WriteLine($"Platform draw calls: 1 (instanced {positions.Count} cubes)");
         } else {
             mesh.remove(GRID_ID);
         }
@@ -362,11 +362,11 @@ class Platform : WorldHandler {
      *
      */
     private void merge() {
-        Console.WriteLine($"[Platform] merge() called - IsUsed: {ChunkPositions.IsUsed(GRID_ID)}");
+       // Console.WriteLine($"[Platform] merge() called - IsUsed: {ChunkPositions.IsUsed(GRID_ID)}");
         
         if(ChunkPositions.IsUsed(GRID_ID)) {
             var merged = ChunkPositions.GetMerged(GRID_ID);
-            Console.WriteLine($"[Platform] uploading {merged.Count} positions to GPU");
+            //Console.WriteLine($"[Platform] uploading {merged.Count} positions to GPU");
             mesh.getMeshRenderer(GRID_ID)?.setInstancePositions(merged);
             ChunkPositions.ClearUsed(GRID_ID);
         }

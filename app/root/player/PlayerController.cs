@@ -76,7 +76,7 @@ class PlayerController : DataEntry {
     private bool movingUp = false;
     private bool movingDown = false;
     private float jumpForce = 8.0f;
-    private float flySpeed = 10.0f;
+    private float flySpeed = 30.0f;
 
     private Network? network;
     private NetworkPlayer networkPlayer;

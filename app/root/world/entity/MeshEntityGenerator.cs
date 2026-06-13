@@ -115,7 +115,7 @@ class MeshEntityGenerator : WorldHandler {
      * Generate
      *
      */
-    private void generateSource(EntityProps entity, MeshData data) {
+    private void generateSource(EntityProps entity, MeshData data, ChunkCoord spawnChunk) {
         MeshData meshData = MeshEntityFactory.clone(data);
         meshData.isEntity = 1;
         meshData.entityType = "mesh";
@@ -134,17 +134,19 @@ class MeshEntityGenerator : WorldHandler {
             }
         }
         
-        entitySpawner.render(entity);
+        entitySpawner.render(entity, spawnChunk);
     }
 
     private void generate(Dictionary<string, MeshData> meshTypes, bool setInitialized = false) {
+        ChunkCoord spawnChunk = ContextChunk.current!.Value;
+
         var entityProps = new Dictionary<string, EntityProps>();
         var entityInstances = new Dictionary<string, List<Instance>>();
         var byMeshType = new Dictionary<string, List<Instance>>();
 
         foreach(var (type, data) in meshTypes) {
             foreach(var entity in MeshEntityFactory.generate(data, type)) {
-                generateSource(entity, data);
+                generateSource(entity, data, spawnChunk);
                 entityProps[entity.Id] = entity;
                 
                 var instances = entitySpawner.getInstances(entity.Id);

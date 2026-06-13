@@ -28,15 +28,15 @@ public struct Instance {
     [ConverterKey("texpaths")] public string? Tex;
     public float Speed;
     public float Lifetime;
+    public ChunkCoord SpawnedInChunk;
 
-    public static readonly Dictionary<string, MethodInfo> converters =
-        typeof(Converter)
-            .GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .Where(m => m.GetCustomAttribute<ConverterKey>() != null)
-            .ToDictionary(
-                m => m.GetCustomAttribute<ConverterKey>()!.Key,
-                m => m
-            );
+    public static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
+        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+        .Where(m => m.GetCustomAttribute<ConverterKey>() != null)
+        .ToDictionary(
+            m => m.GetCustomAttribute<ConverterKey>()!.Key,
+            m => m
+        );
 
     /**
      * 
@@ -194,7 +194,7 @@ class MeshEntitySpawner {
     private Dictionary<string, List<object>> cachedData = new();
     private Dictionary<string, List<Instance>> cachedByMeshType = new();
     private Dictionary<string, (object?[] args, IList[] lists)> cachedArgsByMeshType = new();
-
+    
     private Vector3 lastPlayerPosition = Vector3.Zero;
 
     public MeshEntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
@@ -250,6 +250,17 @@ class MeshEntitySpawner {
     // Register Mesh Type
     public void registerMeshType(string entityId, string meshType) {
         entityIdToMeshType[entityId] = meshType;
+    }
+
+    // Get All Instances
+    public Dictionary<string, List<Instance>> getAllInstances() {
+        return instances;
+    }
+
+    // Restore Instances
+    public void restoreInstances(string id, List<Instance> list) {
+        instances[id] = new List<Instance>(list);
+        instanceStates[id] = State.SLEEP;
     }
 
     /**
@@ -382,7 +393,7 @@ class MeshEntitySpawner {
      * Spawn
      *
      */
-    private Instance spawn(EntityProps entity) {
+    private Instance spawn(EntityProps entity, ChunkCoord spawnChunk) {
         Instance e = new Instance {
             Position = setPosition(),
             Speed = setSpeed(),
@@ -390,7 +401,8 @@ class MeshEntitySpawner {
             Lifetime = setLifetime(),
             Color = setColor(entity),
             Tex = setTexture(entity),
-            Scale = entity.Scale
+            Scale = entity.Scale,
+            SpawnedInChunk = spawnChunk
         };
 
         return e;
@@ -555,11 +567,8 @@ class MeshEntitySpawner {
      * Render
      *
      */
-    public void render(EntityProps entity) {
-        var instanceList = 
-            Enumerable.Repeat(entity, entity.Position.Count)
-                .Select(spawn)
-                .ToList();
+    public void render(EntityProps entity, ChunkCoord spawnChunk) {
+        var instanceList = Enumerable.Repeat(entity, entity.Position.Count).Select(e => spawn(e, spawnChunk)).ToList();
         
         instances[entity.Id] = instanceList;
         instanceStates[entity.Id] = State.SLEEP;
