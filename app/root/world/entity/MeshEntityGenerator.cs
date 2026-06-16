@@ -64,6 +64,8 @@ class MeshEntityGenerator : WorldHandler {
 
     private Queue<string> generationQueue = new();
 
+    private Dictionary<string, EntityProps> entityPropsById = new();
+
     private bool initialized = false;
 
     public MeshEntityGenerator(
@@ -86,11 +88,20 @@ class MeshEntityGenerator : WorldHandler {
         StateManager.Register(this);
     }
 
+    // Any In Chunk
+    private void anyInChunk(out bool val, ChunkCoord coord, List<Instance> instanceList) {
+        val = instanceList.Any(inst => ChunkCoord.FromWorldPosition(
+            inst.Position.X, 
+            inst.Position.Y, 
+            inst.Position.Z
+        ) == coord);
+    }
+
     /**
-    
-        Load
-    
-        */
+     * 
+     * Load
+     *
+     */
     public static Dictionary<string, MeshData> load() {
         using Lua data = new Lua();
 
@@ -138,7 +149,7 @@ class MeshEntityGenerator : WorldHandler {
     }
 
     private void generate(Dictionary<string, MeshData> meshTypes, bool setInitialized = false) {
-        ChunkCoord spawnChunk = ContextChunk.current!.Value;
+        ChunkCoord spawnChunk = ContextChunk.current ?? default;
 
         var entityProps = new Dictionary<string, EntityProps>();
         var entityInstances = new Dictionary<string, List<Instance>>();
@@ -148,6 +159,7 @@ class MeshEntityGenerator : WorldHandler {
             foreach(var entity in MeshEntityFactory.generate(data, type)) {
                 generateSource(entity, data, spawnChunk);
                 entityProps[entity.Id] = entity;
+                entityPropsById[entity.Id] = entity;
                 
                 var instances = entitySpawner.getInstances(entity.Id);
                 entityInstances[entity.Id] = instances;
@@ -172,11 +184,50 @@ class MeshEntityGenerator : WorldHandler {
      *
      */
     public override void render() {
+        ChunkCoord coord = ContextChunk.current!.Value;
+Console.WriteLine($"[MeshEntityGenerator] render() coord={coord}, initialized={initialized}");
         if(!initialized) {
             var meshTypes = load();
             generate(meshTypes, setInitialized: true);
+            return;
+        }
 
-            initialized = true;
+        foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
+            if(!entitySpawner.isHidden(entityId)) continue;
+
+            anyInChunk(out bool val, coord, instanceList);
+            if(!val) continue;
+
+            instanceList.RemoveAll(inst => inst.Lifetime <= 0);
+            if(instanceList.Count == 0) {
+                entitySpawner.show(entityId);
+                continue;
+            }
+
+            if(entityPropsById.TryGetValue(entityId, out var props)) {
+                MeshEntityCollider.create(props, instanceList);
+            }
+
+            Console.WriteLine($"[MeshEntityGenerator] showing {entityId} (had {instanceList.Count} instances)");
+            entitySpawner.show(entityId);
+        }
+    }
+
+    /**
+     * 
+     * Unrender
+     *
+     */
+    public override void unrender() {
+        ChunkCoord coord = ContextChunk.current!.Value;
+        Console.WriteLine($"[MeshEntityGenerator] unrender() coord={coord}");
+
+        foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
+            if(entitySpawner.isHidden(entityId)) continue;
+
+            anyInChunk(out bool val, coord, instanceList);
+            if(val) {Console.WriteLine($"[MeshEntityGenerator] hiding {entityId}"); 
+            entitySpawner.hide(entityId);}
         }
     }
 

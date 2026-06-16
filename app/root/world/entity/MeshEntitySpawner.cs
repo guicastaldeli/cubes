@@ -4,7 +4,6 @@
 
     */
 namespace App.Root.World.Entity;
-
 using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
@@ -12,7 +11,6 @@ using App.Root.Mesh;
 using App.Root.Physics;
 using App.Root.Utils;
 using OpenTK.Mathematics;
-using System.Collections;
 using System.Reflection;
 
 /**
@@ -118,7 +116,7 @@ static class SpawnPoint {
 
         float centerX = playerPosition.X;
         float centerY = (minY + maxY) / 2.0f;
-        float z = playerPosition.Z - dist;
+        float z = -dist;
 
         float width = dist * 2.0f;
         float height = maxY - minY;
@@ -136,7 +134,7 @@ static class SpawnPoint {
      *
      */
     public static void update(Vector3 pos) {
-        playerPosition = new Vector3(pos.X, 0.0f, 0.0f);
+        playerPosition = pos;
     }
 }
 
@@ -151,9 +149,10 @@ class MeshEntitySpawner {
      * Mesh Entity State
      *
      */
-    private enum State {
+    public enum State {
         SLEEP,
-        ACTIVE
+        ACTIVE,
+        HIDDEN
     }
 
     /**
@@ -184,17 +183,6 @@ class MeshEntitySpawner {
     private Dictionary<string, string> entityIdToMeshType = new();
     private Dictionary<string, (MeshData data, Vector3 position)> pendingPhysics = new();
 
-    private static MethodInfo? cachedUpdateMethod = null;
-    private static MethodInfo? cachedSetMethod = null;
-    private static string[]? cachedParamNames = null;
-    private static Type[]? cachedUpdateParamTypes = null;
-    private static Type[]? cachedSetParamTypes = null;
-    private static FieldInfo[]? cachedFields = null;
-    private static Dictionary<FieldInfo, (string key, MethodInfo? converter)>? cachedFieldMeta = null;
-    private Dictionary<string, List<object>> cachedData = new();
-    private Dictionary<string, List<Instance>> cachedByMeshType = new();
-    private Dictionary<string, (object?[] args, IList[] lists)> cachedArgsByMeshType = new();
-    
     private Vector3 lastPlayerPosition = Vector3.Zero;
 
     public MeshEntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
@@ -261,6 +249,12 @@ class MeshEntitySpawner {
     public void restoreInstances(string id, List<Instance> list) {
         instances[id] = new List<Instance>(list);
         instanceStates[id] = State.SLEEP;
+    }
+
+    // Get State
+    public State? getState(string entityId) {
+        State? val = instanceStates.TryGetValue(entityId, out var s) ? s : (State?)null;
+        return val;
     }
 
     /**
@@ -367,6 +361,8 @@ class MeshEntitySpawner {
         }
 
         if(inst.Lifetime <= l) {
+            if(instanceStates.TryGetValue(entityId, out var s) && s == State.HIDDEN) return true;
+
             if(!MeshEntityCollider.colliderIds.ContainsKey(entityId)) return true;
             if(index >= MeshEntityCollider.colliderIds[entityId].Count) return true;
             
@@ -386,6 +382,39 @@ class MeshEntitySpawner {
     private string? setTexture(EntityProps entity) {
         string? val = entity.Tex;
         return val;
+    }
+
+    /**
+     * 
+     * Visibility
+     *
+     */
+    // Hide
+    public void hide(string entityId) {
+        if(!instances.ContainsKey(entityId)) return;
+        if(instanceStates.TryGetValue(entityId, out var s) && s == State.HIDDEN) return;
+
+        if(MeshEntityCollider.colliderIds.TryGetValue(entityId, out var colliderIds)) {
+            foreach(var id in colliderIds.ToList()) {
+                collisionManager.removeCollider(id);
+            }
+        }
+
+        instanceStates[entityId] = State.HIDDEN;
+    }
+
+    public bool isHidden(string entityId) {
+        bool val = instanceStates.TryGetValue(entityId, out var s) && s == State.HIDDEN;
+        return val;
+    }
+
+    // Show
+    public void show(string entityId) {
+        if(!instances.ContainsKey(entityId)) return;
+        if(!instanceStates.TryGetValue(entityId, out var state)) return;
+        if(state != State.HIDDEN) return;
+
+        instanceStates[entityId] = State.SLEEP;
     }
 
     /**
@@ -419,35 +448,22 @@ class MeshEntitySpawner {
      *
      */
     private Dictionary<string, List<object>> getData(List<Instance> list) {
-        if(cachedFields == null) {
-            cachedFields = typeof(Instance).GetFields(BindingFlags.Public | BindingFlags.Instance);
-            cachedFieldMeta = new();
-            foreach(var field in cachedFields) {
-                var keyAttr = field.GetCustomAttribute<ConverterKey>();
-                var converterAttr = field.GetCustomAttribute<ConvertAttribute>();
-                string key = keyAttr?.Key ?? field.Name.ToLower();
-                MethodInfo? converter = null;
-                if(converterAttr != null) Instance.converters.TryGetValue(converterAttr.Converter, out converter);
-                cachedFieldMeta[field] = (key, converter);
-            }
-        }
-
-        foreach(var l in cachedData.Values) l.Clear();
+        CacheMeshEntity.CacheFields();
+        CacheMeshEntity.ClearCachedData();
 
         foreach(var inst in list) {
-            foreach(var field in cachedFields) {
+            foreach(var field in CacheMeshEntity.cachedFields!) {
                 object? val = field.GetValue(inst);
                 if(val == null) continue;
 
-                var (key, converter) = cachedFieldMeta![field];
+                var (key, converter) = CacheMeshEntity.cachedFieldMeta![field];
                 object finalVal = converter != null ? converter.Invoke(null, new[] { val })! : val;
 
-                if(!cachedData.ContainsKey(key)) cachedData[key] = new List<object>();
-                cachedData[key].Add(finalVal);
+                CacheMeshEntity.CacheData(key, finalVal);
             }
         }
 
-        return cachedData;
+        return CacheMeshEntity.cachedData;
     }
 
     public void syncData(string meshType, List<Instance> allInstances) {
@@ -456,42 +472,21 @@ class MeshEntitySpawner {
         var renderer = mesh?.getMeshRenderer(meshType);
         if(renderer == null) return;
 
-        if(cachedUpdateMethod == null || cachedSetMethod == null) {
+        if(CacheMeshEntity.cachedUpdateMethod == null || CacheMeshEntity.cachedSetMethod == null) {
             var methods = typeof(MeshRenderer).GetMethods();
-            cachedUpdateMethod = methods.First(m => m.Name == nameof(MeshRenderer.updateInstanceData) && m.GetParameters().Length > 1);
-            cachedSetMethod = methods.First(m => m.Name == nameof(MeshRenderer.setInstanceData) && m.GetParameters().Length > 1);
-            cachedParamNames = cachedUpdateMethod.GetParameters().Select(p => p.Name!.ToLower()).ToArray();
-            cachedUpdateParamTypes = cachedUpdateMethod.GetParameters().Select(p => p.ParameterType).ToArray();
-            cachedSetParamTypes = cachedSetMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            CacheMeshEntity.Sync(methods);
         }
 
         bool isInit = renderer.getInstanceVboInitialized();
-        var method = isInit ? cachedUpdateMethod! : cachedSetMethod;
-        var paramTypes = isInit ? cachedUpdateParamTypes! : cachedSetParamTypes!;
+        var method = isInit ? CacheMeshEntity.cachedUpdateMethod! : CacheMeshEntity.cachedSetMethod;
+        var paramTypes = isInit ? CacheMeshEntity.cachedUpdateParamTypes! : CacheMeshEntity.cachedSetParamTypes!;
 
         var data = getData(allInstances);
 
-        if(!cachedArgsByMeshType.TryGetValue(meshType, out var cached)) {
-            var lists = cachedParamNames!.Select((key, i) => {
-                var elemType = paramTypes[i].GetGenericArguments()[0];
-                var listType = typeof(List<>).MakeGenericType(elemType);
-                return (IList)Activator.CreateInstance(listType)!;
-            }).ToArray();
+        CacheMeshEntity.CacheArgs(meshType, paramTypes, out var cached);
+        CacheMeshEntity.CacheParamNames(cached.lists, data);
 
-            var args = lists.Cast<object?>().ToArray();
-            cached = (args, lists);
-            cachedArgsByMeshType[meshType] = cached;
-        }
-
-        for(int i = 0; i < cachedParamNames!.Length; i++) {
-            string key = cachedParamNames[i];
-            cached.lists[i].Clear();
-            if(data.TryGetValue(key, out var val)) {
-                foreach(var item in val) cached.lists[i].Add(item);
-            }
-        }
-
-        method.Invoke(renderer, cached.args);
+        method!.Invoke(renderer, cached.args);
     }
 
     /**
@@ -511,7 +506,10 @@ class MeshEntitySpawner {
         cleanupEntity();
 
         foreach(var (id, l) in instances) {
-            if(instanceStates.TryGetValue(id, out var state) && state == State.ACTIVE) continue;
+            if(!instanceStates.TryGetValue(id, out var state)) continue;
+            if(state == State.ACTIVE) continue;
+
+            bool hidden = state == State.HIDDEN;
 
             for(int i = 0; i < l.Count; i++) {
                 var inst = l[i];
@@ -523,10 +521,11 @@ class MeshEntitySpawner {
 
                 setSpawn(deltaTime, ref inst);
                 l[i] = inst;
-                MeshEntityCollider.update(id, i, inst.Position);
+
+                if(!hidden) MeshEntityCollider.update(id, i, inst.Position);
             }
 
-            if(l.Count > 0) mesh.setPosition(id, l[0].Position);
+            if(!hidden && l.Count > 0) mesh.setPosition(id, l[0].Position);
         }
 
         updateData();
@@ -535,15 +534,16 @@ class MeshEntitySpawner {
 
     // Update Data
     private void updateData() {
-        foreach(var l in cachedByMeshType.Values) l.Clear();
+        CacheMeshEntity.ClearCachedByMeshTypes();
 
         foreach(var (id, l) in instances) {
+            if(instanceStates.TryGetValue(id, out var state) && state == State.HIDDEN) continue;
+            
             string meshType = entityIdToMeshType.TryGetValue(id, out var t) ? t : id;
-            if(!cachedByMeshType.ContainsKey(meshType)) cachedByMeshType[meshType] = new();
-            cachedByMeshType[meshType].AddRange(l);
+            CacheMeshEntity.CacheByMeshType(meshType, l);
         }
 
-        foreach(var (meshType, allInstances) in cachedByMeshType) {
+        foreach(var (meshType, allInstances) in CacheMeshEntity.cachedByMeshType) {
             syncData(meshType, allInstances);
         }
     }
@@ -619,6 +619,7 @@ class MeshEntitySpawner {
      *
      */
     private void reset(ref Instance inst) {        
+        Console.WriteLine($"[Spawner] resetting at {inst.Position}");
         inst.Position = setPosition();
         inst.Speed = setSpeed();
         inst.Rotation = setRotation();
@@ -641,7 +642,9 @@ class MeshEntitySpawner {
         MeshEntityCollider.cleanupRemoved();
 
         var removedEntities = instances.Keys
-            .Where(id => !MeshEntityCollider.colliderIds.ContainsKey(id))
+            .Where(id => !MeshEntityCollider.colliderIds.ContainsKey(id) &&
+                !(instanceStates.TryGetValue(id, out var s) && s == State.HIDDEN)
+            )
             .ToList();
 
         foreach(var rId in removedEntities) {
@@ -656,9 +659,18 @@ class MeshEntitySpawner {
      * Remove
      *
      */
+    // Remove Instance
     public void removeInstance(string entityId, int index) {
         if(!instances.ContainsKey(entityId)) return;
         if(index >= instances[entityId].Count) return;
         instances[entityId].RemoveAt(index);
+    }
+
+    // Remove Entity
+    public void removeEntity(string entityId) {
+        instances.Remove(entityId);
+        instanceStates.Remove(entityId);
+        entityIdToMeshType.Remove(entityId);
+        mesh?.removeData(entityId);
     }
 }

@@ -1,8 +1,6 @@
 namespace App.Root.Chunk;
-using App.Root.Collider;
 using App.Root.Mesh;
 using App.Root.Player;
-using App.Root.World;
 using OpenTK.Mathematics;
 using System.Reflection;
 
@@ -119,7 +117,7 @@ class ChunkManager {
 
     // Recalculate Chunks
     private void recalculateChunks(ChunkCoord playerChunk) {
-        Console.WriteLine($"[ChunkManager] recalculating chunks for player at {playerChunk}");
+        //Console.WriteLine($"[ChunkManager] recalculating chunks for player at {playerChunk}");
         var shouldBeActive = new HashSet<ChunkCoord>();
 
         for(int dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) {
@@ -186,7 +184,7 @@ class ChunkManager {
      *
      */
     private void loadChunk(ChunkCoord coord) {
-        Console.WriteLine($"[ChunkManager] loadChunk called for {coord}");
+        //Console.WriteLine($"[ChunkManager] loadChunk called for {coord}");
         if(!chunkDataMap.TryGetValue(coord, out var data)) {
             data = ChunkGenerator.generate(coord);
             chunkDataMap[coord] = data;
@@ -202,7 +200,7 @@ class ChunkManager {
             handlerActiveChunks[handler].Add(coord);
         }
 
-        Console.WriteLine($"[ChunkManager] Loaded {coord}");
+        //Console.WriteLine($"[ChunkManager] Loaded {coord}");
     }
 
     /**
@@ -222,7 +220,7 @@ class ChunkManager {
             handlerActiveChunks[handler].Remove(coord);
         }
 
-        Console.WriteLine($"[ChunkManager] Unloaded {coord}");
+        //Console.WriteLine($"[ChunkManager] Unloaded {coord}");
     }
 
     /**
@@ -236,21 +234,8 @@ class ChunkManager {
         handlerActiveChunks.Clear();
         
         foreach(var handler in handlers) {
-            var attr = handler.GetType().GetCustomAttribute<ChunkedAttribute>();
-            if(attr != null) {
-                chunkedHandlers.Add(handler);
-                handlerActiveChunks[handler] = new HashSet<ChunkCoord>();
-
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"[ChunkManager] Chunked: {handler.GetType().Name}");
-                Console.ResetColor();
-            } else {
-                globalHandlers.Add(handler);
-
-                Console.ForegroundColor = ConsoleColor.DarkCyan;
-                Console.WriteLine($"[ChunkManager] Global: {handler.GetType().Name}");
-                Console.ResetColor();
-            }
+            ChunkedAttribute.R(handler, chunkedHandlers, handlerActiveChunks);
+            IChunkedAttribute.R(handler, globalHandlers);
         }
     }
 
@@ -272,7 +257,7 @@ class ChunkManager {
         if(!initialized) {
             chunkDataMap = SerializeChunk.load();
             initialized = true;
-            Console.WriteLine($"[ChunkManager] Initialized with {chunkDataMap.Count} saved chunks.");
+            //Console.WriteLine($"[ChunkManager] Initialized with {chunkDataMap.Count} saved chunks.");
         }
 
         foreach(var handler in globalHandlers) {
