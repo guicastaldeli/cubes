@@ -322,11 +322,11 @@ class Platform : WorldHandler {
 
         var positions = new List<Vector3>();
 
-        int count = ChunkCoord.SIZE * ChunkCoord.SIZE * ChunkCoord.SIZE;
+        int count = ChunkCoord.CHUNK_SIZE * ChunkCoord.CHUNK_SIZE * ChunkCoord.CHUNK_SIZE;
         for(int i = 0; i < count; i++) {
-            int x = i % ChunkCoord.SIZE;
-            int y = (i / ChunkCoord.SIZE) % ChunkCoord.SIZE;
-            int z = i / (ChunkCoord.SIZE * ChunkCoord.SIZE);
+            int x = i % ChunkCoord.CHUNK_SIZE;
+            int y = (i / ChunkCoord.CHUNK_SIZE) % ChunkCoord.CHUNK_SIZE;
+            int z = i / (ChunkCoord.CHUNK_SIZE * ChunkCoord.CHUNK_SIZE);
 
             var bounds = setBounds(chunkOrigin, x, y, z);
             if(bounds == null) continue;

@@ -39,11 +39,11 @@ static class MeshEntityCollider {
         MeshCollider.init(mesh, collisionManager);
     }
 
-    /*
-    
-        On Events
-    
-        */
+    /**
+     * 
+     * On Events
+     *
+     */
     public static void onEvents() {
         if(eventsRegistered) return;
         eventsRegistered = true;
@@ -199,5 +199,19 @@ static class MeshEntityCollider {
 
         sw.Stop();
         if(sw.ElapsedMilliseconds > 1) Console.WriteLine($"cleanupRemoved: {sw.ElapsedMilliseconds}ms | colliders: {colliderIds.Count}");
+    }
+
+    /**
+     * 
+     * Remove 
+     *
+     */
+    public static void remove(string entityId, int index) {
+        if(colliderIds.TryGetValue(entityId, out var id)) {
+            if(index < id.Count) {
+                string colliderId = id[index];
+                collisionManager!.removeCollider(colliderId);
+            }
+        }
     }
 }

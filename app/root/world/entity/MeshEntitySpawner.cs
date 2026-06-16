@@ -27,6 +27,7 @@ public struct Instance {
     public float Speed;
     public float Lifetime;
     public ChunkCoord SpawnedInChunk;
+    public Vector3 BoundaryCenter;
 
     public static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
         .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -75,71 +76,6 @@ public struct Instance {
 
 /**
 
-    Spawn Point helper class
-
-    */
-static class SpawnPoint {
-    private static CollisionManager collisionManager = null!;
-    private static BoundaryObject boundaryObject = null!;
-    private static Vector3 playerPosition = Vector3.Zero;
-
-    /**
-     * 
-     * Init
-     *
-     */
-    public static void init(CollisionManager collisionManager) {
-        SpawnPoint.collisionManager = collisionManager;
-        if(isInit()) initCollider();
-    }
-
-    private static bool isInit() {
-        bool val = collisionManager != null;
-        return val;   
-    }
-
-    private static void initCollider() {
-        var collider = new BoundaryObject(MeshEntitySpawner.SPAWN_AREA);
-        collisionManager.addInteractionCollider(collider);
-        boundaryObject = collider;
-    }
-
-    /**
-     * 
-     * Spawn Point
-     *
-     */
-    public static (Vector3 center, Vector3 size) get() {
-        var dist = boundaryObject.getBoundaryDistance();
-        float minY = boundaryObject.getMinHeight();
-        float maxY = boundaryObject.getMaxHeight();
-
-        float centerX = playerPosition.X;
-        float centerY = (minY + maxY) / 2.0f;
-        float z = -dist;
-
-        float width = dist * 2.0f;
-        float height = maxY - minY;
-        float depth = dist * 2.0f;
-
-        return (
-            new Vector3(centerX, centerY, z),
-            new Vector3(width, height, depth)
-        );
-    }
-
-    /**
-     * 
-     * Update
-     *
-     */
-    public static void update(Vector3 pos) {
-        playerPosition = pos;
-    }
-}
-
-/**
-
     Mesh Entity Spawner main class
 
     */
@@ -179,11 +115,10 @@ class MeshEntitySpawner {
 
     private Dictionary<string, List<Instance>> instances = new();
     private Dictionary<string, State> instanceStates = new();
+    private Dictionary<string, List<bool>> instanceHidden = new();
 
     private Dictionary<string, string> entityIdToMeshType = new();
     private Dictionary<string, (MeshData data, Vector3 position)> pendingPhysics = new();
-
-    private Vector3 lastPlayerPosition = Vector3.Zero;
 
     public MeshEntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
         this.tick = tick;
@@ -192,8 +127,6 @@ class MeshEntitySpawner {
 
         this.startZ = -SPAWN_AREA;
         this.endZ = SPAWN_AREA;
-
-        SpawnPoint.init(collisionManager);
 
         onEvents();
         
@@ -217,14 +150,11 @@ class MeshEntitySpawner {
     }
 
     // Is Outside
-    public bool isOutside(Vector3 position) {
-        float maxDistX = SPAWN_AREA;
-        float maxDistZ = SPAWN_AREA;
-
-        bool outsizeX = MathF.Abs(position.X - lastPlayerPosition.X) > maxDistX;
-        bool outsizeZ = position.Z > lastPlayerPosition.Z + maxDistZ;
-
-        return outsizeX || outsizeZ;
+    public bool isOutside(Vector3 position, Vector3 boundaryCenter) {
+        float maxDist = SPAWN_AREA;
+        bool outsideX = MathF.Abs(position.X - boundaryCenter.X) > maxDist;
+        bool outsideZ = MathF.Abs(position.Z - boundaryCenter.Z) > maxDist;
+        return outsideX || outsideZ;
     }
 
     // Get Instances
@@ -278,12 +208,12 @@ class MeshEntitySpawner {
         );
     }
 
-    private Vector3 setPosition() {
-        var (center, size) = SpawnPoint.get();
+    private Vector3 setPosition(Vector3 center) {
+        float r = SPAWN_AREA;
 
-        float x = center.X + (float)(range.NextDouble() * size.X - size.X / 2.0f);
-        float y = center.Y + (float)(range.NextDouble() * size.Y - size.Y / 2.0f);
-        float z = center.Z + (float)(range.NextDouble() * size.Z - size.Z / 2.0f);
+        float x = center.X + (float)(range.NextDouble() * r * 2.0f - r);
+        float y = center.Y + (float)(range.NextDouble() * r * 2.0f - r);
+        float z = center.Z + (float)(range.NextDouble() * r * 2.0f - r);
 
         Vector3 val = new Vector3(x, y, z);
         return val;
@@ -351,17 +281,17 @@ class MeshEntitySpawner {
      * Wrap
      *
      */
-    private bool wrap(float deltaTime, ref Instance inst, string entityId, int index, Vector3 playerPosition) {
+    private bool wrap(float deltaTime, ref Instance inst, string entityId, int index) {
         float l = 0.0f;
         inst.Lifetime -= deltaTime;
 
-        if(isOutside(inst.Position)) {
-            reset(ref inst);
+        if(isOutside(inst.Position, inst.BoundaryCenter)) {
+            reset(ref inst, entityId, index);
             return true;
         }
 
         if(inst.Lifetime <= l) {
-            if(instanceStates.TryGetValue(entityId, out var s) && s == State.HIDDEN) return true;
+            if(isHidden(entityId, index)) return true;
 
             if(!MeshEntityCollider.colliderIds.ContainsKey(entityId)) return true;
             if(index >= MeshEntityCollider.colliderIds[entityId].Count) return true;
@@ -386,52 +316,20 @@ class MeshEntitySpawner {
 
     /**
      * 
-     * Visibility
-     *
-     */
-    // Hide
-    public void hide(string entityId) {
-        if(!instances.ContainsKey(entityId)) return;
-        if(instanceStates.TryGetValue(entityId, out var s) && s == State.HIDDEN) return;
-
-        if(MeshEntityCollider.colliderIds.TryGetValue(entityId, out var colliderIds)) {
-            foreach(var id in colliderIds.ToList()) {
-                collisionManager.removeCollider(id);
-            }
-        }
-
-        instanceStates[entityId] = State.HIDDEN;
-    }
-
-    public bool isHidden(string entityId) {
-        bool val = instanceStates.TryGetValue(entityId, out var s) && s == State.HIDDEN;
-        return val;
-    }
-
-    // Show
-    public void show(string entityId) {
-        if(!instances.ContainsKey(entityId)) return;
-        if(!instanceStates.TryGetValue(entityId, out var state)) return;
-        if(state != State.HIDDEN) return;
-
-        instanceStates[entityId] = State.SLEEP;
-    }
-
-    /**
-     * 
      * Spawn
      *
      */
-    private Instance spawn(EntityProps entity, ChunkCoord spawnChunk) {
+    private Instance spawn(EntityProps entity, ChunkCoord spawnChunk, Vector3 boundaryCenter) {
         Instance e = new Instance {
-            Position = setPosition(),
+            Position = setPosition(boundaryCenter),
             Speed = setSpeed(),
             Rotation = setRotation(),
             Lifetime = setLifetime(),
             Color = setColor(entity),
             Tex = setTexture(entity),
             Scale = entity.Scale,
-            SpawnedInChunk = spawnChunk
+            SpawnedInChunk = spawnChunk,
+            BoundaryCenter = boundaryCenter
         };
 
         return e;
@@ -440,6 +338,53 @@ class MeshEntitySpawner {
     private void setSpawn(float deltaTime, ref Instance inst) {
         defPosition(deltaTime, ref inst);
         defRotation(deltaTime, ref inst);
+    }
+
+    /**
+     * 
+     * Visibility
+     *
+     */
+    // Hide
+    public void hide(string entityId, int index) {
+        if(!instances.TryGetValue(entityId, out var list)) return;
+        if(index < 0 || index >= list.Count) return;
+
+        if(!instanceHidden.TryGetValue(entityId, out var hiddenList)) {
+            hiddenList = Enumerable.Repeat(false, list.Count).ToList();
+            instanceHidden[entityId] = hiddenList;
+        }
+        if(hiddenList[index]) return;
+
+        var pos = list[index].Position;
+        Console.WriteLine($"[Spawner] hide {entityId}[{index}] at ({pos.X:F1},{pos.Y:F1},{pos.Z:F1})");
+
+        MeshEntityCollider.remove(entityId, index);
+        hiddenList[index] = true;
+    }
+
+    // Show
+    public void show(string entityId, int index) {
+        if(!instanceHidden.TryGetValue(entityId, out var hiddenList)) return;
+        if(index < 0 || index >= hiddenList.Count) return;
+        if(!hiddenList[index]) return;
+
+        var pos = instances[entityId][index].Position;
+        Console.WriteLine($"[Spawner] show {entityId}[{index}] at ({pos.X:F1},{pos.Y:F1},{pos.Z:F1})");
+
+        hiddenList[index] = false;
+    }
+
+    // Is Hidden
+    public bool isHidden(string entityId, int index) {
+        if(!instanceHidden.TryGetValue(entityId, out var hiddenList)) return false;
+        if(index < 0 || index >= hiddenList.Count) return false;
+        return hiddenList[index];
+    }
+
+    // Get Hidden Flags
+    public List<bool>? getHiddenFlags(string entityId) {
+        return instanceHidden.TryGetValue(entityId, out var list) ? list : null;
     }
 
     /**
@@ -498,9 +443,6 @@ class MeshEntitySpawner {
     public void update(Vector3 playerPosition) {
         if(tick == null || mesh == null) return;
 
-        SpawnPoint.update(playerPosition);
-        lastPlayerPosition = playerPosition;
-
         float deltaTime = tick.getDeltaTime() / 5.0f;
 
         cleanupEntity();
@@ -509,12 +451,12 @@ class MeshEntitySpawner {
             if(!instanceStates.TryGetValue(id, out var state)) continue;
             if(state == State.ACTIVE) continue;
 
-            bool hidden = state == State.HIDDEN;
+            int firstVisibleIndex = -1;
 
             for(int i = 0; i < l.Count; i++) {
                 var inst = l[i];
 
-                if(wrap(deltaTime, ref inst, id, i, playerPosition)) {
+                if(wrap(deltaTime, ref inst, id, i)) {
                     l[i] = inst;
                     continue;
                 }
@@ -522,10 +464,14 @@ class MeshEntitySpawner {
                 setSpawn(deltaTime, ref inst);
                 l[i] = inst;
 
-                if(!hidden) MeshEntityCollider.update(id, i, inst.Position);
+                bool hidden = isHidden(id, i);
+                if(!hidden) {
+                    MeshEntityCollider.update(id, i, inst.Position);
+                    if(firstVisibleIndex < 0) firstVisibleIndex = i;
+                }
             }
 
-            if(!hidden && l.Count > 0) mesh.setPosition(id, l[0].Position);
+            if(firstVisibleIndex >= 0) mesh.setPosition(id, l[firstVisibleIndex].Position);
         }
 
         updateData();
@@ -537,10 +483,21 @@ class MeshEntitySpawner {
         CacheMeshEntity.ClearCachedByMeshTypes();
 
         foreach(var (id, l) in instances) {
-            if(instanceStates.TryGetValue(id, out var state) && state == State.HIDDEN) continue;
-            
             string meshType = entityIdToMeshType.TryGetValue(id, out var t) ? t : id;
-            CacheMeshEntity.CacheByMeshType(meshType, l);
+            
+            List<bool>? hiddenList = instanceHidden.TryGetValue(id, out var hl) ? hl : null;
+            List<Instance> visible;
+            if(hiddenList == null) {
+                visible = l;
+            } else {
+                visible = new List<Instance>(l.Count);
+                for(int i = 0; i < l.Count; i++) {
+                    if(i < hiddenList.Count && hiddenList[i]) continue;
+                    visible.Add(l[i]);
+                }
+            }
+
+            CacheMeshEntity.CacheByMeshType(meshType, visible);
         }
 
         foreach(var (meshType, allInstances) in CacheMeshEntity.cachedByMeshType) {
@@ -567,11 +524,12 @@ class MeshEntitySpawner {
      * Render
      *
      */
-    public void render(EntityProps entity, ChunkCoord spawnChunk) {
-        var instanceList = Enumerable.Repeat(entity, entity.Position.Count).Select(e => spawn(e, spawnChunk)).ToList();
+    public void render(EntityProps entity, ChunkCoord spawnChunk, Vector3 boundaryCenter) {
+        var instanceList = Enumerable.Repeat(entity, entity.Position.Count).Select(e => spawn(e, spawnChunk, boundaryCenter)).ToList();
         
         instances[entity.Id] = instanceList;
         instanceStates[entity.Id] = State.SLEEP;
+        instanceHidden[entity.Id] = Enumerable.Repeat(false, instanceList.Count).ToList();
         MeshEntityCollider.create(entity, instanceList);
     }
 
@@ -597,7 +555,9 @@ class MeshEntitySpawner {
             if(index < 0 || index >= instances[entityId].Count) return;
 
             instances[entityId].RemoveAt(index);
+            if(instanceHidden.TryGetValue(entityId, out var hl) && index < hl.Count) hl.RemoveAt(index);
             ids.RemoveAt(index);
+
             MeshEntityCollider.colliderToEntity.Remove(colliderId);
             MeshCollider.removeInstanced(colliderId);
 
@@ -618,11 +578,17 @@ class MeshEntitySpawner {
      * Reset
      *
      */
-    private void reset(ref Instance inst) {        
-        Console.WriteLine($"[Spawner] resetting at {inst.Position}");
-        inst.Position = setPosition();
-        inst.Speed = setSpeed();
-        inst.Rotation = setRotation();
+    private void reset(ref Instance inst, string entityId, int index) {
+        Vector3 p = inst.Position;
+        Vector3 c = inst.BoundaryCenter;
+        float r = SPAWN_AREA;
+
+        if(p.X - c.X > r) p.X = c.X - r;
+        else if(p.X - c.X < -r) p.X = c.X + r;
+        if(p.Z - c.Z > r) p.Z = c.Z - r;
+        else if(p.Z - c.Z < -r) p.Z = c.Z + r;
+
+        inst.Position = p;
     }
 
     /**
@@ -633,6 +599,7 @@ class MeshEntitySpawner {
     public void cleanup() {
         MeshEntityCollider.cleanup();
         instances.Clear();
+        instanceHidden.Clear();
     }
     
     private void cleanupEntity() {
@@ -670,6 +637,8 @@ class MeshEntitySpawner {
     public void removeEntity(string entityId) {
         instances.Remove(entityId);
         instanceStates.Remove(entityId);
+        instanceHidden.Remove(entityId);
+
         entityIdToMeshType.Remove(entityId);
         mesh?.removeData(entityId);
     }

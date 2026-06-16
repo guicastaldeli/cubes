@@ -6,7 +6,7 @@ public readonly struct ChunkCoord {
     public readonly int cy;
     public readonly int cz;
 
-    public const int SIZE = 2;
+    public const int CHUNK_SIZE = 16;
     
     public static bool operator ==(ChunkCoord a, ChunkCoord b) => a.Equals(b);
     public static bool operator !=(ChunkCoord a, ChunkCoord b) => !a.Equals(b);
@@ -51,9 +51,9 @@ public readonly struct ChunkCoord {
      */
     public static ChunkCoord FromWorldPosition(float x, float y, float z) {
         ChunkCoord val = new ChunkCoord(
-            (int)MathF.Floor(x / SIZE),
-            (int)MathF.Floor(y / SIZE),
-            (int)MathF.Floor(z / SIZE)
+            (int)MathF.Floor(x / CHUNK_SIZE),
+            (int)MathF.Floor(y / CHUNK_SIZE),
+            (int)MathF.Floor(z / CHUNK_SIZE)
         );
 
         return val; 
@@ -66,9 +66,9 @@ public readonly struct ChunkCoord {
      */
     public Vector3 ToWorldPosition() {
         Vector3 val = (
-            cx * SIZE,
-            cy * SIZE,
-            cz * SIZE
+            cx * CHUNK_SIZE,
+            cy * CHUNK_SIZE,
+            cz * CHUNK_SIZE
         );
 
         return val;

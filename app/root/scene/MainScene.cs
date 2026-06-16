@@ -151,7 +151,7 @@ class MainScene {
         mesh.setPlayerController(playerController);
         mesh.setCollisionManager(collisionManager);
 
-        if(isClient) worldManager.render();
+        worldManager.render();
         mesh.initMeshInteractionController();
         
         if(network != null) {

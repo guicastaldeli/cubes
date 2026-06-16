@@ -75,7 +75,7 @@ static class ChunkPositions {
 
     */
 class ChunkManager {
-    private const int RENDER_DISTANCE = 8;
+    private const int RENDER_DISTANCE = 2;
     private const int MAX_LOAD_PER_FRAME = 2;
 
     private Window window;
@@ -184,7 +184,8 @@ class ChunkManager {
      *
      */
     private void loadChunk(ChunkCoord coord) {
-        //Console.WriteLine($"[ChunkManager] loadChunk called for {coord}");
+        Console.WriteLine($"[ChunkManager] loadChunk called for {coord}");
+        //Console.WriteLine($"[TRACE] StackTrace:\n{Environment.StackTrace}");
         if(!chunkDataMap.TryGetValue(coord, out var data)) {
             data = ChunkGenerator.generate(coord);
             chunkDataMap[coord] = data;
@@ -197,6 +198,7 @@ class ChunkManager {
             handler.render();
 
             ContextChunk.Clear();
+            
             handlerActiveChunks[handler].Add(coord);
         }
 

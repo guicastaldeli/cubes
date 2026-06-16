@@ -65,6 +65,7 @@ class MeshEntityGenerator : WorldHandler {
     private Queue<string> generationQueue = new();
 
     private Dictionary<string, EntityProps> entityPropsById = new();
+    private HashSet<ChunkCoord> seenChunks = new();
 
     private bool initialized = false;
 
@@ -88,13 +89,15 @@ class MeshEntityGenerator : WorldHandler {
         StateManager.Register(this);
     }
 
-    // Any In Chunk
-    private void anyInChunk(out bool val, ChunkCoord coord, List<Instance> instanceList) {
-        val = instanceList.Any(inst => ChunkCoord.FromWorldPosition(
+    // Instance Chunk
+    private ChunkCoord instanceChunk(Instance inst) {
+        ChunkCoord val = ChunkCoord.FromWorldPosition(
             inst.Position.X, 
             inst.Position.Y, 
             inst.Position.Z
-        ) == coord);
+        );
+
+        return val;
     }
 
     /**
@@ -126,7 +129,7 @@ class MeshEntityGenerator : WorldHandler {
      * Generate
      *
      */
-    private void generateSource(EntityProps entity, MeshData data, ChunkCoord spawnChunk) {
+    private void generateSource(EntityProps entity, MeshData data, ChunkCoord spawnChunk, Vector3 boundaryCenter) {
         MeshData meshData = MeshEntityFactory.clone(data);
         meshData.isEntity = 1;
         meshData.entityType = "mesh";
@@ -145,10 +148,10 @@ class MeshEntityGenerator : WorldHandler {
             }
         }
         
-        entitySpawner.render(entity, spawnChunk);
+        entitySpawner.render(entity, spawnChunk, boundaryCenter);
     }
 
-    private void generate(Dictionary<string, MeshData> meshTypes, bool setInitialized = false) {
+    private void generate(Dictionary<string, MeshData> meshTypes,Vector3 boundaryCenter, bool setInitialized = false) {
         ChunkCoord spawnChunk = ContextChunk.current ?? default;
 
         var entityProps = new Dictionary<string, EntityProps>();
@@ -157,7 +160,7 @@ class MeshEntityGenerator : WorldHandler {
 
         foreach(var (type, data) in meshTypes) {
             foreach(var entity in MeshEntityFactory.generate(data, type)) {
-                generateSource(entity, data, spawnChunk);
+                generateSource(entity, data, spawnChunk, boundaryCenter);
                 entityProps[entity.Id] = entity;
                 entityPropsById[entity.Id] = entity;
                 
@@ -185,31 +188,47 @@ class MeshEntityGenerator : WorldHandler {
      */
     public override void render() {
         ChunkCoord coord = ContextChunk.current!.Value;
-Console.WriteLine($"[MeshEntityGenerator] render() coord={coord}, initialized={initialized}");
+        Vector3 chunkCenter = coord.ToWorldPosition();
+
         if(!initialized) {
+            seenChunks.Add(coord);
             var meshTypes = load();
-            generate(meshTypes, setInitialized: true);
+            generate(meshTypes, chunkCenter, setInitialized: true);
+            return;
+        }
+
+        if(!seenChunks.Contains(coord)) {
+            seenChunks.Add(coord);
+            var meshTypes = load();
+            generate(meshTypes, chunkCenter, setInitialized: !initialized);
             return;
         }
 
         foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
-            if(!entitySpawner.isHidden(entityId)) continue;
+            List<int>? indicesToShow = null;
 
-            anyInChunk(out bool val, coord, instanceList);
-            if(!val) continue;
+            for(int i = 0; i < instanceList.Count; i++) {
+                if(!entitySpawner.isHidden(entityId, i)) continue;
 
-            instanceList.RemoveAll(inst => inst.Lifetime <= 0);
-            if(instanceList.Count == 0) {
-                entitySpawner.show(entityId);
-                continue;
+                var inst = instanceList[i];
+                var chunk = instanceChunk(inst);
+                if(chunk != coord) continue;
+                if(inst.Lifetime <= 0) continue;
+
+                indicesToShow ??= new List<int>();
+                indicesToShow.Add(i);
             }
+
+            if(indicesToShow == null) continue;
 
             if(entityPropsById.TryGetValue(entityId, out var props)) {
-                MeshEntityCollider.create(props, instanceList);
+                var subset = indicesToShow.Select(i => instanceList[i]).ToList();
+                MeshEntityCollider.create(props, subset);
             }
 
-            Console.WriteLine($"[MeshEntityGenerator] showing {entityId} (had {instanceList.Count} instances)");
-            entitySpawner.show(entityId);
+            foreach(var idx in indicesToShow) {
+                entitySpawner.show(entityId, idx);
+            }
         }
     }
 
@@ -220,14 +239,17 @@ Console.WriteLine($"[MeshEntityGenerator] render() coord={coord}, initialized={i
      */
     public override void unrender() {
         ChunkCoord coord = ContextChunk.current!.Value;
-        Console.WriteLine($"[MeshEntityGenerator] unrender() coord={coord}");
 
         foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
-            if(entitySpawner.isHidden(entityId)) continue;
+            for(int i = 0; i < instanceList.Count; i++) {
+                if(entitySpawner.isHidden(entityId, i)) continue;
 
-            anyInChunk(out bool val, coord, instanceList);
-            if(val) {Console.WriteLine($"[MeshEntityGenerator] hiding {entityId}"); 
-            entitySpawner.hide(entityId);}
+                var inst = instanceList[i];
+                var chunk = instanceChunk(inst);
+                if(chunk != coord) continue;
+
+                entitySpawner.hide(entityId, i);
+            }
         }
     }
 
@@ -245,7 +267,9 @@ Console.WriteLine($"[MeshEntityGenerator] render() coord={coord}, initialized={i
             var meshTypes = load();
 
             if(meshTypes.TryGetValue(meshType, out MeshData? data)) {
-                generate(new Dictionary<string, MeshData> { [meshType] = data });
+                var coord = ChunkCoord.FromWorldPosition(playerPosition.X, playerPosition.Y, playerPosition.Z);
+                Vector3 chunkCenter = coord.ToWorldPosition();
+                generate(new Dictionary<string, MeshData> { [meshType] = data }, chunkCenter);
             }
         }
     }
