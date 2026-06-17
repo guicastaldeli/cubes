@@ -95,9 +95,10 @@ static class Scanner {
         ChunkHandler handler,
         List<ChunkHandler> chunkedHandlers,
         List<ChunkHandler> globalHandlers,
-        Dictionary<ChunkHandler, HashSet<ChunkCoord>> handlerActiveChunks
+        Dictionary<ChunkHandler, HashSet<ChunkCoord>> handlerActiveChunks,
+        Type? originalType = null 
     ) {
-        var type = handler.GetType();
+        var type = originalType ?? handler.GetType();
         var declaringType = type.DeclaringType;
         bool isNested = declaringType != null;
 
@@ -177,29 +178,18 @@ static class Scanner {
                 var instance = FindInstance(parent, nestedType);
 
                 if(instance != null && scanned.Add(instance)) {
-                    if(instance is ChunkHandler ch) {
-                        RegisterHandler(ch, chunkedHandlers, globalHandlers, handlerActiveChunks);
-                    }
-                    else if(parent is ChunkHandler parentHandler) {
-                        if(attrChunked != null && !chunkedHandlers.Contains(parentHandler)) {
-                            chunkedHandlers.Add(parentHandler);
-                            handlerActiveChunks[parentHandler] = new HashSet<ChunkCoord>();
-                            
-                            Console.ForegroundColor = ConsoleColor.DarkCyan;
-                            Console.WriteLine($"[ChunkManager] Chunked (via {parent.GetType().Name}.{nestedType.Name}): {parent.GetType().Name}");
-                            Console.ResetColor();
-                        }
-                        if(attrIChunked != null && !globalHandlers.Contains(parentHandler)) {
-                            globalHandlers.Add(parentHandler);
-                            
-                            Console.ForegroundColor = ConsoleColor.DarkBlue;
-                            Console.WriteLine($"[ChunkManager] Global (via {parent.GetType().Name}.{nestedType.Name}): {parent.GetType().Name}");
-                            Console.ResetColor();
-                        }
+                    ChunkHandler handler;
+
+                    if(instance is ChunkHandler chunkHandler) {
+                        handler = chunkHandler;
+                    } else {
+                        handler = new NestedHandler(instance);
                     }
 
+                    RegisterHandler(handler, chunkedHandlers, globalHandlers, handlerActiveChunks, nestedType);
                     ScanRecursive(instance, nestedType, chunkedHandlers, globalHandlers, handlerActiveChunks);
                     InstantiateNested(instance, nestedType, chunkedHandlers, globalHandlers, handlerActiveChunks);
+
                     return;
                 }
 
