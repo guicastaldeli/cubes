@@ -177,9 +177,7 @@ class MeshEntityGenerator : WorldHandler {
             }
         }
 
-        foreach(var (meshType, allInstances) in byMeshType) {
-            entitySpawner.syncData(meshType, allInstances);
-        }
+        entitySpawner.updateData();
 
         MeshEntityFactory.setEvent(MeshEntityCollider.colliderIds, entityProps, entityInstances);
         if(setInitialized) initialized = true;
@@ -263,6 +261,12 @@ class MeshEntityGenerator : WorldHandler {
             }
         }
     }
+
+    private class PendingWork {
+    public ChunkCoord Chunk;
+    public Vector3 BoundaryCenter;
+    public List<string> RemainingTypes = new();  // mesh type IDs still to process
+}
 
     // Update Visibility
     private void updateVisibility(Vector3 playerPosition) {

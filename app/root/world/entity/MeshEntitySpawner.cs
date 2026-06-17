@@ -97,7 +97,7 @@ class MeshEntitySpawner {
      *
      */
     public static float SPAWN_AREA = (float)ChunkCoord.CHUNK_SIZE; 
-    public static int VISIBLE_ENTITIES = 2;
+    public static int VISIBLE_ENTITIES = 6;
 
     private Tick? tick;
     private Mesh? mesh;
@@ -213,7 +213,7 @@ class MeshEntitySpawner {
         float r = SPAWN_AREA;
 
         float x = center.X + (float)(range.NextDouble() * r * 2.0f - r);
-        float y = center.Y + (float)(range.NextDouble() * 2.0f);
+        float y = center.Y + (float)(range.NextDouble() * r * 2.0f - r);
         float z = center.Z + (float)(range.NextDouble() * r * 2.0f - r);
 
         Vector3 val = new Vector3(x, y, z);
@@ -480,7 +480,7 @@ class MeshEntitySpawner {
     }
 
     // Update Data
-    private void updateData() {
+    public void updateData() {
         CacheMeshEntity.ClearCachedByMeshTypes();
 
         foreach(var (id, l) in instances) {

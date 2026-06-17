@@ -28,9 +28,9 @@ class Platform : WorldHandler {
     (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
     private Vector3 offset = Vector3.Zero;
     
-    private const int CHUNK_X = 1000;
-    private const int CHUNK_Y = 1;
-    private const int CHUNK_Z = 1000;
+    private const int SIZE_X = 1000;
+    private const int SIZE_Y = 1;
+    private const int SIZE_Z = 1000;
     private const float SPACING = 1.0f;
 
     private bool initialized = false;
@@ -65,17 +65,12 @@ class Platform : WorldHandler {
     public void setClient() {
         if(initialized) return;
         setPlatform(renderMesh: false);
-    } 
-
-    // Set Position
-    private void setPosition() {
-        offset = new Vector3(pos.x, pos.y, pos.z);
     }
 
     // Height
     public Vector3 getHeight() {
         Vector3 meshSize = mesh.getSize(GRID_ID);
-        float topY = offset.Y + (CHUNK_Y * SPACING) + (meshSize.Y / 2.0f);
+        float topY = offset.Y + (SIZE_Y * SPACING) + (meshSize.Y / 2.0f);
         Vector3 res = new Vector3(offset.X, topY, offset.Z); 
         return res;
     }
@@ -277,11 +272,33 @@ class Platform : WorldHandler {
         float wy = chunkOrigin.Y + y * SPACING;
         float wz = chunkOrigin.Z + z * SPACING;
 
-        if(wx < 0 || wx >= CHUNK_X ||
-            wy < 0 || wy >= CHUNK_Y || 
-            wz < 0 || wz >= CHUNK_Z) return null;
+        if(wx < 0 || wx >= SIZE_X ||
+            wy < 0 || wy >= SIZE_Y || 
+            wz < 0 || wz >= SIZE_Z) return null;
 
         return (wx, wy, wz); 
+    }
+
+    // Set Platform Props
+    private void setPlatformProps(List<string> colliderIds, Vector3 chunkOrigin, ChunkCoord coord) {
+        string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}";
+
+        Vector3 chunkBoxCenter = new Vector3(
+            chunkOrigin.X + ChunkCoord.CHUNK_SIZE * SPACING / 2.0f,
+            chunkOrigin.Y + SIZE_Y * SPACING / 2.0f,
+            chunkOrigin.Z + ChunkCoord.CHUNK_SIZE * SPACING / 2.0f
+        );
+        Vector3 chunkBoxHalf = new Vector3(
+            ChunkCoord.CHUNK_SIZE * SPACING / 2.0f,
+            SIZE_Y * SPACING / 2.0f,
+            ChunkCoord.CHUNK_SIZE * SPACING / 2.0f
+        );
+
+        collisionManager.addStaticCollider(new StaticObject(
+            chunkBoxCenter, chunkBoxHalf.X, chunkBoxHalf.Y, chunkBoxHalf.Z, colliderId
+        ));
+
+        colliderIds.Add(colliderId);
     }
 
     // Set Platform
@@ -309,38 +326,26 @@ class Platform : WorldHandler {
             initialized = true;
         }
 
-        //Console.WriteLine($"[Platform] set() - hasChunk: {ContextChunk.hasChunk}");
         if(!ContextChunk.hasChunk) return;
         ChunkCoord coord = ContextChunk.current!.Value;
-        //Console.WriteLine($"[Platform] generating chunk {coord}");
         if(chunkColliders.ContainsKey(coord)) return;
 
         var colliderIds = new List<string>();
         Vector3 chunkOrigin = coord.ToWorldPosition();
-        Vector3 meshSize = mesh.getSize(GRID_ID);
-        Vector3 half2 = meshSize / 2.0f;
 
         var positions = new List<Vector3>();
 
-        int count = ChunkCoord.CHUNK_SIZE * ChunkCoord.CHUNK_SIZE * ChunkCoord.CHUNK_SIZE;
-        for(int i = 0; i < count; i++) {
-            int x = i % ChunkCoord.CHUNK_SIZE;
-            int y = (i / ChunkCoord.CHUNK_SIZE) % ChunkCoord.CHUNK_SIZE;
-            int z = i / (ChunkCoord.CHUNK_SIZE * ChunkCoord.CHUNK_SIZE);
+        setPlatformProps(colliderIds, chunkOrigin, coord);
 
-            var bounds = setBounds(chunkOrigin, x, y, z);
-            if(bounds == null) continue;
-
-            var (wx, wy, wz) = bounds.Value;
-            Vector3 pos = new Vector3(wx, wy, wz);
-
-            string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}_{x}_{z}";
-            colliderIds.Add(colliderId);
-            positions.Add(pos);
-
-            collisionManager.addStaticCollider(new StaticObject(
-                pos, half2.X, half2.Y, half2.Z, colliderId
-            ));
+        for(int x = 0; x < ChunkCoord.CHUNK_SIZE; x++) {
+            for(int z = 0; z < ChunkCoord.CHUNK_SIZE; z++) {
+                for(int y = 0; y < ChunkCoord.CHUNK_SIZE; y++) {
+                    var bounds = setBounds(chunkOrigin, x, y, z);
+                    if(bounds == null) continue;
+                    
+                    positions.Add(new Vector3(bounds.Value.wx, bounds.Value.wy, bounds.Value.wz));
+                }
+            }
         }
 
         if(positions.Count == 0) return;
