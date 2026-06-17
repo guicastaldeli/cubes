@@ -278,8 +278,8 @@ class Platform : WorldHandler {
         return (wx, wy, wz); 
     }
 
-    // Set Platform Props
-    private void setPlatformProps(List<string> colliderIds, Vector3 chunkOrigin, ChunkCoord coord, List<Vector3> positions) {
+    // Set Platform Collider
+    private void setPlatformCollider(List<string> colliderIds, ChunkCoord coord, List<Vector3> positions) {
         if(positions.Count == 0) return;
 
         string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}";
@@ -365,7 +365,7 @@ class Platform : WorldHandler {
 
         if(positions.Count == 0) return;
 
-        setPlatformProps(colliderIds, chunkOrigin, coord, positions);
+        setPlatformCollider(colliderIds, coord, positions);
         chunkColliders[coord] = colliderIds;
         //Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
         ChunkPositions.Add(GRID_ID, coord, positions);
