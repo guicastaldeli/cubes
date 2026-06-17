@@ -156,7 +156,7 @@ class Raycaster {
     public event Action<string?>? onHit;
     private bool isActive = true;
 
-    private const float MAX_DIST = 300.0f;
+    private const float MAX_DIST = 10.0f;
 
     public Raycaster(Camera camera, Mesh mesh) {
         this.camera = camera;

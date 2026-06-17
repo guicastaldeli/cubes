@@ -59,7 +59,7 @@ class PlayerController : DataEntry {
 
     private float posX = 50.0f;
     private float posY = 50.0f;
-    private float posZ = 0.0f;
+    private float posZ = 50.0f;
     private Vector3 position;
     
     private float sizeX = 1.0f;

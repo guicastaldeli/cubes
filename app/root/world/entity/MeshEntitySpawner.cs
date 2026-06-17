@@ -96,7 +96,7 @@ class MeshEntitySpawner {
      * Mesh Entity Main
      *
      */
-    public static float SPAWN_AREA = (float)ChunkCoord.CHUNK_SIZE; 
+    public static float SPAWN_AREA = 50.0f; 
     public static int VISIBLE_ENTITIES = 6;
 
     private Tick? tick;
@@ -131,8 +131,8 @@ class MeshEntitySpawner {
 
         onEvents();
         
-        //MeshEntityCollider.init(mesh, collisionManager, this);
-        //MeshEntityCollider.onEvents();
+        MeshEntityCollider.init(mesh, collisionManager, this);
+        MeshEntityCollider.onEvents();
     }
 
     // Get Boundary
@@ -358,7 +358,7 @@ class MeshEntitySpawner {
         if(hiddenList[index]) return;
 
         var pos = list[index].Position;
-        Console.WriteLine($"[Spawner] hide {entityId}[{index}] at ({pos.X:F1},{pos.Y:F1},{pos.Z:F1})");
+        //Console.WriteLine($"[Spawner] hide {entityId}[{index}] at ({pos.X:F1},{pos.Y:F1},{pos.Z:F1})");
 
         MeshEntityCollider.remove(entityId, index);
         hiddenList[index] = true;
@@ -371,7 +371,7 @@ class MeshEntitySpawner {
         if(!hiddenList[index]) return;
 
         var pos = instances[entityId][index].Position;
-        Console.WriteLine($"[Spawner] show {entityId}[{index}] at ({pos.X:F1},{pos.Y:F1},{pos.Z:F1})");
+       // Console.WriteLine($"[Spawner] show {entityId}[{index}] at ({pos.X:F1},{pos.Y:F1},{pos.Z:F1})");
 
         hiddenList[index] = false;
     }

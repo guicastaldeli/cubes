@@ -4,6 +4,7 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using App.Root.Player;
 using OpenTK.Mathematics;
+using App.Root.Chunk;
 using NLua;
 
 /**
@@ -139,6 +140,7 @@ class Color {
     Skybox main class.
 
     */
+[IChunked]
 class Skybox : WorldHandler {
     private const string ID = "skybox";
     private const string MESH = "skybox";
@@ -148,6 +150,7 @@ class Skybox : WorldHandler {
     private Mesh mesh;
     private Camera camera;
     private TimeCycle timeCycle;
+    private PlayerController playerController;
 
     private bool initialized = false;
     private string? lastPeriodName = null;
@@ -160,15 +163,17 @@ class Skybox : WorldHandler {
         [Inject] ShaderProgram shaderProgram, 
         [Inject] Mesh mesh,
         [Inject] Camera camera,
-        [Inject] TimeCycle timeCycle
+        [Inject] TimeCycle timeCycle,
+        [Inject] PlayerController playerController
     ) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.camera = camera;
         this.timeCycle = timeCycle;
+        this.playerController = playerController;
 
-        SkyboxStar.init(tick, mesh);
+        SkyboxStar.init(tick, mesh, playerController);
         Color.init(tick, shaderProgram, this, timeCycle);
     }
 
@@ -203,7 +208,7 @@ class Skybox : WorldHandler {
      */
     public override void render() {
         if(!initialized) {
-            //set();
+            set();
 
             initialized = true;
         }
@@ -215,6 +220,9 @@ class Skybox : WorldHandler {
      *
      */
     public override void update() {
+        Vector3 playerPosition = playerController.getPosition();
+        mesh.setPosition(ID, playerPosition.X, playerPosition.Y, playerPosition.Z);
+
         Color.update();
 
         if(Color.currentColor != null) {
@@ -276,6 +284,7 @@ class Skybox : WorldHandler {
     
         private static Tick tick = null!;
         private static Mesh mesh = null!;
+        private static PlayerController playerController = null!;
 
         static (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
 
@@ -302,9 +311,10 @@ class Skybox : WorldHandler {
          * Init
          *
          */
-        public static void init(Tick tick, Mesh mesh) {
+        public static void init(Tick tick, Mesh mesh, PlayerController playerController) {
             SkyboxStar.tick = tick;
             SkyboxStar.mesh = mesh;
+            SkyboxStar.playerController = playerController;
         }
 
         /**
@@ -440,10 +450,13 @@ class Skybox : WorldHandler {
             if(fieldRotation > MathF.PI * 2.0f) fieldRotation -= MathF.PI * 2.0f;
 
             Matrix4 rotationMatrix = Matrix4.CreateFromAxisAngle(fieldAxis, fieldRotation);
+            
+            Vector3 playerPosition = playerController.getPosition();
+
             var rotattedPositions = new List<Vector3>();
             for(int i = 0; i < originalPos.Count; i++) {
                 Vector3 pos = Vector3.TransformPosition(originalPos[i], rotationMatrix);
-                rotattedPositions.Add(pos);
+                rotattedPositions.Add(pos + playerPosition);
             }
 
             var renderer = mesh.getMeshRenderer(STAR_ID);

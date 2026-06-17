@@ -4,6 +4,7 @@ using App.Root.Particle;
 using App.Root.Shaders;
 using App.Root.Utils;
 using OpenTK.Mathematics;
+using App.Root.Chunk;
 using NLua;
 
 /**
@@ -152,6 +153,7 @@ class WeatherData {
     Weather main class.
 
     */
+[IChunked]
 class Weather : WorldHandler {
     private Tick tick;
     private Mesh mesh;

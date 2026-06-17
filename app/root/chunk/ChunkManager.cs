@@ -184,7 +184,7 @@ class ChunkManager {
      *
      */
     private void loadChunk(ChunkCoord coord) {
-        Console.WriteLine($"[ChunkManager] loadChunk called for {coord}");
+        //Console.WriteLine($"[ChunkManager] loadChunk called for {coord}");
         //Console.WriteLine($"[TRACE] StackTrace:\n{Environment.StackTrace}");
         if(!chunkDataMap.TryGetValue(coord, out var data)) {
             data = ChunkGenerator.generate(coord);

@@ -84,22 +84,7 @@ class MeshEntityGenerator : WorldHandler {
     
         this.entitySpawner = new MeshEntitySpawner(tick, mesh, collisionManager);
     
-        MeshEntityCollider.onEntityRemoved += meshType => {
-            generationQueue.Enqueue(meshType);
-        };
-
         StateManager.Register(this);
-    }
-
-    // Instance Chunk
-    private ChunkCoord instanceChunk(Instance inst) {
-        ChunkCoord val = ChunkCoord.FromWorldPosition(
-            inst.Position.X, 
-            inst.Position.Y, 
-            inst.Position.Z
-        );
-
-        return val;
     }
 
     /**

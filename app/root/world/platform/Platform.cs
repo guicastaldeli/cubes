@@ -315,9 +315,8 @@ class Platform : WorldHandler {
                 PhysicsType.RECEIVER
             );
 
-            Vector3 size = mesh.getSize(GRID_ID);
-            Vector3 half = size / 2.0f;
-            topSurfaceY = half.Y;
+            float half = SIZE_Y * SPACING;
+            topSurfaceY = half;
             height = new Vector3(0, topSurfaceY.Value, 0);
 
             var renderer = mesh.getMeshRenderer(GRID_ID);
@@ -335,8 +334,6 @@ class Platform : WorldHandler {
 
         var positions = new List<Vector3>();
 
-        setPlatformProps(colliderIds, chunkOrigin, coord);
-
         for(int x = 0; x < ChunkCoord.CHUNK_SIZE; x++) {
             for(int z = 0; z < ChunkCoord.CHUNK_SIZE; z++) {
                 for(int y = 0; y < ChunkCoord.CHUNK_SIZE; y++) {
@@ -349,6 +346,8 @@ class Platform : WorldHandler {
         }
 
         if(positions.Count == 0) return;
+
+        setPlatformProps(colliderIds, chunkOrigin, coord);
         chunkColliders[coord] = colliderIds;
         //Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
         ChunkPositions.Add(GRID_ID, coord, positions);
