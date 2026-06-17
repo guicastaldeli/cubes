@@ -2,7 +2,7 @@ namespace App.Root.Chunk;
 using App.Root.Mesh;
 using App.Root.Player;
 using OpenTK.Mathematics;
-using System.Reflection;
+using System.Runtime.CompilerServices;
 
 /**
 
@@ -10,9 +10,11 @@ using System.Reflection;
 
     */
 abstract class ChunkHandler {
-    public virtual void render() {}
-    public virtual void unrender() {}
-    public virtual void update() {}
+    [Scan] public virtual void render() => Route();
+    [Scan] public virtual void unrender() => Route();
+    [Scan] public virtual void update() => Route();
+
+    protected virtual void Route([CallerMemberName] string? name = null) {}
 }
 
 /**
@@ -79,9 +81,9 @@ class ChunkManager {
     private const int MAX_LOAD_PER_FRAME = 2;
 
     private Window window;
-    private Camera camera;
     private Mesh mesh;
-    private PlayerController playerController;
+    private PlayerController playerController = null!;
+    private Camera camera = null!;
 
     private List<ChunkHandler> chunkedHandlers = new();
     private List<ChunkHandler> globalHandlers = new();
@@ -96,12 +98,21 @@ class ChunkManager {
     private ChunkCoord lastPlayerChunk = new ChunkCoord(int.MaxValue, 0, int.MaxValue);
 
     private bool initialized = false;
+    private bool readyEmitted = false;
 
-    public ChunkManager(Window window, Camera camera, Mesh mesh, PlayerController playerController) {
+    public ChunkManager(Window window, Mesh mesh) {
         this.window = window;
-        this.camera = camera;
         this.mesh = mesh;
+    }
+
+    // Set Player Controller
+    public void setPlayerController(PlayerController playerController) {
         this.playerController = playerController;
+    }
+
+    // Set Camera
+    public void setCamera(Camera camera) {
+        this.camera = camera;
     }
 
     // Get Active Chunks
@@ -149,6 +160,17 @@ class ChunkManager {
         foreach(var coord in activeChunks) {
             if(!shouldBeActive.Contains(coord)) unloadQueue.Enqueue(coord);
         }
+    }
+
+    // Check Ready
+    private void checkReady() {
+        if(readyEmitted) return;
+        if(loadQueue.Count > 0) return;
+        if(activeChunks.Count == 0) return;
+
+        readyEmitted = true;
+        Console.WriteLine($"[ChunkManager] {activeChunks.Count} chunks loaded — emitting scene-ready");
+        EventStream.set("chunk-ready", true);
     }
 
     /**
@@ -238,6 +260,7 @@ class ChunkManager {
         foreach(var handler in handlers) {
             ChunkedAttribute.R(handler, chunkedHandlers, handlerActiveChunks);
             IChunkedAttribute.R(handler, globalHandlers);
+            Scanner.Scan(handler, chunkedHandlers, globalHandlers, handlerActiveChunks);
         }
     }
 
@@ -296,5 +319,7 @@ class ChunkManager {
 
         processUnloadQueue();
         processLoadQueue();
+
+        checkReady();
     }
 }

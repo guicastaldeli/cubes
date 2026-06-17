@@ -25,22 +25,15 @@ class Platform : WorldHandler {
     public const string GRID_ID = "grid";
     private const string MESH = "cube";
 
-    (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
-    private Vector3 offset = Vector3.Zero;
-    
-    private const int SIZE_X = 1000;
+    private const int SIZE_X = 100;
     private const int SIZE_Y = 1;
-    private const int SIZE_Z = 1000;
+    private const int SIZE_Z = 100;
     private const float SPACING = 1.0f;
 
+    private static Dictionary<ChunkCoord, List<string>> chunkColliders = new();
+    private Vector3 offset = Vector3.Zero;
+
     private bool initialized = false;
-
-    private Dictionary<ChunkCoord, List<string>> chunkColliders = new();
-
-    public static Vector3? height {
-        get;
-        private set;
-    }
 
     public static float? topSurfaceY {
         get;
@@ -252,6 +245,12 @@ class Platform : WorldHandler {
         ****
 
         */
+
+    // Get Platform Chunks
+    public static IEnumerable<ChunkCoord> getPlatformChunks() {
+        return chunkColliders.Keys;
+    }
+
     /**
      * 
      * Set
@@ -304,7 +303,6 @@ class Platform : WorldHandler {
     // Set Platform
     private void setPlatform(bool renderMesh = true) {
         if(!initialized) {
-            height = null;
             topSurfaceY = null;
 
             mesh.add(GRID_ID, MESH);
@@ -317,7 +315,6 @@ class Platform : WorldHandler {
 
             float half = SIZE_Y * SPACING;
             topSurfaceY = half;
-            height = new Vector3(0, topSurfaceY.Value, 0);
 
             var renderer = mesh.getMeshRenderer(GRID_ID);
             if(renderer != null) renderer.isInstanced = true;

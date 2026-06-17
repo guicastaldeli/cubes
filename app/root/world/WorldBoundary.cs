@@ -14,7 +14,7 @@ class WorldBoundary {
     private RigidBody rigidBody;
     private CollisionManager collisionManager;
 
-    public const float WORLD_BOUNDARY = 2500.0f;
+    public const float WORLD_BOUNDARY = 250.0f;
 
     public WorldBoundary(PlayerController playerController, RigidBody rigidBody, CollisionManager collisionManager) {
         this.playerController = playerController;
@@ -38,20 +38,20 @@ class WorldBoundary {
      */
     public void apply() {
         Vector3 pos = rigidBody.getPosition();
-        Vector3? spawn = Platform.Platform.height;
         
         var boundary = getBoundaryObject();
         if(boundary == null || !boundary.isActive()) return;
+        
+        boundary.setCenter(new Vector3(pos.X, 0.0f, pos.Z));
 
         float minHeight = boundary.getMinHeight();
         float maxHeight = boundary.getMaxHeight();
 
-        if(pos.Y <= minHeight && spawn.HasValue) {
-            playerController.setPosition(
-                spawn.Value.X,
-                spawn.Value.Y,
-                spawn.Value.Z
-            );
+        if(pos.Y <= minHeight) {
+            Vector3 spawn = playerController.setSpawnProps();
+            playerController.setPosition(spawn.X, spawn.Y, spawn.Z);
+
+            Console.WriteLine($"[WorldBoundary] spawned at {spawn}");
             return;
         }
         

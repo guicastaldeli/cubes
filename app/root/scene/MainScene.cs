@@ -30,9 +30,6 @@ class MainScene {
     private ChunkManager chunkManager;
 
     public bool initialized = false;
-
-    private float SHOW_DELAY = 1.0f;
-    private float SHOW_TIMER = 0.0f;
     private bool ReadyToShow = false;
 
     public MainScene(
@@ -51,6 +48,8 @@ class MainScene {
         this.timeCycle = new TimeCycle(tick);
         window.setTimeCycle(timeCycle);
 
+        this.chunkManager = new ChunkManager(window, mesh);
+
         this.playerController = new PlayerController(
             window, 
             input,
@@ -58,12 +57,8 @@ class MainScene {
             mesh
         );
 
-        this.chunkManager = new ChunkManager(
-            window, 
-            getCamera(), 
-            mesh,
-            playerController
-        );
+        chunkManager.setPlayerController(playerController);
+        chunkManager.setCamera(getCamera());
 
         this.collisionManager = new CollisionManager();
 
@@ -78,6 +73,11 @@ class MainScene {
             getCamera(),
             chunkManager
         );
+
+        EventStream.on("chunk-ready", _ => {
+            ReadyToShow = true;
+            Console.WriteLine("[MainScene] Scene ready to show");
+        });
     }
 
     // Is Init
@@ -187,17 +187,6 @@ class MainScene {
 
         network?.pollAndCache();
         NetworkUpdate.getInstance().update();
-
-        updateShow();
-    }
-
-    private void updateShow() {
-        if(!ReadyToShow) {
-            SHOW_TIMER += tick.getDeltaTime();
-            if(SHOW_TIMER >= SHOW_DELAY) {
-                ReadyToShow = true;
-            }   
-        }
     }
 
     /**
@@ -239,7 +228,6 @@ class MainScene {
     public void reset() {
         initialized = false;
         ReadyToShow = false;
-        SHOW_TIMER = 0.0f;
         screenController.running = false;
 
         Controller.Reset();

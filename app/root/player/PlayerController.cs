@@ -10,6 +10,7 @@ using WPlatform = App.Root.World.Platform.Platform;
 using AppWindow = App.Root.Window;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using App.Root.Chunk;
 
 [ManagedState]
 class PlayerController : DataEntry {
@@ -54,8 +55,12 @@ class PlayerController : DataEntry {
     private Mesh mesh;
     private PlayerMesh playerMesh;
     private Raycaster raycaster;
+    private Network? network;
+    private NetworkPlayer networkPlayer;
 
     private Mode mode;
+
+    private WorldManager? worldManager = null!;
 
     private float posX = 50.0f;
     private float posY = 50.0f;
@@ -78,15 +83,12 @@ class PlayerController : DataEntry {
     private float jumpForce = 8.0f;
     private float flySpeed = 30.0f;
 
-    private Network? network;
-    private NetworkPlayer networkPlayer;
-
-    private WorldManager? worldManager = null!;
+    private Dictionary<MoveDir, (Keys key, Action<bool> apply)>? moveMap;
 
     private string id = "";
     private string username = InfoController.getInstance().getUserInfo().getUsername();
 
-    private Dictionary<MoveDir, (Keys key, Action<bool> apply)>? moveMap;
+    private bool spawned = false;
 
     public PlayerController(
         AppWindow window,
@@ -122,6 +124,8 @@ class PlayerController : DataEntry {
         init();   
 
         StateManager.Register(this);
+
+        EventStream.on("chunk-ready", _ => setSpawn());
     }
 
     // Get Window
@@ -257,15 +261,49 @@ class PlayerController : DataEntry {
     public void set() {
         if(network != null) id = network.userId ?? id;
         playerMesh.set(true);
+        spawned = false;
 
-        Vector3? spawn = WPlatform.height;
-        if(spawn.HasValue) {
-            setPosition(
-                spawn.Value.X, 
-                spawn.Value.Y, 
-                spawn.Value.Z
-            );
+        if(EventStream.getT<bool>("chunk-ready") == true) {
+            setSpawn();
         }
+    }
+
+    public Vector3 setSpawnProps() {
+        float y = WPlatform.topSurfaceY ?? 1.0f;
+        float spawnY = y + 10.0f;
+
+        var chunks = WPlatform.getPlatformChunks().ToList();
+        if(chunks.Count == 0) {
+            Console.WriteLine("NO CHUNKS!!!!!!!!!!!");
+            return new Vector3(0, spawnY, 0);
+        }
+
+        float cx = 0;
+        float cz = 0;
+        
+        foreach(var c in chunks) {
+            cx += c.cx;
+            cz += c.cz;
+        }
+
+        cx /= chunks.Count;
+        cz /= chunks.Count;
+
+        float wx = cx * ChunkCoord.CHUNK_SIZE + ChunkCoord.CHUNK_SIZE / 2.0f;
+        float wz = cz * ChunkCoord.CHUNK_SIZE + ChunkCoord.CHUNK_SIZE / 2.0f;
+
+        Vector3 val = new Vector3(wx, spawnY, wz);
+        return val;
+    }
+
+    public void setSpawn() {
+        if(spawned) return;
+
+        Vector3 spawn = setSpawnProps();
+        setPosition(spawn.X, spawn.Y, spawn.Z);
+        spawned = true;
+
+        Console.WriteLine($"[PlayerController] spawned at {spawn}");
     }
     
     /**

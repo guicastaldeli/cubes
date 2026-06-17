@@ -11,6 +11,8 @@ class BoundaryObject : Collider {
     private float minHeight;
     private float maxHeight;
 
+    private Vector3 center = Vector3.Zero;
+
     private bool active = true;
 
     public BoundaryObject(float distance) {
@@ -23,6 +25,16 @@ class BoundaryObject : Collider {
             -distance - thickness, float.MinValue, -distance - thickness,
             distance + thickness, float.MaxValue, distance + thickness
         );
+    }
+
+    // Set Center
+    public void setCenter(Vector3 center) {
+        this.center = new Vector3(center.X, 0.0f, center.Z);
+    }
+
+    // Get Center
+    public Vector3 getCenter() {
+        return this.center;
     }
 
     // Get Id

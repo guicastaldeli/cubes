@@ -152,6 +152,8 @@ class Skybox : WorldHandler {
     private TimeCycle timeCycle;
     private PlayerController playerController;
 
+    private CSkyboxStar SkyboxStar = new CSkyboxStar();
+
     private bool initialized = false;
     private string? lastPeriodName = null;
 
@@ -275,46 +277,47 @@ class Skybox : WorldHandler {
         Skybox Star class.
 
         */
-    private static class SkyboxStar {
-        private static string STAR_ID = "star";
-        private static string STAR_MESH = "quad";
+    [Chunked]
+    public class CSkyboxStar {
+        private string STAR_ID = "star";
+        private string STAR_MESH = "quad";
 
-        private static int STAR_COUNT = 600;
-        private static float STAR_RADIUS = 25.0f;
+        private int STAR_COUNT = 600;
+        private float STAR_RADIUS = 25.0f;
     
-        private static Tick tick = null!;
-        private static Mesh mesh = null!;
-        private static PlayerController playerController = null!;
+        private Tick tick = null!;
+        private Mesh mesh = null!;
+        private PlayerController playerController = null!;
 
-        static (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
+        (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
 
-        private static List<Vector3> originalPos = new();
-        private static List<float[]> originalColors = new();
-        private static List<float> currentRotations = new();
-        private static List<float> speeds = new();
+        private List<Vector3> originalPos = new();
+        private List<float[]> originalColors = new();
+        private List<float> currentRotations = new();
+        private List<float> speeds = new();
 
-        private static float fieldRotation = 0.0f;
-        private static float fieldRotationSpeed = 0.01f;
-        private static Vector3 fieldAxis = new Vector3(1, 0, 0);
+        private float fieldRotation = 0.0f;
+        private float fieldRotationSpeed = 0.01f;
+        private Vector3 fieldAxis = new Vector3(1, 0, 0);
 
-        private static int prevPeriodType = -1;
-        private static float transitionProgress = 1.0f;
-        private static float transitionDuration = 0.5f;
-        private static bool isTransitioning = false;
+        private int prevPeriodType = -1;
+        private float transitionProgress = 1.0f;
+        private float transitionDuration = 0.5f;
+        private bool isTransitioning = false;
         
-        private static bool visible = true;
-        private static bool targetVisibility = true;
-        private static bool currentVisibility = true;
+        private bool visible = true;
+        private bool targetVisibility = true;
+        private bool currentVisibility = true;
 
         /**
          * 
          * Init
          *
          */
-        public static void init(Tick tick, Mesh mesh, PlayerController playerController) {
-            SkyboxStar.tick = tick;
-            SkyboxStar.mesh = mesh;
-            SkyboxStar.playerController = playerController;
+        public void init(Tick tick, Mesh mesh, PlayerController playerController) {
+            this.tick = tick;
+            this.mesh = mesh;
+            this.playerController = playerController;
         }
 
         /**
@@ -322,7 +325,7 @@ class Skybox : WorldHandler {
          * Set
          *
          */
-        public static void set() {
+        public void set() {
             reset();
             
             MeshData data = MeshDataLoader.load(STAR_MESH);
@@ -342,19 +345,19 @@ class Skybox : WorldHandler {
         }
 
         // Get Transition Progress
-        public static float getTransitionProgress() {
+        public float getTransitionProgress() {
             return transitionProgress;
         }
 
         // Is Visible
-        private static bool isVisible(int periodType) {
+        private bool isVisible(int periodType) {
             bool val = periodType >= 1 && 
                 periodType <= 4;
             return val;
         }
 
         // Set Speed
-        private static void setSpeed(List<float> rotations) {
+        private void setSpeed(List<float> rotations) {
             var rand = new Random(123);
             speeds = new List<float>();
             for(int i = 0; i < rotations.Count; i++) {
@@ -363,7 +366,7 @@ class Skybox : WorldHandler {
         }
 
         // Start Transition
-        private static void startTransition(bool appearing) {
+        private void startTransition(bool appearing) {
             isTransitioning = true;
             visible = appearing;
 
@@ -380,7 +383,7 @@ class Skybox : WorldHandler {
          * Generate
          *
          */
-        public static (List<Vector3>, List<float[]>, List<float>) generate() {
+        public (List<Vector3>, List<float[]>, List<float>) generate() {
             var positions = new List<Vector3>();
             var colors = new List<float[]>();
             var rotations = new List<float>();
@@ -420,7 +423,7 @@ class Skybox : WorldHandler {
          * Update
          *
          */
-        public static void update() {
+        public void update() {
             int currentPeriod = Period.getNumber(Period.getCurrent()!);
             if(currentPeriod != prevPeriodType) {
                 bool nowVisible = isVisible(currentPeriod);
@@ -450,20 +453,18 @@ class Skybox : WorldHandler {
             if(fieldRotation > MathF.PI * 2.0f) fieldRotation -= MathF.PI * 2.0f;
 
             Matrix4 rotationMatrix = Matrix4.CreateFromAxisAngle(fieldAxis, fieldRotation);
-            
-            Vector3 playerPosition = playerController.getPosition();
 
             var rotattedPositions = new List<Vector3>();
             for(int i = 0; i < originalPos.Count; i++) {
                 Vector3 pos = Vector3.TransformPosition(originalPos[i], rotationMatrix);
-                rotattedPositions.Add(pos + playerPosition);
+                rotattedPositions.Add(pos);
             }
 
             var renderer = mesh.getMeshRenderer(STAR_ID);
             if(renderer != null) renderer.updateInstanceData(rotattedPositions, originalColors, currentRotations);
         }
 
-        private static void updateTransition() {
+        private void updateTransition() {
             float deltaTime = tick.getDeltaTime();
 
             if(visible) {
@@ -488,7 +489,7 @@ class Skybox : WorldHandler {
          * Reset
          *
          */
-        private static void reset() {
+        private void reset() {
             int currentPeriod = Period.getNumber(Period.getCurrent()!);
             prevPeriodType = currentPeriod;
             targetVisibility = isVisible(currentPeriod);
