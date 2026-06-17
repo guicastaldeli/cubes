@@ -66,6 +66,8 @@ class MeshEntityGenerator : WorldHandler {
 
     private Dictionary<string, EntityProps> entityPropsById = new();
     private HashSet<ChunkCoord> seenChunks = new();
+    private Queue<ChunkCoord> pendingGeneration = new();
+    private static Dictionary<string, MeshData>? cachedMeshTypes = null;
 
     private bool initialized = false;
 
@@ -106,6 +108,8 @@ class MeshEntityGenerator : WorldHandler {
      *
      */
     public static Dictionary<string, MeshData> load() {
+        if(cachedMeshTypes != null) return cachedMeshTypes;
+
         using Lua data = new Lua();
 
         string originalDir = Directory.GetCurrentDirectory();
@@ -121,6 +125,8 @@ class MeshEntityGenerator : WorldHandler {
 
         var res = new Dictionary<string, MeshData>();
         Setter.set(entities, res);
+
+        cachedMeshTypes = res;
         return res;
     }
 
@@ -151,9 +157,7 @@ class MeshEntityGenerator : WorldHandler {
         entitySpawner.render(entity, spawnChunk, boundaryCenter);
     }
 
-    private void generate(Dictionary<string, MeshData> meshTypes,Vector3 boundaryCenter, bool setInitialized = false) {
-        ChunkCoord spawnChunk = ContextChunk.current ?? default;
-
+    private void generate(Dictionary<string, MeshData> meshTypes, ChunkCoord spawnChunk, Vector3 boundaryCenter, bool setInitialized = false) {
         var entityProps = new Dictionary<string, EntityProps>();
         var entityInstances = new Dictionary<string, List<Instance>>();
         var byMeshType = new Dictionary<string, List<Instance>>();
@@ -193,42 +197,14 @@ class MeshEntityGenerator : WorldHandler {
         if(!initialized) {
             seenChunks.Add(coord);
             var meshTypes = load();
-            generate(meshTypes, chunkCenter, setInitialized: true);
+            generate(meshTypes, coord, chunkCenter, setInitialized: true);
             return;
         }
 
         if(!seenChunks.Contains(coord)) {
             seenChunks.Add(coord);
-            var meshTypes = load();
-            generate(meshTypes, chunkCenter, setInitialized: !initialized);
+            pendingGeneration.Enqueue(coord);
             return;
-        }
-
-        foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
-            List<int>? indicesToShow = null;
-
-            for(int i = 0; i < instanceList.Count; i++) {
-                if(!entitySpawner.isHidden(entityId, i)) continue;
-
-                var inst = instanceList[i];
-                var chunk = instanceChunk(inst);
-                if(chunk != coord) continue;
-                if(inst.Lifetime <= 0) continue;
-
-                indicesToShow ??= new List<int>();
-                indicesToShow.Add(i);
-            }
-
-            if(indicesToShow == null) continue;
-
-            if(entityPropsById.TryGetValue(entityId, out var props)) {
-                var subset = indicesToShow.Select(i => instanceList[i]).ToList();
-                MeshEntityCollider.create(props, subset);
-            }
-
-            foreach(var idx in indicesToShow) {
-                entitySpawner.show(entityId, idx);
-            }
         }
     }
 
@@ -238,6 +214,7 @@ class MeshEntityGenerator : WorldHandler {
      *
      */
     public override void unrender() {
+        /*
         ChunkCoord coord = ContextChunk.current!.Value;
 
         foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
@@ -245,12 +222,12 @@ class MeshEntityGenerator : WorldHandler {
                 if(entitySpawner.isHidden(entityId, i)) continue;
 
                 var inst = instanceList[i];
-                var chunk = instanceChunk(inst);
-                if(chunk != coord) continue;
+                if(inst.SpawnedInChunk != coord) continue;
 
                 entitySpawner.hide(entityId, i);
             }
         }
+        */
     }
 
     /**
@@ -258,18 +235,71 @@ class MeshEntityGenerator : WorldHandler {
      * Update
      *
      */
+    // Update
     public override void update() {
         Vector3 playerPosition = playerController.getCamera().getPosition();
         entitySpawner.update(playerPosition);
+
+        updateVisibility(playerPosition);
+
+        if(pendingGeneration.Count > 0) {
+            var c = pendingGeneration.Dequeue();
+            var meshTypes = load();
+            Vector3 chunkCenter = c.ToWorldPosition();
+            generate(meshTypes, c, chunkCenter);
+        }
 
         while(generationQueue.Count > 0) {
             string meshType = generationQueue.Dequeue();
             var meshTypes = load();
 
-            if(meshTypes.TryGetValue(meshType, out MeshData? data)) {
+            if(meshTypes.TryGetValue(meshType, out MeshData? meshData)) {
+                Dictionary<string, MeshData> data = new Dictionary<string, MeshData> { [meshType] = meshData }; 
+                
                 var coord = ChunkCoord.FromWorldPosition(playerPosition.X, playerPosition.Y, playerPosition.Z);
                 Vector3 chunkCenter = coord.ToWorldPosition();
-                generate(new Dictionary<string, MeshData> { [meshType] = data }, chunkCenter);
+
+                generate(data, coord, chunkCenter);
+            }
+        }
+    }
+
+    // Update Visibility
+    private void updateVisibility(Vector3 playerPosition) {
+        int visibleRange = MeshEntitySpawner.VISIBLE_ENTITIES;
+        int visibleUnits = visibleRange * ChunkCoord.CHUNK_SIZE;
+
+        foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
+            List<int>? toShow = null;
+
+            for(int i = 0; i < instanceList.Count; i++) {
+                var inst = instanceList[i];
+                if(inst.Lifetime <= 0) continue;
+
+                float dx = MathF.Abs(inst.Position.X - playerPosition.X);
+                float dz = MathF.Abs(inst.Position.Z - playerPosition.Z);
+
+                bool insideRange = dx <= visibleUnits && dz <= visibleUnits;
+                bool isHidden = entitySpawner.isHidden(entityId, i);
+
+                if(insideRange && isHidden) {
+                    toShow ??= new List<int>();
+                    toShow.Add(i); 
+                } else if(!insideRange && !isHidden) {
+                    entitySpawner.hide(entityId, i);
+                }
+            }
+
+            if(toShow == null) {
+                continue;
+            }
+            if(entityPropsById.TryGetValue(entityId, out var props)) {
+                var subset = toShow.Select(i => instanceList[i]).ToList();
+                MeshEntityCollider.create(props, subset);
+            }
+
+            foreach(var idx in toShow) {
+                entitySpawner.show(entityId, idx);
             }
         }
     }

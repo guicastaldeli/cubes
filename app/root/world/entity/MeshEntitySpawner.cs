@@ -96,7 +96,8 @@ class MeshEntitySpawner {
      * Mesh Entity Main
      *
      */
-    public static float SPAWN_AREA = 50.0f;
+    public static float SPAWN_AREA = (float)ChunkCoord.CHUNK_SIZE; 
+    public static int VISIBLE_ENTITIES = 2;
 
     private Tick? tick;
     private Mesh? mesh;
@@ -198,7 +199,7 @@ class MeshEntitySpawner {
     }
 
     private void defPosition(float deltaTime, ref Instance inst) {
-        float v = 3.0f;
+        float v = 0.0f;//3.0f;
         float speed = v * deltaTime;
 
         inst.Position = new Vector3(
@@ -212,7 +213,7 @@ class MeshEntitySpawner {
         float r = SPAWN_AREA;
 
         float x = center.X + (float)(range.NextDouble() * r * 2.0f - r);
-        float y = center.Y + (float)(range.NextDouble() * r * 2.0f - r);
+        float y = center.Y + (float)(range.NextDouble() * 2.0f);
         float z = center.Z + (float)(range.NextDouble() * r * 2.0f - r);
 
         Vector3 val = new Vector3(x, y, z);

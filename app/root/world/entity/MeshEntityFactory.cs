@@ -251,7 +251,7 @@ class MeshEntityFactory {
      */
     public static EntityProps setGeneration(MeshData data, string meshType) {        
         int min = 1;
-        int max = 15;
+        int max = 2;
         int count = range.Next(min, max);
 
         string idVal = $"{meshType}_{Id()}";
@@ -282,8 +282,8 @@ class MeshEntityFactory {
     }
 
     public static List<EntityProps> generate(MeshData data, string meshType) {
-        int min = 5;
-        int max = 20;
+        int min = 1;
+        int max = 2;
         int count = range.Next(min, max);
 
         List<EntityProps> val = 
