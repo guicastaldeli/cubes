@@ -279,22 +279,43 @@ class Platform : WorldHandler {
     }
 
     // Set Platform Props
-    private void setPlatformProps(List<string> colliderIds, Vector3 chunkOrigin, ChunkCoord coord) {
+    private void setPlatformProps(List<string> colliderIds, Vector3 chunkOrigin, ChunkCoord coord, List<Vector3> positions) {
+        if(positions.Count == 0) return;
+
         string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}";
 
-        Vector3 chunkBoxCenter = new Vector3(
-            chunkOrigin.X + ChunkCoord.CHUNK_SIZE * SPACING / 2.0f,
-            chunkOrigin.Y + SIZE_Y * SPACING / 2.0f,
-            chunkOrigin.Z + ChunkCoord.CHUNK_SIZE * SPACING / 2.0f
+        float minX = float.MaxValue;
+        float minY = float.MaxValue;
+        float minZ = float.MaxValue;
+
+        float maxX = float.MinValue;
+        float maxY = float.MinValue;
+        float maxZ = float.MinValue;
+
+        foreach(var pos in positions) {
+            if(pos.X < minX) minX = pos.X;
+            if(pos.Y < minY) minY = pos.Y;
+            if(pos.Z < minZ) minZ = pos.Z;
+            if(pos.X > maxX) maxX = pos.X;
+            if(pos.Y > maxY) maxY = pos.Y;
+            if(pos.Z > maxZ) maxZ = pos.Z;
+        }
+
+        Vector3 boxCenter = new Vector3(
+            (minX + maxX) / 2.0f + SPACING / 2.0f,
+            (minY + maxY) / 2.0f + SPACING / 2.0f,
+            (minZ + maxZ) / 2.0f + SPACING / 2.0f
         );
-        Vector3 chunkBoxHalf = new Vector3(
-            ChunkCoord.CHUNK_SIZE * SPACING / 2.0f,
-            SIZE_Y * SPACING / 2.0f,
-            ChunkCoord.CHUNK_SIZE * SPACING / 2.0f
+        Vector3 boxHalf = new Vector3(
+            (maxX - minX) / 2.0f + SPACING,
+            (maxY - minY) / 2.0f + SPACING,
+            (maxZ - minZ) / 2.0f + SPACING
         );
 
         collisionManager.addStaticCollider(new StaticObject(
-            chunkBoxCenter, chunkBoxHalf.X, chunkBoxHalf.Y, chunkBoxHalf.Z, colliderId
+            boxCenter,
+            boxHalf.X, boxHalf.Y, boxHalf.Z,
+            colliderId
         ));
 
         colliderIds.Add(colliderId);
@@ -344,7 +365,7 @@ class Platform : WorldHandler {
 
         if(positions.Count == 0) return;
 
-        setPlatformProps(colliderIds, chunkOrigin, coord);
+        setPlatformProps(colliderIds, chunkOrigin, coord, positions);
         chunkColliders[coord] = colliderIds;
         //Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
         ChunkPositions.Add(GRID_ID, coord, positions);
