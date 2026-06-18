@@ -152,7 +152,7 @@ class Skybox : WorldHandler {
     private TimeCycle timeCycle;
     private PlayerController playerController;
 
-    private CSkyboxStar SkyboxStar = new CSkyboxStar();
+    private SkyboxStar ISkyboxStar = new SkyboxStar();
 
     private bool initialized = false;
     private string? lastPeriodName = null;
@@ -175,7 +175,7 @@ class Skybox : WorldHandler {
         this.timeCycle = timeCycle;
         this.playerController = playerController;
 
-        SkyboxStar.init(tick, mesh, playerController);
+        ISkyboxStar.init(tick, mesh, playerController);
         Color.init(tick, shaderProgram, this, timeCycle);
     }
 
@@ -192,8 +192,6 @@ class Skybox : WorldHandler {
         mesh.setPosition(ID, pos.x, pos.y, pos.z);
         mesh.add(ID, data);
         mesh.setScale(ID, size);
-
-        SkyboxStar.set();
 
         Color.update();
         Color.updateColors();
@@ -241,7 +239,7 @@ class Skybox : WorldHandler {
 
         updateShader();
 
-        SkyboxStar.update();
+        ISkyboxStar.update();
     }
 
     public void updateShader() {
@@ -257,8 +255,11 @@ class Skybox : WorldHandler {
         shaderProgram.setUniformb("prevTopColor", Color.prevTopColor.X, Color.prevTopColor.Y, Color.prevTopColor.Z);
         shaderProgram.setUniformb("prevBottomColor", Color.prevBottomColor.X, Color.prevBottomColor.Y, Color.prevBottomColor.Z);
         
+        shaderProgram.setUniform("periodStart", Period.getStart(Period.getCurrent()!));
+        shaderProgram.setUniform("periodEnd", Period.getEnd(Period.getCurrent()!));
+
         shaderProgram.setUniform("transitionProgress", Color.transitionProgress);
-        shaderProgram.setUniform("starTransition", SkyboxStar.getTransitionProgress());
+        shaderProgram.setUniform("starTransition", ISkyboxStar.getTransitionProgress());
     }
 
     /**
@@ -278,29 +279,28 @@ class Skybox : WorldHandler {
 
         */
     [Chunked]
-    public class CSkyboxStar {
+    public class SkyboxStar {
         private string STAR_ID = "star";
         private string STAR_MESH = "quad";
 
-        private int STAR_COUNT = 600;
-        private float STAR_RADIUS = 25.0f;
+        private const int STARS_PER_CHUNK = 40;
+        private const float SPHERE_RADIUS = 200.0f;
+        private const float SPHERE_CENTER_Y = 0.0f;
     
         private Tick tick = null!;
         private Mesh mesh = null!;
         private PlayerController playerController = null!;
 
-        (float x, float y, float z) pos = (0.0f, 0.0f, 0.0f);
+        private Dictionary<ChunkCoord, List<Vector3>> chunkLocalPositions = new();
+        private Dictionary<ChunkCoord, List<float[]>> chunkColors = new();
+        private Dictionary<ChunkCoord, List<float>> chunkRotations = new();
+        private Dictionary<ChunkCoord, List<float>> chunkSpeeds = new();
 
-        private List<Vector3> originalPos = new();
-        private List<float[]> originalColors = new();
-        private List<float> currentRotations = new();
-        private List<float> speeds = new();
-
-        private float fieldRotation = 0.0f;
-        private float fieldRotationSpeed = 0.01f;
+        private Dictionary<ChunkCoord, float> chunkFieldRotation = new();
+        private const float FIELD_ROTATION_SPEED = 0.02f;
         private Vector3 fieldAxis = new Vector3(1, 0, 0);
 
-        private int prevPeriodType = -1;
+        private string prevPeriodName = "";
         private float transitionProgress = 1.0f;
         private float transitionDuration = 0.5f;
         private bool isTransitioning = false;
@@ -309,60 +309,10 @@ class Skybox : WorldHandler {
         private bool targetVisibility = true;
         private bool currentVisibility = true;
 
-        /**
-         * 
-         * Init
-         *
-         */
-        public void init(Tick tick, Mesh mesh, PlayerController playerController) {
-            this.tick = tick;
-            this.mesh = mesh;
-            this.playerController = playerController;
-        }
+        private bool initialized = false;
 
-        /**
-         * 
-         * Set
-         *
-         */
-        public void set() {
-            reset();
+        public SkyboxStar() {
             
-            MeshData data = MeshDataLoader.load(STAR_MESH);
-            data.shaderType = 9;
-
-            mesh.add(STAR_ID, data);
-            mesh.setPosition(STAR_ID, pos.x, pos.y, pos.z);
-
-            var (positions, colors, rotations) = generate();
-            originalPos = new List<Vector3>(positions);
-            originalColors = new List<float[]>(colors);
-            currentRotations = new List<float>(rotations);
-            setSpeed(rotations);
-
-            mesh.getMeshRenderer(STAR_ID)!.isInstanced = true;
-            mesh.getMeshRenderer(STAR_ID)!.setInstanceData(positions, colors, rotations);
-        }
-
-        // Get Transition Progress
-        public float getTransitionProgress() {
-            return transitionProgress;
-        }
-
-        // Is Visible
-        private bool isVisible(int periodType) {
-            bool val = periodType >= 1 && 
-                periodType <= 4;
-            return val;
-        }
-
-        // Set Speed
-        private void setSpeed(List<float> rotations) {
-            var rand = new Random(123);
-            speeds = new List<float>();
-            for(int i = 0; i < rotations.Count; i++) {
-                speeds.Add(0.2f + (float)rand.NextDouble() * 0.8f);
-            }
         }
 
         // Start Transition
@@ -378,44 +328,111 @@ class Skybox : WorldHandler {
             }
         }
 
+        // Get Chunk Sphere Center
+        private Vector3 getChunkSphereCenter(ChunkCoord coord) {
+            Vector3 origin = coord.ToWorldPosition();
+            float chunkSize = ChunkCoord.CHUNK_SIZE;
+            return new Vector3(
+                origin.X + chunkSize / 2.0f,
+                SPHERE_CENTER_Y,
+                origin.Z + chunkSize / 2.0f
+            );
+        }
+
+        // Get Transition Progress
+        public float getTransitionProgress() {
+            return transitionProgress;
+        }
+
+        // Is Visible
+        private bool isVisible() {
+            return Period.isAssetPeriod();
+        }
+
+        /**
+         * 
+         * Init
+         *
+         */
+        public void init(Tick tick, Mesh mesh, PlayerController playerController) {
+            this.tick = tick;
+            this.mesh = mesh;
+            this.playerController = playerController;
+        }
+
         /**
          * 
          * Generate
          *
          */
-        public (List<Vector3>, List<float[]>, List<float>) generate() {
+        private (List<Vector3>, List<float[]>, List<float>, List<float>) generate(ChunkCoord coord) {
+            int seed = HashCode.Combine(coord.cx, coord.cz);
+            var range = new Random(seed);
+
             var positions = new List<Vector3>();
             var colors = new List<float[]>();
             var rotations = new List<float>();
+            var speeds = new List<float>();
 
-            float angle = MathF.PI * (3.0f - MathF.Sqrt(5.0f));
-            var range = new Random(42);
+            for(int i = 0; i < STARS_PER_CHUNK; i++) {
+                float u = (float)range.NextDouble();
+                float v = (float)range.NextDouble();
 
-            for(int i = 0; i < STAR_COUNT; i++) {
-                float rotation = (float)(range.NextDouble() * 2.0 * Math.PI);
+                float theta = 2.0f * MathF.PI * u;
+                float phi = MathF.Acos(2.0f * v - 1.0f);
 
-                float y = 1.0f - (i / (float)(STAR_COUNT - 1)) * 2.0f;
-                float radiusAtY = MathF.Sqrt(1.0f - y * y);
-                float theta = angle * i;
+                float x = MathF.Sin(phi) * MathF.Cos(theta);
+                float y = MathF.Sin(phi) * MathF.Sin(theta);
+                float z = MathF.Cos(phi);
 
-                float x = MathF.Cos(theta) * radiusAtY;
-                float z = MathF.Sin(theta) * radiusAtY;
-
+                float depthVar = 0.4f + (float)range.NextDouble() * 0.01f;
                 float brightness = 0.5f + (float)range.NextDouble() * 0.5f;
                 float size = 0.1f + (float)range.NextDouble() * 1.5f;
+                float rotation = (float)(range.NextDouble() * 2.0f * MathF.PI);
+                float speed = 0.2f + (float)range.NextDouble() * 0.8f;
 
-                float depth = 1.0f + (float)(range.NextDouble() * 1.0f - 0.1f);
-                float radius = STAR_RADIUS * depth;
-
-                positions.Add(new Vector3(x, y, z) * radius);
-                colors.Add(new float[] {
-                    brightness, brightness, brightness,
-                    size
-                });
+                positions.Add(new Vector3(x, y, z) * depthVar);
+                colors.Add(new float[] { brightness, brightness, brightness, size });
                 rotations.Add(rotation);
+                speeds.Add(speed);
             }
 
-            return (positions, colors, rotations);
+            return (positions, colors, rotations, speeds);
+        }
+
+        /**
+         * 
+         * Upload
+         *
+         */
+        private void upload() {
+            var allPositions = new List<Vector3>();
+            var allColors = new List<float[]>();
+            var allRotations = new List<float>();
+
+            foreach(var (coord, positions) in chunkLocalPositions) {
+                Vector3 center = getChunkSphereCenter(coord);
+
+                float fieldRotation = chunkFieldRotation.TryGetValue(coord, out var r) ? r : 0.0f;
+                Matrix4 rotationMatrix = Matrix4.CreateFromAxisAngle(fieldAxis, fieldRotation);
+
+                foreach(var pos in positions) {
+                    Vector3 worldPos = center + Vector3.TransformPosition(pos * SPHERE_RADIUS, rotationMatrix);
+                    allPositions.Add(worldPos);
+                }
+
+                allColors.AddRange(chunkColors[coord]);
+                allRotations.AddRange(chunkRotations[coord]);
+            }
+
+            var renderer = mesh.getMeshRenderer(STAR_ID);
+            if(renderer == null || allPositions.Count == 0) return;
+
+            if(renderer.getInstanceVboInitialized()) {
+                renderer.updateInstanceData(allPositions, allColors, allRotations);
+            } else {
+                renderer.setInstanceData(allPositions, allColors, allRotations);
+            }
         }
 
         /**
@@ -423,47 +440,44 @@ class Skybox : WorldHandler {
          * Update
          *
          */
+        // Update
         public void update() {
-            int currentPeriod = Period.getNumber(Period.getCurrent()!);
-            if(currentPeriod != prevPeriodType) {
-                bool nowVisible = isVisible(currentPeriod);
+            string currentPeriod = Period.currentPeriod != null ? Period.getName(Period.currentPeriod) : "";
+            if(currentPeriod != prevPeriodName) {
+                bool nowVisible = isVisible();
                 
                 if(nowVisible != targetVisibility) {
                     targetVisibility = nowVisible;
                     startTransition(nowVisible);
                 }
 
-                prevPeriodType = currentPeriod;
+                prevPeriodName = currentPeriod;
             }
 
-            if(isTransitioning) {
-                updateTransition();
-            }
-            if(transitionProgress <= 0.0f && !isTransitioning && !targetVisibility) {
-                return;
-            }
+            if(isTransitioning) updateTransition();
+            if(transitionProgress <= 0.0f && !isTransitioning && !targetVisibility) return;
 
+            float deltaTime = tick.getDeltaTime();
             float multiplier = isTransitioning ? 3.0f : 1.0f;
-            for(int i = 0; i < currentRotations.Count; i++) {
-                currentRotations[i] += speeds[i] * tick.getDeltaTime() * multiplier;
-                if(currentRotations[i] > MathF.PI * 2.0f) currentRotations[i] -= MathF.PI * 2.0f;
+            float tp = MathF.PI * 2.0f;
+
+            foreach(var (coord, rotations) in chunkRotations) {
+                var speeds = chunkSpeeds[coord];
+                for(int i = 0; i < rotations.Count; i++) {
+                    rotations[i] += speeds[i] * deltaTime * multiplier;
+                    if(rotations[i] > tp) rotations[i] -= tp;
+                }
             }
 
-            fieldRotation += fieldRotationSpeed * tick.getDeltaTime();
-            if(fieldRotation > MathF.PI * 2.0f) fieldRotation -= MathF.PI * 2.0f;
-
-            Matrix4 rotationMatrix = Matrix4.CreateFromAxisAngle(fieldAxis, fieldRotation);
-
-            var rotattedPositions = new List<Vector3>();
-            for(int i = 0; i < originalPos.Count; i++) {
-                Vector3 pos = Vector3.TransformPosition(originalPos[i], rotationMatrix);
-                rotattedPositions.Add(pos);
+            foreach(var coord in chunkLocalPositions.Keys.ToList()) {
+                chunkFieldRotation[coord] -= FIELD_ROTATION_SPEED * deltaTime;
+                if(chunkFieldRotation[coord] < 0.0f) chunkFieldRotation[coord] += tp;
             }
 
-            var renderer = mesh.getMeshRenderer(STAR_ID);
-            if(renderer != null) renderer.updateInstanceData(rotattedPositions, originalColors, currentRotations);
+            upload();
         }
 
+        // Update Transition
         private void updateTransition() {
             float deltaTime = tick.getDeltaTime();
 
@@ -485,18 +499,55 @@ class Skybox : WorldHandler {
         }
 
         /**
-         *
-         * Reset
+         * 
+         * Render
          *
          */
-        private void reset() {
-            int currentPeriod = Period.getNumber(Period.getCurrent()!);
-            prevPeriodType = currentPeriod;
-            targetVisibility = isVisible(currentPeriod);
-            visible = targetVisibility;
-            currentVisibility = targetVisibility;
-            transitionProgress = targetVisibility ? 1.0f : 0.0f;
-            isTransitioning = false;
+        public void render() {
+            if(!ContextChunk.hasChunk) return;
+            ChunkCoord coord = ContextChunk.current!.Value;
+
+            if(!initialized) {
+                MeshData data = MeshDataLoader.load(STAR_MESH);
+                data.shaderType = 9;
+                
+                mesh.add(STAR_ID, data);
+                mesh.setPosition(STAR_ID, 0.0f, 0.0f, 0.0f);
+                
+                var renderer = mesh.getMeshRenderer(STAR_ID);
+                if(renderer != null) renderer.isInstanced = true;
+
+                initialized = true;
+            }
+
+            if(chunkLocalPositions.ContainsKey(coord)) return;
+
+            var (localPositions, colors, rotations, speeds) = generate(coord);
+            chunkLocalPositions[coord] = localPositions;
+            chunkColors[coord] = colors;
+            chunkRotations[coord] = rotations;
+            chunkSpeeds[coord] = speeds;
+            chunkFieldRotation[coord] = 0.0f;
+
+            upload();
+        }
+
+        /**
+         * 
+         * Unrender
+         *
+         */
+        public void unrender() {
+            if(!ContextChunk.hasChunk) return;
+            ChunkCoord coord = ContextChunk.current!.Value;
+
+            chunkLocalPositions.Remove(coord);
+            chunkColors.Remove(coord);
+            chunkRotations.Remove(coord);
+            chunkSpeeds.Remove(coord);
+            chunkFieldRotation.Remove(coord);
+
+            upload();
         }
     }
 }

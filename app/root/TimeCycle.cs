@@ -54,6 +54,14 @@ class Period {
         return val;
     }
 
+    // Get Asset Periods
+    public static bool isAssetPeriod() {
+        if(currentPeriod == null) return false;
+        
+        bool val = currentPeriod["support"] is bool support && support;
+        return val;
+    }
+
     /**
      * 
      * Init
@@ -97,8 +105,8 @@ class TimeCycle {
 
     private Tick tick;
 
-    private float currentTime = 6.0f * HOUR_DURATION;
-    private float timeSpeed = 1.0f;
+    private float currentTime = 30.0f * HOUR_DURATION;
+    private float timeSpeed = 6.0f;
     private float timeDayPercentage = 0.25f;
 
     private float hourDiv = 24.0f;
@@ -110,8 +118,8 @@ class TimeCycle {
         Period.init(this);
         Period.update();
         
-        setTime(22, 0);
-        setPause(true);
+        setTime(6, 0);
+        //setPause(true);
         
         updateTime();
     }

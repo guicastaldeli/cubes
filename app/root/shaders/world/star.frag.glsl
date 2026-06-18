@@ -5,28 +5,15 @@
     */
 uniform float starTransition;
 
-// Star Intensity
-float getStarIntensity(float hour) {
-    // MIDNIGHT and NIGHT
-    if(periodType == 1 || periodType == 2) {
-        return 1.0;
-    }
-    // DUSK
-    if(periodType == 3) {
-        return smoothstep(17.0, 19.0, hour);
-    }
-    // DAWN
-    if(periodType == 4) {
-        return 1.0 - smoothstep(4.0, 6.0, hour);
-    }
-    return 0.0;
-}
+uniform float periodStart;
+uniform float periodEnd;
 
 // Set Star Frag
 void setStarFrag() {
-    float intensity = getStarIntensity(currentHour);
+    float intensity = smoothstep(periodStart, periodEnd, currentHour);
 
-    float alpha = max(intensity, 0.01) * starTransition;
+    float alpha = intensity * starTransition;
+    if(alpha <= 0.0) discard;
 
     float pixelSize = mix(0.2, 0.1, starTransition);
     vec2 pUv = floor(vTexCoord / pixelSize) * pixelSize;
