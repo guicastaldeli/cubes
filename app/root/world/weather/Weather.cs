@@ -153,7 +153,7 @@ class WeatherData {
     Weather main class.
 
     */
-[IChunked]
+[Chunked]
 class Weather : WorldHandler {
     private Tick tick;
     private Mesh mesh;
