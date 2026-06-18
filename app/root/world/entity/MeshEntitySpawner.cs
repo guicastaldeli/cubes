@@ -129,10 +129,10 @@ class MeshEntitySpawner {
         this.startZ = -SPAWN_AREA;
         this.endZ = SPAWN_AREA;
 
-        onEvents();
+        onStream();
         
         MeshEntityCollider.init(mesh, collisionManager, this);
-        MeshEntityCollider.onEvents();
+        MeshEntityCollider.onStream();
     }
 
     // Get Boundary
@@ -568,7 +568,7 @@ class MeshEntitySpawner {
      * On Events
      *
      */
-    private void onEvents() {
+    private void onStream() {
         // Instanced Break
         EventStream.on("instanced-break", (data) => {
             if(data is not string colliderId) return;

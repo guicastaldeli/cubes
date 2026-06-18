@@ -182,14 +182,22 @@ class CollisionManager {
             if(collision.otherCollider is BoundaryObject boundaryObj) {
                 Vector3 newPos = new Vector3(position);
                 float dist = boundaryObj.getBoundaryDistance();
-                if(MathF.Abs(position.X) > dist) newPos.X = MathF.CopySign(dist, position.X);
-                if(MathF.Abs(position.Z) > dist) newPos.Z = MathF.CopySign(dist, position.Z);
+                Vector3 center = boundaryObj.getCenter();
+
+                float localX = position.X - center.X;
+                float localZ = position.Z - center.Z;
+
+                if(MathF.Abs(localX) > dist) newPos.X = center.X + MathF.CopySign(dist, localX);
+                if(MathF.Abs(localZ) > dist) newPos.Z = center.Z + MathF.CopySign(dist, localZ);
+            
                 rigidBody.setPosition(newPos);
 
                 Vector3 vel = rigidBody.getVelocity();
                 if(collision.normal.X != 0) vel.X = 0;
                 if(collision.normal.Z != 0) vel.Z = 0;
+                
                 rigidBody.setVelocity(vel);
+
                 continue;
             }
             // Static Object

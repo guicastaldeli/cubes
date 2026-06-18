@@ -41,10 +41,10 @@ static class MeshEntityCollider {
 
     /**
      * 
-     * On Events
+     * On Stream
      *
      */
-    public static void onEvents() {
+    public static void onStream() {
         if(eventsRegistered) return;
         eventsRegistered = true;
         

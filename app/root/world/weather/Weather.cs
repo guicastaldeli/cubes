@@ -48,7 +48,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.NORMAL;
+    public static string DEFAULT_WEATHER = WeatherType.SNOW;
 
     private static Weather weather = null!;
     private static Lua data = null!;
@@ -248,7 +248,7 @@ class Weather : WorldHandler {
     }
 
     private void test() {
-        string v = WeatherType.RAIN;
+        string v = WeatherData.DEFAULT_WEATHER;
         
         weatherCycle.forceWeather(v);
 
@@ -278,14 +278,12 @@ class Weather : WorldHandler {
 
     // Set Position
     private Vector3 setPosition() {
-        float height = getWorldMaxHeight();
-        Vector3 val = new Vector3(0.0f, height, 0.0f);
-        return val;
+        return new Vector3(40.0f, 20.0f, 40.0f);
         
     }
 
     private float setPositionf() {
-        return WorldBoundary.WORLD_BOUNDARY;
+        return 20.0f;
     }
 
     /**

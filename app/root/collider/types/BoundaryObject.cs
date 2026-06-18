@@ -6,7 +6,7 @@ using OpenTK.Mathematics;
 class BoundaryObject : Collider {
     private BBox bbox;
     private float distance;
-    private float thickness = 100.0f;
+    private float thickness = 1.0f;
 
     private float minHeight;
     private float maxHeight;
@@ -27,16 +27,6 @@ class BoundaryObject : Collider {
         );
     }
 
-    // Set Center
-    public void setCenter(Vector3 center) {
-        this.center = new Vector3(center.X, 0.0f, center.Z);
-    }
-
-    // Get Center
-    public Vector3 getCenter() {
-        return this.center;
-    }
-
     // Get Id
     public string getId() {
         return "";
@@ -44,7 +34,10 @@ class BoundaryObject : Collider {
 
     // Get BBox
     public BBox getBBox() {
-        return bbox;
+        return new BBox(
+            center.X - distance - thickness, float.MinValue, center.Z - distance - thickness,
+            center.X + distance + thickness, float.MaxValue, center.Z + distance + thickness
+        );
     }
 
     // Get Rigid Body
@@ -79,8 +72,30 @@ class BoundaryObject : Collider {
     public bool isOutsideBoundary(Vector3 position) {
         if(!active) return false;
         
-        return MathF.Abs(position.X) > distance ||
-            MathF.Abs(position.Z) > distance;
+        return MathF.Abs(position.X - center.X) > distance ||
+            MathF.Abs(position.Z - center.Z) > distance;
+    }
+
+    // Center
+    public void setCenter(Vector3 center) {
+        this.center = new Vector3(center.X, 0.0f, center.Z);
+    }
+
+    public Vector3 getCenter() {
+        return this.center;
+    }
+
+    // Distance
+    public void setDistance(float distance) {
+        if(MathF.Abs(this.distance - distance) < 0.001f) return;
+
+        this.distance = distance;
+        this.minHeight = -distance;
+        this.maxHeight = distance;
+    }
+
+    public float getBoundaryDistance() {
+        return distance;
     }
 
     /**
@@ -88,23 +103,23 @@ class BoundaryObject : Collider {
      * Get Boundary
      *
      */
+    // Get Boundary Normal
     public Vector3 getBoundaryNormal(Vector3 position) {
         Vector3 normal = Vector3.Zero;
-        if(MathF.Abs(position.X) > distance) {
-            normal.X = position.X > 0 ? -1 : 1;
-        } else if(MathF.Abs(position.Z) > distance) {
-            normal.Z = position.Z > 0 ? -1 : 1;
+        Vector3 local = position - center;
+        if(MathF.Abs(local.X) > distance) {
+            normal.X = local.X > 0 ? -1 : 1;
+        } else if(MathF.Abs(local.Z) > distance) {
+            normal.Z = local.Z > 0 ? -1 : 1;
         }
         return normal;
     }
 
+    // Get Boundary Far
     public float getBoundaryFar(Vector3 position) {
-        float xFar = MathF.Max(0, MathF.Abs(position.X) - distance);
-        float zFar = MathF.Max(0, MathF.Abs(position.Z) - distance);
+        Vector3 local = position - center;
+        float xFar = MathF.Max(0, MathF.Abs(local.X) - distance);
+        float zFar = MathF.Max(0, MathF.Abs(local.Z) - distance);
         return MathF.Max(xFar, zFar);
-    }
-
-    public float getBoundaryDistance() {
-        return distance;
     }
 }

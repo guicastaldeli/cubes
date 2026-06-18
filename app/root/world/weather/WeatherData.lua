@@ -28,7 +28,7 @@ local Particle = {
             color = { 0.141, 0.106, 0.871 },
             amount = 150,
             size = 0.05,
-            speed = 0.65,
+            speed = 0.0065,
             lifetime = 1.5,
             vel = { 0.0, minHeight, 0.0 }
         }
@@ -38,7 +38,7 @@ local Particle = {
             color = { 0.9, 0.95, 1.0 },
             amount = 80,
             size = 0.08,
-            speed = 0.5,
+            speed = 0.005,
             lifetime = 1.5,
             vel = { 5.0, minHeight, 5.0 }
         }

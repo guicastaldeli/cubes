@@ -31,6 +31,7 @@ class Platform : WorldHandler {
     private const float SPACING = 1.0f;
 
     private static Dictionary<ChunkCoord, List<string>> chunkColliders = new();
+    private HashSet<ChunkCoord> allGeneratedChunks = new();
     private Vector3 offset = Vector3.Zero;
 
     private bool initialized = false;
@@ -258,7 +259,7 @@ class Platform : WorldHandler {
      */
     private void onStream() {
         if(topSurfaceY.HasValue) EventStream.set("stream-surface", (object)topSurfaceY.Value);
-        EventStream.set("stream-platform-chunks", (object)new List<ChunkCoord>(chunkColliders.Keys));
+        EventStream.set("streamed-chunks", (object)new List<ChunkCoord>(allGeneratedChunks));
     }
 
     /**
@@ -378,14 +379,13 @@ class Platform : WorldHandler {
 
         setPlatformCollider(colliderIds, coord, positions);
         chunkColliders[coord] = colliderIds;
-        //Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
+        allGeneratedChunks.Add(coord);
         ChunkPositions.Add(GRID_ID, coord, positions);
 
         onStream();
 
         if(renderMesh) {
             setMesh(positions);
-            //Console.WriteLine($"Platform draw calls: 1 (instanced {positions.Count} cubes)");
         } else {
             mesh.remove(GRID_ID);
         }

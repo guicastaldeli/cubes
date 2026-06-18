@@ -1,9 +1,3 @@
-/**
-
-    Weather Cycle to manage main
-    weather updates.
-
-    */
 namespace App.Root.World.Weather;
 
 /**
@@ -18,6 +12,7 @@ static class Duration {
     public const float MAX_DURATION_LOW = 300.0f;
     public const float MAX_DURATION_HIGH = 600.0f;
 }
+
 /**
 
     Weather Cycle main class
@@ -35,20 +30,17 @@ class WeatherCycle {
 
     public event Action<string, string>? onWeatherChanged;
 
-    private bool forced = false;
-
-    // Get Current
     public string getCurrent() {
         return currentName;
     }
 
-    // Get Previous
     public string getPrevious() {
         return prevName;
     }
 
-    // Weighted Random
     private string weigthedRandom() {
+        if(entries.Count == 0) return WeatherData.DEFAULT_WEATHER;
+        
         float total = entries.Sum(e => e.Frequency);
         float roll = (float)(range.NextDouble() * total);
         float cumulative = 0.0f;
@@ -61,64 +53,59 @@ class WeatherCycle {
         return entries[0].Name!;
     }
 
-    // Force Weather
     public void forceWeather(string weather) {
+        Console.WriteLine($"[WeatherCycle] Force weather to: {weather}");
         prevName = currentName;
         currentName = weather;
-        forced = true;
+        timer = 0.0f;
+        SetRandomDuration();
         onWeatherChanged?.Invoke(prevName, currentName);
     }
 
-    /**
-     * 
-     * Next
-     *
-     */
+    private void SetRandomDuration() {
+        float minDuration = Duration.MIN_DURATION_LOW + 
+            (float)(range.NextDouble() * (Duration.MIN_DURATION_HIGH - Duration.MIN_DURATION_LOW));
+        float maxDuration = Duration.MAX_DURATION_LOW + 
+            (float)(range.NextDouble() * (Duration.MAX_DURATION_HIGH - Duration.MAX_DURATION_LOW));
+        duration = minDuration + (float)(range.NextDouble() * (maxDuration - minDuration));
+        Console.WriteLine($"[WeatherCycle] Next weather in {duration:F1} seconds");
+    }
+
     private void next(bool force = false) {
+        if(entries.Count == 0) {
+            Console.WriteLine("[WeatherCycle] No weather entries available!");
+            return;
+        }
+        
         string next = weigthedRandom();
         if(next == currentName && !force) next = weigthedRandom();
         
         prevName = currentName;
         currentName = next;
         timer = 0.0f;
+        SetRandomDuration();
 
-        float minDuration =
-            Duration.MIN_DURATION_LOW +
-            (float)(range.NextDouble() * 
-            (Duration.MIN_DURATION_HIGH - Duration.MIN_DURATION_LOW));
-
-        float maxDuration =
-            Duration.MAX_DURATION_LOW +
-            (float)(range.NextDouble() * 
-            (Duration.MAX_DURATION_HIGH - Duration.MAX_DURATION_LOW));
-
-        duration = 
-            minDuration + 
-            (float)(range.NextDouble() * 
-            (maxDuration - minDuration));
-
+        Console.WriteLine($"[WeatherCycle] Changing weather to: {next}");
         onWeatherChanged?.Invoke(prevName, currentName);
     }
 
-    /**
-     * 
-     * Init
-     *
-     */
     public void init(List<WeatherEntry> entries) {
+        Console.WriteLine($"[WeatherCycle] Initializing with {entries.Count} entries");
         this.entries = entries;
-        next(force: true);
+        if(entries.Count > 0) {
+            next(force: true);
+        } else {
+            Console.WriteLine("[WeatherCycle] WARNING: No weather entries found!");
+        }
     }
 
-    /**
-     * 
-     * Update
-     *
-     */
     public void update(float deltaTime) {
-        if(forced) return;
+        if(entries.Count == 0) return;
         
         timer += deltaTime;
-        if(timer >= duration) next();
+        if(timer >= duration) {
+            Console.WriteLine($"[WeatherCycle] Timer {timer:F1}s >= duration {duration:F1}s, changing weather...");
+            next();
+        }
     }
 }

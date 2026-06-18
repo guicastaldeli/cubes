@@ -75,8 +75,6 @@ class World : WorldHandler {
         StateManager.Register(this);
 
         Register();
-        
-        setBoundary();
     } 
 
     // Get Mesh
@@ -92,11 +90,6 @@ class World : WorldHandler {
     // Boundary
     public WorldBoundary getWorldBoundary() {
         return worldBoundary;
-    }
-
-    public void setBoundary() {
-        var boundary = new BoundaryObject(WorldBoundary.WORLD_BOUNDARY);
-        collisionManager.addStaticCollider(boundary);
     }
 
     /**

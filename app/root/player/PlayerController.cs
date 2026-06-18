@@ -72,7 +72,7 @@ class PlayerController : DataEntry {
     private Vector3 size;
     
     private bool normalMode = true;
-    private float moveSpeed = 30.0f;
+    private float moveSpeed = 90.0f;
     private bool movingForward = false;
     private bool movingBackward = false;
     private bool movingLeft = false;
@@ -80,7 +80,7 @@ class PlayerController : DataEntry {
     private bool movingUp = false;
     private bool movingDown = false;
     private float jumpForce = 8.0f;
-    private float flySpeed = 30.0f;
+    private float flySpeed = 90.0f;
 
     private Dictionary<MoveDir, (Keys key, Action<bool> apply)>? moveMap;
 
@@ -271,7 +271,7 @@ class PlayerController : DataEntry {
         float y = EventStream.getT<float>("stream-surface") ?? 1.0f;
         float spawnY = y + 10.0f;
 
-        var chunks = EventStream.get<List<ChunkCoord>>("stream-platform-chunks");
+        var chunks = EventStream.get<List<ChunkCoord>>("streamed-chunks");
         if(chunks == null || chunks.Count == 0) {
             Console.WriteLine("NO CHUNKS!!!!!!!!!!!");
             return new Vector3(0, spawnY, 0);
