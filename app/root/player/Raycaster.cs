@@ -421,34 +421,25 @@ class Raycaster {
         if(d == null) return;
 
         onRenderOutline = () => {
-            var instanced = EventStream.get<Dictionary<string, List<string>>>("stream-id");
-            if(instanced != null) {
-                foreach(var (id, list) in instanced) {
-                    int index = list.IndexOf(d);
-                    if(index >= 0) {
-                        Vector3 pos = MeshCollider.getInstancedPosition(d);
-                        string meshType = MeshCollider.instancedMeshTypes.TryGetValue(d, out var mt) ? mt : id;
-                        
-                        int globalIndex = 0;
-                        
-                        foreach(var (otherId, otherList) in instanced) {
-                            if(otherId == id) break;
-                            string otherMeshType = MeshCollider.instancedMeshTypes.Count > 0 &&
-                                otherList.Count > 0 &&
-                                MeshCollider.instancedMeshTypes.TryGetValue(otherList[0], out var omt) && omt == meshType ?
-                                omt : "";
-                            if(otherMeshType == meshType) globalIndex += otherList.Count;
-                        }
+            var meshTypeMap = EventStream.get<Dictionary<string, string>>("stream-mesh-types");
+            if(meshTypeMap == null || !meshTypeMap.TryGetValue(d, out string? meshType)) {
+                mesh.renderOutlineAll(d);
+                return;
+            } 
 
-                        globalIndex += index;
-                        mesh.renderOutlineAll(d, meshType, pos, globalIndex);
-                        
-                        return;
-                    }
-                }
+            var idMap = EventStream.get<Dictionary<string, int>>("stream-ids");
+            if(idMap == null || !idMap.TryGetValue(d, out int id)) {
+                mesh.renderOutlineAll(d);
+                return;
             }
 
-            mesh.renderOutlineAll(d);
+            var positionsMap = EventStream.get<Dictionary<string, Vector3>>("stream-positions");
+            if(positionsMap == null || !positionsMap.TryGetValue(d, out Vector3 pos)) {
+                mesh.renderOutlineAll(d);
+                return;
+            }
+
+            mesh.renderOutlineAll(d, meshType, pos, id);
         };
     }
 }

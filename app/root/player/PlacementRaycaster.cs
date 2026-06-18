@@ -41,7 +41,7 @@ class Sides {
         if(isGrid) {
             if(face != Face.Top) return null;
 
-            float? topY = Platform.topSurfaceY;
+            float? topY = EventStream.getT<float>("stream-surface");
             if(!topY.HasValue) return null;
 
             float t = 0.05f;

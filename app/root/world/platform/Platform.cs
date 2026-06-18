@@ -253,6 +253,16 @@ class Platform : WorldHandler {
 
     /**
      * 
+     * On Stream
+     *
+     */
+    private void onStream() {
+        if(topSurfaceY.HasValue) EventStream.set("stream-surface", (object)topSurfaceY.Value);
+        EventStream.set("stream-platform-chunks", (object)new List<ChunkCoord>(chunkColliders.Keys));
+    }
+
+    /**
+     * 
      * Set
      *
      */
@@ -302,14 +312,14 @@ class Platform : WorldHandler {
         }
 
         Vector3 boxCenter = new Vector3(
-            (minX + maxX) / 2.0f + SPACING / 2.0f,
-            (minY + maxY) / 2.0f + SPACING / 2.0f,
-            (minZ + maxZ) / 2.0f + SPACING / 2.0f
+            (minX + maxX) / 2.0f,
+            (minY + maxY) / 2.0f,
+            (minZ + maxZ) / 2.0f
         );
         Vector3 boxHalf = new Vector3(
-            (maxX - minX) / 2.0f + SPACING,
-            (maxY - minY) / 2.0f + SPACING,
-            (maxZ - minZ) / 2.0f + SPACING
+            (maxX - minX) / 2.0f + SPACING / 2.0f,
+            (maxY - minY) / 2.0f + SPACING / 2.0f,
+            (maxZ - minZ) / 2.0f + SPACING / 2.0f
         );
 
         collisionManager.addStaticCollider(new StaticObject(
@@ -334,8 +344,9 @@ class Platform : WorldHandler {
                 PhysicsType.RECEIVER
             );
 
-            float half = SIZE_Y * SPACING;
+            float half = SIZE_Y * SPACING / 2.0f;
             topSurfaceY = half;
+            EventStream.set("stream-surface", (object)topSurfaceY.Value);
 
             var renderer = mesh.getMeshRenderer(GRID_ID);
             if(renderer != null) renderer.isInstanced = true;
@@ -369,6 +380,8 @@ class Platform : WorldHandler {
         chunkColliders[coord] = colliderIds;
         //Console.WriteLine($"[Platform] chunk {coord} generated with {positions.Count} positions");
         ChunkPositions.Add(GRID_ID, coord, positions);
+
+        onStream();
 
         if(renderMesh) {
             setMesh(positions);
@@ -437,6 +450,8 @@ class Platform : WorldHandler {
            foreach(var id in colliderIds) collisionManager.removeCollider(id);
            collisionManager.processRemovals();
            chunkColliders.Remove(coord); 
+
+           onStream();
         }
 
         ChunkPositions.Remove(GRID_ID, coord);

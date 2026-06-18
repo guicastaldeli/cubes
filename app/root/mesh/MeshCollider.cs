@@ -33,7 +33,7 @@ static class MeshCollider {
     private static Dictionary<string, string> colliderTypes = new();
     private static Dictionary<string, Vector3> cachedSize = new();
 
-    private static Dictionary<string, Vector3> instancedPositions = new();
+    public static Dictionary<string, Vector3> instancedPositions = new();
     private static Dictionary<string, float> instancedScales = new();
     public static Dictionary<string, string> instancedMeshTypes = new();
     private static Dictionary<string, BBox> instancedBBoxes = new();

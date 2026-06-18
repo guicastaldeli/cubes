@@ -76,29 +76,13 @@ class MeshInteractionController {
         PlacedMeshDef? def = MeshInteractionRegistry.getInstance().getDef(hit);
         if(def == null) return;
 
-        var instanced = EventStream.get<Dictionary<string, List<string>>>("stream-id");
-        if(instanced != null) {
-            foreach(var (entityId, colliderList) in instanced) {
-                int index = colliderList.IndexOf(hit);
-                if(index >= 0) {
-                    string meshType = MeshCollider.instancedMeshTypes.TryGetValue(hit, out var mt) ? mt : entityId;
-
-                    int globalIndex = 0;
-                    
-                    foreach(var (otherId, otherList) in instanced) {
-                        if(otherId == entityId) break;
-                        string otherMeshType = otherList.Count > 0 &&
-                            MeshCollider.instancedMeshTypes.TryGetValue(otherList[0], out var omt) && omt == meshType ?
-                            omt : "";
-                        if(otherMeshType == meshType) globalIndex += otherList.Count;
-                    }
-
-                    globalIndex += index;
-                    mesh.removeInstance(meshType, globalIndex);
-
-                    break;
-                }
-            }
+        var meshTypeMap = EventStream.get<Dictionary<string, string>>("stream-mesh-types");
+        var indexMap = EventStream.get<Dictionary<string, int>>("stream-ids");
+        if(meshTypeMap != null && indexMap != null && 
+            meshTypeMap.TryGetValue(hit, out string? meshType) &&
+            indexMap.TryGetValue(hit, out int id)
+        ) {
+            mesh.removeInstance(meshType, id);
         }
 
         bool isEntity = IsEntity.BC(def.IsEntity);

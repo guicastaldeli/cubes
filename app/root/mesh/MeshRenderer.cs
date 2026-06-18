@@ -50,6 +50,9 @@ class MeshRenderer : DataEntry {
     public Dictionary<string, int> texPathCache = new();
     public List<string?> cachedInstanceTexPaths = new();
 
+    private List<string> cachedInstanceIds = new();
+    private Dictionary<string, int> instanceIdToIndex = new();
+
     public bool renderOnTop = false;
 
     private Matrix4 modelMatrix = Matrix4.Identity;
@@ -117,6 +120,25 @@ class MeshRenderer : DataEntry {
     // Set Visible
     public void setVisible(bool visible) {
         this.visible = visible;
+    }
+
+    // Set Instance Ids
+    public void setInstanceIds(List<string> ids) {
+        cachedInstanceIds = ids;
+        instanceIdToIndex.Clear();
+        for(int i = 0; i < ids.Count; i++) {
+            instanceIdToIndex[ids[i]] = i;
+        }
+    }
+
+    // Get Instance Index
+    public int getInstanceIndex(string instanceId) {
+        return instanceIdToIndex.TryGetValue(instanceId, out int idx) ? idx : -1;
+    }
+
+    // Get Cached Instance Ids
+    public List<string> getCachedInstanceIds() {
+        return cachedInstanceIds;
     }
 
     /**

@@ -482,28 +482,57 @@ class MeshEntitySpawner {
     // Update Data
     public void updateData() {
         CacheMeshEntity.ClearCachedByMeshTypes();
+        var ids = new Dictionary<string, List<string>>();
 
         foreach(var (id, l) in instances) {
             string meshType = entityIdToMeshType.TryGetValue(id, out var t) ? t : id;
-            
             List<bool>? hiddenList = instanceHidden.TryGetValue(id, out var hl) ? hl : null;
+            List<string>? colliderIds = MeshEntityCollider.colliderIds.TryGetValue(id, out var cid) ? cid : null;
+
             List<Instance> visible;
+            List<string> visibleIds;
+
             if(hiddenList == null) {
                 visible = l;
+                visibleIds = new List<string>(l.Count);
+                for(int i = 0; i < l.Count; i++) {
+                    visibleIds.Add(colliderIds != null && i < colliderIds.Count ? colliderIds[i] : "");
+                }
             } else {
                 visible = new List<Instance>(l.Count);
+                visibleIds = new List<string>(l.Count);
                 for(int i = 0; i < l.Count; i++) {
                     if(i < hiddenList.Count && hiddenList[i]) continue;
                     visible.Add(l[i]);
+                    visibleIds.Add(colliderIds != null && i < colliderIds.Count ? colliderIds[i] : "");
                 }
             }
 
             CacheMeshEntity.CacheByMeshType(meshType, visible);
+            if(!ids.ContainsKey(meshType)) ids[meshType] = new();
+            ids[meshType].AddRange(visibleIds);
         }
+
+        Dictionary<string, int> idMap = new Dictionary<string, int>();
+        Dictionary<string, string> meshTypesMap = new Dictionary<string, string>(MeshCollider.instancedMeshTypes);
+        Dictionary<string, Vector3> positionsMap = new Dictionary<string, Vector3>(MeshCollider.instancedPositions);
 
         foreach(var (meshType, allInstances) in CacheMeshEntity.cachedByMeshType) {
             syncData(meshType, allInstances);
+
+            if(!ids.TryGetValue(meshType, out var id)) continue;
+
+            var renderer = mesh?.getMeshRenderer(meshType);
+            renderer?.setInstanceIds(id);
+            
+            for(int i = 0; i < id.Count; i++) {
+                if(!string.IsNullOrEmpty(id[i])) idMap[id[i]] = i;
+            }
         }
+
+        EventStream.set("stream-ids", (object)idMap);
+        EventStream.set("stream-mesh-types", (object)meshTypesMap);
+        EventStream.set("stream-positions", (object)positionsMap);
     }
 
     // Update Physics

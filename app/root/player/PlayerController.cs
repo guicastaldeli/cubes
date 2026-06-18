@@ -6,7 +6,6 @@ using App.Root.Shaders;
 using App.Root.World;
 using App.Root.UI;
 using App.Root.Input;
-using WPlatform = App.Root.World.Platform.Platform;
 using AppWindow = App.Root.Window;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -269,11 +268,11 @@ class PlayerController : DataEntry {
     }
 
     public Vector3 setSpawnProps() {
-        float y = WPlatform.topSurfaceY ?? 1.0f;
+        float y = EventStream.getT<float>("stream-surface") ?? 1.0f;
         float spawnY = y + 10.0f;
 
-        var chunks = WPlatform.getPlatformChunks().ToList();
-        if(chunks.Count == 0) {
+        var chunks = EventStream.get<List<ChunkCoord>>("stream-platform-chunks");
+        if(chunks == null || chunks.Count == 0) {
             Console.WriteLine("NO CHUNKS!!!!!!!!!!!");
             return new Vector3(0, spawnY, 0);
         }
