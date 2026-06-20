@@ -49,7 +49,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.DEBUG;
+    public static string DEFAULT_WEATHER = WeatherType.NORMAL;
 
     private static Weather weather = null!;
     private static Lua data = null!;
@@ -300,9 +300,12 @@ class Weather : WorldHandler {
         Vector3 worldPos = coord.ToWorldPosition();
         float chunkSize = ChunkCoord.CHUNK_SIZE;
 
+        var (_, maxY) = ChunkCoord.GetHeightRange(coord);
+        float spawnHeight = maxY;
+
         return new Vector3(
             worldPos.X + chunkSize / 2.0f,
-            SPAWN_CENTER_Y,
+            spawnHeight,
             worldPos.Z + chunkSize / 2.0f
         );
     }
@@ -419,13 +422,13 @@ class Weather : WorldHandler {
             activeEmitters.Remove(c);
         }
 
-        float minHeight = DESPAWN_Y;
         float spawnRadius = ChunkCoord.CHUNK_SIZE;
         Vector3 color = new Vector3(config.Color[0], config.Color[1], config.Color[2]); 
         Vector3 velNum = new Vector3(config.Vel[0], config.Vel[1], config.Vel[2]);
 
         foreach(var coord in activeChunks) {
             Vector3 spawnPos = getChunkCenter(coord);
+            float minHeight = ChunkCoord.GetMinHeight(coord);
 
             if(!activeEmitters.TryGetValue(coord, out var emitter)) {
                 emitter = controller.emit(

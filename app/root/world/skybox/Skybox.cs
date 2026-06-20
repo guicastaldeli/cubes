@@ -329,12 +329,16 @@ class Skybox : WorldHandler {
         }
 
         // Get Chunk Sphere Center
-        private Vector3 getChunkSphereCenter(ChunkCoord coord) {
+        private Vector3 getChunkCenter(ChunkCoord coord) {
             Vector3 origin = coord.ToWorldPosition();
             float chunkSize = ChunkCoord.CHUNK_SIZE;
+
+            var (_, maxY) = ChunkCoord.GetHeightRange(coord);
+            float spawnHeight = maxY;
+
             return new Vector3(
                 origin.X + chunkSize / 2.0f,
-                SPHERE_CENTER_Y,
+                spawnHeight,
                 origin.Z + chunkSize / 2.0f
             );
         }
@@ -411,7 +415,7 @@ class Skybox : WorldHandler {
             var allRotations = new List<float>();
 
             foreach(var (coord, positions) in chunkLocalPositions) {
-                Vector3 center = getChunkSphereCenter(coord);
+                Vector3 center = getChunkCenter(coord);
 
                 float fieldRotation = chunkFieldRotation.TryGetValue(coord, out var r) ? r : 0.0f;
                 Matrix4 rotationMatrix = Matrix4.CreateFromAxisAngle(fieldAxis, fieldRotation);

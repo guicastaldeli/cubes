@@ -44,6 +44,25 @@ public readonly struct ChunkCoord {
         return val;
     }
 
+    // Get Min Height
+    public static float GetMinHeight(ChunkCoord coord) {
+        Vector3 origin = coord.ToWorldPosition();
+        return origin.Y;
+    }
+
+    // Get Max Height
+    public static float GetMaxHeight(ChunkCoord coord) {
+        Vector3 origin = coord.ToWorldPosition();
+        return origin.Y + ChunkCoord.CHUNK_SIZE;
+    }
+
+    // Get Height Range
+    public static (float min, float max) GetHeightRange(ChunkCoord coord) {
+        float min = GetMinHeight(coord);
+        float max = min + ChunkCoord.CHUNK_SIZE;
+        return (min, max);
+    }
+
     /**
      *
      * From World Position
