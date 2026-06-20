@@ -39,6 +39,7 @@ class WeatherType {
     public const string NORMAL = "NORMAL";
     public const string RAIN = "RAIN";    
     public const string SNOW = "SNOW";
+    public const string DEBUG = "DEBUG";
 }
 
 /**
@@ -48,7 +49,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.SNOW;
+    public static string DEFAULT_WEATHER = WeatherType.DEBUG;
 
     private static Weather weather = null!;
     private static Lua data = null!;
@@ -122,10 +123,13 @@ class WeatherData {
     public static TempConfig? getTempConfig(int addonId) {
         if(addonId <= 0) return null;
 
+        string? name = weather.getWeatherName(addonId);
+        if(name == null) return null;
+
         var func = data["getTemp"] as LuaFunction;
         if(func == null) return null;
 
-        var res = func.Call(addonId);
+        var res = func.Call(name);
         if(res == null || res.Length == 0) return null;
 
         var t = res[0] as LuaTable;
@@ -168,9 +172,15 @@ class Weather : WorldHandler {
     private float tempTransition = 1.0f;
     private float tempTransSpeed = 0.5f;
 
+    private Dictionary<ChunkCoord, ParticleEntity> activeEmitters = new();
+    private HashSet<ChunkCoord> activeChunks = new();
+
     private ParticleEntity? partActiveEmitter;
     private float partEmitTimer = 0.0f;
     private float partEmitInterval = 0.08f;
+
+    private const float SPAWN_CENTER_Y = 40.0f;
+    private const float DESPAWN_Y = -40.0f;
 
     private bool initialized = false;
 
@@ -205,6 +215,14 @@ class Weather : WorldHandler {
         int val = WeatherData.getEntries()
             .FirstOrDefault(e => e.Name == name)
             ?.Value ?? 0;
+        return val;
+    }
+
+    // Get Weather Name
+    public string? getWeatherName(int addonId) {
+        string? val = WeatherData.getEntries()
+            .FirstOrDefault(e => e.Value == addonId)
+            ?.Name;
         return val;
     }
 
@@ -272,18 +290,21 @@ class Weather : WorldHandler {
 
     // Stop Emitter
     private void stopPartEmitter() {
-        partActiveEmitter = null;
+        foreach(var v in activeEmitters) v.Value.cleanup();
+        activeEmitters.Clear();
         partEmitTimer = 0.0f;
     } 
 
-    // Set Position
-    private Vector3 setPosition() {
-        return new Vector3(40.0f, 20.0f, 40.0f);
-        
-    }
+    // Get Chunk Center
+    private Vector3 getChunkCenter(ChunkCoord coord) {
+        Vector3 worldPos = coord.ToWorldPosition();
+        float chunkSize = ChunkCoord.CHUNK_SIZE;
 
-    private float setPositionf() {
-        return 20.0f;
+        return new Vector3(
+            worldPos.X + chunkSize / 2.0f,
+            SPAWN_CENTER_Y,
+            worldPos.Z + chunkSize / 2.0f
+        );
     }
 
     /**
@@ -292,7 +313,34 @@ class Weather : WorldHandler {
      *
      */
     public override void render() {
-        //base.render();
+        if(!ContextChunk.hasChunk) return;
+        ChunkCoord coord = ContextChunk.current!.Value;
+
+        if(!initialized) {
+            set();
+            test();
+            
+            initialized = true;
+        }
+
+        activeChunks.Add(coord);
+    }
+
+    /**
+     * 
+     * Unrender
+     *
+     */
+    public override void unrender() {
+        if(!ContextChunk.hasChunk) return;
+        ChunkCoord coord = ContextChunk.current!.Value;
+
+        activeChunks.Remove(coord);
+
+        if(activeEmitters.TryGetValue(coord, out var emitter)) {
+            emitter.cleanup();
+            activeEmitters.Remove(coord);
+        }
     }
 
     /**
@@ -365,21 +413,37 @@ class Weather : WorldHandler {
         var controller = mesh.getParticleController();
         if(controller == null) return;
 
-        if(partActiveEmitter == null) {
-            partActiveEmitter = controller.emit(
-                position: setPosition(),
-                color: new Vector3(config.Color[0], config.Color[1], config.Color[2]),
-                amount: config.Amount,
-                size: config.Size,
-                speed: config.Speed,
-                lifetime: config.Lifetime,
-                velNum: new Vector3(config.Vel[0], config.Vel[1], config.Vel[2]),
-                targetY: getWorldMinHeight(),
-                enableMotion: true,
-                spawnRadius: setPositionf()
-            );
-        } else {
-            partActiveEmitter.set(setPosition(), true, getWorldMinHeight());
+        var stale = activeEmitters.Keys.Where(c => !activeChunks.Contains(c)).ToList();
+        foreach(var c in stale) {
+            activeEmitters[c].cleanup();
+            activeEmitters.Remove(c);
+        }
+
+        float minHeight = DESPAWN_Y;
+        float spawnRadius = ChunkCoord.CHUNK_SIZE;
+        Vector3 color = new Vector3(config.Color[0], config.Color[1], config.Color[2]); 
+        Vector3 velNum = new Vector3(config.Vel[0], config.Vel[1], config.Vel[2]);
+
+        foreach(var coord in activeChunks) {
+            Vector3 spawnPos = getChunkCenter(coord);
+
+            if(!activeEmitters.TryGetValue(coord, out var emitter)) {
+                emitter = controller.emit(
+                    position: spawnPos,
+                    color: color,
+                    amount: config.Amount,
+                    size: config.Size,
+                    speed: config.Speed,
+                    lifetime: config.Lifetime,
+                    velNum: velNum,
+                    targetY: minHeight,
+                    enableMotion: true,
+                    spawnRadius: spawnRadius
+                );
+                activeEmitters[coord] = emitter;
+            } else {
+                emitter.set(spawnPos, true, minHeight);
+            }
         }
     }
 }

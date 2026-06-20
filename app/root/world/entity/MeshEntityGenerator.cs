@@ -174,7 +174,7 @@ class MeshEntityGenerator : WorldHandler {
      *
      */
     public override void render() {
-        ChunkCoord coord = ContextChunk.current!.Value;
+        /*ChunkCoord coord = ContextChunk.current!.Value;
         Vector3 chunkCenter = coord.ToWorldPosition();
 
         if(!initialized) {
@@ -188,7 +188,7 @@ class MeshEntityGenerator : WorldHandler {
             seenChunks.Add(coord);
             pendingGeneration.Enqueue(coord);
             return;
-        }
+        }*/
     }
 
     /**
@@ -220,7 +220,7 @@ class MeshEntityGenerator : WorldHandler {
      */
     // Update
     public override void update() {
-        Vector3 playerPosition = playerController.getCamera().getPosition();
+        /*Vector3 playerPosition = playerController.getCamera().getPosition();
         entitySpawner.update(playerPosition);
 
         updateVisibility(playerPosition);
@@ -244,7 +244,7 @@ class MeshEntityGenerator : WorldHandler {
 
                 generate(data, coord, chunkCenter);
             }
-        }
+        }*/
     }
 
     private class PendingWork {

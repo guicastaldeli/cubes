@@ -313,7 +313,6 @@ class ParticleEntity {
                 instanceColors.RemoveAt(i);
 
                 needsUpdate = true;
-                
                 continue;
             }
 
@@ -329,16 +328,19 @@ class ParticleEntity {
                     particle.vel.Y * deltaTime,
                     particle.vel.Z * deltaTime
                 );
+
+                instancePositions[i] = particle.position;
+                needsUpdate = true;
             }
 
-            instancePositions[i] = particle.position;
+            //instancePositions[i] = particle.position;
 
             float alpha = particle.lifetime / particle.maxLifetime;
             instanceColors[i][0] = particle.color.X;
             instanceColors[i][1] = particle.color.Y;
             instanceColors[i][2] = particle.color.Z;
             instanceColors[i][3] = alpha;
-            
+            /*
             Vector3 newPos = particle.position + new Vector3(
                 particle.vel.X * deltaTime,
                 particle.vel.Y * deltaTime,
@@ -349,6 +351,7 @@ class ParticleEntity {
                 instancePositions[i] = newPos;
                 needsUpdate = true;
             }
+            */
         }
 
         if(needsUpdate) {
