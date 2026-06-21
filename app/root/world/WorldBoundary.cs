@@ -18,15 +18,15 @@ class WorldBoundary {
 
     private BoundaryObject boundary; 
 
-    private const float BOUNDARY_MULTIPLIER = 2.0f;
+    private const float BOUNDARY_MULTIPLIER = 5.0f;
 
     public WorldBoundary(PlayerController playerController, RigidBody rigidBody, CollisionManager collisionManager) {
         this.playerController = playerController;
         this.rigidBody = rigidBody;
         this.collisionManager = collisionManager;
 
-        this.boundary = new BoundaryObject(0.0f);
-        collisionManager.addStaticCollider(boundary);
+       // this.boundary = new BoundaryObject(0.0f);
+        //collisionManager.addStaticCollider(boundary);
     }
 
     // Get Boundary Object
@@ -81,9 +81,8 @@ class WorldBoundary {
         float avgCx = sumCx / chunks.Count;
         float avgCz = sumCz / chunks.Count;
 
-        float calc = ChunkCoord.CHUNK_SIZE + ChunkCoord.CHUNK_SIZE / 2.0f;
-        float worldX = avgCx * calc;
-        float worldZ = avgCz * calc;
+        float worldX = avgCx * ChunkCoord.CHUNK_SIZE + ChunkCoord.CHUNK_SIZE / 2.0f;
+        float worldZ = avgCz * ChunkCoord.CHUNK_SIZE + ChunkCoord.CHUNK_SIZE / 2.0f;
 
         Vector3 val = new Vector3(worldX, 0.0f, worldZ);
         return val; 

@@ -284,8 +284,6 @@ class Skybox : WorldHandler {
         private string STAR_MESH = "quad";
 
         private const int STARS_PER_CHUNK = 40;
-        private const float SPHERE_RADIUS = 200.0f;
-        private const float SPHERE_CENTER_Y = 0.0f;
     
         private Tick tick = null!;
         private Mesh mesh = null!;
@@ -421,7 +419,7 @@ class Skybox : WorldHandler {
                 Matrix4 rotationMatrix = Matrix4.CreateFromAxisAngle(fieldAxis, fieldRotation);
 
                 foreach(var pos in positions) {
-                    Vector3 worldPos = center + Vector3.TransformPosition(pos * SPHERE_RADIUS, rotationMatrix);
+                    Vector3 worldPos = center + Vector3.TransformPosition(pos * ChunkCoord.CHUNK_SIZE, rotationMatrix);
                     allPositions.Add(worldPos);
                 }
 

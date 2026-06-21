@@ -49,7 +49,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.NORMAL;
+    public static string DEFAULT_WEATHER = WeatherType.SNOW;
 
     private static Weather weather = null!;
     private static Lua data = null!;
@@ -261,7 +261,7 @@ class Weather : WorldHandler {
         WeatherData.setMinHeight();
 
         var entries = WeatherData.getEntries();
-        weatherCycle.onWeatherChanged += onWeatherChanged;
+        //weatherCycle.onWeatherChanged += onWeatherChanged;
         weatherCycle.init(entries);
     }
 

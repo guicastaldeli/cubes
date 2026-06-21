@@ -25,9 +25,9 @@ class Platform : WorldHandler {
     public const string GRID_ID = "grid";
     private const string MESH = "cube";
 
-    private const int SIZE_X = 100;
-    private const int SIZE_Y = 1;
-    private const int SIZE_Z = 100;
+    private const int SIZE_X = ChunkCoord.CHUNK_SIZE;
+    private const int SIZE_Y = ChunkCoord.CHUNK_SIZE;
+    private const int SIZE_Z = ChunkCoord.CHUNK_SIZE;
     private const float SPACING = 1.0f;
 
     private static Dictionary<ChunkCoord, List<string>> chunkColliders = new();
@@ -35,6 +35,8 @@ class Platform : WorldHandler {
     private Vector3 offset = Vector3.Zero;
 
     private bool initialized = false;
+
+    private const bool DEBUG_EXPANSION = true;
 
     public static float? topSurfaceY {
         get;
@@ -278,16 +280,16 @@ class Platform : WorldHandler {
 
     // Set Bounds
     private (float wx, float wy, float wz)? setBounds(Vector3 chunkOrigin, int x, int y, int z) {
-        float wx = chunkOrigin.X + x * SPACING;
-        float wy = chunkOrigin.Y + y * SPACING;
-        float wz = chunkOrigin.Z + z * SPACING;
+    float centerOffsetX = (ChunkCoord.CHUNK_SIZE - SIZE_X) / 2.0f;
+    float centerOffsetY = (ChunkCoord.CHUNK_SIZE - SIZE_Y) / 2.0f;
+    float centerOffsetZ = (ChunkCoord.CHUNK_SIZE - SIZE_Z) / 2.0f;
 
-        if(wx < 0 || wx >= SIZE_X ||
-            wy < 0 || wy >= SIZE_Y || 
-            wz < 0 || wz >= SIZE_Z) return null;
+    float wx = chunkOrigin.X + centerOffsetX + x * SPACING;
+    float wy = chunkOrigin.Y + centerOffsetY + y * SPACING;
+    float wz = chunkOrigin.Z + centerOffsetZ + z * SPACING;
 
-        return (wx, wy, wz); 
-    }
+    return (wx, wy, wz);
+}
 
     // Set Platform Collider
     private void setPlatformCollider(List<string> colliderIds, ChunkCoord coord, List<Vector3> positions) {
@@ -354,6 +356,8 @@ class Platform : WorldHandler {
 
             initialized = true;
         }
+
+        if(DEBUG_EXPANSION && chunkColliders.Count > 0) return;
 
         if(!ContextChunk.hasChunk) return;
         ChunkCoord coord = ContextChunk.current!.Value;
