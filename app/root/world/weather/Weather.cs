@@ -261,7 +261,7 @@ class Weather : WorldHandler {
         WeatherData.setMinHeight();
 
         var entries = WeatherData.getEntries();
-        //weatherCycle.onWeatherChanged += onWeatherChanged;
+        weatherCycle.onWeatherChanged += onWeatherChanged;
         weatherCycle.init(entries);
     }
 
@@ -320,8 +320,8 @@ class Weather : WorldHandler {
         ChunkCoord coord = ContextChunk.current!.Value;
 
         if(!initialized) {
-            set();
-            test();
+            //set();
+            //test();
             
             initialized = true;
         }
@@ -353,11 +353,13 @@ class Weather : WorldHandler {
      */
     // Update
     public override void update() {
+        /*
         if(!initialized) {
             set();
             test();
             initialized = true;
         }
+        */
 
         float deltaTime = tick.getDeltaTime();
 
@@ -427,8 +429,13 @@ class Weather : WorldHandler {
         Vector3 velNum = new Vector3(config.Vel[0], config.Vel[1], config.Vel[2]);
 
         foreach(var coord in activeChunks) {
+            float multiplier = WorldBoundary.GLOBAL_MULTIPLIER;
+
             Vector3 spawnPos = getChunkCenter(coord);
-            float minHeight = CalculateChunk.ClampToChunkHeight(coord, ChunkCoord.GetMinHeight(coord));
+            spawnPos.Y = CalculateChunk.Expand(coord, spawnPos.Y, multiplier);
+            
+            float minHeight = ChunkCoord.GetMinHeight(coord);
+            float targetY = CalculateChunk.Expand(coord, minHeight, multiplier);
 
             if(!activeEmitters.TryGetValue(coord, out var emitter)) {
                 emitter = controller.emit(
@@ -439,13 +446,13 @@ class Weather : WorldHandler {
                     speed: config.Speed,
                     lifetime: config.Lifetime,
                     velNum: velNum,
-                    targetY: minHeight,
+                    targetY: targetY,
                     enableMotion: true,
                     spawnRadius: spawnRadius
                 );
                 activeEmitters[coord] = emitter;
             } else {
-                emitter.set(spawnPos, true, minHeight);
+                emitter.set(spawnPos, true, targetY);
             }
         }
     }

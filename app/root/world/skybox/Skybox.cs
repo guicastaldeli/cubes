@@ -433,8 +433,11 @@ class Skybox : WorldHandler {
                 Matrix4 rotationMatrix = Matrix4.CreateFromAxisAngle(fieldAxis, fieldRotation);
 
                 foreach(var pos in positions) {
+                    float multiplier = WorldBoundary.GLOBAL_MULTIPLIER;
+                    
                     Vector3 worldPos = center + Vector3.TransformPosition(pos, rotationMatrix);
-                    worldPos.Y = CalculateChunk.ClampToChunkHeight(coord, worldPos.Y);
+                    worldPos.Y = CalculateChunk.Expand(coord, worldPos.Y, multiplier);
+                    
                     allPositions.Add(worldPos);
                 }
 

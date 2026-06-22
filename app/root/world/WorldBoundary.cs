@@ -19,14 +19,15 @@ class WorldBoundary {
     private BoundaryObject boundary; 
 
     private const float BOUNDARY_MULTIPLIER = 5.0f;
+    public const float GLOBAL_MULTIPLIER = BOUNDARY_MULTIPLIER * 2.0f;
 
     public WorldBoundary(PlayerController playerController, RigidBody rigidBody, CollisionManager collisionManager) {
         this.playerController = playerController;
         this.rigidBody = rigidBody;
         this.collisionManager = collisionManager;
 
-       // this.boundary = new BoundaryObject(0.0f);
-        //collisionManager.addStaticCollider(boundary);
+        this.boundary = new BoundaryObject(0.0f);
+        collisionManager.addStaticCollider(boundary);
     }
 
     // Get Boundary Object

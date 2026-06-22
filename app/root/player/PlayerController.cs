@@ -361,7 +361,7 @@ class PlayerController : DataEntry {
         position = rigidBody.getPosition();
         camera.setPosition(position);
 
-        Console.WriteLine($"position Y: {position.Y}");
+        //Console.WriteLine($"position Y: {position.Y}");
         
         playerMesh.update();
         raycaster.update();

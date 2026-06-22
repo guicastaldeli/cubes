@@ -19,11 +19,18 @@ static class CalculateChunk {
         return minY;
     }
 
+    // Multiplier
+    public static float Multiply(float value, float multiplier) {
+        float val = value * multiplier;
+        return val;
+    }
+
     /**
      *
-     * Clamp to Chunk Height
+     * Clamp
      *
      */
+    // Clamp to Chunk Height
     public static float ClampToChunkHeight(ChunkCoord coord, float rawY) {
         float min = ToMinHeight(coord);
         float max = ToMaxHeight(coord);
@@ -43,6 +50,27 @@ static class CalculateChunk {
         float stretchedMax = mid + halfRange;
 
         float val = Math.Clamp(rawY, stretchedMin, stretchedMax);
+        return val;
+    }
+
+    /**
+     *
+     * Expand
+     *
+     */
+    public static float Expand(ChunkCoord coord, float value, float multiplier) {
+        float min = ToMinHeight(coord);
+        float max = ToMaxHeight(coord);
+        float mid = (min + max) / 2.0f;
+        float halfRange = (max - min) / 2.0f;
+
+        float distance = value - mid;
+        float expanded = mid + (distance * multiplier);
+
+        float expandedMin = mid - (halfRange * multiplier);
+        float expandedMax = mid + (halfRange * multiplier);
+
+        float val = Math.Clamp(expanded, expandedMin, expandedMax);
         return val;
     }
 }
