@@ -1,6 +1,57 @@
 namespace App.Root.Chunk;
 using OpenTK.Mathematics;
 
+/** 
+
+    Calculate Chunk util
+
+    */
+static class CalculateChunk {
+    // To Max Height
+    public static float ToMaxHeight(ChunkCoord coord) {
+        var (_, maxY) = ChunkCoord.GetHeightRange(coord);
+        return maxY;
+    }
+
+    // To Min Height
+    public static float ToMinHeight(ChunkCoord coord) {
+        var (minY, _) = ChunkCoord.GetHeightRange(coord);
+        return minY;
+    }
+
+    /**
+     *
+     * Clamp to Chunk Height
+     *
+     */
+    public static float ClampToChunkHeight(ChunkCoord coord, float rawY) {
+        float min = ToMinHeight(coord);
+        float max = ToMaxHeight(coord);
+
+        float val = Math.Clamp(rawY, min, max);
+        return val;
+    }
+
+    public static float ClampToChunkHeight(ChunkCoord coord, float rawY, float multiplier) {
+        float min = ToMinHeight(coord);
+        float max = ToMaxHeight(coord);
+
+        float mid = (min + max) / 2.0f;
+        float halfRange = (max - min) / 2.0f * multiplier;
+
+        float stretchedMin = mid - halfRange;
+        float stretchedMax = mid + halfRange;
+
+        float val = Math.Clamp(rawY, stretchedMin, stretchedMax);
+        return val;
+    }
+}
+
+/** 
+
+    Chunk Coord main class
+
+    */
 public readonly struct ChunkCoord {
     public readonly int cx;
     public readonly int cy;
@@ -17,7 +68,7 @@ public readonly struct ChunkCoord {
         this.cz = cz;
     }
 
-    // Quals
+    // Equals
     public bool Equals(ChunkCoord other) {
         bool val =
             cx == other.cx &&

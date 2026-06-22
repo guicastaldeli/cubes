@@ -331,12 +331,12 @@ class Skybox : WorldHandler {
             Vector3 origin = coord.ToWorldPosition();
             float chunkSize = ChunkCoord.CHUNK_SIZE;
 
-            var (_, maxY) = ChunkCoord.GetHeightRange(coord);
-            float spawnHeight = maxY;
+            var (minY, maxY) = ChunkCoord.GetHeightRange(coord);
+            float centerY = (minY + maxY) / 2.0f;
 
             return new Vector3(
                 origin.X + chunkSize / 2.0f,
-                spawnHeight,
+                centerY,
                 origin.Z + chunkSize / 2.0f
             );
         }
@@ -376,24 +376,38 @@ class Skybox : WorldHandler {
             var rotations = new List<float>();
             var speeds = new List<float>();
 
+            float minHeight = CalculateChunk.ToMinHeight(coord);
+            float maxHeight = CalculateChunk.ToMaxHeight(coord);
+
+            float chunkSize = ChunkCoord.CHUNK_SIZE;
+            float chunkHeight = maxHeight - minHeight;
+            float halfChunk = chunkSize / 2.0f;
+            Vector3 chunkCenter = coord.ToWorldPosition() + new Vector3(halfChunk, chunkHeight / 2.0f, halfChunk);
+
             for(int i = 0; i < STARS_PER_CHUNK; i++) {
                 float u = (float)range.NextDouble();
                 float v = (float)range.NextDouble();
 
                 float theta = 2.0f * MathF.PI * u;
                 float phi = MathF.Acos(2.0f * v - 1.0f);
+                float radius = chunkSize * 0.5f;
 
-                float x = MathF.Sin(phi) * MathF.Cos(theta);
+                float x = MathF.Sin(phi) * MathF.Cos(theta) * radius;
                 float y = MathF.Sin(phi) * MathF.Sin(theta);
-                float z = MathF.Cos(phi);
+                float z = MathF.Cos(phi) * radius;
 
-                float depthVar = 0.4f + (float)range.NextDouble() * 0.01f;
+                float yMapped = (y + 1.0f) / 2.0f * chunkHeight;
+                float yWorld = minHeight + yMapped;
+                yWorld = Math.Clamp(yWorld, minHeight, maxHeight);
+
+                Vector3 localPos = new Vector3(x, yWorld - chunkCenter.Y, z);
+
                 float brightness = 0.5f + (float)range.NextDouble() * 0.5f;
                 float size = 0.1f + (float)range.NextDouble() * 1.5f;
                 float rotation = (float)(range.NextDouble() * 2.0f * MathF.PI);
                 float speed = 0.2f + (float)range.NextDouble() * 0.8f;
-
-                positions.Add(new Vector3(x, y, z) * depthVar);
+                
+                positions.Add(localPos);
                 colors.Add(new float[] { brightness, brightness, brightness, size });
                 rotations.Add(rotation);
                 speeds.Add(speed);
@@ -419,7 +433,8 @@ class Skybox : WorldHandler {
                 Matrix4 rotationMatrix = Matrix4.CreateFromAxisAngle(fieldAxis, fieldRotation);
 
                 foreach(var pos in positions) {
-                    Vector3 worldPos = center + Vector3.TransformPosition(pos * ChunkCoord.CHUNK_SIZE, rotationMatrix);
+                    Vector3 worldPos = center + Vector3.TransformPosition(pos, rotationMatrix);
+                    worldPos.Y = CalculateChunk.ClampToChunkHeight(coord, worldPos.Y);
                     allPositions.Add(worldPos);
                 }
 
