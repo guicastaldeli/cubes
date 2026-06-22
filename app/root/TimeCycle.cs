@@ -118,7 +118,7 @@ class TimeCycle {
         Period.init(this);
         Period.update();
         
-        setTime(16, 0);
+        setTime(6, 0);
         setPause(true);
         
         updateTime();
