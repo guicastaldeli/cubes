@@ -9,12 +9,26 @@ using System.Runtime.CompilerServices;
     Chunk Handler class
 
     */
-abstract class ChunkHandler {
+abstract class ChunkHandler : IChunkUpdatable {
     [Scan] public virtual void render() => Route();
     [Scan] public virtual void unrender() => Route();
     [Scan] public virtual void update() => Route();
 
     protected virtual void Route([CallerMemberName] string? name = null) {}
+
+    public virtual HashSet<ChunkCoord> GetActiveChunks() {
+        return new HashSet<ChunkCoord>();
+    }
+
+    public virtual void UpdateChunks(Dictionary<ChunkCoord, ChunkPriorityData> priorityData, ChunkPriorityConfig config) {
+        foreach(var (coord, data) in priorityData) {
+            if(data.ShouldUpdateThisFrame) {
+                ContextChunk.Set(coord);
+                update();
+                ContextChunk.Clear();
+            }
+        }
+    }
 }
 
 /**
