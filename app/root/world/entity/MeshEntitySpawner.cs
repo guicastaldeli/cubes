@@ -114,12 +114,12 @@ class MeshEntitySpawner {
     private const float MIN_LIFETIME = 5.0f;
     private const float MAX_LIFETIME = 20.0f;
 
-    private Dictionary<string, List<Instance>> instances = new();
-    private Dictionary<string, State> instanceStates = new();
-    private Dictionary<string, List<bool>> instanceHidden = new();
-    private Dictionary<ChunkCoord, List<string>> instancesByChunk = new();
+    [Poolable("spawner_instances", typeof(PoolableDictionary<string, PoolableList<Instance>>), InitialSize = 32, MaxSize = 128)] private PoolableDictionary<string, PoolableList<Instance>> instances = null!;
+    [Poolable("spawner_states", typeof(PoolableDictionary<string, State>), InitialSize = 32, MaxSize = 128)] private PoolableDictionary<string, State> instanceStates = null!;
+    [Poolable("spawner_hidden", typeof(PoolableDictionary<string, PoolableList<bool>>), InitialSize = 32, MaxSize = 128)] private PoolableDictionary<string, PoolableList<bool>> instanceHidden = null!;
+    [Poolable("spawner_chunk", typeof(PoolableDictionary<ChunkCoord, PoolableList<string>>), InitialSize = 32, MaxSize = 128)] private PoolableDictionary<ChunkCoord, PoolableList<string>> instancesByChunk = null!;
 
-    private Dictionary<string, string> entityIdToMeshType = new();
+    [Poolable("spawner_mesh_types", typeof(PoolableDictionary<string, string>), InitialSize = 32, MaxSize = 128)] private PoolableDictionary<string, string> entityIdToMeshType = null!;
     private Dictionary<string, (MeshData data, Vector3 position)> pendingPhysics = new();
 
     public MeshEntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
@@ -129,6 +129,8 @@ class MeshEntitySpawner {
 
         this.startZ = -SPAWN_AREA;
         this.endZ = SPAWN_AREA;
+
+        PoolInjector.Inject(this);
 
         onStream();
         
@@ -160,10 +162,8 @@ class MeshEntitySpawner {
     }
 
     // Get Instances
-    public List<Instance> getInstances(string id) {
-        List<Instance> val = instances.TryGetValue(id, out var list) ?
-            list :
-            new List<Instance>();
+    public PoolableList<Instance> getInstances(string id) {
+        PoolableList<Instance> val = instances.TryGetValue(id, out var list) ? list : null!;
         return val;
     }
 
@@ -173,13 +173,13 @@ class MeshEntitySpawner {
     }
 
     // Get All Instances
-    public Dictionary<string, List<Instance>> getAllInstances() {
+    public PoolableDictionary<string, PoolableList<Instance>> getAllInstances() {
         return instances;
     }
 
     // Restore Instances
-    public void restoreInstances(string id, List<Instance> list) {
-        instances[id] = new List<Instance>(list);
+    public void restoreInstances(string id, PoolableList<Instance> list) {
+        instances[id] = list;
         instanceStates[id] = State.SLEEP;
     }
 
@@ -369,7 +369,7 @@ class MeshEntitySpawner {
         if(index < 0 || index >= list.Count) return;
 
         if(!instanceHidden.TryGetValue(entityId, out var hiddenList)) {
-            hiddenList = Enumerable.Repeat(false, list.Count).ToList();
+            hiddenList = new PoolableList<bool>();
             instanceHidden[entityId] = hiddenList;
         }
         if(hiddenList[index]) return;
@@ -400,8 +400,8 @@ class MeshEntitySpawner {
     }
 
     // Get Hidden Flags
-    public List<bool>? getHiddenFlags(string entityId) {
-        List<bool>? val = instanceHidden.TryGetValue(entityId, out var list) ? list : null;
+    public PoolableList<bool>? getHiddenFlags(string entityId) {
+        PoolableList<bool>? val = instanceHidden.TryGetValue(entityId, out var list) ? list : null;
         return val;
     }
 
@@ -603,7 +603,7 @@ class MeshEntitySpawner {
      * Process
      *
      */
-    private void processChunkEntities(ChunkCoord coord, List<string> entityIds, int entitiesToProcess, ChunkPriorityData priorityInfo) {
+    private void processChunkEntities(ChunkCoord coord, PoolableList<string> entityIds, int entitiesToProcess, ChunkPriorityData priorityInfo) {
         int processed = 0;
 
         foreach(var entityId in entityIds) {
@@ -630,13 +630,16 @@ class MeshEntitySpawner {
      *
      */
     public void render(EntityProps entity, ChunkCoord spawnChunk, Vector3 boundaryCenter) {
-        var instanceList = Enumerable.Repeat(entity, entity.Position.Count).Select(e => spawn(e, spawnChunk, boundaryCenter)).ToList();
-        
+        var instanceList = new PoolableList<Instance>();
+        for(int i = 0; i < entity.Position.Count; i++) instanceList.Add(spawn(entity, spawnChunk, boundaryCenter));
         instances[entity.Id] = instanceList;
         instanceStates[entity.Id] = State.SLEEP;
-        instanceHidden[entity.Id] = Enumerable.Repeat(false, instanceList.Count).ToList();
+
+        var hiddenList = new PoolableList<bool>();
+        for(int i = 0; i < instanceList.Count; i++) hiddenList.Add(false);
+        instanceHidden[entity.Id] = hiddenList;
         
-        if(!instancesByChunk.ContainsKey(spawnChunk)) instancesByChunk[spawnChunk] = new List<string>();
+        if(!instancesByChunk.ContainsKey(spawnChunk)) instancesByChunk[spawnChunk] = new PoolableList<string>();
         instancesByChunk[spawnChunk].Add(entity.Id);
 
         MeshEntityCollider.create(entity, instanceList);

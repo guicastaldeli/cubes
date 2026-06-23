@@ -4,6 +4,8 @@
 
     */
 namespace App.Root.World.Entity;
+
+using App.Root.Chunk;
 using App.Root.Mesh;
 using App.Root.Resource;
 using App.Root.Utils;
@@ -226,6 +228,16 @@ class MeshEntityFactory {
         Dictionary<string, List<string>> colliderIds, 
         Dictionary<string, EntityProps> props,
         Dictionary<string, List<Instance>> instances
+    ) {
+        EventStream.set("stream-id", colliderIds);
+        EventStream.set("stream-props", props);
+        EventStream.set("stream-instances", instances);
+    }
+
+    public static void setEvent(
+        Dictionary<string, List<string>> colliderIds, 
+        PoolableDictionary<string, EntityProps> props,
+        PoolableDictionary<string, PoolableList<Instance>> instances
     ) {
         EventStream.set("stream-id", colliderIds);
         EventStream.set("stream-props", props);

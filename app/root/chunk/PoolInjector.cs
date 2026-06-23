@@ -32,17 +32,32 @@ public static class PoolInjector {
 
     // Get Or Create Pool
     private static IPool GetOrCreatePool(Type itemType, string id, int initialSize, int maxSize) {
-        if(PoolManager.HasPool(id)) return PoolManager.GetPoolIfExists<object>(id)!;
+        if(PoolManager.HasPool(id)) {
+            return PoolManager.GetPoolIfExists<object>(id)!;
+        }
 
         var factory = CreateFactory(itemType);
-        
         var resetAction = CreateResetAction(itemType);
-
         var poolType = typeof(Pool<>).MakeGenericType(itemType);
-        var getPoolMethod = typeof(PoolManager).GetMethod(nameof(PoolManager.GetPool))!.MakeGenericMethod(itemType);
-        var pool = getPoolMethod.Invoke(null, new object?[] {id, initialSize, maxSize, factory, resetAction });
+
+        var constructor = poolType.GetConstructor(new[] { typeof(int), typeof(int), typeof(Func<object>), typeof(Action<object>) });
+        if(constructor == null) throw new Exception($"No constructor found for {poolType.Name}");
+        
+        var pool = constructor.Invoke(new object?[] { initialSize, maxSize, factory, resetAction });
+
+        var registerMethod = typeof(PoolManager).GetMethod(nameof(PoolManager.RegisterPool))!;
+        registerMethod.Invoke(null, new object?[] { id, pool });
 
         return (IPool)pool!;
+    }
+
+    // Create Instance
+    private static T CreateInstance<T>() where T : new() {
+        return new T();
+    }
+
+    private static T CreateInstanceWithActivator<T>() where T : class {
+        return (T)Activator.CreateInstance(typeof(T), true)!;
     }
 
     /**
@@ -85,28 +100,30 @@ public static class PoolInjector {
      */
     // Create Factory
     private static Func<object>? CreateFactory(Type type) {
-        if(type.GetConstructor(Type.EmptyTypes) != null) return () => Activator.CreateInstance(type)!;
+        if(type.GetConstructor(Type.EmptyTypes) != null) {
+            return () => Activator.CreateInstance(type)!;
+        }
 
         if(type.IsGenericType) {
             var genericType = type.GetGenericTypeDefinition();
-            
-            if(genericType == typeof(Dictionary<,>)) {
+
+            if(genericType == typeof(PoolableDictionary<,>) ||
+                genericType == typeof(PoolableList<>) ||
+                genericType == typeof(PoolableHashSet<>)
+            ) {
                 return () => {
-                    var dict = (IDictionary)Activator.CreateInstance(type)!;
-                    return dict;
+                    try {
+                        return Activator.CreateInstance(type, true)!;
+                    } catch {
+                        return Activator.CreateInstance(type)!;
+                    }
                 };
             }
-            if(genericType == typeof(List<>)) {
-                return () => {
-                    var list = (IList)Activator.CreateInstance(type)!;
-                    return list;
-                };
-            }
-            if(genericType == typeof(HashSet<>).GetGenericTypeDefinition()) {
-                return () => {
-                    var set = Activator.CreateInstance(type)!;
-                    return set;
-                };
+
+            try {
+                return () => Activator.CreateInstance(type, true)!;
+            } catch {
+                return null;
             }
         }
 

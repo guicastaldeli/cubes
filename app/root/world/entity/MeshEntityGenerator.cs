@@ -77,15 +77,19 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
     private MeshEntitySpawner entitySpawner;
 
     private Queue<string> generationQueue = new();
-
-    private Dictionary<string, EntityProps> entityPropsById = new();
-    private HashSet<ChunkCoord> seenChunks = new();
     private Queue<ChunkCoord> pendingGeneration = new();
     private static Dictionary<string, MeshData>? cachedMeshTypes = null;
 
     private HashSet<ChunkCoord> activeChunks = new();
+    private HashSet<ChunkCoord> seenChunks = new();
     private ChunkPriorityConfig priorityConfig = ChunkPriority;
     private Vector3 lastPlayerPosition;
+
+    private Dictionary<string, EntityProps> entityPropsById = new();
+
+    [Poolable("gen_entity_props", typeof(PoolableDictionary<string, EntityProps>), InitialSize = 16, MaxSize = 64)] private PoolableDictionary<string, EntityProps> entityProps = null!;
+    [Poolable("gen_entity_instances", typeof(PoolableDictionary<string, PoolableList<Instance>>), InitialSize = 16, MaxSize = 64)] private PoolableDictionary<string, PoolableList<Instance>> entityInstances = null!;
+    [Poolable("gen_by_mesh", typeof(PoolableDictionary<string, PoolableList<Instance>>), InitialSize = 16, MaxSize = 64)] private PoolableDictionary<string, PoolableList<Instance>> byMeshType = null!;
 
     private bool initialized = false;
 
@@ -103,6 +107,8 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
         this.chunkManager = chunkManager;
     
         this.entitySpawner = new MeshEntitySpawner(tick, mesh, collisionManager);
+
+        PoolInjector.Inject(this);
     
         chunkManager.RegisterUpdatable(this, ChunkPriority);
         
@@ -170,9 +176,9 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
     }
 
     private void generate(Dictionary<string, MeshData> meshTypes, ChunkCoord spawnChunk, Vector3 boundaryCenter, bool setInitialized = false) {
-        var entityProps = new Dictionary<string, EntityProps>();
-        var entityInstances = new Dictionary<string, List<Instance>>();
-        var byMeshType = new Dictionary<string, List<Instance>>();
+        entityProps.Clear();
+        entityInstances.Clear();
+        byMeshType.Clear();
 
         foreach(var (type, data) in meshTypes) {
             foreach(var entity in MeshEntityFactory.generate(data, type)) {
@@ -184,7 +190,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
                 entityInstances[entity.Id] = instances;
                 entitySpawner.registerMeshType(entity.Id, entity.MeshType);
 
-                if(!byMeshType.ContainsKey(entity.MeshType)) byMeshType[entity.MeshType] = new();
+                if(!byMeshType.ContainsKey(entity.MeshType)) byMeshType[entity.MeshType] = new PoolableList<Instance>();
                 byMeshType[entity.MeshType].AddRange(instances);
             }
         }

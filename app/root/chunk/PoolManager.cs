@@ -6,6 +6,20 @@ public static class PoolManager {
 
     /**
      *
+     * Register Pool
+     *
+     */
+    public static void RegisterPool(string id, IPool pool) {
+        lock(_lock) {
+            if(!pools.ContainsKey(id)) {
+                pools[id] = pool;
+                Console.WriteLine($"[PoolManager] Registered pool '{id}'");
+            }
+        }
+    }
+
+    /**
+     *
      * Get Pool
      *
      */

@@ -23,22 +23,27 @@ public interface IPoolable {
 }
 
 public class PoolableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IPoolable where TKey : notnull {
+    public PoolableDictionary() : base() {}
     public void Reset() => Clear();
 }
 
 public class PoolableList<T> : List<T>, IPoolable {
+    public PoolableList() : base() {}
     public void Reset() => Clear();
 }
 
 public class PoolableHashSet<T> : HashSet<T>, IPoolable {
+    public PoolableHashSet() : base() {}
     public void Reset() => Clear();
 }
 
 public class PoolableStack<T> : Stack<T>, IPoolable {
+    public PoolableStack() : base() {}
     public void Reset() => Clear();
 }
 
 public class PoolableQueue<T> : Queue<T>, IPoolable {
+    public PoolableQueue() : base() {}
     public void Reset() => Clear();
 }
 
@@ -88,6 +93,32 @@ public class Pool<T> : IPool where T : class, new() {
         this.maxSize = maxSize;
         this.factory = factory ?? (() => new T());
         this.resetAction = resetAction ?? ((T item) => {});
+
+        for(int i = 0; i < initialSize; i++) {
+            var item = this.factory();
+            this.pool.Push(item);
+            this.createCount++;
+        }
+    }
+    public Pool(
+        int initialSize,
+        int maxSize,
+        Func<object>? factory,
+        Action<object>? resetAction
+    ) {
+        this.maxSize = maxSize;
+
+        if(factory != null) {
+            this.factory = () => (T)factory();
+        } else {
+            this.factory = () => new T();
+        }
+
+        if(resetAction != null) {
+            this.resetAction = (item) => resetAction(item);
+        } else {
+            this.resetAction = (item) => {};
+        }
 
         for(int i = 0; i < initialSize; i++) {
             var item = this.factory();
