@@ -27,7 +27,7 @@ public class PoolableAttribute : Attribute {
     Pool Injector main class
 
     */
-public static class PollInjector {
+public static class PoolInjector {
     private static readonly Dictionary<object, bool> injected = new();
 
     // Get Or Create Pool
@@ -102,9 +102,9 @@ public static class PollInjector {
                     return list;
                 };
             }
-            if(genericType == typeof(HashSet<>)) {
+            if(genericType == typeof(HashSet<>).GetGenericTypeDefinition()) {
                 return () => {
-                    var set = (ISet)Activator.CreateInstance(type)!;
+                    var set = Activator.CreateInstance(type)!;
                     return set;
                 };
             }
@@ -117,18 +117,6 @@ public static class PollInjector {
     private static Action<object>? CreateResetAction(Type type) {
         if(typeof(IPoolable).IsAssignableFrom(type)) {
             return (item) => ((IPoolable)item).Reset();
-        }
-        if(typeof(IResettable).IsAssignableFrom(type)) {
-            return (item) => ((IResettable)item).Reset();
-        }
-        if(typeof(IDictionary).IsAssignableFrom(type)) {
-            return (item) => ((IDictionary)item).Clear();
-        }
-        if(typeof(IList).IsAssignableFrom(type)) {
-            return (item) => ((IList)item).Clear();
-        }
-        if(typeof(ISet).IsAssignableFrom(type)) {
-            return (item) => ((ISet)item).Clear();
         }
 
         return null;
@@ -148,7 +136,7 @@ public static class PollInjector {
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
         foreach(var field in fields) ProcessField(target, field);
-        foreach(var prop in properties) ProcessPriority(target, prop);
+        foreach(var prop in properties) ProcessProperty(target, prop);
 
         injected[target] = true;
     }

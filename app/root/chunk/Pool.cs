@@ -2,13 +2,9 @@ namespace App.Root.Chunk;
 
 /**
 
-    Pool interfaces
+    Pool utils...
 
     */
-public interface IPoolable {
-    void Reset();
-}
-
 public interface IPool {
     int Available { get; }
     int TotalCreated { get; }
@@ -22,13 +18,33 @@ public interface IPool<T> : IPool where T : class {
     void Return(T item);
 }
 
-public interface IResettable {
+public interface IPoolable {
     void Reset();
+}
+
+public class PoolableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IPoolable where TKey : notnull {
+    public void Reset() => Clear();
+}
+
+public class PoolableList<T> : List<T>, IPoolable {
+    public void Reset() => Clear();
+}
+
+public class PoolableHashSet<T> : HashSet<T>, IPoolable {
+    public void Reset() => Clear();
+}
+
+public class PoolableStack<T> : Stack<T>, IPoolable {
+    public void Reset() => Clear();
+}
+
+public class PoolableQueue<T> : Queue<T>, IPoolable {
+    public void Reset() => Clear();
 }
 
 /**
 
-    Pool class
+    Pool class...
 
     */
 public class Pool<T> : IPool where T : class, new() {

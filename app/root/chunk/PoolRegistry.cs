@@ -38,6 +38,7 @@ public static class PoolRegistry {
         foreach(var (id, entry) in registry) {
             entry.pool.ReturnObject(entry.value);
         }
+        registry.Clear();
     }
 
     /**
