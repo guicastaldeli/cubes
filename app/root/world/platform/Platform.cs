@@ -254,6 +254,17 @@ class Platform : WorldHandler {
         return chunkColliders.Keys;
     }
 
+    // Calculate Top
+    private float calculateTop() {
+        var topBounds = setBounds(Vector3.Zero, 0, SIZE_Z - 1, 0);
+        if(topBounds.HasValue) return topBounds.Value.wy + SPACING / 2.0f;
+
+        float centerOffsetY = (ChunkCoord.CHUNK_SIZE - SIZE_Z) / 2.0f;
+        
+        float val = centerOffsetY + (SIZE_Y - 1) * SPACING + SPACING / 2.0f;
+        return val;
+    }
+
     /**
      * 
      * On Stream
@@ -280,16 +291,16 @@ class Platform : WorldHandler {
 
     // Set Bounds
     private (float wx, float wy, float wz)? setBounds(Vector3 chunkOrigin, int x, int y, int z) {
-    float centerOffsetX = (ChunkCoord.CHUNK_SIZE - SIZE_X) / 2.0f;
-    float centerOffsetY = (ChunkCoord.CHUNK_SIZE - SIZE_Y) / 2.0f;
-    float centerOffsetZ = (ChunkCoord.CHUNK_SIZE - SIZE_Z) / 2.0f;
+        float centerOffsetX = (ChunkCoord.CHUNK_SIZE - SIZE_X) / 2.0f;
+        float centerOffsetY = (ChunkCoord.CHUNK_SIZE - SIZE_Y) / 2.0f;
+        float centerOffsetZ = (ChunkCoord.CHUNK_SIZE - SIZE_Z) / 2.0f;
 
-    float wx = chunkOrigin.X + centerOffsetX + x * SPACING;
-    float wy = chunkOrigin.Y + centerOffsetY + y * SPACING;
-    float wz = chunkOrigin.Z + centerOffsetZ + z * SPACING;
+        float wx = chunkOrigin.X + centerOffsetX + x * SPACING;
+        float wy = chunkOrigin.Y + centerOffsetY + y * SPACING;
+        float wz = chunkOrigin.Z + centerOffsetZ + z * SPACING;
 
-    return (wx, wy, wz);
-}
+        return (wx, wy, wz);
+    }
 
     // Set Platform Collider
     private void setPlatformCollider(List<string> colliderIds, ChunkCoord coord, List<Vector3> positions) {
@@ -347,8 +358,8 @@ class Platform : WorldHandler {
                 PhysicsType.RECEIVER
             );
 
-            float half = SIZE_Y * SPACING / 2.0f;
-            topSurfaceY = half;
+            topSurfaceY = calculateTop();
+
             EventStream.set("stream-surface", (object)topSurfaceY.Value);
 
             var renderer = mesh.getMeshRenderer(GRID_ID);
@@ -439,6 +450,7 @@ class Platform : WorldHandler {
     public override void render() {
         load();
         merge();
+        
     }
 
     /**

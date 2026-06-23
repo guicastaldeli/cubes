@@ -111,6 +111,8 @@ class ChunkManager {
 
     private ChunkCoord lastPlayerChunk = new ChunkCoord(int.MaxValue, 0, int.MaxValue);
 
+    private ChunkProcessor chunkProcessor = new ChunkProcessor();
+
     private bool initialized = false;
     private bool readyEmitted = false;
 
@@ -314,6 +316,8 @@ class ChunkManager {
     public void update() {
         if(!initialized) return;
 
+        ChunkPriorityManager.IncrementFrame();
+
         foreach(var handler in globalHandlers) {
             handler.update();
         }
@@ -326,6 +330,8 @@ class ChunkManager {
         Vector3 playerPos = playerController.getCamera().getPosition();
         ChunkCoord playerChunk = ChunkCoord.FromWorldPosition(playerPos.X, playerPos.Y, playerPos.Z);
 
+        chunkProcessor.Process(playerChunk, ChunkPriorityManager.FrameCounter);
+        
         if(playerChunk != lastPlayerChunk) {
             lastPlayerChunk = playerChunk;
             recalculateChunks(playerChunk);
@@ -335,5 +341,23 @@ class ChunkManager {
         processLoadQueue();
 
         checkReady();
+    }
+
+    /**
+     * 
+     * Register Updatable
+     *
+     */
+    public void RegisterUpdatable(IChunkUpdatable updatable, ChunkPriorityConfig? customConfig = null) {
+        chunkProcessor.Register(updatable, customConfig);
+    }
+
+    /**
+     * 
+     * Unregister Updatable
+     *
+     */
+    public void UnregisterUpdatable(IChunkUpdatable updatable) {
+        chunkProcessor.Unregister(updatable);
     }
 }

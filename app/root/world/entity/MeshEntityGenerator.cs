@@ -53,13 +53,27 @@ class Setter {
     */
 [Chunked]
 [ManagedState]
-class MeshEntityGenerator : WorldHandler {
+class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
+    private static ChunkPriorityConfig ChunkPriority => new ChunkPriorityConfig {
+        HighDistance = 3.0f,
+        MediumDistance = 6.0f,
+        LowDistance = 10.0f,
+        MaxDistance = 15.0f,
+
+        HighEntityRatio = 1.0f,
+        MediumEntityRatio = 0.5f,
+        LowEntityRatio = 0.25f,
+        VeryLowEntityRatio = 0.1f
+    };
+
     private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/MeshEntity.lua");
     
     private Tick tick;
     private Mesh mesh;
     private CollisionManager collisionManager;
     private PlayerController playerController;
+    private ChunkManager chunkManager;
+
     private MeshEntitySpawner entitySpawner;
 
     private Queue<string> generationQueue = new();
@@ -69,22 +83,35 @@ class MeshEntityGenerator : WorldHandler {
     private Queue<ChunkCoord> pendingGeneration = new();
     private static Dictionary<string, MeshData>? cachedMeshTypes = null;
 
+    private HashSet<ChunkCoord> activeChunks = new();
+    private ChunkPriorityConfig priorityConfig = ChunkPriority;
+    private Vector3 lastPlayerPosition;
+
     private bool initialized = false;
 
     public MeshEntityGenerator(
         [Inject] Tick tick, 
         [Inject] Mesh mesh, 
         [Inject] CollisionManager collisionManager,
-        [Inject] PlayerController playerController
+        [Inject] PlayerController playerController,
+        [Inject] ChunkManager chunkManager
     ) {
         this.tick = tick;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.playerController = playerController;
+        this.chunkManager = chunkManager;
     
         this.entitySpawner = new MeshEntitySpawner(tick, mesh, collisionManager);
     
+        chunkManager.RegisterUpdatable(this, ChunkPriority);
+        
         StateManager.Register(this);
+    }
+
+    // Get Active Chunks
+    public override HashSet<ChunkCoord> GetActiveChunks() {
+        return activeChunks;
     }
 
     /**
@@ -174,7 +201,9 @@ class MeshEntityGenerator : WorldHandler {
      *
      */
     public override void render() {
-        /*ChunkCoord coord = ContextChunk.current!.Value;
+        ChunkCoord coord = ContextChunk.current!.Value;
+        activeChunks.Add(coord);
+
         Vector3 chunkCenter = coord.ToWorldPosition();
 
         if(!initialized) {
@@ -188,7 +217,7 @@ class MeshEntityGenerator : WorldHandler {
             seenChunks.Add(coord);
             pendingGeneration.Enqueue(coord);
             return;
-        }*/
+        }
     }
 
     /**
@@ -197,8 +226,8 @@ class MeshEntityGenerator : WorldHandler {
      *
      */
     public override void unrender() {
-        /*
         ChunkCoord coord = ContextChunk.current!.Value;
+        activeChunks.Remove(coord);
 
         foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
             for(int i = 0; i < instanceList.Count; i++) {
@@ -210,7 +239,6 @@ class MeshEntityGenerator : WorldHandler {
                 entitySpawner.hide(entityId, i);
             }
         }
-        */
     }
 
     /**
@@ -220,8 +248,7 @@ class MeshEntityGenerator : WorldHandler {
      */
     // Update
     public override void update() {
-        /*Vector3 playerPosition = playerController.getCamera().getPosition();
-        entitySpawner.update(playerPosition);
+        Vector3 playerPosition = playerController.getCamera().getPosition();
 
         updateVisibility(playerPosition);
 
@@ -244,14 +271,8 @@ class MeshEntityGenerator : WorldHandler {
 
                 generate(data, coord, chunkCenter);
             }
-        }*/
+        }
     }
-
-    private class PendingWork {
-    public ChunkCoord Chunk;
-    public Vector3 BoundaryCenter;
-    public List<string> RemainingTypes = new();  // mesh type IDs still to process
-}
 
     // Update Visibility
     private void updateVisibility(Vector3 playerPosition) {
@@ -291,5 +312,15 @@ class MeshEntityGenerator : WorldHandler {
                 entitySpawner.show(entityId, idx);
             }
         }
+    }
+
+    // Update Chunks
+    public override void UpdateChunks(Dictionary<ChunkCoord, ChunkPriorityData> priorityData, ChunkPriorityConfig config) {
+        priorityConfig = config ?? ChunkPriority;
+
+        Vector3 playerPosition = playerController.getCamera().getPosition();
+        lastPlayerPosition = playerPosition;
+
+        entitySpawner.UpdateChunks(priorityData, config!, playerPosition);
     }
 }
