@@ -2,7 +2,7 @@ namespace App.Root.Chunk;
 
 /**
 
-    Util interfaces
+    Pool interfaces
 
     */
 public interface IPoolable {
@@ -13,6 +13,17 @@ public interface IPool {
     int Available { get; }
     int TotalCreated { get; }
     void Clear();
+    object GetObject();
+    void ReturnObject(object item);
+}
+
+public interface IPool<T> : IPool where T : class {
+    T Get();
+    void Return(T item);
+}
+
+public interface IResettable {
+    void Reset();
 }
 
 /**
@@ -49,6 +60,8 @@ public class Pool<T> : IPool where T : class, new() {
     int IPool.Available => Available;
     int IPool.TotalCreated => TotalCreated;
     void IPool.Clear() => Clear();
+    object IPool.GetObject() => Get();
+    void IPool.ReturnObject(object item) => Return((T)item);
 
     public Pool(
         int initialSize = 32,

@@ -39,6 +39,17 @@ public static class PoolManager {
         }
     }
 
+    // Get Object
+    public static object? GetObject(string id) {
+        lock(_lock) {
+            if(pools.TryGetValue(id, out var pool)) {
+                return pool.GetObject();
+            }
+
+            return null;
+        }
+    }
+
     /**
      *
      * Has Pool
@@ -95,5 +106,18 @@ public static class PoolManager {
         }
 
         return stats;
+    }
+
+    /**
+     *
+     * Return
+     *
+     */
+    public static void ReturnObject(string id, object item) {
+        lock(_lock) {
+            if(pools.TryGetValue(id, out var pool)) {
+                pool.ReturnObject(item);
+            }
+        }
     }
 }
