@@ -216,8 +216,9 @@ class Raycaster {
         int min = 0;
         int max = 3;
         for(int i = min; i < max; i++) {
-            float f = 1e-6f;
-            if(Math.Abs(dirs[i]) < f) {
+            float eps = 1e-3f;
+            
+            if(Math.Abs(dirs[i]) < eps) {
                 if(
                     origins[i] < mins[i] ||
                     origins[i] > maxs[i]
