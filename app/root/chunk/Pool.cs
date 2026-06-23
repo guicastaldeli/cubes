@@ -1,6 +1,26 @@
 namespace App.Root.Chunk;
 
-public class Pool<T> where T : class, new() {
+/**
+
+    Util interfaces
+
+    */
+public interface IPoolable {
+    void Reset();
+}
+
+public interface IPool {
+    int Available { get; }
+    int TotalCreated { get; }
+    void Clear();
+}
+
+/**
+
+    Pool class
+
+    */
+public class Pool<T> : IPool where T : class, new() {
     private readonly Stack<T> pool = new Stack<T>();
     private readonly Func<T> factory;
     private readonly Action<T> resetAction;
@@ -26,6 +46,10 @@ public class Pool<T> where T : class, new() {
         }
     }
 
+    int IPool.Available => Available;
+    int IPool.TotalCreated => TotalCreated;
+    void IPool.Clear() => Clear();
+
     public Pool(
         int initialSize = 32,
         int maxSize = 256,
@@ -34,7 +58,7 @@ public class Pool<T> where T : class, new() {
     ) {
         this.maxSize = maxSize;
         this.factory = factory ?? (() => new T());
-        this.resetAction = resetAction ?? (() => new());
+        this.resetAction = resetAction ?? ((T item) => {});
 
         for(int i = 0; i < initialSize; i++) {
             var item = this.factory();
