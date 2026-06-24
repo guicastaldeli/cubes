@@ -448,9 +448,8 @@ class Platform : WorldHandler {
      *
      */
     public override void render() {
-        load();
-        merge();
-        
+        //load();
+        //merge();
     }
 
     /**

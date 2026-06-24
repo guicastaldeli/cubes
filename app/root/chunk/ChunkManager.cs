@@ -92,7 +92,7 @@ static class ChunkPositions {
     */
 class ChunkManager {
     private const int RENDER_DISTANCE = 8;
-    private const int MAX_LOAD_PER_FRAME = 2;
+    private const int MAX_LOAD_PER_FRAME = 1;
 
     private Window window;
     private Mesh mesh;

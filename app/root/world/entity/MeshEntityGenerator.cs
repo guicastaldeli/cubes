@@ -235,6 +235,8 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
         ChunkCoord coord = ContextChunk.current!.Value;
         activeChunks.Remove(coord);
 
+        seenChunks.Remove(coord);
+
         foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
             for(int i = 0; i < instanceList.Count; i++) {
                 if(entitySpawner.isHidden(entityId, i)) continue;
