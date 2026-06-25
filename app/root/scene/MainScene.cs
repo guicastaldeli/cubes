@@ -119,6 +119,11 @@ class MainScene {
         return playerController.getCamera();
     }
 
+    // Get Chunk Manager
+    public ChunkManager getChunkManager() {
+        return chunkManager;
+    }
+
     /**
      *
      * On Stream
@@ -199,7 +204,9 @@ class MainScene {
      */
     public void init() {
         if(initialized) reset();
+
         setInput();
+
         window.queueOnRenderThread(() => {
             mesh.init();
             set();

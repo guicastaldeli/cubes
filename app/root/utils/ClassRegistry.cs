@@ -79,7 +79,12 @@ class ClassRegistry {
                 try {
                     return (T)ctor.Invoke(args);
                 } catch(Exception err) {
+                    var inner = err.InnerException;
                     Console.WriteLine($"Error creating {type.Name}: {err.Message}");
+                    if(inner != null) {
+                        Console.WriteLine($"  -> Inner: {inner.GetType().Name}: {inner.Message}");
+                        Console.WriteLine($"  -> {inner.StackTrace?.Split('\n').FirstOrDefault()?.Trim()}");
+                    }
                     return null;
                 }
             }

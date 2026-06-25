@@ -9,7 +9,6 @@ class PauseScreenAction {
     private ScreenController screenController;
     private PauseScreen pauseScreen;
     private Network network;
-    private ChunkManager chunkManager = null!;
 
     public PauseScreenAction(
         Tick tick,
@@ -23,11 +22,6 @@ class PauseScreenAction {
         this.screenController = screenController;
         this.pauseScreen = pauseScreen;
         this.network = network;
-    }
-
-    // Set Chunk Manager
-    public void setChunkManager(ChunkManager chunkManager) {
-        this.chunkManager = chunkManager;
     }
 
     /**
@@ -53,7 +47,7 @@ class PauseScreenAction {
         input.unlockMouse();
         input.pauseOverlayOpen = false;
 
-        chunkManager.save();
+        pauseScreen.getMainScene()?.getChunkManager()?.save();
         
         screenController.running = false;
         network.stop();

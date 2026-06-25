@@ -94,11 +94,12 @@ static class ChunkPositions {
 class ChunkManager {
     private const int RENDER_DISTANCE = 8;
     private const int MAX_LOAD_PER_FRAME = 1;
+    private const int EX_MAX_LOAD_PER_FRAME = 16;
     private const float SAVE_INTERVAL = 10.0f;
 
     private Tick tick;
     private Window window;
-    private PlayerController playerController = null!;
+    [SkipReset] private PlayerController playerController = null!;
 
     private List<ChunkHandler> chunkedHandlers = new();
     private List<ChunkHandler> globalHandlers = new();
@@ -206,8 +207,10 @@ class ChunkManager {
      */
     // Process Load Queue
     private void processLoadQueue() {
+        int limit = loadQueue.Count > 0 && chunkDataMap.ContainsKey(loadQueue.Peek()) ? EX_MAX_LOAD_PER_FRAME : MAX_LOAD_PER_FRAME;
+        
         int loaded = 0;
-        while(loadQueue.Count > 0 && loaded < MAX_LOAD_PER_FRAME) {
+        while(loadQueue.Count > 0 && loaded < limit) {
             var coord = loadQueue.Dequeue();
             if(!activeChunks.Contains(coord) && !loadingChunks.Contains(coord)) {
                 loadChunk(coord);
@@ -232,6 +235,20 @@ class ChunkManager {
      *
      */
     private void loadChunk(ChunkCoord coord) {
+        if(chunkDataMap.TryGetValue(coord, out var existingData)) {
+            activeChunks.Add(coord);
+
+            foreach(var handler in chunkedHandlers) {
+                ContextChunk.Set(coord);
+                handler.render();
+                ContextChunk.Clear();
+                handlerActiveChunks[handler].Add(coord);
+            }
+
+            loadingChunks.Remove(coord);
+            return;
+        }
+
         isLoading = true;
         loadingChunks.Add(coord);
 
@@ -339,16 +356,24 @@ class ChunkManager {
      */
     public void render() {
         if(!initialized) {
+            Console.WriteLine($"[ChunkManager] render() — loading from file, chunkDataMap: {chunkDataMap.Count}");
             chunkDataMap = SerializeChunk.load();
             initialized = true;
-            //Console.WriteLine($"[ChunkManager] Initialized with {chunkDataMap.Count} saved chunks.");
+           
+            if(chunkDataMap.Count > 0) {
+                foreach(var coord in chunkDataMap.Keys) {
+                    loadQueue.Enqueue(coord);
+                }
+            }
         }
+        Console.WriteLine($"[ChunkManager] render() tick — loadQueue: {loadQueue.Count}, active: {activeChunks.Count}");
 
         foreach(var handler in globalHandlers) {
             handler.render();
         }
 
         processLoadQueue();
+        checkReady();
     }
 
     /**

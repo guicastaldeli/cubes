@@ -53,6 +53,14 @@ public static class PoolManager {
         }
     }
 
+    // Get Pool Direct
+    public static IPool? DGetPool(string id) {
+        lock(_lock) {
+            IPool? val = pools.TryGetValue(id, out var pool) ? pool : null;
+            return val;
+        }
+    }
+
     // Get Object
     public static object? GetObject(string id) {
         lock(_lock) {

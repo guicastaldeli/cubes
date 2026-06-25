@@ -8,8 +8,8 @@ namespace App.Root;
 
 [ManagedState]
 static class EventStream {
-    private static Dictionary<string, object> events = new();
-    private static Dictionary<string, List<Action<object>>> subscribers = new();
+    [SkipReset] private static Dictionary<string, object> events = new();
+    [SkipReset] private static Dictionary<string, List<Action<object>>> subscribers = new();
 
     static EventStream() {
         StateManager.SRegister(typeof(EventStream));
@@ -72,6 +72,8 @@ static class EventStream {
         }
 
         subscribers[streamId].Add(handler);
+
+        if(events.TryGetValue(streamId, out var existing)) handler(existing);
     }
 
     /**
@@ -118,6 +120,6 @@ static class EventStream {
      */
     public static void clear() {
         subscribers.Clear();
-        events.Clear();
+        //events.Clear();
     }
 }

@@ -32,9 +32,7 @@ public static class PoolInjector {
 
     // Get Or Create Pool
     private static IPool GetOrCreatePool(Type itemType, string id, int initialSize, int maxSize) {
-        if(PoolManager.HasPool(id)) {
-            return PoolManager.GetPoolIfExists<object>(id)!;
-        }
+        if(PoolManager.HasPool(id)) return PoolManager.DGetPool(id)!;
 
         var factory = CreateFactory(itemType);
         var resetAction = CreateResetAction(itemType);

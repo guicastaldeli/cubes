@@ -4,6 +4,7 @@ using App.Root.Text;
 using App.Root.Input;
 using App.Root.Scene;
 using System.Collections.Generic;
+using App.Root.Chunk;
 
 /**
 
@@ -89,14 +90,17 @@ class Screen : ScreenHandler {
         }
     }
 
+    // Get Main Scene
     public MainScene getMainScene() {
         return mainScene;
     }
 
+    // Get Screen Type
     public string? getScreenType() {
         return screenData?.screenType;
     }
 
+    // Get Screen Name
     public string getScreenName() {
         return screenName;
     }
