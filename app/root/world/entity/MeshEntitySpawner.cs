@@ -450,14 +450,15 @@ class MeshEntitySpawner {
      */
     private Dictionary<string, List<object>> getData(List<Instance> list) {
         CacheMeshEntity.CacheFields();
+        CacheMeshEntity.CacheFieldGettes();
         CacheMeshEntity.ClearCachedData();
 
         foreach(var inst in list) {
-            foreach(var field in CacheMeshEntity.cachedFields!) {
-                object? val = field.GetValue(inst);
-                if(val == null) continue;
+            for(int i = 0; i < CacheMeshEntity.cachedFieldGetters!.Length; i++) {
+                var getter = CacheMeshEntity.cachedFieldGetters![i];
+                object val = getter(inst);
 
-                var (key, converter) = CacheMeshEntity.cachedFieldMeta![field];
+                var (key, converter) = CacheMeshEntity.cachedFieldMeta![CacheMeshEntity.cachedFields[i]];
                 object finalVal = converter != null ? converter.Invoke(null, new[] { val })! : val;
 
                 CacheMeshEntity.CacheData(key, finalVal);
@@ -781,17 +782,28 @@ class MeshEntitySpawner {
     private void cleanupEntity() {
         if(MeshEntityCollider.colliderIds.Count == 0) return;
         if(collisionManager.getPendingRemovalsCount() == 0) return;
+
+        var hiddenEntities = new HashSet<string>();
+        foreach(var (entityId, hiddenList) in instanceHidden) {
+            if(hiddenList.Any(h => h == true)) {
+                hiddenEntities.Add(entityId);
+            }
+        } 
         
         MeshEntityCollider.cleanupRemoved();
 
         var removedEntities = instances.Keys
             .Where(id => !MeshEntityCollider.colliderIds.ContainsKey(id) &&
-                !(instanceStates.TryGetValue(id, out var s) && s == State.HIDDEN)
+                !hiddenEntities.Contains(id) &&
+                !(instanceStates.TryGetValue(id, out var s) && s == State.HIDDEN) &&
+                instances[id].All(inst => inst.Lifetime <= 0)
             )
             .ToList();
 
         foreach(var rId in removedEntities) {
             instances.Remove(rId);
+            instanceStates.Remove(rId);
+            instanceHidden.Remove(rId);
             mesh?.removeData(rId);
             mesh?.remove(rId);
         }

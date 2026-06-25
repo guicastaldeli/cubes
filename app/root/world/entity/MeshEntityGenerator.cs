@@ -82,6 +82,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
 
     private HashSet<ChunkCoord> activeChunks = new();
     private HashSet<ChunkCoord> seenChunks = new();
+    private HashSet<ChunkCoord> generatedChunks = new();
     private ChunkPriorityConfig priorityConfig = ChunkPriority;
     private Vector3 lastPlayerPosition;
 
@@ -232,7 +233,6 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
     public override void unrender() {
         ChunkCoord coord = ContextChunk.current!.Value;
         activeChunks.Remove(coord);
-
         seenChunks.Remove(coord);
 
         foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {

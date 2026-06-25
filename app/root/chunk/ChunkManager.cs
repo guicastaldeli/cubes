@@ -97,7 +97,7 @@ static class ChunkPositions {
     */
 [ManagedState]
 class ChunkManager {
-    private const int RENDER_DISTANCE = 8;
+    public const int RENDER_DISTANCE = 8;
     private const int MAX_LOAD_PER_FRAME = 1;
     private const int EX_MAX_LOAD_PER_FRAME = 16;
     private const float SAVE_INTERVAL = 10.0f;

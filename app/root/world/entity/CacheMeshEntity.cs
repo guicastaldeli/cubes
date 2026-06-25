@@ -1,5 +1,6 @@
 namespace App.Root.World.Entity;
 using System.Collections;
+using System.Linq.Expressions;
 using System.Reflection;
 using App.Root.Mesh;
 using App.Root.Utils;
@@ -13,8 +14,9 @@ static class CacheMeshEntity {
     public static Type[]? cachedUpdateParamTypes = null;
     public static Type[]? cachedSetParamTypes = null;
 
-    public static FieldInfo[]? cachedFields = null;
+    public static FieldInfo[] cachedFields = null!;
     public static Dictionary<FieldInfo, (string key, MethodInfo? converter)>? cachedFieldMeta = null;
+    public static Func<Instance, object>[]? cachedFieldGetters = null;
 
     public static Dictionary<string, List<object>> cachedData = new();
     public static Dictionary<string, List<Instance>> cachedByMeshType = new();
@@ -46,6 +48,20 @@ static class CacheMeshEntity {
             cachedFieldMeta[field] = (key, converter);
         }
     }
+
+    // Cacge Field Getters
+    public static void CacheFieldGettes() {
+        if(cachedFieldGetters != null) return;
+
+        CacheFields();
+
+        cachedFieldGetters = cachedFields!.Select(field => {
+            var param = Expression.Parameter(typeof(Instance), field.Name);
+            var access = Expression.Field(param, field);
+            var convert = Expression.Convert(access, typeof(object));
+            return Expression.Lambda<Func<Instance, object>>(convert, param).Compile();
+        }).ToArray();
+    } 
 
     /**
      *
