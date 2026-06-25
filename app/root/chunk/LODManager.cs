@@ -1,6 +1,5 @@
-using System.Numerics;
-
 namespace App.Root.Chunk;
+using OpenTK.Mathematics;
 
 public static class LODManager {
     private static readonly Dictionary<string, LODConfig> configs = new();
@@ -16,7 +15,7 @@ public static class LODManager {
     }
 
     // Calculate Level
-    public static LODLevel CalculateLevel(float distance, LODConfig config) {
+    public static LODLevel calculateLevel(float distance, LODConfig config) {
         if(distance < config.UltraDistance) return LODLevel.ULTRA;
         if(distance < config.HighDistance) return LODLevel.HIGH;
         if(distance < config.MediumDistance) return LODLevel.MEDIUM;
@@ -27,8 +26,8 @@ public static class LODManager {
     }
 
     // Should Update this Frame
-    public static bool ShouldUpdateThisFrame(LODLevel level, LODConfig config) {
-        int interval = GetUpdateInterval(level, config);
+    public static bool shouldUpdateThisFrame(LODLevel level, LODConfig config) {
+        int interval = getUpdateInterval(level, config);
         bool val = interval == 1 || (_frameCounter % interval == 0);
         return val;
     }
@@ -38,7 +37,7 @@ public static class LODManager {
      * Register Config
      *
      */
-    public static void RegisterConfig(string id, LODConfig config) {
+    public static void registerConfig(string id, LODConfig config) {
         lock(_lock) {
             configs[id] = config;
         }
@@ -50,7 +49,7 @@ public static class LODManager {
      *
      */
     // Get Quality
-    public static float GetQuality(LODLevel level, LODConfig config) {
+    public static float getQuality(LODLevel level, LODConfig config) {
         switch(level) {
             case LODLevel.ULTRA: return config.UltraQuality;
             case LODLevel.HIGH: return config.HighQuality;
@@ -63,7 +62,7 @@ public static class LODManager {
     }
 
     // Get Update Interval
-    public static int GetUpdateInterval(LODLevel level, LODConfig config) {
+    public static int getUpdateInterval(LODLevel level, LODConfig config) {
         switch(level) {
             case LODLevel.ULTRA: return config.UltraUpdateInterval;
             case LODLevel.HIGH: return config.HighUpdateInterval;
@@ -76,13 +75,13 @@ public static class LODManager {
     }
     
     // Get LOD Data
-    public static LODData GetLODData(object owner, int index, Vector3 position, Vector3 playerPosition, LODConfig config) {
+    public static LODData getLODData(Vector3 position, Vector3 playerPosition, LODConfig config) {
         float distance = Vector3.Distance(position, playerPosition);
 
-        var level = CalculateLevel(distance, config);
-        var quality = GetQuality(level, config);
-        var interval = GetUpdateInterval(level, config);
-        var shouldUpdate = ShouldUpdateThisFrame(level, config);
+        var level = calculateLevel(distance, config);
+        var quality = getQuality(level, config);
+        var interval = getUpdateInterval(level, config);
+        var shouldUpdate = shouldUpdateThisFrame(level, config);
         var isVisible = level != LODLevel.CULLED;
         var skipCollisions = config.SkipCollisionsForLow && (int)level >= config.CollsionLODThreshold;
         var entitiesToProcess = Math.Max(1, (int)(quality * 10));
@@ -104,7 +103,7 @@ public static class LODManager {
      * Clear
      *
      */
-    public static void ClearCache() {
+    public static void clearCache() {
         lock(_lock) {
             lodCache.Clear();
         }
