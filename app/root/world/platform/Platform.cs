@@ -30,7 +30,7 @@ class Platform : WorldHandler {
     private const int SIZE_Z = ChunkCoord.CHUNK_SIZE;
     private const float SPACING = 1.0f;
 
-    private static Dictionary<ChunkCoord, List<string>> chunkColliders = new();
+    private Dictionary<ChunkCoord, List<string>> chunkColliders = new();
     private HashSet<ChunkCoord> allGeneratedChunks = new();
     private Vector3 offset = Vector3.Zero;
 
@@ -249,11 +249,6 @@ class Platform : WorldHandler {
 
         */
 
-    // Get Platform Chunks
-    public static IEnumerable<ChunkCoord> getPlatformChunks() {
-        return chunkColliders.Keys;
-    }
-
     // Calculate Top
     private float calculateTop() {
         var topBounds = setBounds(Vector3.Zero, 0, SIZE_Z - 1, 0);
@@ -379,9 +374,9 @@ class Platform : WorldHandler {
 
         var positions = new List<Vector3>();
 
-        for(int x = 0; x < ChunkCoord.CHUNK_SIZE; x++) {
-            for(int z = 0; z < ChunkCoord.CHUNK_SIZE; z++) {
-                for(int y = 0; y < ChunkCoord.CHUNK_SIZE; y++) {
+        for(int x = 0; x < SIZE_X; x++) {
+            for(int z = 0; z < SIZE_Y; z++) {
+                for(int y = 0; y < SIZE_Z; y++) {
                     var bounds = setBounds(chunkOrigin, x, y, z);
                     if(bounds == null) continue;
                     
@@ -448,8 +443,8 @@ class Platform : WorldHandler {
      *
      */
     public override void render() {
-        //load();
-        //merge();
+        load();
+        merge();
     }
 
     /**

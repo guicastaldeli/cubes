@@ -208,6 +208,8 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
      */
     public override void render() {
         ChunkCoord coord = ContextChunk.current!.Value;
+        if(coord.cz != 0) return;
+
         activeChunks.Add(coord);
 
         Vector3 chunkCenter = coord.ToWorldPosition();
@@ -237,7 +239,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
     public override void unrender() {
         ChunkCoord coord = ContextChunk.current!.Value;
         activeChunks.Remove(coord);
-        
+
         foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
             for(int i = 0; i < instanceList.Count; i++) {
                 if(entitySpawner.isHidden(entityId, i)) continue;
@@ -277,7 +279,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
             if(meshTypes.TryGetValue(meshType, out MeshData? meshData)) {
                 Dictionary<string, MeshData> data = new Dictionary<string, MeshData> { [meshType] = meshData }; 
                 
-                var coord = ChunkCoord.FromWorldPosition(playerPosition.X, playerPosition.Y, playerPosition.Z);
+                var coord = ChunkCoord.FromWorldPosition(playerPosition.X, 0, 0);
                 Vector3 chunkCenter = coord.ToWorldPosition();
 
                 generate(data, coord, chunkCenter);

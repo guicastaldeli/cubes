@@ -78,6 +78,8 @@ class SerializeChunk {
      * 
      */
     public static void save(Dictionary<ChunkCoord, ChunkData> chunks) {
+        if(!ChunkManager.USE_FILE) return;
+
         Directory.CreateDirectory(SAVE_DIR);
 
         var chunkList = chunks.Values.Where(c => c.isGenerated).ToList();
@@ -120,7 +122,7 @@ class SerializeChunk {
      * Load
      * 
      */
-    public static Dictionary<ChunkCoord, ChunkData> load() {
+    public static Dictionary<ChunkCoord, ChunkData>? load() {
         var result = new Dictionary<ChunkCoord, ChunkData>();
 
         if(!File.Exists(SAVE_FILE)) {

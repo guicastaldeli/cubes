@@ -97,6 +97,8 @@ static class ChunkPositions {
     */
 [ManagedState]
 class ChunkManager {
+    public static bool USE_FILE { get; set; } = false;
+
     public const int RENDER_DISTANCE = 8;
     private const int MAX_LOAD_PER_FRAME = 1;
     private const int EX_MAX_LOAD_PER_FRAME = 16;
@@ -135,6 +137,8 @@ class ChunkManager {
         this.tick = tick;
 
         StateManager.Register(this);
+
+        Console.WriteLine($"ChunkManager -- initialized!! Use file??: {USE_FILE}");
     }
 
     // Set Player Controller
@@ -324,12 +328,16 @@ class ChunkManager {
      *
      */
     public void save() {
+        if(!USE_FILE) return;
+
         Console.WriteLine("[ChunkManager] Saving all chunks...");
         SerializeChunk.save(chunkDataMap);
         usedChunks.Clear();
     }
 
     public void savedUsedChunks() {
+        if(!USE_FILE) return;
+
         if(usedChunks.Count == 0) return;
 
         Console.WriteLine($"[ChunkManager] Saving {usedChunks.Count} used chunks...");
@@ -340,12 +348,12 @@ class ChunkManager {
             int saved = 0;
             foreach(var coord in usedChunks) {
                 if(chunkDataMap.TryGetValue(coord, out var data)) {
-                    allChunks[coord] = data;
+                    allChunks![coord] = data;
                     saved++;
                 }
             }
 
-            SerializeChunk.save(allChunks);
+            SerializeChunk.save(allChunks!);
             usedChunks.Clear();
 
             Console.WriteLine($"[ChunkManager] Saved {saved} chunks successfully");
@@ -362,7 +370,7 @@ class ChunkManager {
     public void render() {
         if(!initialized) {
             Console.WriteLine($"[ChunkManager] render() — loading from file, chunkDataMap: {chunkDataMap.Count}");
-            chunkDataMap = SerializeChunk.load();
+            chunkDataMap = SerializeChunk.load()!;
             initialized = true;
            
             if(chunkDataMap.Count > 0) {
