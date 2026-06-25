@@ -110,9 +110,17 @@ class MeshEntitySpawner {
      *
      */
     public static float SPAWN_AREA = 50.0f; 
-    public static int VISIBLE_ENTITIES = 6;
+    public static int VISIBLE_ENTITIES = 12;
 
-    private Tick tick;      private float DeltaTime { get { return tick.getDeltaTime() / 5.0f; } }
+    private const int CLEANUP_INTERVAL = 60;
+
+    private const float MIN_SPEED = 1.0f;
+    private const float MAX_SPEED = 10.0f;
+
+    private const float MIN_LIFETIME = 5.0f;
+    private const float MAX_LIFETIME = 20.0f;
+
+    private Tick tick;      private float DeltaTime { get { return tick.getDeltaTime(); } }
     private Mesh mesh;
     private CollisionManager collisionManager;
 
@@ -125,13 +133,11 @@ class MeshEntitySpawner {
     private bool streamUsed = false;
 
     private int cleanupFrame = 0;
-    private const int CLEANUP_INTERVAL = 60;
 
-    private const float MIN_SPEED = 1.0f;
-    private const float MAX_SPEED = 10.0f;
+    private Vector3 lastPlayerPosition = Vector3.Zero;
 
-    private const float MIN_LIFETIME = 5.0f;
-    private const float MAX_LIFETIME = 20.0f;
+    private Dictionary<string, LODData> lodCache = new();
+    private int frameCounter = 0;
 
     [Poolable("spawner_instances", typeof(PoolableDictionary<string, PoolableList<Instance>>), InitialSize = 32, MaxSize = 128)] private PoolableDictionary<string, PoolableList<Instance>> instances = null!;
     [Poolable("spawner_states", typeof(PoolableDictionary<string, State>), InitialSize = 32, MaxSize = 128)] private PoolableDictionary<string, State> instanceStates = null!;
@@ -229,6 +235,15 @@ class MeshEntitySpawner {
         );
     }
 
+    // Player Position
+    public void setPlayerPosition(Vector3 position) {
+        lastPlayerPosition = position;
+    }
+
+    public Vector3 getPlayerPosition() {
+        return lastPlayerPosition;
+    }
+
     /**
      * 
      * Position
@@ -240,7 +255,7 @@ class MeshEntitySpawner {
     }
 
     private void defPosition(ref Instance inst) {
-        float v = 0.0f;//3.0f;
+        float v = 10.0f;
         float speed = v * DeltaTime;
 
         inst.Position = new Vector3(
@@ -500,39 +515,40 @@ class MeshEntitySpawner {
     public void update() {
         if(tick == null || mesh == null) return;
 
-        /*
-        cleanupEntity();
+        frameCounter++;
 
-        foreach(var (id, l) in instances) {
-            if(!instanceStates.TryGetValue(id, out var state)) continue;
-            if(state == State.ACTIVE) continue;
+        Vector3 playerPos = getPlayerPosition();
 
-            int firstVisibleIndex = -1;
+        var lodConfig = LODManager.getConfig(LOD_ID);
 
-            for(int i = 0; i < l.Count; i++) {
-                var inst = l[i];
+        foreach(var (entityId, instanceList) in instances) {
+            if(instanceList.Count == 0) continue;
 
-                if(wrap(DeltaTime, ref inst, id, i)) {
-                    l[i] = inst;
-                    continue;
-                }
+            if(!lodCache.TryGetValue(entityId, out var lodData) || frameCounter % 10 == 0) {
+                Vector3 entityPos = instanceList[0].Position;
+                
+                lodData = LODManager.getLODData(
+                    this,
+                    entityId.GetHashCode(),
+                    entityPos,
+                    playerPos,
+                    lodConfig
+                );
 
-                setSpawn(DeltaTime, ref inst);
-                l[i] = inst;
-
-                bool hidden = isHidden(id, i);
-                if(!hidden) {
-                    MeshEntityCollider.update(id, i, inst.Position);
-                    if(firstVisibleIndex < 0) firstVisibleIndex = i;
-                }
+                lodCache[entityId] = lodData;
             }
 
-            if(firstVisibleIndex >= 0) mesh.setPosition(id, l[firstVisibleIndex].Position);
-        }
+            if(!lodData.IsVisible) continue;
+            if(!lodData.ShouldUpdateThisFrame) continue;
 
-        updateData();
-        updatePhysics();
-        */
+            int entitiesToProcess = LODEntity.GetEntitiesToProcess(instanceList.Count, lodData.Quality);
+            int c = Math.Min(entitiesToProcess, instanceList.Count);
+            for(int i = 0; i < c; i++) {
+                var inst = instanceList[i];
+                updateEntity(ref inst, entityId, i);
+                instanceList[i] = inst;
+            }
+        }
     }
 
     // Update Data

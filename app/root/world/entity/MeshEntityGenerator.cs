@@ -260,7 +260,9 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
     // Update
     public override void update() {
         Vector3 playerPosition = playerController.getCamera().getPosition();
-
+        entitySpawner.setPlayerPosition(playerPosition);
+        
+        entitySpawner.update();
         updateVisibility(playerPosition);
 
         if(pendingGeneration.Count > 0) {
