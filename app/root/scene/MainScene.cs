@@ -48,8 +48,6 @@ class MainScene {
         this.timeCycle = new TimeCycle(tick);
         window.setTimeCycle(timeCycle);
 
-        this.chunkManager = new ChunkManager(window, mesh);
-
         this.playerController = new PlayerController(
             window, 
             input,
@@ -57,8 +55,9 @@ class MainScene {
             mesh
         );
 
+        this.chunkManager = new ChunkManager(window, tick);
         chunkManager.setPlayerController(playerController);
-        chunkManager.setCamera(getCamera());
+        window.Closing += _ => { chunkManager.save(); };
 
         this.collisionManager = new CollisionManager();
 
@@ -74,10 +73,7 @@ class MainScene {
             chunkManager
         );
 
-        EventStream.on("chunk-ready", _ => {
-            ReadyToShow = true;
-            Console.WriteLine("[MainScene] Scene ready to show");
-        });
+        onStream();
     }
 
     // Is Init
@@ -124,6 +120,18 @@ class MainScene {
     }
 
     /**
+     *
+     * On Stream
+     *
+     */
+    private void onStream() {
+        EventStream.on("chunk-ready", _ => {
+            ReadyToShow = true;
+            Console.WriteLine("[MainScene] Scene ready to show");
+        });
+    }
+
+    /**
      * 
      * On Window Resize
      *
@@ -139,11 +147,6 @@ class MainScene {
      *
      */
     private void set() {
-        bool isClient = 
-            network == null ||
-            !network.isConnected || 
-            network.isHost();
-
         playerController.setCollisionManager(collisionManager);
         playerController.setWorldManager(worldManager);
 

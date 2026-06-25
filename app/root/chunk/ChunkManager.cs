@@ -90,14 +90,15 @@ static class ChunkPositions {
     Chunk Manager main class
 
     */
+[ManagedState]
 class ChunkManager {
     private const int RENDER_DISTANCE = 8;
     private const int MAX_LOAD_PER_FRAME = 1;
+    private const float SAVE_INTERVAL = 10.0f;
 
+    private Tick tick;
     private Window window;
-    private Mesh mesh;
     private PlayerController playerController = null!;
-    private Camera camera = null!;
 
     private List<ChunkHandler> chunkedHandlers = new();
     private List<ChunkHandler> globalHandlers = new();
@@ -113,22 +114,26 @@ class ChunkManager {
 
     private ChunkProcessor chunkProcessor = new ChunkProcessor();
 
+    private Queue<(ChunkCoord coord, Task<ChunkData> task)> loadingTasks = new();
+    private HashSet<ChunkCoord> loadingChunks = new();
+    private bool isLoading = false;
+
+    private HashSet<ChunkCoord> usedChunks = new();
+    private float saveTimer = 0;
+
     private bool initialized = false;
     private bool readyEmitted = false;
 
-    public ChunkManager(Window window, Mesh mesh) {
+    public ChunkManager(Window window, Tick tick) {
         this.window = window;
-        this.mesh = mesh;
+        this.tick = tick;
+
+        StateManager.Register(this);
     }
 
     // Set Player Controller
     public void setPlayerController(PlayerController playerController) {
         this.playerController = playerController;
-    }
-
-    // Set Camera
-    public void setCamera(Camera camera) {
-        this.camera = camera;
     }
 
     // Get Active Chunks
@@ -189,6 +194,11 @@ class ChunkManager {
         EventStream.set("chunk-ready", true);
     }
 
+    // Mark Used
+    private void markUsed(ChunkCoord coord) {
+        usedChunks.Add(coord);
+    }
+
     /**
      * 
      * Process Queues
@@ -199,7 +209,7 @@ class ChunkManager {
         int loaded = 0;
         while(loadQueue.Count > 0 && loaded < MAX_LOAD_PER_FRAME) {
             var coord = loadQueue.Dequeue();
-            if(!activeChunks.Contains(coord)) {
+            if(!activeChunks.Contains(coord) && !loadingChunks.Contains(coord)) {
                 loadChunk(coord);
                 loaded++;
             }
@@ -222,25 +232,31 @@ class ChunkManager {
      *
      */
     private void loadChunk(ChunkCoord coord) {
-        //Console.WriteLine($"[ChunkManager] loadChunk called for {coord}");
-        //Console.WriteLine($"[TRACE] StackTrace:\n{Environment.StackTrace}");
-        if(!chunkDataMap.TryGetValue(coord, out var data)) {
-            data = ChunkGenerator.generate(coord);
-            chunkDataMap[coord] = data;
-        }
+        isLoading = true;
+        loadingChunks.Add(coord);
 
-        activeChunks.Add(coord);
+        Task.Run(() => {
+            var data = ChunkGenerator.generate(coord);
+            return data;
+        }).ContinueWith(task => {
+            window.queueOnRenderThread(() => {
+                if(!chunkDataMap.TryGetValue(coord, out var existing)) {
+                    chunkDataMap[coord] = task.Result;
+                    activeChunks.Add(coord);
+                    markUsed(coord);
 
-        foreach(var handler in chunkedHandlers) {
-            ContextChunk.Set(coord);
-            handler.render();
+                    foreach(var handler in chunkedHandlers) {
+                        ContextChunk.Set(coord);
+                        handler.render();
+                        ContextChunk.Clear();
+                        handlerActiveChunks[handler].Add(coord);
+                    }
+                }
 
-            ContextChunk.Clear();
-            
-            handlerActiveChunks[handler].Add(coord);
-        }
-
-        //Console.WriteLine($"[ChunkManager] Loaded {coord}");
+                loadingChunks.Remove(coord);
+                isLoading = false;
+            });
+        });
     }
 
     /**
@@ -255,12 +271,12 @@ class ChunkManager {
         foreach(var handler in chunkedHandlers) {
             ContextChunk.Set(coord);
             handler.unrender();
-
             ContextChunk.Clear();
             handlerActiveChunks[handler].Remove(coord);
         }
 
-        //Console.WriteLine($"[ChunkManager] Unloaded {coord}");
+        loadingChunks.Remove(coord);
+        if(chunkDataMap.ContainsKey(coord)) chunkDataMap.Remove(coord);
     }
 
     /**
@@ -286,7 +302,34 @@ class ChunkManager {
      *
      */
     public void save() {
+        Console.WriteLine("[ChunkManager] Saving all chunks...");
         SerializeChunk.save(chunkDataMap);
+        usedChunks.Clear();
+    }
+
+    public void savedUsedChunks() {
+        if(usedChunks.Count == 0) return;
+
+        Console.WriteLine($"[ChunkManager] Saving {usedChunks.Count} used chunks...");
+
+        try {
+            var allChunks = SerializeChunk.load();
+
+            int saved = 0;
+            foreach(var coord in usedChunks) {
+                if(chunkDataMap.TryGetValue(coord, out var data)) {
+                    allChunks[coord] = data;
+                    saved++;
+                }
+            }
+
+            SerializeChunk.save(allChunks);
+            usedChunks.Clear();
+
+            Console.WriteLine($"[ChunkManager] Saved {saved} chunks successfully");
+        } catch(Exception err) {
+            Console.Error.WriteLine($"[ChunkManager] Failed to save used chunks: {err.Message}");
+        }
     }
 
     /**
@@ -316,6 +359,8 @@ class ChunkManager {
     public void update() {
         if(!initialized) return;
 
+        float deltaTime = tick.getDeltaTime();
+
         ChunkPriorityManager.IncrementFrame();
 
         foreach(var handler in globalHandlers) {
@@ -327,7 +372,7 @@ class ChunkManager {
             }
         }
 
-        Vector3 playerPos = playerController.getCamera().getPosition();
+        Vector3 playerPos = playerController.getPosition();
         ChunkCoord playerChunk = ChunkCoord.FromWorldPosition(playerPos.X, playerPos.Y, playerPos.Z);
 
         chunkProcessor.Process(playerChunk, ChunkPriorityManager.FrameCounter);
@@ -341,6 +386,12 @@ class ChunkManager {
         processLoadQueue();
 
         checkReady();
+ 
+        saveTimer += deltaTime;
+        if(saveTimer >= SAVE_INTERVAL) {
+            saveTimer = 0;
+            savedUsedChunks();
+        }
     }
 
     /**

@@ -37,6 +37,11 @@ uniform float cameraY;
 #include "../world/star.frag.glsl"
 #include "fog.glsl"
 
+/**
+ *
+ * Set Entity Color
+ *
+ */
 vec4 setEntityColor(vec4 texColor) {
     if(isEntity == 1) {
         vec4 color = vColor * texColor;     
@@ -47,6 +52,11 @@ vec4 setEntityColor(vec4 texColor) {
     }
 }
 
+/**
+ *
+ * Main
+ *
+ */
 void main() {
     // Text
     if(shaderType == 1) {

@@ -386,9 +386,6 @@ class MeshEntitySpawner {
         if(index < 0 || index >= hiddenList.Count) return;
         if(!hiddenList[index]) return;
 
-        var pos = instances[entityId][index].Position;
-       // Console.WriteLine($"[Spawner] show {entityId}[{index}] at ({pos.X:F1},{pos.Y:F1},{pos.Z:F1})");
-
         hiddenList[index] = false;
     }
 
@@ -407,9 +404,6 @@ class MeshEntitySpawner {
             instanceHidden[entityId] = hiddenList;
         }
         if(hiddenList[index]) return;
-
-        var pos = list[index].Position;
-        //Console.WriteLine($"[Spawner] hide {entityId}[{index}] at ({pos.X:F1},{pos.Y:F1},{pos.Z:F1})");
 
         MeshEntityCollider.remove(entityId, index);
         hiddenList[index] = true;
@@ -620,18 +614,19 @@ class MeshEntitySpawner {
             if(chunkInstances.Count == 0) continue;
 
             Vector3 chunkCenter = getChunkCenter(coord);
-            var lodData = LODManager.getLODData(this, coord.GetHashCode(), chunkCenter, playerPosition, lodConfig);
 
+            var lodData = LODManager.getLODData(this, coord.GetHashCode(), chunkCenter, playerPosition, lodConfig);
             if(!lodData.IsVisible) {
                 foreach(var entityId in chunkInstances) {
                     hideAllInChunk(entityId, coord);
                 }
                 continue;
             }
-
-            if(!lodData.ShouldUpdateThisFrame) continue;
+            if(!lodData.ShouldUpdateThisFrame) {
+                continue;
+            }
+            
             int entitiesToProcess = LODEntity.GetEntitiesToProcess(chunkInstances.Count, lodData.Quality);
-
             processChunkEntities(coord, chunkInstances, entitiesToProcess, priorityInfo, lodData);
         }
 
@@ -661,7 +656,6 @@ class MeshEntitySpawner {
                 bool shouldUpdateCollisions = 
                     priorityInfo.Priority == ChunkPriority.HIGH &&
                     !lodData.ShouldUpdateThisFrame;
-
                 if(shouldUpdateCollisions) MeshEntityCollider.update(entityId, i, inst.Position);
 
                 processed++;

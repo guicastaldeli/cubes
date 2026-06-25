@@ -1,4 +1,6 @@
 namespace App.Root.Mesh;
+
+using App.Root.Chunk;
 using OpenTK.Mathematics;
 
 public class MeshData {
@@ -112,20 +114,6 @@ public class MeshData {
         set; 
     } = Vector3.Zero;
 
-    private float[]? colors;
-
-    public int screenTexOverride = 0;
-
-    public MeshData(string id, string meshType) {
-        this.id = id;
-        this.meshType = meshType;
-    }
-
-    /**
-     * 
-     * Instance
-     *
-     */
     public bool isInstanced {
         get;
         set;
@@ -135,6 +123,15 @@ public class MeshData {
         get;
         set;
     } = new();
+
+    private float[]? colors;
+
+    public int screenTexOverride = 0;
+
+    public MeshData(string id, string meshType) {
+        this.id = id;
+        this.meshType = meshType;
+    }
 
     /**
      * 

@@ -4,6 +4,7 @@ using App.Root.Shaders;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 using App.Root.Resource;
+using App.Root.Chunk;
 
 class MeshRenderer : DataEntry {
     private Window window;
@@ -665,13 +666,6 @@ class MeshRenderer : DataEntry {
      */
     // Main
     public void render() {
-        /*
-        int total = mesh.getMeshRendererMap().Count;
-        int instanced = mesh.getMeshRendererMap().Values.Count(r => r.isInstanced);
-        int staticM = mesh.getMeshRendererMap().Values.Count(r => !r.isInstanced);
-        int entityTypes = mesh.getMeshRendererMap().Values.Count(r => r.isInstanced && r.isInteractive);
-        Console.WriteLine($"Total: {total} | Instanced: {instanced} | Static: {staticM} | EntityTypes: {entityTypes}");
-        */
         if(mesh == null) {
             Console.Error.WriteLine("Mesh is null!");
             return;
