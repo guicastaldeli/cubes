@@ -97,11 +97,11 @@ static class ChunkPositions {
     */
 [ManagedState]
 class ChunkManager {
-    public static bool USE_FILE { get; set; } = false;
+    public static bool USE_FILE { get; set; } = true;
 
     public const int RENDER_DISTANCE = 8;
-    private const int MAX_LOAD_PER_FRAME = 1;
-    private const int EX_MAX_LOAD_PER_FRAME = 16;
+    private const int MAX_LOAD_PER_FRAME = 2;
+    private const int EX_MAX_LOAD_PER_FRAME = 4;
     private const float SAVE_INTERVAL = 10.0f;
 
     private Tick tick;
@@ -159,7 +159,6 @@ class ChunkManager {
 
     // Recalculate Chunks
     private void recalculateChunks(ChunkCoord playerChunk) {
-        //Console.WriteLine($"[ChunkManager] recalculating chunks for player at {playerChunk}");
         var shouldBeActive = new HashSet<ChunkCoord>();
 
         for(int dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) {
@@ -171,7 +170,15 @@ class ChunkManager {
                 );
 
                 float dist = MathF.Sqrt(dx * dx + dz * dz);
-                if(dist <= RENDER_DISTANCE) shouldBeActive.Add(coord);
+                if(dist <= RENDER_DISTANCE) {
+                    shouldBeActive.Add(coord);
+
+                    if(!activeChunks.Contains(coord) &&
+                        chunkDataMap.ContainsKey(coord) &&
+                        !loadQueue.Contains(coord)) {
+                        loadQueue.Enqueue(coord);
+                    }
+                }
             }
         }
 
@@ -337,13 +344,12 @@ class ChunkManager {
 
     public void savedUsedChunks() {
         if(!USE_FILE) return;
-
         if(usedChunks.Count == 0) return;
 
-        Console.WriteLine($"[ChunkManager] Saving {usedChunks.Count} used chunks...");
+        //Console.WriteLine($"[ChunkManager] Saving {usedChunks.Count} used chunks...");
 
         try {
-            var allChunks = SerializeChunk.load();
+            /*var allChunks = SerializeChunk.load();
 
             int saved = 0;
             foreach(var coord in usedChunks) {
@@ -351,12 +357,12 @@ class ChunkManager {
                     allChunks![coord] = data;
                     saved++;
                 }
-            }
+            }*/
 
-            SerializeChunk.save(allChunks!);
+            SerializeChunk.save(chunkDataMap);
             usedChunks.Clear();
 
-            Console.WriteLine($"[ChunkManager] Saved {saved} chunks successfully");
+            //Console.WriteLine($"[ChunkManager] Saved {saved} chunks successfully");
         } catch(Exception err) {
             Console.Error.WriteLine($"[ChunkManager] Failed to save used chunks: {err.Message}");
         }
@@ -369,7 +375,7 @@ class ChunkManager {
      */
     public void render() {
         if(!initialized) {
-            Console.WriteLine($"[ChunkManager] render() — loading from file, chunkDataMap: {chunkDataMap.Count}");
+            //Console.WriteLine($"[ChunkManager] render() — loading from file, chunkDataMap: {chunkDataMap.Count}");
             chunkDataMap = SerializeChunk.load()!;
             initialized = true;
            
@@ -379,7 +385,7 @@ class ChunkManager {
                 }
             }
         }
-        Console.WriteLine($"[ChunkManager] render() tick — loadQueue: {loadQueue.Count}, active: {activeChunks.Count}");
+        //Console.WriteLine($"[ChunkManager] render() tick — loadQueue: {loadQueue.Count}, active: {activeChunks.Count}");
 
         foreach(var handler in globalHandlers) {
             handler.render();
