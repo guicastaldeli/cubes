@@ -8,8 +8,8 @@ namespace App.Root;
 
 [ManagedState]
 static class EventStream {
-    [SkipReset] private static Dictionary<string, object> events = new();
     [SkipReset] private static Dictionary<string, List<Action<object>>> subscribers = new();
+    private static Dictionary<string, object> events = new();
 
     static EventStream() {
         StateManager.SRegister(typeof(EventStream));
