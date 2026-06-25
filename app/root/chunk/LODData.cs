@@ -61,7 +61,7 @@ public class LODConfig {
     public float MediumDistance { get; set; } = 30.0f;
     public float LowDistance { get; set; } = 40.0f;
     public float VeryLowDistance { get; set; } = 50.0f;
-    public float CullDistance { get; set; } = 60.0f;
+    public float CullDistance { get; set; } = 200.0f;
 
     /**
      *

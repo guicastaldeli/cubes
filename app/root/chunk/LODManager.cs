@@ -75,7 +75,7 @@ public static class LODManager {
     }
     
     // Get LOD Data
-    public static LODData getLODData(Vector3 position, Vector3 playerPosition, LODConfig config) {
+    public static LODData getLODData(object owner, int index, Vector3 position, Vector3 playerPosition, LODConfig config) {
         float distance = Vector3.Distance(position, playerPosition);
 
         var level = calculateLevel(distance, config);
@@ -96,6 +96,14 @@ public static class LODManager {
             ShouldSkipCollisions = skipCollisions,
             EntitiesToProcess = entitiesToProcess
         };
+    }
+
+    // Get Config
+    public static LODConfig getConfig(string id) {
+        lock(_lock) {
+            LODConfig val = configs.TryGetValue(id, out var config) ? config : new LODConfig();
+            return val;
+        }
     }
 
     /**

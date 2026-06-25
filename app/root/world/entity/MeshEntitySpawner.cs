@@ -6,7 +6,6 @@
 namespace App.Root.World.Entity;
 using App.Root.Chunk;
 using App.Root.Collider;
-using App.Root.Collider.Types;
 using App.Root.Mesh;
 using App.Root.Physics;
 using App.Root.Utils;
@@ -36,43 +35,57 @@ public struct Instance {
             m => m.GetCustomAttribute<ConverterKey>()!.Key,
             m => m
         );
+} 
+
+/**
+
+    LOD Entity
+
+    */
+public static class LODEntity {
+    // Get Entities to Process
+    public static int GetEntitiesToProcess(int totalCount, float quality, int minCount = 1) {
+        int val = Math.Max(minCount, (int)(totalCount * quality));
+        return val;
+    }
+
+    // Should Process Collisions
+    public static bool ShouldProcessCollisions(LODLevel level, LODConfig config) {
+        if(config.SkipCollisionsForLow) {
+            bool val = (int)level < config.CollsionLODThreshold;
+            return val;
+        }
+
+        return true;
+    }
 
     /**
      * 
-     * Get
+     * Process
      *
      */
-    public Dictionary<string, object> GetData() {
-        var dict = new Dictionary<string, object>();
+    public static List<(int index, LODData data)> Process<T>(
+        List<T> entities,
+        Func<T, Vector3> getPosition,
+        Vector3 playerPosition,
+        LODConfig config, 
+        int maxEntities = -1
+    ) {
+        var result = new List<(int, LODData)>();
 
-        foreach(var field in typeof(Instance).GetFields(BindingFlags.Public | BindingFlags.Instance)) {
-            object? val = field.GetValue(this);
-            if(val == null) continue;
+        for(int i = 0; i < entities.Count; i++) {
+            if(maxEntities > 0 && result.Count >= maxEntities) break;
 
-            var keyAttr = field.GetCustomAttribute<ConverterKey>();
-            var converterAttr = field.GetCustomAttribute<ConvertAttribute>();
-            string dictKey = keyAttr?.Key ?? field.Name.ToLower();
+            var pos = getPosition(entities[i]);
+            var lodData = LODManager.getLODData(entities, i, pos, playerPosition, config);
 
-            if(converterAttr != null && converters.TryGetValue(converterAttr.Converter, out var method)) {
-                dict[dictKey] = method.Invoke(null, new[] { val })!;
-            } else {
-                dict[dictKey] = val;
-            }
-
+            if(!lodData.IsVisible) continue;
+            if(lodData.ShouldUpdateThisFrame) result.Add((i, lodData));
         }
-        
-        return dict;
-    }
 
-    public static List<T> Get<T>(List<Instance> instances, string key) {
-        List<T> val = instances.Select(i => i.GetData())
-            .Where(d => d.ContainsKey(key) && d[key] is T)
-            .Select(d => (T)d[key])
-            .ToList();
-
-        return val;
+        return result;
     }
-} 
+}
 
 /**
 
@@ -122,6 +135,9 @@ class MeshEntitySpawner {
     [Poolable("spawner_mesh_types", typeof(PoolableDictionary<string, string>), InitialSize = 32, MaxSize = 128)] private PoolableDictionary<string, string> entityIdToMeshType = null!;
     private Dictionary<string, (MeshData data, Vector3 position)> pendingPhysics = new();
 
+    private const string LOD_ID = "mesh_entities";
+    [LODable(LOD_ID, typeof(LODConfig), InitialSize = 32, MaxSize = 128)] private LODConfig lodConfig = null!;
+
     public MeshEntitySpawner(Tick tick, Mesh mesh, CollisionManager collisionManager) {
         this.tick = tick;
         this.mesh = mesh;
@@ -136,6 +152,8 @@ class MeshEntitySpawner {
         
         MeshEntityCollider.init(mesh, collisionManager, this);
         MeshEntityCollider.onStream();
+
+        LODInjector.Inject(this);
     }
 
     // Get Boundary
@@ -187,6 +205,22 @@ class MeshEntitySpawner {
     public State? getState(string entityId) {
         State? val = instanceStates.TryGetValue(entityId, out var s) ? s : (State?)null;
         return val;
+    }
+
+    // Get Chunk Center
+    private Vector3 getChunkCenter(ChunkCoord coord) {
+        Vector3 worldPos = coord.ToWorldPosition();
+        float chunkSize = ChunkCoord.CHUNK_SIZE;
+        float halfChunk = chunkSize / 2.0f;
+
+        var (minY, maxY) = ChunkCoord.GetHeightRange(coord);
+        float centerY = (minY + maxY) / 2.0f;
+
+        return new Vector3(
+            worldPos.X + halfChunk,
+            centerY,
+            worldPos.Z + halfChunk
+        );
     }
 
     /**
@@ -578,20 +612,27 @@ class MeshEntitySpawner {
 
         cleanupEntity();
 
+        var lodConfig = LODManager.getConfig(LOD_ID);
+        LODManager.IncrementFrame();
+
         foreach(var (coord, priorityInfo) in priorityData) {
             if(!instancesByChunk.TryGetValue(coord, out var chunkInstances)) continue;
             if(chunkInstances.Count == 0) continue;
 
-            if(!priorityInfo.IsVisible) {
+            Vector3 chunkCenter = getChunkCenter(coord);
+            var lodData = LODManager.getLODData(this, coord.GetHashCode(), chunkCenter, playerPosition, lodConfig);
+
+            if(!lodData.IsVisible) {
                 foreach(var entityId in chunkInstances) {
                     hideAllInChunk(entityId, coord);
                 }
                 continue;
             }
 
-            if(!priorityInfo.ShouldUpdateThisFrame) continue;
-            int entitiesToProcess = priorityInfo.GetEntityCount(chunkInstances.Count);
-            processChunkEntities(coord, chunkInstances, entitiesToProcess, priorityInfo);
+            if(!lodData.ShouldUpdateThisFrame) continue;
+            int entitiesToProcess = LODEntity.GetEntitiesToProcess(chunkInstances.Count, lodData.Quality);
+
+            processChunkEntities(coord, chunkInstances, entitiesToProcess, priorityInfo, lodData);
         }
 
         updateData();
@@ -603,7 +644,7 @@ class MeshEntitySpawner {
      * Process
      *
      */
-    private void processChunkEntities(ChunkCoord coord, PoolableList<string> entityIds, int entitiesToProcess, ChunkPriorityData priorityInfo) {
+    private void processChunkEntities(ChunkCoord coord, PoolableList<string> entityIds, int entitiesToProcess, ChunkPriorityData priorityInfo, LODData lodData) {
         int processed = 0;
 
         foreach(var entityId in entityIds) {
@@ -617,7 +658,11 @@ class MeshEntitySpawner {
                 updateEntity(ref inst, entityId, i);
                 instanceList[i] = inst;
 
-                if(priorityInfo.Priority == ChunkPriority.HIGH) MeshEntityCollider.update(entityId, i, inst.Position);
+                bool shouldUpdateCollisions = 
+                    priorityInfo.Priority == ChunkPriority.HIGH &&
+                    !lodData.ShouldUpdateThisFrame;
+
+                if(shouldUpdateCollisions) MeshEntityCollider.update(entityId, i, inst.Position);
 
                 processed++;
             }
