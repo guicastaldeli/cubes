@@ -121,6 +121,12 @@ class MeshEntitySpawner {
     private float startZ;
     private float endZ;
 
+    private bool dataUsed = false;
+    private bool streamUsed = false;
+
+    private int cleanupFrame = 0;
+    private const int CLEANUP_INTERVAL = 60;
+
     private const float MIN_SPEED = 1.0f;
     private const float MAX_SPEED = 10.0f;
 
@@ -387,6 +393,8 @@ class MeshEntitySpawner {
         if(!hiddenList[index]) return;
 
         hiddenList[index] = false;
+
+        streamUsed = true;
     }
 
     /**
@@ -407,6 +415,8 @@ class MeshEntitySpawner {
 
         MeshEntityCollider.remove(entityId, index);
         hiddenList[index] = true;
+
+        streamUsed = true;
     }
 
     // Hide All In Chunk
@@ -575,9 +585,13 @@ class MeshEntitySpawner {
             }
         }
 
-        EventStream.set("stream-ids", (object)idMap);
-        EventStream.set("stream-mesh-types", (object)meshTypesMap);
-        EventStream.set("stream-positions", (object)positionsMap);
+        if(streamUsed) {
+            EventStream.set("stream-ids", (object)idMap);
+            EventStream.set("stream-mesh-types", (object)meshTypesMap);
+            EventStream.set("stream-positions", (object)positionsMap);
+
+            streamUsed = false;
+        }
     }
 
     // Update Physics
@@ -604,7 +618,7 @@ class MeshEntitySpawner {
     public void UpdateChunks(Dictionary<ChunkCoord, ChunkPriorityData> priorityData, ChunkPriorityConfig config, Vector3 playerPosition) {
         if(tick == null || mesh == null) return;
 
-        cleanupEntity();
+        if(cleanupFrame++ % CLEANUP_INTERVAL == 0) cleanupEntity();
 
         var lodConfig = LODManager.getConfig(LOD_ID);
         LODManager.IncrementFrame();
@@ -628,10 +642,15 @@ class MeshEntitySpawner {
             
             int entitiesToProcess = LODEntity.GetEntitiesToProcess(chunkInstances.Count, lodData.Quality);
             processChunkEntities(coord, chunkInstances, entitiesToProcess, priorityInfo, lodData);
+
+            dataUsed = true;
         }
 
-        updateData();
-        updatePhysics();
+        if(dataUsed) {
+            updateData();
+            updatePhysics();
+            dataUsed = false;
+        }
     }
 
     /**
@@ -682,6 +701,8 @@ class MeshEntitySpawner {
         instancesByChunk[spawnChunk].Add(entity.Id);
 
         MeshEntityCollider.create(entity, instanceList);
+
+        streamUsed = true;
     }
 
     /**
@@ -715,6 +736,8 @@ class MeshEntitySpawner {
             string meshType = entityIdToMeshType.TryGetValue(entityId, out var t) ? t : entityId;
             var allInstances = instances.Where(kvp => entityIdToMeshType.TryGetValue(kvp.Key, out var mt) && mt == meshType).SelectMany(kvp => kvp.Value).ToList();
             syncData(meshType, allInstances);
+
+            streamUsed = true;
         });
 
         // Instanced Place

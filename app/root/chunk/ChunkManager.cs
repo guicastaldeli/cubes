@@ -39,6 +39,7 @@ abstract class ChunkHandler : IChunkUpdatable {
 static class ChunkPositions {
     private static Dictionary<string, Dictionary<ChunkCoord, List<Vector3>>> handlerPositions = new();
     private static Dictionary<string, bool> handlerUsed = new();
+    private static Dictionary<string, List<Vector3>> mergedCache = new();
 
     // Is Used
     public static bool IsUsed(string handlerId) {
@@ -60,6 +61,7 @@ static class ChunkPositions {
         if(!handlerPositions.ContainsKey(handlerId)) handlerPositions[handlerId] = new();
         handlerPositions[handlerId][coord] = positions;
         handlerUsed[handlerId] = true;
+        mergedCache.Remove(handlerId);
     }
 
     /**
@@ -70,6 +72,7 @@ static class ChunkPositions {
     public static void Remove(string handlerId, ChunkCoord coord) {
         if(handlerPositions.TryGetValue(handlerId, out var map)) map.Remove(coord);
         handlerUsed[handlerId] = true;
+        mergedCache.Remove(handlerId);
     }
 
     /**
@@ -78,10 +81,12 @@ static class ChunkPositions {
      *
      */
     public static List<Vector3> GetMerged(string handlerId) {
+        if(mergedCache.TryGetValue(handlerId, out var cached)) return cached;
         if(!handlerPositions.TryGetValue(handlerId, out var map)) return new();
-        
-        List<Vector3> val = map.Values.SelectMany(p => p).ToList();
-        return val;
+
+        var merged = map.Values.SelectMany(p => p).ToList();
+        mergedCache[handlerId] = merged;
+        return merged;
     }
 } 
 

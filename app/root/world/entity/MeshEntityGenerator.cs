@@ -195,8 +195,6 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
             }
         }
 
-        entitySpawner.updateData();
-
         MeshEntityFactory.setEvent(MeshEntityCollider.colliderIds, entityProps, entityInstances);
         if(setInitialized) initialized = true;
     }
