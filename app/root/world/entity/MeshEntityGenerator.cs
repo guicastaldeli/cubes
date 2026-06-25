@@ -78,6 +78,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
 
     private Queue<string> generationQueue = new();
     private Queue<ChunkCoord> pendingGeneration = new();
+    private HashSet<ChunkCoord> pendingGenerationSet = new();
     private static Dictionary<string, MeshData>? cachedMeshTypes = null;
 
     private HashSet<ChunkCoord> activeChunks = new();
@@ -213,13 +214,16 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
 
         if(!initialized) {
             seenChunks.Add(coord);
+            generatedChunks.Add(coord);
+
             var meshTypes = load();
             generate(meshTypes, coord, chunkCenter, setInitialized: true);
             return;
         }
 
-        if(!seenChunks.Contains(coord)) {
+        if(!seenChunks.Contains(coord) && !pendingGenerationSet.Contains(coord)) {
             seenChunks.Add(coord);
+            pendingGenerationSet.Add(coord);
             pendingGeneration.Enqueue(coord);
             return;
         }
@@ -233,8 +237,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
     public override void unrender() {
         ChunkCoord coord = ContextChunk.current!.Value;
         activeChunks.Remove(coord);
-        seenChunks.Remove(coord);
-
+        
         foreach(var (entityId, instanceList) in entitySpawner.getAllInstances()) {
             for(int i = 0; i < instanceList.Count; i++) {
                 if(entitySpawner.isHidden(entityId, i)) continue;
@@ -260,6 +263,8 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
 
         if(pendingGeneration.Count > 0) {
             var c = pendingGeneration.Dequeue();
+            pendingGenerationSet.Remove(c);
+
             var meshTypes = load();
             Vector3 chunkCenter = c.ToWorldPosition();
             generate(meshTypes, c, chunkCenter);
