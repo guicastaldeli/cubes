@@ -24,7 +24,7 @@ class SerializeChunk {
     private static readonly int VERSION = 1;
 
     private static readonly string SAVE_DIR = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "root", ".INFO-DATA"));
-    private static readonly string SAVE_FILE = Path.Combine(SAVE_DIR, "c.d.mp.scs");
+    private static readonly string SAVE_FILE = Path.Combine(SAVE_DIR, "c.d.mp.sc");
 
     // Encrypt
     private static byte[] encrypt(byte[] data, byte[] iv) {
