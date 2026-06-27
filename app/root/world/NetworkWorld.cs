@@ -46,7 +46,7 @@ class NetworkWorld : NetworkUpdateHandler {
             //Console.WriteLine($"client type: {type}, count: {list.Count}");
         }
 
-        Data.getInstance().apply(snapshot, DataType.MESH, entry => {
+        Data.ApplySnapshot(snapshot, DataType.MESH, entry => {
             string? id = entry["id"] as string;
             if(string.IsNullOrEmpty(id)) return;
             if(MeshRegistry.isRuntime(id)) return;

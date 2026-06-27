@@ -1,23 +1,37 @@
 namespace App.Root;
 
+/**
+    
+    Data Type
+
+    */
 enum DataType {
     MESH,
     PLAYER,
     WORLD
 }
 
+/**
+    
+    Data Entry interface
+
+    */
+interface DataEntry {
+    string? getId() => null;
+    Dictionary<string, object> serialize();
+}
+
+/**
+    
+    Main Data class
+
+    */
 [ManagedState]
-class Data {
-    private static Data? instance;
-    private Dictionary<DataType, List<DataEntry>> entries = new();
+static class Data {
+    private static Dictionary<DataType, List<DataEntry>> entries = new();
 
-    public static Data getInstance() {
-        instance ??= new Data();
-        return instance;
-    }
-
-    private Data() {
-        StateManager.Register(this);
+    static Data() {
+        StateManager.SRegister(typeof(Data));
     }
 
     /**
@@ -25,7 +39,7 @@ class Data {
      * Register
      *
      */
-    public void register(DataType type, DataEntry entry) {
+    public static void Register(DataType type, DataEntry entry) {
         if(!entries.ContainsKey(type)) entries[type] = new();
         entries[type].Add(entry);
     }
@@ -35,7 +49,7 @@ class Data {
      * Unregister
      *
      */
-    public void unregister(DataType type, DataEntry entry) {
+    public static void Unregister(DataType type, DataEntry entry) {
         if(entries.TryGetValue(type, out var list)) list.Remove(entry);
     }
 
@@ -44,10 +58,9 @@ class Data {
      * Get
      *
      */
-    public List<DataEntry> get(DataType type) {
-        return entries.TryGetValue(type, out var list) ?
-            list :
-            new();
+    public static List<DataEntry> Get(DataType type) {
+        List<DataEntry> val = entries.TryGetValue(type, out var list) ? list : new();
+        return val;
     }
 
     /**
@@ -56,16 +69,13 @@ class Data {
      *
      */
     // Snapshot
-    public DataSnapshot snapshot() {
-        return new DataSnapshot(entries);
+    public static DataSnapshot Snapshot() {
+        DataSnapshot val = new DataSnapshot(entries);
+        return val;
     }
 
-    // Apply
-    public void apply(
-        DataSnapshot snapshot,
-        DataType type,
-        Action<Dictionary<string, object>> handler
-    ) {
+    // Apply Snapshot
+    public static void ApplySnapshot(DataSnapshot snapshot, DataType type, Action<Dictionary<string, object>> handler) {
         foreach(var entry in snapshot.get(type)) {
             handler(entry);
         }
@@ -76,11 +86,13 @@ class Data {
      * Clear
      *
      */
-    public void clear(DataType type) {
+    // Clear
+    public static void Clear(DataType type) {
         if(entries.ContainsKey(type)) entries[type].Clear();
     }
 
-    public void clearAll() {
+    // Clear All
+    public static void ClearAll() {
         entries.Clear();
     }
 }

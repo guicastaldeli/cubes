@@ -55,7 +55,7 @@ class ServerJoin : PacketHandler {
 
         // Server
         var serverSnapshot = ServerSnapshot.getInstance().snapshot();
-        var worldSnapshot = Data.getInstance().snapshot();
+        var worldSnapshot = Data.Snapshot();
         
         foreach(var (type, list) in worldSnapshot.data) {
             if(!serverSnapshot.data.ContainsKey(type)) {

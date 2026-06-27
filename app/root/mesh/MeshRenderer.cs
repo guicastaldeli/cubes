@@ -1167,7 +1167,7 @@ class MeshRenderer : DataEntry {
     public void setId(string id) {
         this.id = id;
         
-        Root.Data.getInstance().register(Root.DataType.MESH, this);
+        Data.Register(Root.DataType.MESH, this);
         ServerSnapshot.getInstance().register(Root.DataType.MESH, this);
     }
 

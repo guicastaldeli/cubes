@@ -85,7 +85,7 @@ class NetworkPlayer : NetworkUpdateHandler {
         var view = playerController.getCamera().getView();
         var projection = playerController.getCamera().getProjection();
 
-        Data.getInstance().apply(snapshot, DataType.PLAYER, entry => {
+        Data.ApplySnapshot(snapshot, DataType.PLAYER, entry => {
             string? id = entry["id"] as string;
             if(string.IsNullOrEmpty(id) || id == network.userId) return;
 

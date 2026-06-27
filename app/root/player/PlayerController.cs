@@ -109,7 +109,7 @@ class PlayerController : DataEntry {
         this.rigidBody = new RigidBody(position, size);
         this.playerMesh = new PlayerMesh(window, camera, this, mesh);
 
-        Data.getInstance().register(DataType.PLAYER, this);
+        Data.Register(DataType.PLAYER, this);
 
         this.networkPlayer = new NetworkPlayer(this);
 
