@@ -32,7 +32,8 @@ class ServerDialogAction {
      *
      */
     public dynamic get() {
-        return ElementEntry.C(id => serverDialog.getMainScreen().getElementById(id), Elements);
+        object val = ElementEntry.C(id => serverDialog.getMainScreen().getElementById(id), Elements);
+        return val;
     }
 
     /**
@@ -41,14 +42,13 @@ class ServerDialogAction {
      *
      */
     public void hostServer() {
-        int port = network.getPort().get();
+        int port = Network.Port.Get();
 
         string maxPlayersEl = get().maxPlayersInput.text;
-        int maxPlayers = string.IsNullOrEmpty(maxPlayersEl) ?
-            ServerPlayer.SERVER_MAX_PLAYERS :
-            int.Parse(maxPlayersEl);
+        int maxPlayers = string.IsNullOrEmpty(maxPlayersEl) ? ServerPlayer.SERVER_MAX_PLAYERS : int.Parse(maxPlayersEl);
 
         network.host(port, maxPlayers);
+
         serverDialog.getMainScreen().getMainScene().init();
     }
 

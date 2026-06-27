@@ -23,8 +23,8 @@ class Server {
 
     private PacketReassember reassember = new PacketReassember();
 
-    public Server(int port, int maxPlayers) {
-        this.port = port;
+    public Server(int maxPlayers) {
+        this.port = Network.Port.Get();
         this.maxPlayers = maxPlayers;
 
         this.serverDataManager = new ServerDataManager(this);
