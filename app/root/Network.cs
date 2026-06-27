@@ -11,10 +11,6 @@ class Network {
 
     public bool isConnected => client?.connected ?? false;
     public string? userId => client?.userId;
-    public string? username => 
-        InfoController.getInstance()
-            .getUserInfo()
-            .getUsername();
 
     public Network() {
         this.ipGetter = new IPGetter();
@@ -111,7 +107,7 @@ class Network {
         snapshot.data[DataType.PLAYER] = new List<Dictionary<string, object>> {
             new() {
                 ["id"] = userId ?? "",
-                ["username"] = username ?? "",
+                ["username"] = InfoController.Username ?? "",
                 ["x"] = x, ["y"] = y, ["z"] = z,
                 ["yaw"] = yaw, ["pitch"] = pitch
             }

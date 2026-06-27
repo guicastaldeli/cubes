@@ -85,7 +85,6 @@ class PlayerController : DataEntry {
     private Dictionary<MoveDir, (Keys key, Action<bool> apply)>? moveMap;
 
     private string id = "";
-    private string username = InfoController.getInstance().getUserInfo().getUsername();
 
     private bool spawned = false;
 
@@ -419,8 +418,8 @@ class PlayerController : DataEntry {
 
     public Dictionary<string, object> serialize() {
         return new Dictionary<string, object> {
-            ["id"] = network?.userId ?? InfoController.getInstance().getUserInfo().getId(),
-            ["username"] = username,
+            ["id"] = network?.userId ?? InfoController.UserId,
+            ["username"] = InfoController.Username,
             ["x"] = position.X,
             ["y"] = position.Y,
             ["z"] = position.Z,

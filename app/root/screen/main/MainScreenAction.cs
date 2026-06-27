@@ -52,7 +52,7 @@ class MainScreenAction {
      */
     // Username
     public void refreshUsername() {
-        string username = InfoController.getInstance().getUserInfo().getUsername();
+        string username = InfoController.Username;
         DocParser.Replace("username", username);
     }
 

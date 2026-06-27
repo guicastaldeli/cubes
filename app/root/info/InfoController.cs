@@ -8,6 +8,9 @@ class InfoController {
     private readonly Store store;
     public readonly UserInfo userInfo;
 
+    public static string UserId { get { return getInstance().getUserInfo().getId(); } }
+    public static string Username { get { return getInstance().getUserInfo().getUsername(); } }
+
     private InfoController() {
         this.store = new Store(META_FILE);
         this.userInfo = new UserInfo(store);
@@ -29,7 +32,11 @@ class InfoController {
         return userInfo;
     }
 
-    // Init
+    /**
+     *
+     * Init
+     *
+     */
     public static void init() {
         instance = new InfoController();
 

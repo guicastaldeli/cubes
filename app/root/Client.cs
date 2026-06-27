@@ -106,14 +106,8 @@ class Client {
         pingThread.Start();
 
         send(new PacketJoin {
-            userId = 
-                InfoController.getInstance()
-                    .getUserInfo()
-                    .getId(),
-            username =
-                InfoController.getInstance()
-                    .getUserInfo()
-                    .getUsername()
+            userId = InfoController.UserId,
+            username = InfoController.Username
         });
 
         Console.ForegroundColor = ConsoleColor.DarkMagenta;

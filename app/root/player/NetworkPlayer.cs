@@ -89,12 +89,9 @@ class NetworkPlayer : NetworkUpdateHandler {
             string? id = entry["id"] as string;
             if(string.IsNullOrEmpty(id) || id == network.userId) return;
 
-            string username = 
-                entry.TryGetValue("username", out var u) &&
+            string username =  entry.TryGetValue("username", out var u) &&
                 u is string s &&
-                !string.IsNullOrEmpty(s)
-                    ? s
-                    : id;
+                !string.IsNullOrEmpty(s) ? s : id;
             nameLabels[id] = username;
 
             render(mesh, id, entry);
