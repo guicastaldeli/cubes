@@ -1,20 +1,18 @@
-/**
-
-    Platform main class
-
-    */
 namespace App.Root.World.Platform;
 using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
-using App.Root.Particle;
 using App.Root.Physics;
 using App.Root.Player;
-using App.Root.Resource;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 
+/**
+
+    Platform main class
+
+    */
 [Chunked]
 class Platform : WorldHandler {
     private Mesh mesh;
@@ -38,10 +36,7 @@ class Platform : WorldHandler {
 
     private const bool DEBUG_EXPANSION = true;
 
-    public static float? topSurfaceY {
-        get;
-        private set;
-    }
+    public static float? Top { get; private set; }
     
     public Platform(
         [Inject] Window window,
@@ -71,184 +66,6 @@ class Platform : WorldHandler {
         return res;
     }
 
-    /**
-
-        Temporary Meshes to test 
-        raycaster for objects
-
-        */
-        private int spawnCounter = 0;
-
-        private void spawnMesh(string meshType, Vector3 position, float scale, string texPath, string stackId) {
-            string id = $"{meshType}_{spawnCounter++}";
-
-            MeshData data = MeshDataLoader.load(meshType);
-            mesh.add(id, data);
-            mesh.setPosition(id, position);
-            if(scale != 1.0f) mesh.setScale(id, scale);
-
-            var renderer = mesh.getMeshRenderer(id);
-            if(renderer != null) renderer.isInteractive = true;
-
-            collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
-            MeshInteractionRegistry.getInstance().register(id, State.BREAKABLE, mesh, stackId);
-        }
-
-        private void spawnGrid(string meshType, Vector3 origin, int cols, int rows, float scale = 1.0f, float spacing = 1.0f, string texPath = "world/test.jpg") {
-            string stackId = $"{meshType}_wall";
-
-            for(int r = 0; r < rows; r++) {
-                for(int c = 0; c < cols; c++) {
-                    float px = origin.X + c * spacing;
-                    float py = origin.Y + r * spacing;
-                    spawnMesh(meshType, new Vector3(px, py, origin.Z), scale, texPath, stackId);
-                }
-            }
-        }
-
-        public void set2() {
-            string id = "cubic";
-            string stackId = "cubic_stack";
-            string mesht = "cube";
-            MeshData data = MeshDataLoader.load(mesht);
-            mesh.add(id, data);
-            mesh.setPosition(id, 0.0f, 10.0f, -3.0f);
-            mesh.setScale(id, 0.5f);
-
-            var renderer = mesh.getMeshRenderer(id);
-            if(renderer != null) renderer.isInteractive = true;
-
-            string texPath = "world/test.jpg";
-            int texId = TextureLoader.load(texPath);
-            mesh.setTexture(id, texId, texPath);
-
-            collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
-            //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
-            //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
-        
-            MeshInteractionRegistry.getInstance().register(
-                id,
-                State.BREAKABLE,
-                mesh,
-                PhysicsType.DYNAMIC,
-                stackId
-            );
-        }
-
-        public void set3() {
-            string id = "cubic2";
-            string mesht = "sphere";
-            MeshData data = MeshDataLoader.load(mesht);
-            mesh.add(id, data);
-            mesh.setPosition(id, 2.0f, 10.0f, -3.0f);
-
-            var renderer = mesh.getMeshRenderer(id);
-            if(renderer != null) renderer.isInteractive = true;
-
-            string texPath = "world/test.jpg";
-            int texId = TextureLoader.load(texPath);
-            mesh.setTexture(id, texId, texPath);
-
-            collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
-            //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
-            //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
-        
-            MeshInteractionRegistry.getInstance().register(
-                id,
-                State.BREAKABLE,
-                mesh,
-                PhysicsType.DYNAMIC
-            );
-        }
-
-        public void set4() {
-            string id = "dino";
-            string path = "dino.obj";
-
-            MeshData data = MeshModelLoader.loadModel(path);
-            data.isModel = true;
-            data.modelPath = path;
-            data.colliderShape = ColliderType.CUBE;
-
-            mesh.add(id, data);
-            mesh.setPosition(id, -3.0f, 10.0f, -3.0f);
-
-            var renderer = mesh.getMeshRenderer(id);
-            if(renderer != null) renderer.isInteractive = true;
-
-            string texPath = "mesh/dino.png";
-            int texId = TextureLoader.load(texPath);
-            mesh.setTexture(id, texId, texPath);
-
-            collisionManager.addStaticCollider(new StaticObject(() => mesh.getBBox(id), id));
-            //collisionManager.addStaticCollider(new TriangleObject(mesh, id, id));
-            //collisionManager.addStaticCollider(new SphereObject(mesh, id, id));
-        
-            MeshInteractionRegistry.getInstance().register(
-                id,
-                State.BREAKABLE,
-                mesh,
-                PhysicsType.DYNAMIC,
-                meshType: path
-            );
-        }
-
-        ///
-        /// Particles
-        /// 
-        private int frameCounter = 0;
-        private ParticleEntity? particleEntity = null;
-
-        private void emitParticle() {
-            ParticleController particleController = mesh.getParticleController()!;
-            Random random = new Random();
-
-            Vector3 position = new Vector3(0.0f, 10.0f, -3.0f);
-            Vector3 color = new Vector3(1.0f, 1.0f, 1.0f); 
-            int amount = 5;
-            float size = 0.1f;
-            float speed = 0.3f;
-            float lifetime = 2.5f;
-            Vector3 velNum = new Vector3(5.0f, 5.0f, 5.0f);
-
-            if(particleEntity == null) {
-                particleEntity = particleController.emit(
-                    position,
-                    color,
-                    amount,
-                    size,
-                    speed,
-                    lifetime,
-                    velNum,
-                    () => {
-                        return new Vector3(
-                            random.NextSingle(),
-                            random.NextSingle(),
-                            random.NextSingle()
-                        );
-                    }
-                );
-            } else {
-                particleEntity.set(
-                    new Vector3(0.0f, 10.0f, -3.0f),
-                    true,
-                    () => {
-                        return new Vector3(
-                            random.NextSingle(),
-                            random.NextSingle(),
-                            random.NextSingle()
-                        );
-                    }
-                );
-            }
-        }
-    /**
-        ****
-        ****
-        ****
-
-        */
-
     // Calculate Top
     private float calculateTop() {
         var topBounds = setBounds(Vector3.Zero, 0, SIZE_Z - 1, 0);
@@ -266,7 +83,7 @@ class Platform : WorldHandler {
      *
      */
     private void onStream() {
-        if(topSurfaceY.HasValue) EventStream.set("stream-surface", (object)topSurfaceY.Value);
+        if(Top.HasValue) EventStream.set("stream-top", (object)Top.Value);
         EventStream.set("streamed-chunks", (object)new List<ChunkCoord>(allGeneratedChunks));
     }
 
@@ -343,7 +160,7 @@ class Platform : WorldHandler {
     // Set Platform
     private void setPlatform(bool renderMesh = true) {
         if(!initialized) {
-            topSurfaceY = null;
+            Top = null;
 
             mesh.add(GRID_ID, MESH);
             MeshInteractionRegistry.getInstance().register(
@@ -353,9 +170,9 @@ class Platform : WorldHandler {
                 PhysicsType.RECEIVER
             );
 
-            topSurfaceY = calculateTop();
+            Top = calculateTop();
 
-            EventStream.set("stream-surface", (object)topSurfaceY.Value);
+            EventStream.set("stream-top", (object)Top.Value);
 
             var renderer = mesh.getMeshRenderer(GRID_ID);
             if(renderer != null) renderer.isInstanced = true;
@@ -473,12 +290,6 @@ class Platform : WorldHandler {
      *
      */
     public override void update() {
-        frameCounter++;
-
-        if(frameCounter % 10 == 0) {
-            //emitParticle();
-        }
-
         platformRegistry.update();
     }
 

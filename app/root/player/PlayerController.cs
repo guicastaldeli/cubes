@@ -267,7 +267,7 @@ class PlayerController : DataEntry {
     }
 
     public Vector3 setSpawnProps() {
-        float y = EventStream.getT<float>("stream-surface") ?? 1.0f;
+        float y = EventStream.getT<float>("stream-top") ?? 1.0f;
         float spawnY = y + 60.0f;
 
         var chunks = EventStream.get<List<ChunkCoord>>("streamed-chunks");
