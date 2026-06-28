@@ -33,13 +33,13 @@ interface DataEntry {
 public class DataInjectionAttribute : Attribute {}
 
 public abstract class DataHandler {
-    [DataInjection] public virtual object ExtractData() => Route();
+    [DataInjection] public virtual object? ExtractData() => Route();
     [DataInjection] public virtual void SaveData(object data) => Route(data);
     [DataInjection] public virtual bool HasData() => Route<bool>();
 
-    protected virtual object Route([CallerMemberName] string? name = null) => null;
+    protected virtual object? Route([CallerMemberName] string? name = null) => null;
     protected virtual void Route(object data, [CallerMemberName] string? name = null) {}
-    protected virtual T Route<T>([CallerMemberName] string? name = null) => default;
+    protected virtual T? Route<T>([CallerMemberName] string? name = null) => default;
 }
 
 /**
@@ -129,12 +129,12 @@ static class Data {
      *
      */
     // Get Data
-    public static object GetData(string id) {
+    public static object? GetData(string id) {
         if(dataStore.TryGetValue(id, out var data)) return data;
         return null;
     }
 
-    public static T GetData<T>(string id) {
+    public static T? GetData<T>(string id) {
         if(dataStore.TryGetValue(id, out var data)) {
             if(data is T typedData) {
                 return typedData;
