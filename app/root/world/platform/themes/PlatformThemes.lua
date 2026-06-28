@@ -20,6 +20,8 @@ function Theme:new(params)
     self.name = params.name
     self.movement = params.movement or ""
     self.audio = params.audio or ""
+    self.top = params.top or ""
+    self.particles = params.particles or ""
     self.texture = texturePath .. parms.texture
 
     if params.custom then
@@ -38,6 +40,8 @@ local Themes = {
         name = "TEST_1",
         --movement = "",
         --audio = "",
+        --top = "",
+        --particles = "",
         texture = "test1"
     }),
     Theme.new({

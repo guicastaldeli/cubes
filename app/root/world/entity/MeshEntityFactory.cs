@@ -4,7 +4,6 @@
 
     */
 namespace App.Root.World.Entity;
-
 using App.Root.Chunk;
 using App.Root.Mesh;
 using App.Root.Resource;
