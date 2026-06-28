@@ -19,6 +19,11 @@ public class DataOutputAttribute : Attribute {
         this.Path = Path;
         this.Section = Section;
     }
+
+    public static string GenerateSection(Type type) {
+        string val = type.Name.ToLower();
+        return val;
+    }
 }
 
 
@@ -262,7 +267,7 @@ public static class DataOutput {
                     if(attr != null) {
                         string id = DataInputAttribute.GenerateId(type);
                         string path = attr.Path!;
-                        string section = attr.Section!;
+                        string section = attr.Section ?? DataOutputAttribute.GenerateSection(type);
 
                         outputRegistry[id] = new DataOutputInfo(type, path, section, id);
 

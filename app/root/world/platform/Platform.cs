@@ -10,6 +10,17 @@ using OpenTK.Mathematics;
 
 /**
 
+    Platform Themes
+
+    */
+[DataInput]
+[DataOutput(Path: "root/.INFO-DATA/player_storage.ps")]
+public static class PlatformThemes {
+    
+}
+
+/**
+
     Platform main class
 
     */
