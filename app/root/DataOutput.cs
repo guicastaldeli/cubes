@@ -48,6 +48,12 @@ public static class DataOutput {
 
     private static bool initialized = false;
 
+    // Get Registered Ids
+    public static List<string> GetRegisteredIds() {
+        List<string> val = outputRegistry.Keys.ToList();
+        return val;
+    }
+
     // Has Saved Data
     public static bool HasSavedData(string id) {
         if(!outputRegistry.TryGetValue(id, out var info)) return false;

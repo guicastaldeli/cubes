@@ -27,79 +27,23 @@ public class DataInputAttribute : Attribute {
 
     */
 public static class DataInput {
-    private static Dictionary<string, object> dataCache = new();
-    private static Dictionary<string, Type> registeredTypes = new();
     private static Dictionary<string, Func<object>> extractors = new();
+    private static Dictionary<string, Type> registeredTypes = new();
+    private static HashSet<object> scanned = new();
     
     private static bool initialized = false;
 
-    /**
-     *
-     * Register Type
-     *
-     */
-    private static void RegisterType(Type type, string id) {
-        var method = type.GetMethod("ExtractData", BindingFlags.Public | BindingFlags.Static);
-
-        if(method != null && method.ReturnType == typeof(object)) {
-            extractors[id] = () => method.Invoke(null, null);
-        } else {
-            var instanceMethod = type.GetMethod("ExtractData", BindingFlags.Public | BindingFlags.Instance);
-            if(instanceMethod != null && instanceMethod.ReturnType == typeof(object)) {
-                extractors[id] = () => {
-                    var instance = Activator.CreateInstance(type);
-                    return instanceMethod.Invoke(instance, null);
-                };
-            } else {
-                var prop = type.GetProperty("Data", BindingFlags.Public | BindingFlags.Static);
-                if(prop != null) {
-                    extractors[id] = () => prop.GetValue(null);
-                } else {
-                    var field = type.GetField("Data", BindingFlags.Public | BindingFlags.Static);
-                    if(field != null) extractors[id] = () => field.GetValue(null);
-                }
-            }
-        }
-
-        registeredTypes[id] = type;
-        Console.WriteLine($"[DataInput] Registered {type.Name} with ID: {id}");
+    // Get Registered Ids
+    public static List<string> GetRegisteredIds() {
+        List<string> val = extractors.Keys.ToList();
+        return val;
     }
 
     /**
      *
-     * Load
+     * Get Data
      *
      */
-    // Load
-    public static void Load(string id) {
-        if(extractors.TryGetValue(id, out var extractor)) {
-            try {
-                var data = extractor();
-                Data.RegisterData(id, data);
-            } catch(Exception err) {
-                throw new Exception($"DataInput -- Load -- Error: {err}");
-            }
-        }
-    }
-
-    // Load All
-    public static void LoadAll() {
-        foreach(var e in extractors) {
-            try {
-                var data = e.Value();
-                Data.RegisterData(e.Key, data);
-            } catch(Exception err) {
-                throw new Exception($"DataInput -- LoadAll -- Error: {err}");
-            }
-        }
-    }
-
-    /**
-     *
-     * Get
-     *
-     */
-    // Get Data
     public static T GetData<T>(string id) {
         T val = Data.GetData<T>(id);
         return val;
@@ -110,10 +54,37 @@ public static class DataInput {
         return val;
     }
 
-    // Get Registered Ids
-    public static List<string> GetRegisteredIds() {
-        List<string> val = extractors.Keys.ToList();
-        return val;
+    /**
+     *
+     * Register
+     *
+     */
+    private static void Register(Type type) {
+        string id = DataInputAttribute.GenerateId(type);
+        registeredTypes[id] = type;
+
+        var baseMethods = 
+            typeof(DataHandler).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Where(m => m.GetCustomAttribute<DataInjectionAttribute>() != null);
+        foreach(var baseMethod in baseMethods) {
+            var method = type.GetMethod(baseMethod.Name,
+                BindingFlags.Public | BindingFlags.NonPublic |
+                BindingFlags.Static | BindingFlags.Instance);
+            if(method != null) {
+                if(method.IsStatic) {
+                    extractors[id] = () => method.Invoke(null, null);
+                } else {
+                    extractors[id] = () => {
+                        var instance = Activator.CreateInstance(type);
+                        return method.Invoke(instance, null);
+                    };
+
+                    Console.WriteLine($"[DataInput] Registered {type.Name} using method: {baseMethod.Name}");
+
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -127,8 +98,9 @@ public static class DataInput {
             try {
                 var data = extractor();
                 Data.UpdateData(id, data);
+                Console.WriteLine($"[DataInput] Reloaded data: {id}");
             } catch(Exception err) {
-                throw new Exception($"DataInput -- Reload -- Error: {err}");
+                Console.WriteLine($"[DataInput] Error reloading {id}: {err.Message}");
             }
         }
     }
@@ -137,6 +109,37 @@ public static class DataInput {
     public static void ReloadAll() {
         foreach(var e in extractors) {
             Reload(e.Key);
+        }
+    }
+
+    /**
+     *
+     * Load
+     *
+     */
+    // Load
+    public static void Load(string id) {
+        if(extractors.TryGetValue(id, out var extractor)) {
+            try {
+                var data = extractor();
+                Data.RegisterData(id, data);
+                Console.WriteLine($"[DataInput] Loaded data: {id}");
+            } catch(Exception err) {
+                Console.WriteLine($"[DataInput] Error loading {id}: {err.Message}");
+            }
+        }
+    }
+
+    // Load All
+    public static void LoadAll() {
+        foreach(var e in extractors) {
+            try {
+                var data = e.Value();
+                Data.RegisterData(e.Key, data);
+                Console.WriteLine($"[DataInput] Loaded data: {e.Key}");
+            } catch(Exception err) {
+                Console.WriteLine($"[DataInput] Error loading {e.Key}: {err.Message}");
+            }
         }
     }
 
@@ -151,19 +154,14 @@ public static class DataInput {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
         foreach(var assembly in assemblies) {
             try {
-                var types = assembly.GetTypes();
-                foreach(var type in types) {
-                    var attr = type.GetCustomAttribute<DataInputAttribute>();
-                    if(attr != null) {
-                        string id = DataInputAttribute.GenerateId(type);
-                        RegisterTypes(type, id);
-                    }
-                }
+                var types = assembly.GetTypes().Where(t => t.GetCustomAttribute<DataInputAttribute>() != null);
+                foreach(var type in types) Register(type);
             } catch(Exception err) {
-                throw new Exception($"Data Input -- Init -- Error {err}");
+                throw new Exception($"[DataInput] Error scanning assembly: {err.Message}");
             }
         }
 
         initialized = true;
+        Console.WriteLine("[DataInput] Initialized");
     }
 }
