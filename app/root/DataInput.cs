@@ -9,7 +9,7 @@ using NLua;
     */
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class DataInputAttribute : Attribute {
-    public string Id { get; }
+    public string? Id { get; }
 
     public DataInputAttribute() {
         Id = null;
@@ -27,7 +27,7 @@ public class DataInputAttribute : Attribute {
 
     */
 public static class DataInput {
-    private static Dictionary<string, Func<object>> extractors = new();
+    private static Dictionary<string, Func<object?>> extractors = new();
     private static Dictionary<string, Type> registeredTypes = new();
     private static HashSet<object> scanned = new();
     
@@ -44,13 +44,13 @@ public static class DataInput {
      * Get Data
      *
      */
-    public static T GetData<T>(string id) {
-        T val = Data.GetData<T>(id);
+    public static T? GetData<T>(string id) {
+        T? val = Data.GetData<T>(id);
         return val;
     }
 
-    public static object GetData(string id) {
-        object val = Data.GetData(id);
+    public static object? GetData(string id) {
+        object? val = Data.GetData(id);
         return val;
     }
 
@@ -97,7 +97,7 @@ public static class DataInput {
         if(extractors.TryGetValue(id, out var extractor)) {
             try {
                 var data = extractor();
-                Data.UpdateData(id, data);
+                if(data != null) Data.UpdateData(id, data);
                 Console.WriteLine($"[DataInput] Reloaded data: {id}");
             } catch(Exception err) {
                 Console.WriteLine($"[DataInput] Error reloading {id}: {err.Message}");
@@ -122,7 +122,7 @@ public static class DataInput {
         if(extractors.TryGetValue(id, out var extractor)) {
             try {
                 var data = extractor();
-                Data.RegisterData(id, data);
+                if(data != null) Data.RegisterData(id, data);
                 Console.WriteLine($"[DataInput] Loaded data: {id}");
             } catch(Exception err) {
                 Console.WriteLine($"[DataInput] Error loading {id}: {err.Message}");
@@ -135,7 +135,7 @@ public static class DataInput {
         foreach(var e in extractors) {
             try {
                 var data = e.Value();
-                Data.RegisterData(e.Key, data);
+                if(data != null) Data.RegisterData(e.Key, data);
                 Console.WriteLine($"[DataInput] Loaded data: {e.Key}");
             } catch(Exception err) {
                 Console.WriteLine($"[DataInput] Error loading {e.Key}: {err.Message}");

@@ -1,5 +1,6 @@
 namespace App.Root;
-
+using App.Root.Utils;
+using DPath = System.IO.Path;
 using System.Collections;
 using System.Reflection;
 using System.Text.Json;
@@ -11,10 +12,10 @@ using System.Text.Json;
     */
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class DataOutputAttribute : Attribute {
-    public string Path { get; set; }
-    public string Section { get; set; }
+    public string? Path { get; set; }
+    public string? Section { get; set; }
 
-    public DataOutputAttribute(string Path = null, string Section = null) {
+    public DataOutputAttribute(string? Path = null, string? Section = null) {
         this.Path = Path;
         this.Section = Section;
     }
@@ -32,11 +33,18 @@ public static class DataOutput {
      * Data Output Info
      *
      */
-    private class DataOutputInfo {
+    public class DataOutputInfo {
         public Type Type { get; set; }
-        public string Path { get; set; }
         public string Section { get; set; }
         public string Id { get; set; }
+        public string Path { get; set; }
+
+        public DataOutputInfo(Type Type, string Path, string Section, string Id) {
+            this.Type = Type;
+            this.Section = Section;
+            this.Id = Id;
+            this.Path = DPath.Combine(AppDomain.CurrentDomain.BaseDirectory, Path);
+        }
     }
 
     /**
@@ -102,14 +110,14 @@ public static class DataOutput {
 
     // Save Data
     public static void SaveData(DataOutputInfo info, object data) {
-        string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, info.Path);
-        string directory = Path.GetDirectoryName(fullPath);
-        if(!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+        string path = info.Path;
+        string? directory = DPath.GetDirectoryName(path);
+        if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
         Dictionary<string, object> existingData = new();
-        if(File.Exists(fullPath)) {
+        if(File.Exists(path)) {
             try {
-                string text = File.ReadAllText(fullPath);
+                string text = File.ReadAllText(path);
                 existingData = JsonSerializer.Deserialize<Dictionary<string, object>>(text) ?? new Dictionary<string, object>();
             } catch(Exception err) {
                 throw new Exception($"DataOutput -- SaveData -- Error: {err}");
@@ -117,10 +125,10 @@ public static class DataOutput {
         }
 
         var serializedData = SerializeData(data);
-        existingData[info.Section] = serializedData;
+        if(serializedData != null) existingData[info.Section] = serializedData;
 
         string outputText = JsonSerializer.Serialize(existingData, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(fullPath, outputText);
+        File.WriteAllText(path, outputText);
         Console.WriteLine($"[DataOutput] Saved {info.Id} to {info.Path}:{info.Section}");
     }
 
@@ -129,19 +137,19 @@ public static class DataOutput {
      * Serialize
      *
      */
-    private static object SerializeData(object data) {
+    private static object? SerializeData(object data) {
         if(data == null || data.GetType().IsPrimitive || data is string) {
             return data;
         }
 
         if(data is IEnumerable en) {
             var list = new List<object>();
-            foreach(var item in en) list.Add(SerializeData(item));
+            foreach(var item in en) list.Add(SerializeData(item)!);
             return list;
         }
         if(data is IDictionary<string, object> dict) {
             var res = new Dictionary<string, object>();
-            foreach(var d in dict) res[d.Key] = SerializeData(d.Value);
+            foreach(var d in dict) res[d.Key] = SerializeData(d.Value)!;
             return res;
         }
 
@@ -151,7 +159,7 @@ public static class DataOutput {
         foreach(var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
             try {
                 var val = prop.GetValue(data);
-                resDict[prop.Name.ToLower()] = SerializeData(val);
+                if(val != null) resDict[prop.Name.ToLower()] = SerializeData(val)!;
             } catch(Exception err) {
                 throw new Exception($"DataOutput -- Serialize Data -- Error {err}");
             }
@@ -159,7 +167,7 @@ public static class DataOutput {
         foreach(var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance)) {
             try {
                 var val = field.GetValue(data);
-                resDict[field.Name.ToLower()] = SerializeData(val);
+                if(val != null) resDict[field.Name.ToLower()] = SerializeData(val)!;
             } catch(Exception err) {
                 throw new Exception($"DataOutput -- Serialize Data -- Error {err}");
             }
@@ -173,50 +181,50 @@ public static class DataOutput {
      * Deserialize
      *
      */
-    private static object DeserializeData(object data, Type targetType) {
+    private static object? DeserializeData(object data, Type targetType) {
         if(data == null) return null;
 
         if(targetType.IsPrimitive || targetType == typeof(string)) {
             return Convert.ChangeType(data, targetType);
         }
+
         if(targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(List<>)) {
-            var elType = targetType.GetGenericArguments()[0];
-            var list = Activator.CreateInstance(targetType);
-            var addMethod = targetType.GetMethod("Add");
+            var elementType = targetType.GetGenericArguments()[0];
+            var convertedItems = new List<object>();
 
             if(data is IEnumerable en) {
                 foreach(var item in en) {
-                    var converted = DeserializeData(item, elType);
-                    addMethod?.Invoke(list, new[] { converted });
+                    var converted = DeserializeData(item, elementType);
+                    convertedItems.Add(converted!);
                 }
             }
 
-            return list;
+            return CollectionFactory.CreateList(elementType, convertedItems);
         }
         if(targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
-            var dict = Activator.CreateInstance(targetType);
-            var addMethod = targetType.GetMethod("Add");
+            var keyType = targetType.GetGenericArguments()[0];
+            var valueType = targetType.GetGenericArguments()[1];
 
             if(data is IDictionary<string, object> dictData) {
-                var valueType = targetType.GetGenericArguments()[1];
+                var convertedDict = new Dictionary<string, object>();
                 foreach(var d in dictData) {
                     var converted = DeserializeData(d.Value, valueType);
-                    addMethod?.Invoke(dict, new[] { d.Key, converted });
+                    convertedDict[d.Key] = converted!;
                 }
-            }
 
-            return dict;
+                return CollectionFactory.CreateDictionary(keyType, valueType, convertedDict);
+            }
         }
         if(data is IDictionary<string, object> objData) {
             var instance = Activator.CreateInstance(targetType);
-
+            
             foreach(var prop in targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
                 if(objData.TryGetValue(prop.Name.ToLower(), out var val)) {
                     try {
                         var converted = DeserializeData(val, prop.PropertyType);
                         prop.SetValue(instance, converted);
                     } catch(Exception err) {
-                        throw new Exception($"DataOutput -- Deserialize Data -- Error {err}");
+                        throw new Exception($"DataOutput -- Deserialize Data -- Error {err.Message}");
                     }
                 }
             }
@@ -226,7 +234,7 @@ public static class DataOutput {
                         var converted = DeserializeData(val, field.FieldType);
                         field.SetValue(instance, converted);
                     } catch(Exception err) {
-                        throw new Exception($"DataOutput -- Deserialize Data -- Error {err}");
+                        throw new Exception($"DataOutput -- Deserialize Data -- Error {err.Message}");
                     }
                 }
             }
@@ -253,21 +261,16 @@ public static class DataOutput {
                     var attr = type.GetCustomAttribute<DataOutputAttribute>();
                     if(attr != null) {
                         string id = DataInputAttribute.GenerateId(type);
-                        string path = attr.Path;
-                        string section = attr.Section;
+                        string path = attr.Path!;
+                        string section = attr.Section!;
 
-                        outputRegistry[id] = new DataOutputInfo {
-                            Type = type,
-                            Path = path,
-                            Section = section,
-                            Id = id
-                        };
+                        outputRegistry[id] = new DataOutputInfo(type, path, section, id);
 
                         Console.WriteLine($"[DataOutput] Registered {type.Name} with ID: {id} -> {path}:{section}");
                     }
                 }
             } catch(Exception err) {
-                throw new Exception($"DataOutput -- Init -- Error {err}");
+                throw new Exception($"DataOutput -- Init -- Error {err.Message}");
             }
         }
 
@@ -297,11 +300,11 @@ public static class DataOutput {
 
             if(allData != null && allData.TryGetValue(info.Section, out var sectionData)) {
                 var convertedData = DeserializeData(sectionData, info.Type);
-                Data.RegisterData(id, convertedData);
+                if(convertedData != null) Data.RegisterData(id, convertedData);
                 Console.WriteLine($"[DataOutput] Loaded {id} from {info.Path}:{info.Section}");
             }
         } catch(Exception err) {
-            throw new Exception($"DataOutput -- Load {id} -- Error {err}");
+            throw new Exception($"DataOutput -- Load {id} -- Error {err.Message}");
         }
     }
 }
