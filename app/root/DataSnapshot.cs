@@ -24,10 +24,10 @@ class DataSnapshot {
         foreach(var (type, list) in data) {
             converted[type] = list.Select(entry =>
                 entry.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value is JsonElement je ? 
+                    e => e.Key,
+                    e => e.Value is JsonElement je ? 
                         convertEl(je) : 
-                        kvp.Value 
+                        e.Value 
                 )
             ).ToList();
         }

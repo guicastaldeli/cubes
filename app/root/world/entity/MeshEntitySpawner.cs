@@ -751,7 +751,7 @@ class MeshEntitySpawner {
             MeshCollider.removeInstanced(colliderId);
 
             string meshType = entityIdToMeshType.TryGetValue(entityId, out var t) ? t : entityId;
-            var allInstances = instances.Where(kvp => entityIdToMeshType.TryGetValue(kvp.Key, out var mt) && mt == meshType).SelectMany(kvp => kvp.Value).ToList();
+            var allInstances = instances.Where(type => entityIdToMeshType.TryGetValue(type.Key, out var mt) && mt == meshType).SelectMany(type => type.Value).ToList();
             syncData(meshType, allInstances);
 
             streamUsed = true;

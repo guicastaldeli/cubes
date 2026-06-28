@@ -418,9 +418,9 @@ class Mode {
         }
 
         PlayerMesh playerMesh = playerController.getPlayerMesh();
-        foreach(var kvp in playerMesh.armMeshIds) {
-            if(kvp.Value == null) continue;
-            playerMesh.updateArmPosition(kvp.Key, kvp.Value);
+        foreach(var id in playerMesh.armMeshIds) {
+            if(id.Value == null) continue;
+            playerMesh.updateArmPosition(id.Key, id.Value);
         }
 
         foreach(var slot in Enum.GetValues<Slot>()) {

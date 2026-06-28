@@ -37,11 +37,7 @@ class PacketReassember {
         byte[] payloadBytes = Convert.FromBase64String(chunk.payload);
         buffer.chunks[chunk.chunkIndex] = payloadBytes;
         if(buffer.chunks.Count == buffer.totalChunks) {
-            var ordered = buffer.chunks
-                .OrderBy(kvp => kvp.Key)
-                .SelectMany(kvp => kvp.Value)
-                .ToArray();
-
+            var ordered = buffer.chunks.OrderBy(buff => buff.Key).SelectMany(buff => buff.Value).ToArray();
             buffers.TryRemove(chunk.packetId, out _);
 
             string reassembled = Encoding.UTF8.GetString(ordered);
@@ -56,8 +52,8 @@ class PacketReassember {
     public void cleanupStale() {
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var stale = buffers
-            .Where(kvp => now - kvp.Value.createdAt > BUFFER_TIMEOUT_MS)
-            .Select(kvp => kvp.Key)
+            .Where(buff => now - buff.Value.createdAt > BUFFER_TIMEOUT_MS)
+            .Select(buff => buff.Key)
             .ToList();
         foreach(var key in stale) {
             if(buffers.TryRemove(key, out var buffer)) {
