@@ -1,4 +1,6 @@
 namespace App.Root.World.Platform;
+
+using System.Reflection;
 using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
@@ -18,24 +20,142 @@ using OpenTK.Mathematics;
 [DataOutput(Path: "player_storage.ps")]
 public static class PlatformThemes {
     public class Theme {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Movement { get; set; }
-        public string Audio { get; set; }
-        public string Top { get; set; }
-        public string Particles { get; set; }
-        public string Texture { get; set; }
-        public Dictionary<string, object> Custom { get; set; }
+        [Convert("int32")] [ConverterKey("id")] public int? Id { get; set; }
+        [Convert("string")] [ConverterKey("name")] public string? Name { get; set; }
+        [Convert("string")] [ConverterKey("movement")] public string? Movement { get; set; }
+        [Convert("string")] [ConverterKey("audio")] public string? Audio { get; set; }
+        [Convert("string")] [ConverterKey("top")] public string? Top { get; set; }
+        [Convert("string")] [ConverterKey("particles")] public string? Particles { get; set; }
+        [Convert("string")] [ConverterKey("texture")] public string? Texture { get; set; }
 
-        public Theme() {
-            Custom = new Dictionary<string, object>();
-        }
+        public Theme() {}
     }
     
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/platform/themes/PlatformThemes.lua");
 
     private static Lua data = null!;
-    private static List<Theme> themes = null!; 
+    private static List<Theme> themes = null!;
+
+    private static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
+        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+        .Where(m => m.GetCustomAttribute<ConverterKey>() != null)
+        .ToDictionary(
+            m => m.GetCustomAttribute<ConverterKey>()!.Key,
+            m => m
+        );
+
+    private static readonly Dictionary<string, FieldInfo> themeFields = typeof(Theme)
+        .GetFields(BindingFlags.Public | BindingFlags.Instance)
+        .Where(t => t.GetCustomAttribute<ConverterKey>() != null)
+        .ToDictionary(
+            t => t.GetCustomAttribute<ConverterKey>()!.Key,
+            t => t
+        );
+
+    // Has Data
+    public static bool HasData() {
+        bool val = themes != null && themes.Count > 0;
+        return val;
+    }
+
+    // Get Themes
+    public static List<Theme> GetThemes() {
+        if(themes == null) ExtractData();
+        
+        List<Theme> val = themes ?? new List<Theme>();
+        return val;
+    }
+
+    // Get Theme
+    public static Theme GetTheme(int id) {
+        Theme val = GetThemes().FirstOrDefault(t => t.Id == id)!;
+        return val;
+    }
+
+    public static Theme GetTheme(string name) {
+        Theme val = GetThemes().FirstOrDefault(t => t.Name == name)!;
+        return val;
+    }
+    
+    /**
+     *
+     * Extract Data
+     *
+     */
+    public static object ExtractData() {
+        if(themes != null) return themes;
+
+        Load();
+        themes = new List<Theme>();
+        if(data == null) return themes;
+
+        try {
+            var themesData = data["Themes"] as LuaTable;
+            if(themesData == null) {
+                Console.WriteLine("[PlatformThemes] Themes table not found!");
+                return themes;
+            }
+
+            foreach(var key in themesData.Keys) {
+                var themeData = themesData[key] as LuaTable;
+                if(themeData != null) {
+                    var theme = new Theme();
+
+                    foreach(var field in themeFields) {
+                        var k = field.Key;
+                        var val = field.Value;
+
+                        var converter = converters.TryGetValue(k, out var c);
+                        if(c != null) {
+                            var converted = c.Invoke(null, new[] { val });
+                            val.SetValue(theme, converted);
+                        }
+                    }
+
+                    themes.Add(theme);
+                }
+            }
+
+            Console.WriteLine($"ExtractData() -- [PlatformThemes] Extracted {themes.Count}");
+        } catch(Exception err) {
+            throw new Exception($"ExtractData() -- [PlatformThemes] Error: {err.Message}");
+        }
+
+        return themes;
+    }
+
+    /**
+     *
+     * Save Data
+     *
+     */
+    public static void SaveData(object data) {
+        if(data is List<Theme> t) {
+            themes = t;
+            Console.WriteLine($"SaveData() -- [PlatformThemes] Saved {themes?.Count ?? 0} themes");
+        }
+    }
+
+    /**
+     *
+     * Load
+     *
+     */
+    private static void Load() {
+        if(data != null) return;
+
+        if(!File.Exists(DATA_PATH)) {
+            Console.WriteLine($"[PlatformThemes] File not found: {DATA_PATH}");
+            return;
+        }
+
+        data = new Lua();
+
+        string originalDir = Directory.GetCurrentDirectory();
+        Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+        data.DoFile(DATA_PATH);
+        Directory.SetCurrentDirectory(originalDir);
+    }
 }
 
 /**

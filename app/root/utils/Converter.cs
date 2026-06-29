@@ -10,7 +10,7 @@ namespace App.Root.Utils;
     Converter Attribute
 
     */
-[AttributeUsage(AttributeTargets.Field)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class ConvertAttribute : Attribute {
     public string Converter { get; }
 
@@ -19,7 +19,7 @@ public class ConvertAttribute : Attribute {
     }
 }
 
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
 public class ConverterKey : Attribute {
     public string Key { get; }
 
@@ -39,8 +39,8 @@ public static class Converter {
      * To Int
      *
      */
-    [ConverterKey("int")]
-    public static int ToInt(object i) {
+    [ConverterKey("int32")]
+    public static int ToInt32(object i) {
         int val = Convert.ToInt32(i);
         return val;
     }
@@ -94,8 +94,8 @@ public static class Converter {
      * To Long
      *
      */
-    [ConverterKey("long")]
-    public static long ToLong(object l) {
+    [ConverterKey("int64")]
+    public static long ToInt64(object l) {
         long val = Convert.ToInt64(l);
         return val;
     }
