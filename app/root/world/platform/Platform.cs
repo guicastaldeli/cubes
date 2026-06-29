@@ -6,6 +6,7 @@ using App.Root.Mesh;
 using App.Root.Physics;
 using App.Root.Player;
 using App.Root.Utils;
+using NLua;
 using OpenTK.Mathematics;
 
 /**
@@ -14,9 +15,27 @@ using OpenTK.Mathematics;
 
     */
 [DataInput]
-[DataOutput(Path: "root/.INFO-DATA/player_storage.ps")]
+[DataOutput(Path: "player_storage.ps")]
 public static class PlatformThemes {
+    public class Theme {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Movement { get; set; }
+        public string Audio { get; set; }
+        public string Top { get; set; }
+        public string Particles { get; set; }
+        public string Texture { get; set; }
+        public Dictionary<string, object> Custom { get; set; }
+
+        public Theme() {
+            Custom = new Dictionary<string, object>();
+        }
+    }
     
+    private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/platform/themes/PlatformThemes.lua");
+
+    private static Lua data = null!;
+    private static List<Theme> themes = null!; 
 }
 
 /**

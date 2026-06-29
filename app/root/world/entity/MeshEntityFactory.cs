@@ -7,7 +7,6 @@ namespace App.Root.World.Entity;
 using App.Root.Chunk;
 using App.Root.Mesh;
 using App.Root.Resource;
-using App.Root.Utils;
 using OpenTK.Mathematics;
 
 /**
@@ -29,74 +28,6 @@ public record EntityProps(
     bool? IsEntity,
     int Xp = 0
 );
-
-/**
-
-    Converter Helper...
-
-    */
-public static class Converter {
-    /**
-     * 
-     * To Rgba
-     *
-     */
-    [ConverterKey("rgba")]
-    public static float[] ToRgba(string hex) {
-        var (r, g, b) = HexToRgb.C(hex);
-        float a = 1.0f;
-
-        float[] val = new float[] { r, g, b, a };
-        return val;
-    }
-
-    /**
-     * 
-     * To Rgba List
-     *
-     */
-    [ConverterKey("rgbaList")]
-    public static List<float[]> ToRgbaList(string hex, int count) {
-        var (r, g, b) = HexToRgb.C(hex);
-        float a = 1.0f;
-        float[] rgba = new float[] { r, g, b, a };
-
-        List<float[]> val = Enumerable.Repeat(rgba, count).ToList();
-        return val;
-    }
-
-    /**
-     * 
-     * To Rotation List
-     *
-     */
-    [ConverterKey("rotationList")]
-    public static List<float> ToRotationList(float rotation, int count) {
-        List<float> val = Enumerable.Repeat(rotation, count).ToList();
-        return val;
-    }
-
-    /**
-     * 
-     * To Texture
-     *
-     */
-    // Tex Path
-    [ConverterKey("texPath")]
-    public static List<string?> ToTexPath(string? texPath, int count) {
-        List<string?> val = Enumerable.Repeat(texPath, count).ToList();
-        return val;
-    }
-
-    // Tex Id
-    [ConverterKey("texId")]
-    public static List<int>? ToTexId(int? texId, int count) {
-        if(texId == null) return null;
-        
-        List<int> val = Enumerable.Repeat(texId.Value, count).ToList();
-        return val;
-    }
-}
 
 /**
 

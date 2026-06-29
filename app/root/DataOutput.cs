@@ -44,11 +44,13 @@ public static class DataOutput {
         public string Id { get; set; }
         public string Path { get; set; }
 
+        private string PATH_DIR = DPath.GetFullPath(DPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "root", ".INFO-DATA"));
+
         public DataOutputInfo(Type Type, string Path, string Section, string Id) {
             this.Type = Type;
             this.Section = Section;
             this.Id = Id;
-            this.Path = DPath.Combine(AppDomain.CurrentDomain.BaseDirectory, Path);
+            this.Path = DPath.Combine(PATH_DIR, Path);
         }
     }
 
