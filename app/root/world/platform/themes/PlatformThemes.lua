@@ -57,4 +57,29 @@ Themes = {
         name = "TEST_3",
         texture = "test3"
     }),
+    Theme:new({
+        id = -4,
+        name = "TEST_4",
+        texture = "test4"
+    }),
+    Theme:new({
+        id = -5,
+        name = "TEST_5",
+        texture = "test5"
+    }),
+    Theme:new({
+        id = -6,
+        name = "TEST_6",
+        texture = "test6"
+    }),
+    Theme:new({
+        id = -7,
+        name = "TEST_7",
+        texture = "test7"
+    }),
+    Theme:new({
+        id = -8,
+        name = "TEST_8",
+        texture = "test8"
+    }),
 }

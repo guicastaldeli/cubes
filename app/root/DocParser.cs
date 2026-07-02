@@ -70,6 +70,7 @@ class DocParser {
         string d, 
         string e, 
         string repeat, 
+        string grid,
         string loop,
         string idx,
         string testLoop
@@ -80,44 +81,11 @@ class DocParser {
         @"\{(\w+)\|([^}]*)\}",
         @"\{([a-zA-Z_][a-zA-Z0-9_]*)(\.[a-zA-Z0-9_]+)?\}",
         @"^'(.*?)'\.repeat\((\d+)\)$",
+        @"\{#grid\((\d+),(\d+)\)\}",  // <-- Grid pattern
         @"\{#foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}([\s\S]*?)\{#end\}",
         @"\{([^{}]+?)\}(?:%)?",
         @"{#foreach\s+[a-zA-Z_][a-zA-Z0-9_]*\s+as\s+[a-zA-Z_][a-zA-Z0-9_]*\}([\s\S]*?){#end\}"
     );
-
-    // Split Instance Name
-    private static List<string>? splitInstanceName(string name, List<string> names) {
-        var result = new List<string>();
-
-        string remaning = name.ToLower();
-        while(remaning.Length > 0) {
-            string? match = names.FirstOrDefault(k => remaning.StartsWith(k));
-            if(match == null) return null;
-
-            result.Add(match);
-            remaning = remaning[match.Length..];
-        }
-
-        return result;
-    }
-
-    // Get Property Value
-    private static object? GetPropertyValue(object obj, string path) {
-        if(obj == null || string.IsNullOrEmpty(path)) return null;
-
-        var parts = path.Split('.');
-        object curr = obj;
-
-        foreach(var part in parts) {
-            if(curr == null) return null;
-
-            var prop = curr.GetType().GetProperty(part);
-            if(prop == null) return null;
-            curr = prop.GetValue(curr)!;
-        }
-
-        return curr;
-    }
 
     /**
      * 
@@ -177,6 +145,17 @@ class DocParser {
     private static string resolveWithLoop(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
+        int currentGridCols = 0;
+        int currentGridRows = 0;
+        bool hasGrid = false;
+
+        text = Regex.Replace(text, Exp.grid, match => {
+            currentGridCols = int.Parse(match.Groups[1].Value);
+            currentGridRows = int.Parse(match.Groups[2].Value);
+            hasGrid = true;
+            return "";
+        });
+
         text = Regex.Replace(text, Exp.loop, match => {
             string collectionName = match.Groups[1].Value;
             string itemName = match.Groups[2].Value;
@@ -185,6 +164,9 @@ class DocParser {
         
             var list = collObj as IList;
             if(list == null || list.Count == 0) return "";
+
+            int cols = currentGridCols > 0 ? currentGridCols : 0;
+            int rows = currentGridRows > 0 ? currentGridRows : 0;
 
             var result = new StringBuilder();
 
@@ -196,6 +178,7 @@ class DocParser {
 
                 loopContext[itemName] = item;
                 loopContext[idx] = i;
+                if(hasGrid) calculateGrid(i, currentGridCols, currentGridRows);
 
                 var resolved = resolveWithLoopContext(template);
                 resolved = resolveExpressions(resolved);
@@ -203,7 +186,11 @@ class DocParser {
 
                 loopContext.Remove(itemName);
                 loopContext.Remove(idx);
+                removeGrid();
             }
+
+            currentGridCols = 0;
+            currentGridRows = 0;
 
             return result.ToString();
         }, RegexOptions.Singleline);
@@ -1399,5 +1386,69 @@ class DocParser {
 
         double val = Convert.ToDouble(result);
         return val;
+    }
+
+    // Split Instance Name
+    private static List<string>? splitInstanceName(string name, List<string> names) {
+        var result = new List<string>();
+
+        string remaning = name.ToLower();
+        while(remaning.Length > 0) {
+            string? match = names.FirstOrDefault(k => remaning.StartsWith(k));
+            if(match == null) return null;
+
+            result.Add(match);
+            remaning = remaning[match.Length..];
+        }
+
+        return result;
+    }
+
+    // Get Property Value
+    private static object? GetPropertyValue(object obj, string path) {
+        if(obj == null || string.IsNullOrEmpty(path)) return null;
+
+        var parts = path.Split('.');
+        object curr = obj;
+
+        foreach(var part in parts) {
+            if(curr == null) return null;
+
+            var prop = curr.GetType().GetProperty(part);
+            if(prop == null) return null;
+            curr = prop.GetValue(curr)!;
+        }
+
+        return curr;
+    }
+
+    // Calculate Grid
+    private static void calculateGrid(int i, int cols, int rows) {
+        float f = 100.0f;
+
+        int row = i / cols;
+        int col = i % cols;
+
+        Console.WriteLine($"Item {i}: row={row}, col={col}");
+
+        loopContext["col"] = col;
+        loopContext["cols"] = cols;
+        loopContext["row"] = row;
+        loopContext["rows"] = rows;
+
+        float x = (col * f / cols) + (f / cols / 2);
+        float y = (row * f / rows) + (f / rows / 2);
+        loopContext["x"] = x;
+        loopContext["y"] = y;
+    }
+
+    // Remove Grid
+    private static void removeGrid() {
+        loopContext.Remove("row");
+        loopContext.Remove("rows");
+        loopContext.Remove("col");
+        loopContext.Remove("cols");
+        loopContext.Remove("x");
+        loopContext.Remove("y");
     }
 }
