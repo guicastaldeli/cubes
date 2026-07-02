@@ -17,7 +17,7 @@
             {#foreach platformthemes as theme}
                 <div 
                     id="theme_{theme.Id}" 
-                    x="2%" y="2%" 
+                    x="{index * 11 + 2}%" y="2%" 
                     width="10%" height="20%" 
                     background="0.15,0.15,0.25,0.9" 
                     hoverable="true" 

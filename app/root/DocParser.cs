@@ -3,15 +3,51 @@ using App.Root.Resource;
 using App.Root.Shaders;
 using App.Root.Text;
 using App.Root.UI;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using OpenTK.Graphics.OpenGL;
 using System.Collections;
+using System.Data;
 
+/**
+
+    Source helper class
+
+    */
+public class Source {
+    public enum SourceType {
+        File,
+        String
+    }
+
+    public string Content { get; set; }
+    public SourceType Type { get; set; }
+
+    private Source(string Content, SourceType Type) {
+        this.Content = Content;
+        this.Type = Type;
+    }
+
+    public static Source FromFile(string path) {
+        Source val = new Source(path, SourceType.File);
+        return val;
+    }
+
+    public static Source FromString(string content) {
+        Source val = new Source(content, SourceType.String);
+        return val;
+    }
+}
+
+/**
+
+    Doc Parser main class
+
+    */
 class DocParser {
     public static readonly string IMG_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/");
 
@@ -27,14 +63,26 @@ class DocParser {
     private static readonly int WINDOW_WIDTH = Window.WIDTH;
     private static readonly int WINDOW_HEIGHT = Window.HEIGHT;
 
-    private static readonly (string a, string b, string c, string d, string e, string repeat, string loop) Exp = (
+    private static readonly (
+        string a, 
+        string b, 
+        string c, 
+        string d, 
+        string e, 
+        string repeat, 
+        string loop,
+        string idx,
+        string testLoop
+    ) Exp = (
         @"\$\{(.*?)\}",
         @"\{(\w+)\}",
         @"\{(\d+)\}\{(\w+)\}",
         @"\{(\w+)\|([^}]*)\}",
         @"\{([a-zA-Z_][a-zA-Z0-9_]*)(\.[a-zA-Z0-9_]+)?\}",
         @"^'(.*?)'\.repeat\((\d+)\)$",
-        @"\{#foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}(.*?)\{#end\}"
+        @"\{#foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}([\s\S]*?)\{#end\}",
+        @"\{([^{}]+?)\}(?:%)?",
+        @"{#foreach\s+[a-zA-Z_][a-zA-Z0-9_]*\s+as\s+[a-zA-Z_][a-zA-Z0-9_]*\}([\s\S]*?){#end\}"
     );
 
     // Split Instance Name
@@ -94,6 +142,7 @@ class DocParser {
      * Resolve
      *
      */
+    // Resolve
     public static string Resolve(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
@@ -115,6 +164,7 @@ class DocParser {
         return text;
     }
 
+    // Loop Resolve
     public static string LResolve(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
@@ -143,11 +193,12 @@ class DocParser {
                 if(item == null) continue;
 
                 string idx = "index";
-                
+
                 loopContext[itemName] = item;
                 loopContext[idx] = i;
 
                 var resolved = resolveWithLoopContext(template);
+                resolved = resolveExpressions(resolved);
                 result.Append(resolved);
 
                 loopContext.Remove(itemName);
@@ -155,7 +206,7 @@ class DocParser {
             }
 
             return result.ToString();
-        });
+        }, RegexOptions.Singleline);
 
         return text;
     }
@@ -196,21 +247,29 @@ class DocParser {
         });
     }
 
+    // Resolve Imports
     private static void resolveImports(XmlElement root, string filePath) {
-        string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory);
+        (string a, string b, string c, string d) Imp = (
+            "<?xml",
+            "<",
+            ".//import",
+            "src"
+        );
 
-        var imports = root.SelectNodes(".//import")?.Cast<XmlNode>().ToList();
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+        var imports = root.SelectNodes(Imp.c)?.Cast<XmlNode>().ToList();
         if(imports == null) return;
 
         foreach(XmlNode node in imports) {
             if(node is not XmlElement importEl) continue;
 
-            string src = importEl.GetAttribute("src");
+            string src = importEl.GetAttribute(Imp.d);
             string importPath = Path.Combine(baseDir, src);
 
             if(!File.Exists(importPath)) {
                 Console.Error.WriteLine($"Import not found!: {importPath}");
-                root.RemoveChild(importEl);
+                importEl?.ParentNode?.RemoveChild(importEl);
                 continue;
             }
 
@@ -226,7 +285,7 @@ class DocParser {
 
                 if(imported is XmlElement importedEl) {
                     foreach(XmlAttribute attr in importEl.Attributes) {
-                        if(attr.Name == "src") continue;
+                        if(attr.Name == Imp.d) continue;
                         importedEl.SetAttribute(attr.Name, attr.Value);
                     }
                 }
@@ -234,11 +293,12 @@ class DocParser {
                 parent.InsertBefore(imported, importEl);
             }
 
-            parent.RemoveChild(importEl);
-           // Console.WriteLine($"Importing: {importPath} exists: {File.Exists(importPath)}");
+            importEl?.ParentNode?.RemoveChild(importEl);
+            // Console.WriteLine($"Importing: {importPath} exists: {File.Exists(importPath)}");
         }
     }
 
+    // Resolve Instance
     private static void resolveInstance(XmlElement root) {
         var current = Controller.getCurrent();
         var instances = Controller.getInstances();
@@ -271,16 +331,99 @@ class DocParser {
         }
     }
 
+    // Resolve Expressions
+    private static string resolveExpressions(string text) {
+        (string idx, string a, string b, string c, string d, string e) Dict = (
+            "index",
+            "+",
+            "-",
+            "*",
+            "/",
+            "%"
+        );
+
+        if(string.IsNullOrEmpty(text)) return text;
+
+        return Regex.Replace(text, Exp.idx, match => {
+            string fullMatch = match.Value;
+            string exp = match.Groups[1].Value.Trim();
+            bool hasPercent = fullMatch.EndsWith(Dict.e);
+            
+            if(loopContext.TryGetValue(exp, out var val)) {
+                string result = val?.ToString() ?? "";
+                return hasPercent ? result + Dict.e : result;
+            }
+
+            if(exp.Contains(Dict.a) || 
+                exp.Contains(Dict.b) || 
+                exp.Contains(Dict.c) || 
+                exp.Contains(Dict.idx)) {
+                try {
+                    if(loopContext.TryGetValue(Dict.idx, out var i)) {
+                        exp = exp.Replace(Dict.idx, i?.ToString() ?? "");
+                    }
+
+                    foreach(var l in loopContext) {
+                        if(l.Key != Dict.idx && l.Value != null) {
+                            exp = exp.Replace(l.Key, l.Value.ToString() ?? "");
+                        }   
+                    }
+                        
+                    var result = evaluateExpressionData(exp);
+                    string resultStr = result.ToString();
+
+                    return hasPercent ? resultStr + Dict.e : resultStr;
+                } catch {
+                    return match.Value;
+                }
+            }
+
+            return match.Value;
+        });
+    }
+
     /**
      * 
      * Parse
      *
      */
-    public static ScreenData parseScreen(string filePath, int screenWidth, int screenHeight) {
-        ScreenData screenData = new ScreenData(filePath);
+    // Parse Screen
+    public static ScreenData parseScreen(Source source, int screenWidth, int screenHeight) {
+        ScreenData screenData = new ScreenData(source.Content);
+        
         try {
             XmlDocument document = new XmlDocument();
-            document.Load(filePath);
+            if(source.Type == Source.SourceType.String) {
+                document.LoadXml(source.Content);
+            } else {
+                document.Load(source.Content);
+            }
+
+            XmlElement root = document.DocumentElement!;
+            resolveInstance(root);
+            resolveImports(root, source.Content);
+
+            screenData.screenType = root.Name;
+            parseAttr(root, screenData.screenAttr);
+            parseEl(root, screenData.elements, screenWidth, screenHeight, null);
+        } catch(Exception err) {
+            Console.Error.WriteLine("Error parsing screen XML (Source): " + err.Message);
+        }
+        
+        return screenData;
+    }
+
+    public static ScreenData parseScreen(string filePath, int screenWidth, int screenHeight) {
+        ScreenData screenData = new ScreenData(filePath);
+
+        try {
+            string content = File.ReadAllText(filePath);
+            bool hasLoop = Regex.IsMatch(content, Exp.testLoop);
+            
+            string resolvedContent = hasLoop ? LResolve(content) : content;
+            
+            XmlDocument document = new XmlDocument();
+            document.LoadXml(resolvedContent);
 
             XmlElement root = document.DocumentElement!;
             resolveInstance(root);
@@ -290,16 +433,51 @@ class DocParser {
             parseAttr(root, screenData.screenAttr);
             parseEl(root, screenData.elements, screenWidth, screenHeight, null);
         } catch(Exception err) {
-            Console.Error.WriteLine("Error parsing screen XML: " + err.Message);
+            if(!Regex.IsMatch(File.ReadAllText(filePath), Exp.testLoop)) {
+                Console.Error.WriteLine("Error parsing screen XML (filePath): " + err.Message);
+            }
         }
+
         return screenData;
+    }
+
+    // Parse UI
+    public static UIData parseUI(Source source, int screenWidth, int screenHeight) {
+        UIData uiData = new UIData(source.Content);
+        
+        try {
+            XmlDocument document = new XmlDocument();
+            if(source.Type == Source.SourceType.String) {
+                document.LoadXml(source.Content);
+            } else {
+                document.Load(source.Content);
+            }
+
+            XmlElement root = document.DocumentElement!;
+            resolveInstance(root);
+            resolveImports(root, source.Content);
+
+            uiData.uiType = root.Name;
+            parseAttr(root, uiData.uiAttr);
+            parseEl(root, uiData.elements, screenWidth, screenHeight, null);
+        } catch(Exception err) {
+            Console.Error.WriteLine("Error parsing UI XML (Source): " + err.Message);
+        }
+
+        return uiData;
     }
 
     public static UIData parseUI(string filePath, int screenWidth, int screenHeight) {
         UIData uiData = new UIData(filePath);
+        
         try {
+            string content = File.ReadAllText(filePath);
+            bool hasLoop = Regex.IsMatch(content, Exp.testLoop);
+            
+            string resolvedContent = hasLoop ? LResolve(content) : content;
+            
             XmlDocument document = new XmlDocument();
-            document.Load(filePath);
+            document.LoadXml(resolvedContent);
 
             XmlElement root = document.DocumentElement!;
             resolveInstance(root);
@@ -309,11 +487,15 @@ class DocParser {
             parseAttr(root, uiData.uiAttr);
             parseEl(root, uiData.elements, screenWidth, screenHeight, null);
         } catch(Exception err) {
-            Console.Error.WriteLine("Error parsing UI XML: " + err.Message);
+            if(!Regex.IsMatch(File.ReadAllText(filePath), Exp.testLoop)) {
+                Console.Error.WriteLine("Error parsing screen XML (filePath): " + err.Message);
+            }
         }
+        
         return uiData;
     }
 
+    // Parse Element
     private static void parseEl(
         XmlElement parent,
         List<ScreenElement> elements,
@@ -364,12 +546,14 @@ class DocParser {
         }
     }
 
+    // Parse Attribute
     private static void parseAttr(XmlElement element, Dictionary<string, string> attributes) {
         foreach(XmlAttribute attr in element.Attributes) {
             attributes[attr.Name] = attr.Value;
         }
     }
 
+    // Parse Size
     private static int parseSize(XmlElement element, string attrName, int currentScreenSize, int originalScreenSize, int defaultValue) {
         if(!element.HasAttribute(attrName)) return defaultValue;
 
@@ -386,6 +570,7 @@ class DocParser {
         }
     }
 
+    // Parse Coordinate
     private static int parseCoordinate(XmlElement element, string attrName, int currentScreenSize, int originalScreenSize) {
         if(!element.HasAttribute(attrName)) return 0;
 
@@ -400,6 +585,7 @@ class DocParser {
         }
     }
 
+    // Parse Color
     private static float[]? parseColor(string? colorStr) {
         if(string.IsNullOrWhiteSpace(colorStr)) return null;
 
@@ -415,15 +601,23 @@ class DocParser {
         return null;
     }
 
-    
-    public static List<ScreenElement> parseButtons(string xmlFilePath, int screenWidth, int screenHeight) =>
-        getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "button");
+    // Parse Buttons
+    public static List<ScreenElement> parseButtons(string xmlFilePath, int screenWidth, int screenHeight) {
+        List<ScreenElement> val = getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "button");
+        return val;
+    }
 
-    public static List<ScreenElement> parseLabels(string xmlFilePath, int screenWidth, int screenHeight) =>
-        getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "label");
+    // Parse Labels
+    public static List<ScreenElement> parseLabels(string xmlFilePath, int screenWidth, int screenHeight) {
+        List<ScreenElement> val = getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "label");
+        return val;
+    }
 
-    public static List<ScreenElement> parseDivs(string xmlFilePath, int screenWidth, int screenHeight) =>
-        getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "div");
+    // Parse Divs
+    public static List<ScreenElement> parseDivs(string xmlFilePath, int screenWidth, int screenHeight) {
+        List<ScreenElement> val = getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "div");
+        return val;
+    }   
 
     /**
      * 
@@ -1197,5 +1391,13 @@ class DocParser {
             return expression[1..^1];
 
         return "${" + expression + "}";
+    }
+
+    private static double evaluateExpressionData(string exp) {
+        var data = new DataTable();
+        var result = data.Compute(exp, "");
+
+        double val = Convert.ToDouble(result);
+        return val;
     }
 }

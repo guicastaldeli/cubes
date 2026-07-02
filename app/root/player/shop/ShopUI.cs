@@ -7,6 +7,8 @@ class ShopUI : UI {
     public static string PATH = SHOP_DIR + "shop.xml";
 
     private Shop shop;
+
+    private bool initialized = false;
     
     public ShopUI() : base(PATH, Shop.ID) {
         this.shop = new Shop(input, uiController);
@@ -19,7 +21,7 @@ class ShopUI : UI {
         if(File.Exists(PATH)) {
             var content = File.ReadAllText(PATH);
             var resolved = DocParser.LResolve(content);
-            if(resolved != content) uiData = DocParser.parseUI(resolved, Window.WIDTH, Window.HEIGHT);
+            if(resolved != content) uiData = DocParser.parseUI(Source.FromString(resolved), Window.WIDTH, Window.HEIGHT);
         }
     }
 
@@ -29,7 +31,12 @@ class ShopUI : UI {
      *
      */
     public override void render() {
-        resolveContent();
+        if(!initialized) {
+            resolveContent();
+        
+            initialized = true;
+        }
+        
         base.render();
     }
 
