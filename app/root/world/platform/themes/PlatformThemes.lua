@@ -3,8 +3,8 @@
     General Platform Themes
 
     ]]
-dofile("CalculateMovement.lua")
-dofile("utils/ResolveFormat.lua")
+--dofile("world/platform/themes/CalculateMovement.lua")
+--dofile("utils/ResolveFormat.lua")
 
 local texturePath = "texture/world/platform_themes/"
 
@@ -22,8 +22,11 @@ function Theme:new(params)
     self.audio = params.audio or ""
     self.top = params.top or ""
     self.particles = params.particles or ""
-    self.texture = texturePath .. parms.texture
-
+    if params.texture then
+        self.texture = texturePath .. params.texture
+    else
+        self.texture = ""
+    end
     if params.custom then
         for key, value in pairs(params.custom) do
             self[key] = value
@@ -34,8 +37,8 @@ function Theme:new(params)
 end
 
 -- Themes
-local Themes = {
-    Theme.new({
+Themes = {
+    Theme:new({
         id = -1,
         name = "TEST_1",
         --movement = "",
@@ -44,12 +47,12 @@ local Themes = {
         --particles = "",
         texture = "test1"
     }),
-    Theme.new({
+    Theme:new({
         id = -2,
         name = "TEST_2",
         texture = "test2"
     }),
-    Theme.new({
+    Theme:new({
         id = -3,
         name = "TEST_3",
         texture = "test3"

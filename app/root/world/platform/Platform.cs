@@ -1,6 +1,4 @@
 namespace App.Root.World.Platform;
-
-using System.Reflection;
 using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
@@ -10,6 +8,7 @@ using App.Root.Player;
 using App.Root.Utils;
 using NLua;
 using OpenTK.Mathematics;
+using System.Reflection;
 
 /**
 
@@ -44,8 +43,8 @@ public static class PlatformThemes {
             m => m
         );
 
-    private static readonly Dictionary<string, FieldInfo> themeFields = typeof(Theme)
-        .GetFields(BindingFlags.Public | BindingFlags.Instance)
+    private static readonly Dictionary<string, PropertyInfo> themeProps = typeof(Theme)
+        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
         .Where(t => t.GetCustomAttribute<ConverterKey>() != null)
         .ToDictionary(
             t => t.GetCustomAttribute<ConverterKey>()!.Key,
@@ -101,14 +100,26 @@ public static class PlatformThemes {
                 if(themeData != null) {
                     var theme = new Theme();
 
-                    foreach(var field in themeFields) {
-                        var k = field.Key;
-                        var val = field.Value;
+                    foreach(var field in themeProps) {
+                        var fieldKey = field.Key;
+                        var propInfo = field.Value;
 
-                        var converter = converters.TryGetValue(k, out var c);
-                        if(c != null) {
-                            var converted = c.Invoke(null, new[] { val });
-                            val.SetValue(theme, converted);
+                        if(themeData[fieldKey] != null) {
+                            var val = themeData[fieldKey];
+                            var attr = propInfo.GetCustomAttribute<ConvertAttribute>();
+                            
+                            if(attr != null) {
+                                string name = attr.Converter;
+
+                                if(converters.TryGetValue(name, out var converter)) {
+                                    try {
+                                        var converted = converter.Invoke(null, new[] { val });
+                                        propInfo.SetValue(theme, converted);
+                                    } catch(Exception err) {
+                                        Console.WriteLine($"[PlatformThemes] Converter error for {fieldKey}: {err.Message}");
+                                    }
+                                }                                
+                            }
                         }
                     }
 
@@ -450,5 +461,17 @@ class Platform : WorldHandler {
      */
     private void init() {
         platformRegistry.init();
+        test();
+    }
+
+    private void test() {
+        Console.WriteLine("=== TESTING PLATFORM THEMES ===");
+
+        var themes = PlatformThemes.GetThemes();
+        Console.WriteLine($"Total themes loaded: {themes.Count}");
+
+        foreach(var theme in themes) {
+            Console.WriteLine($"  Theme: ID={theme.Id}, Name={theme.Name}, Texture={theme.Texture}");
+        }
     }
 }
