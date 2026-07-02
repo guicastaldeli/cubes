@@ -13,16 +13,15 @@ class ShopUI : UI {
     public ShopUI() : base(PATH, Shop.ID) {
         this.shop = new Shop(input, uiController);
         this.shop.initData();
+        
+        resolveContent();
+
         this.shop.open();
     }
 
     // Resolve Content
     private void resolveContent() {
-        if(File.Exists(PATH)) {
-            var content = File.ReadAllText(PATH);
-            var resolved = DocParser.LResolve(content);
-            if(resolved != content) uiData = DocParser.parseUI(Source.FromString(resolved), Window.WIDTH, Window.HEIGHT);
-        }
+        uiData = DocParser.parseUI(PATH, Window.WIDTH, Window.HEIGHT);
     }
 
     /**
@@ -30,13 +29,7 @@ class ShopUI : UI {
      * Render
      *
      */
-    public override void render() {
-        if(!initialized) {
-            resolveContent();
-        
-            initialized = true;
-        }
-        
+    public override void render() {        
         base.render();
     }
 
