@@ -60,30 +60,41 @@ public static class DataInput {
      *
      */
     private static void Register(Type type) {
+        bool found = false;
+
         string id = DataInputAttribute.GenerateId(type);
         registeredTypes[id] = type;
 
-        var baseMethods = 
-            typeof(DataHandler).GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Where(m => m.GetCustomAttribute<DataInjectionAttribute>() != null);
+        var baseMethods = typeof(DataHandler).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Where(m => m.GetCustomAttribute<DataInjectionAttribute>() != null)
+            .ToList();
+
         foreach(var baseMethod in baseMethods) {
-            var method = type.GetMethod(baseMethod.Name,
+            var methods = type.GetMethod(baseMethod.Name,
                 BindingFlags.Public | BindingFlags.NonPublic |
                 BindingFlags.Static | BindingFlags.Instance);
-            if(method != null) {
-                if(method.IsStatic) {
-                    extractors[id] = () => method.Invoke(null, null);
+            if(methods != null) {
+                if(methods.IsStatic) {
+                    extractors[id] = () => methods.Invoke(null, null);
                 } else {
                     extractors[id] = () => {
                         var instance = Activator.CreateInstance(type);
-                        return method.Invoke(instance, null);
+                        return methods.Invoke(instance, null);
                     };
-
-                    Console.WriteLine($"[DataInput] Registered {type.Name} using method: {baseMethod.Name}");
-
-                    break;
                 }
+
+                Console.WriteLine($"[DataInput] Registered {type.Name} using convention: {baseMethod.Name}");
+                found = true;
+                break;
             }
+        }
+
+        if(!found) {
+            Console.WriteLine($"[DataInput] Warning: No matching methods found in {type.Name}");
+            extractors[id] = () => {
+                Console.WriteLine($"[DataInput] {type.Name} has no matching DataHandler methods");
+                return null;
+            };
         }
     }
 

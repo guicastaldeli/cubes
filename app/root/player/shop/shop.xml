@@ -2,12 +2,42 @@
 <shop>
     <div 
         id="shopDiv" 
-        x="25%" y="25%" 
-        width="400" height="190" 
+        x="5%" y="5%" 
+        width="80%" height="80%" 
         background="0,0,0,0.5" 
         scale="0.7" 
         visible="true"
     >
+        <div 
+            id="themes" 
+            x="20%" y="0%" 
+            width="60%" height="80%" 
+            background="0.5,0.5,0.5,0.8"
+        >
+            {#foreach platformthemes as theme}
+                <div 
+                    id="theme_{theme.Id}" 
+                    x="2%" y="2%" 
+                    width="10%" height="20%" 
+                    background="0.15,0.15,0.25,0.9" 
+                    hoverable="true" 
+                    hoverBackground="0.25,0.25,0.45,0.9" 
+                    hoverScale="1.05" 
+                    border="2" 
+                    borderColor="0.3,0.3,0.5,1"
+                >
+                    <label 
+                        id="theme_{theme.Id}_name" 
+                        x="0%" y="8%" text="{theme.Name}" 
+                        color="1,1,1,1" 
+                        scale="0.5"
+                    >
+                        {theme.Name}
+                    </label>
+                </div>
+            {#end}
+        </div>
+
         <import src="world/points/points.xml" visible="true" />
     </div>
 </shop>

@@ -1,4 +1,5 @@
 namespace App.Root.Player.Shop;
+using App.Root.Screen;
 using App.Root.UI;
 
 class ShopUI : UI {
@@ -9,7 +10,17 @@ class ShopUI : UI {
     
     public ShopUI() : base(PATH, Shop.ID) {
         this.shop = new Shop(input, uiController);
+        this.shop.initData();
         this.shop.open();
+    }
+
+    // Resolve Content
+    private void resolveContent() {
+        if(File.Exists(PATH)) {
+            var content = File.ReadAllText(PATH);
+            var resolved = DocParser.LResolve(content);
+            if(resolved != content) uiData = DocParser.parseUI(resolved, Window.WIDTH, Window.HEIGHT);
+        }
     }
 
     /**
@@ -18,6 +29,7 @@ class ShopUI : UI {
      *
      */
     public override void render() {
+        resolveContent();
         base.render();
     }
 

@@ -44,6 +44,70 @@ public abstract class DataHandler {
 
 /**
     
+    This Data class
+
+    */
+public static class ThisData {
+    /**
+     *
+     * Get Id
+     *
+     */
+    public static string GetId<T>() where T : class {
+        string id = typeof(T).Name.ToLower();
+        return id;
+    }
+
+    public static string GetId(Type type) {
+        string val = type.Name.ToLower();
+        return val;
+    }
+
+    public static string GetId(object obj) {
+        if(obj == null) throw new ArgumentNullException(nameof(obj));
+
+        string val = obj.GetType().Name.ToLower();
+        return val;
+    }
+
+    /**
+     *
+     * Get Data
+     *
+     */
+    public static T? GetData<T>() where T : class {
+        string id = GetId<T>();
+        T? val = Data.GetData<T>(id);
+        return val;
+    }
+
+    public static object? GetData(Type type) {
+        string id = GetId(type);
+        object? val = Data.GetData(id);
+        return val;
+    }
+
+    public static (string? id, T? data) EGetData<T>() where T : class {
+        var ids = Data.GetAllDataIds();
+        
+        foreach(var id in ids) {
+            var d = Data.GetData(id);
+            if(d is T td) return (id, td);
+        
+        }
+        return (null, null);
+    }
+
+    public static List<T>? LGetData<T>() where T : class {
+        string id = typeof(T).Name.ToLower();
+        
+        List<T>? val = Data.GetData<List<T>>(id);
+        return val;
+    }
+}
+
+/**
+    
     Main Data class
 
     */

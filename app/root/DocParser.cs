@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using OpenTK.Graphics.OpenGL;
+using System.Collections;
 
 class DocParser {
     public static readonly string IMG_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/");
@@ -26,12 +27,14 @@ class DocParser {
     private static readonly int WINDOW_WIDTH = Window.WIDTH;
     private static readonly int WINDOW_HEIGHT = Window.HEIGHT;
 
-    private static readonly (string a, string b, string c, string d, string repeat) Exp = (
+    private static readonly (string a, string b, string c, string d, string e, string repeat, string loop) Exp = (
         @"\$\{(.*?)\}",
         @"\{(\w+)\}",
         @"\{(\d+)\}\{(\w+)\}",
         @"\{(\w+)\|([^}]*)\}",
-        @"^'(.*?)'\.repeat\((\d+)\)$"
+        @"\{([a-zA-Z_][a-zA-Z0-9_]*)(\.[a-zA-Z0-9_]+)?\}",
+        @"^'(.*?)'\.repeat\((\d+)\)$",
+        @"\{#foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}(.*?)\{#end\}"
     );
 
     // Split Instance Name
@@ -50,6 +53,24 @@ class DocParser {
         return result;
     }
 
+    // Get Property Value
+    private static object? GetPropertyValue(object obj, string path) {
+        if(obj == null || string.IsNullOrEmpty(path)) return null;
+
+        var parts = path.Split('.');
+        object curr = obj;
+
+        foreach(var part in parts) {
+            if(curr == null) return null;
+
+            var prop = curr.GetType().GetProperty(part);
+            if(prop == null) return null;
+            curr = prop.GetValue(curr)!;
+        }
+
+        return curr;
+    }
+
     /**
      * 
      * Replace
@@ -62,6 +83,10 @@ class DocParser {
     public static void Replace(string key, object val) {
         string v = val.ToString() ?? "";
         variables[key] = v;
+    }
+
+    public static void ReplaceObject(string key, object data) {
+        dataObjects[key] = data;
     }
 
     /**
@@ -88,6 +113,87 @@ class DocParser {
         });
 
         return text;
+    }
+
+    public static string LResolve(string text) {
+        if(string.IsNullOrEmpty(text)) return text;
+
+        text = resolveWithLoop(text);
+        text = Resolve(text);
+
+        return text;
+    }
+
+    private static string resolveWithLoop(string text) {
+        if(string.IsNullOrEmpty(text)) return text;
+
+        text = Regex.Replace(text, Exp.loop, match => {
+            string collectionName = match.Groups[1].Value;
+            string itemName = match.Groups[2].Value;
+            string template = match.Groups[3].Value;
+            if(!dataObjects.TryGetValue(collectionName, out var collObj)) return match.Value;
+        
+            var list = collObj as IList;
+            if(list == null || list.Count == 0) return "";
+
+            var result = new StringBuilder();
+
+            for(int i = 0; i < list.Count; i++) {
+                var item = list[i];
+                if(item == null) continue;
+
+                string idx = "index";
+                
+                loopContext[itemName] = item;
+                loopContext[idx] = i;
+
+                var resolved = resolveWithLoopContext(template);
+                result.Append(resolved);
+
+                loopContext.Remove(itemName);
+                loopContext.Remove(idx);
+            }
+
+            return result.ToString();
+        });
+
+        return text;
+    }
+
+    private static string resolveWithLoopContext(string text) {
+        if(string.IsNullOrEmpty(text)) return text;
+
+        return Regex.Replace(text, Exp.e, match => {
+            string objKey = match.Groups[1].Value;
+            string? propPath = match.Groups[2].Success ? match.Groups[2].Value.Substring(1) : null;
+
+            if(loopContext.TryGetValue(objKey, out var loopObj)) {
+                if(string.IsNullOrEmpty(propPath)) {
+                    return loopObj?.ToString() ?? "";
+                }
+
+                var value = GetPropertyValue(loopObj, propPath);
+                return value?.ToString() ?? "";
+            }
+
+            if(string.IsNullOrEmpty(propPath) && variables.ContainsKey(objKey)) {
+                return variables[objKey];
+            }
+
+            if(dataObjects.TryGetValue(objKey, out var obj)) {
+                if(string.IsNullOrEmpty(propPath)) {
+                    if(obj is IList list) {
+                        return list.Count.ToString();
+                    }
+                    return obj?.ToString() ?? "";
+                }
+
+                var value = GetPropertyValue(obj, propPath);
+                return value?.ToString() ?? "";
+            }
+
+            return match.Value;
+        });
     }
 
     private static void resolveImports(XmlElement root, string filePath) {

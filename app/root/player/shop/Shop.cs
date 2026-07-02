@@ -2,6 +2,8 @@ namespace App.Root.Player.Shop;
 using App.Root.Chat;
 using App.Root.UI;
 using App.Root.Input;
+using App.Root.World.Platform;
+using App.Root.Screen;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class Shop {
@@ -15,6 +17,13 @@ class Shop {
         this.uiController = uiController;
 
         Mapper.Set<Shop>();
+    }
+
+    // Set Theme Data
+    public void setThemeData() {
+        var (id, data) = ThisData.EGetData<List<PlatformThemes.Theme>>()!;
+        if(id == null || data == null) throw new ArgumentNullException("err setThemeData");
+        DocParser.ReplaceObject(id, data);
     }
 
     /**
@@ -31,7 +40,7 @@ class Shop {
 
             uiController.toggle(ID);
             bool isActive = uiController.getActive() == ID;
-
+            //Close here too!
             Action action = isActive ? () =>
                 input.unlockMouse() : () =>
                 input.lockMouse();
@@ -46,6 +55,15 @@ class Shop {
             uiController.hide();
             input.lockMouse();
         });
+    }
+
+    /**
+     * 
+     * Init Data
+     *
+     */
+    public void initData() {
+        setThemeData();
     }
 
     /**
