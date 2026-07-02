@@ -20,7 +20,7 @@ function Theme:new(params)
     self.name = params.name
     self.movement = params.movement or ""
     self.audio = params.audio or ""
-    self.top = params.top or ""
+    self.top = params.top or nil
     self.particles = params.particles or ""
     if params.texture then
         self.texture = texturePath .. params.texture
@@ -41,10 +41,10 @@ Themes = {
     Theme:new({
         id = -1,
         name = "TEST_1",
-        --movement = "",
-        --audio = "",
-        --top = "",
-        --particles = "",
+        movement = "test1mov",
+        audio = "test1audio",
+        top = 1,
+        particles = "test1part",
         texture = "test1"
     }),
     Theme:new({

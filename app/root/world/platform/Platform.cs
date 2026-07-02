@@ -23,7 +23,7 @@ public static class PlatformThemes {
         [Convert("string")] [ConverterKey("name")] public string? Name { get; set; }
         [Convert("string")] [ConverterKey("movement")] public string? Movement { get; set; }
         [Convert("string")] [ConverterKey("audio")] public string? Audio { get; set; }
-        [Convert("string")] [ConverterKey("top")] public string? Top { get; set; }
+        [Convert("int32")] [ConverterKey("top")] public int? Top { get; set; }
         [Convert("string")] [ConverterKey("particles")] public string? Particles { get; set; }
         [Convert("string")] [ConverterKey("texture")] public string? Texture { get; set; }
 
@@ -471,7 +471,13 @@ class Platform : WorldHandler {
         Console.WriteLine($"Total themes loaded: {themes.Count}");
 
         foreach(var theme in themes) {
-            Console.WriteLine($"  Theme: ID={theme.Id}, Name={theme.Name}, Texture={theme.Texture}");
+            Console.WriteLine($"  Theme:");
+            var props = typeof(PlatformThemes.Theme).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach(var prop in props) {
+                var value = prop.GetValue(theme);
+                Console.WriteLine($"        {prop.Name} = {value ?? "null"}");
+            }
+            Console.WriteLine("");
         }
     }
 }

@@ -20,6 +20,8 @@ class DocParser {
     private static bool uiBuffersInitialized = false;
 
     private static Dictionary<string, string> variables = new();
+    private static Dictionary<string, object> dataObjects = new();
+    private static Dictionary<string, object> loopContext = new();
 
     private static readonly int WINDOW_WIDTH = Window.WIDTH;
     private static readonly int WINDOW_HEIGHT = Window.HEIGHT;
