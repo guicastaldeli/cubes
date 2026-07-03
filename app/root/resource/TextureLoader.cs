@@ -1,5 +1,4 @@
 namespace App.Root.Resource;
-
 using App.Root.Mesh;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
