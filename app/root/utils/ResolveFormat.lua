@@ -3,6 +3,9 @@
     Resolve Format
 
     ]]
+local pathCache = {}
+local dirCache = {}
+
 local config = {
     searchPath = "resource/texture/",
     extensions = {
@@ -12,9 +15,6 @@ local config = {
     },
     caseSensitive = false
 }
-
-local pathCache = {}
-local dirCache = {}
 
 -- Get Base Directory
 local function getBaseDirectory()
