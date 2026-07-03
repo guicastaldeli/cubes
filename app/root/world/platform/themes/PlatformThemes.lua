@@ -7,11 +7,10 @@
 --dofile("utils/ResolveFormat.lua")
 
 local ResolveFormat = dofile("utils/ResolveFormat.lua")
-local ThemeParser = dofile("app/root/world/platform/themes/ThemeParser.lua")
+local ThemeParser = dofile("world/platform/themes/ThemeParser.lua")
 
 local Theme = {}
 Theme.__index = Theme
-Themes = load()
 
 --[[
     Theme
@@ -69,3 +68,11 @@ function load()
     print(string.format("Loaded %d themes from .th files", #themes))
     return themes
 end
+
+Themes = load()
+
+return {
+    Themes = Themes,
+    Theme = Theme,
+    load = load
+}

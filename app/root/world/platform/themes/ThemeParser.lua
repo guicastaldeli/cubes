@@ -123,66 +123,59 @@ function ThemeParser.parseProperties(theme, content)
         local l1 = "^%s*$"
         local l2 = "^%s*%-%-"
 
-        if line:match(l1) or line:match(l2) then
-            i = i+1
-            goto continue
-        end
+        if not line:match(l1) and not line:match(l2) then
+            local k = "^(%s*)([%w_]+)%s*=%s*~%[%s*$"
+            local indent, key = line:match(k)
+            if indent and key then
+                local codeLines = {}
+                i = i+1
+                local foundEnd = false
 
-        local c = "^(%s*)([%w_]+)%s*=%s*~%[%s*$"
-        local codeBlockStart = line:match(c)
-        if codeBlockStart then
-            local indent = codeBlockStart:match("^(%s*)")
-            local key = codeBlockStart:match("%s*([%w_]+)%s*=%s*~%[%s*$")
+                while i <= #lines do
+                    local currentLine = lines[i]
 
-            local codeLines = {}
-            i = i+1
-            local foundEnd = false
-
-            while i <= #lines do
-                local currentLine = lines[i]
-
-                if currentLine:match("^" .. indent .. "%]%s*,%s*$") or
-                    currentLine:match("^" .. indent .. "%]%s*$") or
-                    currentLine:match("^%s*%]%s*,%s*$") or
-                    currentLine:match("^%s*%]%s*$") then
-                        foundEnd = true
-                            i = i+1
+                    if currentLine:match("^" .. indent .. "%]%s*,%s*$") or 
+                        currentLine:match("^" .. indent .. "%]%s*$") or
+                        currentLine:match("^%s*%]%s*,%s*$") or
+                        currentLine:match("^%s*%]%s*$") then
+                            foundEnd = true
+                            i = i + 1
                             break
+                    end
+
+                    local codeLine = currentLine:gsub("^" .. indent, "")
+                    table.insert(codeLines, codeLine)
+                    i = i+1
                 end
 
-                local codeLine = currentLine:gsub("^" .. indent, "")
-                table.insert(codeLines, codeLine)
-                i = i+1
+                if foundEnd then
+                    local codeBlock = table.concat(codeLines, "\n")
+                    codeBlock = codeBlock:gsub(",%s*$", "")
+                    theme[key] = codeBlock
+                else
+                    print("Warning: Unclosed code block for key: " .. key)
+                    local fallback = table.concat(lines, "\n", i - #codeLines - 1)
+                    theme[key] = fallback
+                end
+
+                goto continue_loop
             end
 
-            if foundEnd then
-                local codeBlock = table.concat(codeLines, "\n")
-                codeBlock = codeBlock:gsub(",%s*$", "")
-                theme[key] = codeBlock
-            else 
-                print("Warning: Unclosed code block for key: " .. key)
-
-                local f = table.concat(lines, "\n", i - #codeLines - 1)
-                theme[key] = f
+            local v1 = "^%s*([%w_]+)%s*=%s*(.-)%s*,%s*$"
+            local v2 = "^%s*([%w_]+)%s*=%s*(.-)%s*$"
+            local key, value = line:match(v1)
+            if not key then
+                key, value = line:match(v2)
             end
 
-            goto continue
+            if key and value then
+                value = value:gsub(",%s*$", "")
+                value = value:gsub("^%s*(.-)%s*$", "%1")
+                theme[key] = ThemeParser.parseValue(value)
+            end
         end
 
-        local v1 = "^%s*([%w_]+)%s*=%s*(.-)%s*,%s*$"
-        local v2 ="^%s*([%w_]+)%s*=%s*(.-)%s*$"
-        local key, value = line:match(v1)
-        if not key then
-            key, value = line:match(v2)
-        end
-
-        if key and value then
-            value = value:gsub(",%s*$", "")
-            value = value:gsub("^%s*(.-)%s*$", "%1")
-            theme[key] = ThemeParser.parseValue(value)
-        end
-
-        ::continue::
+        ::continue_loop::
         i = i+1
     end
 end
