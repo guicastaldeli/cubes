@@ -6,7 +6,6 @@
 --dofile("world/platform/themes/CalculateMovement.lua")
 --dofile("utils/ResolveFormat.lua")
 
-local texturePath = "texture/world/platform_themes/"
 local ResolveFormat = dofile("utils/ResolveFormat.lua")
 local ThemeParser = dofile("app/root/world/platform/themes/ThemeParser.lua")
 

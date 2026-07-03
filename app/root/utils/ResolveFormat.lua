@@ -7,7 +7,10 @@ local pathCache = {}
 local dirCache = {}
 
 local config = {
-    searchPath = "resource/texture/",
+    searchPaths = {
+        "resource/texture/",
+        "texture/"
+    },
     extensions = {
         "png",
         "jpg",
@@ -22,8 +25,8 @@ local function getBaseDirectory()
 end
 
 -- List Files
-local function listFiles(dir, extenstions)
-    local cacheKey = dir .. "|" .. table.concat(extenstions or {}, ",")
+local function listFiles(dir, extensions)
+    local cacheKey = dir .. "|" .. table.concat(extensions or {}, ",")
     
     if dirCache[cacheKey] then
         return dirCache[cacheKey]
@@ -38,23 +41,24 @@ local function listFiles(dir, extenstions)
     if handle then
         for file in handle:lines() do
             if file ~= "." and file ~= ".." then
-                if extenstions then
+                if extensions then
                     local regex = "%.([^%.]+)$"
                     local ext = file:match(regex)
 
-                    for _, validExt in ipairs(extenstions) do
-                        if ext == validExt:lower() then
-                            table.insert(files, file)
-                            break
+                    if ext then
+                        ext = ext:lower()
+                        for _, validExt in ipairs(extensions) do
+                            if ext == validExt:lower() then
+                                table.insert(files, file)
+                                break
+                            end
                         end
                     end
+                else 
+                    table.insert(files, file)
                 end
-            else
-                table.insert(files, file)
             end
         end
-
-        handle:close()
     end
 
     dirCache[cacheKey] = files
@@ -231,3 +235,14 @@ local function getTextureInDirectory(dir, incluseSubdirs)
 
     return textures
 end
+
+return {
+    resolveTexture = resolveTexture,
+    resolveFile = resolveFile,
+    getFileFormat = getFileFormat,
+    fileExists = fileExists,
+    clearCache = clearCache,
+    addSearchPath = addSearchPath,
+    getTextureInDirectory = getTextureInDirectory,
+    config = config
+}

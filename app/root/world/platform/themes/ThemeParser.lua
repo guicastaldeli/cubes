@@ -6,7 +6,7 @@
         key = value,
         key = ~[ ... ],
         key = "string"
-    {{#end}}
+    {{@end}}
 
 ]]
 local themeCache = {}
@@ -91,17 +91,18 @@ function ThemeParser.parseContent(content, filename)
         return nil
     end
 
-    theme.name = nameMatch.gsub("%s+", "")
+    theme.name = nameMatch:gsub("%s+", "")
     theme.rawName = nameMatch
 
     local endPattern = "{{@end}}"
-    local startos, endPos = content:find(endPattern)
+    local endPos = content:find(endPattern)
     if not endPos then
         print("Invalid theme format: Missing end directive in " .. (filename or "content"))
         return nil
     end
 
-    local themeContent = content:sub(#"{{@theme#" .. nameMatch .. "}}" + 1, endPos - 1)
+    local startTag = "{{@theme#" .. nameMatch .. "}}"
+    local themeContent = content:sub(#startTag + 1, endPos - 1)
     ThemeParser.parseProperties(theme, themeContent)
 
     return theme
@@ -208,7 +209,7 @@ function ThemeParser.parseValue(value)
     if value:match(n1) then
         return tonumber(value)
     end
-    if value:match(n1) then
+    if value:match(n2) then
         return tonumber(value)
     end
 
@@ -250,17 +251,24 @@ function ThemeParser.loadAllThemes()
     local themes = {}
     local path = ThemeParser.config.path
 
-    local handle = io.popen('ls "' .. path .. '" 2>/dev/null | grep ".th$"')
-    if not handle then
-        handle = io.popen('dir /b "' .. path .. '" 2>nul | findstr ".th$"')
+    local handle
+    if package.config:sub(1,1) == "\\" then
+        -- Windows
+        handle = io.popen('dir /b "' .. path .. '" 2>nul')
+    else
+        -- Unix/Linux
+        handle = io.popen('ls "' .. path .. '" 2>/dev/null')
     end
 
     if handle then
         for file in handle:lines() do
-            local theme = ThemeParser.parseFile(file)
-            if theme then
-                table.insert(themes, theme)
-                print("!!! Loaded theme: " .. theme.name .. " from " .. file)
+            local f = "%.th$"
+            if file:match(f) then
+                local theme = ThemeParser.parseFile(file)
+                if theme then
+                    table.insert(themes, theme)
+                    print("!!! Loaded theme: " .. theme.name .. " from " .. file)
+                end
             end
         end
 
