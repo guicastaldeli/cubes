@@ -153,44 +153,40 @@ public static class PlatformThemes {
      *
      */
     private static void Load() {
-    if(data != null) return;
+        if(data != null) return;
 
-    if(!File.Exists(DATA_PATH)) {
-        Console.WriteLine($"[PlatformThemes] File not found: {DATA_PATH}");
-        return;
-    }
+        if(!File.Exists(DATA_PATH)) {
+            Console.WriteLine($"[PlatformThemes] File not found: {DATA_PATH}");
+            return;
+        }
 
-    data = new Lua();
+        data = new Lua();
 
-    string originalDir = Directory.GetCurrentDirectory();
-    Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-    
-    try {
-        // Execute the file and get the returned value
-        var result = data.DoFile(DATA_PATH);
+        string originalDir = Directory.GetCurrentDirectory();
+        Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
         
-        // If the file returns a table with Themes
-        if(result != null && result.Length > 0) {
-            var returnTable = result[0] as LuaTable;
-            if(returnTable != null) {
-                var themes = returnTable["Themes"];
-                if(themes != null) {
-                    data["Themes"] = themes;
-                    Console.WriteLine("[PlatformThemes] Successfully loaded themes from Lua");
-                } else {
-                    Console.WriteLine("[PlatformThemes] No 'Themes' key in returned table");
+        try {
+            var result = data.DoFile(DATA_PATH);
+            
+            if(result != null && result.Length > 0) {
+                var returnTable = result[0] as LuaTable;
+                if(returnTable != null) {
+                    var themes = returnTable["Themes"];
+                    if(themes != null) {
+                        data["Themes"] = themes;
+                        Console.WriteLine("[PlatformThemes] Successfully loaded themes from Lua");
+                    } else {
+                        Console.WriteLine("[PlatformThemes] No 'Themes' key in returned table");
+                    }
                 }
             }
+        } catch(Exception err) {
+            Console.WriteLine($"[PlatformThemes] Error loading Lua file: {err.Message}");
+            Console.WriteLine(err.StackTrace);
         }
         
-        
-    } catch(Exception err) {
-        Console.WriteLine($"[PlatformThemes] Error loading Lua file: {err.Message}");
-        Console.WriteLine(err.StackTrace);
+        Directory.SetCurrentDirectory(originalDir);
     }
-    
-    Directory.SetCurrentDirectory(originalDir);
-}
 }
 
 /**
