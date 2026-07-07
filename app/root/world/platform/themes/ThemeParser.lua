@@ -13,7 +13,7 @@ local themeCache = {}
 
 local ThemeParser = {}
 ThemeParser.config = {
-    path = "resource/theme/",
+    path = "resource/world/theme/",
     fileExtension = ".th",
     directives = {
         start = "{{@theme#",

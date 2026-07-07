@@ -3,11 +3,9 @@
     General Platform Themes
 
     ]]
---dofile("world/platform/themes/CalculateMovement.lua")
---dofile("utils/ResolveFormat.lua")
-
 local ResolveFormat = dofile("utils/ResolveFormat.lua")
 local ThemeParser = dofile("world/platform/themes/ThemeParser.lua")
+local CalculateMovement = dofile("world/platform/themes/CalculateMovement.lua")
 
 local Theme = {}
 Theme.__index = Theme
