@@ -7,7 +7,7 @@ local ResolveFormat = dofile("utils/ResolveFormat.lua")
 local Parser = dofile("utils/Parser.lua")
 --local CalculateMovement = dofile("world/platform/themes/CalculateMovement.lua")
 
-Parser.registerType("theme", "resource/world/theme/", ".th")
+Parser.registerType("theme", "world/theme/", ".th")
 
 local Theme = {}
 Theme.__index = Theme

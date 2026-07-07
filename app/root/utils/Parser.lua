@@ -1,6 +1,6 @@
 --[[
     Parses custom files with the format:
-    {{@theme#NAME}}
+    {{@type#NAME}}
         key = value,
         key = ~[ ... ],
         key = "string"
@@ -10,6 +10,7 @@
 local Parser = {}
 Parser.config = {
     path = "resource/",
+    registeredPaths = {},
     fileExtension = {},
     directives = {
         start = "{{@",
@@ -28,15 +29,14 @@ local parserCache = {
     parsed = {}
 }
 
--- Debug
-local function debugPrint(...)
-    if Parser.config.debug then
-        print("[Parser]", ...)
-    end
-end
-
 -- File Exists
 local function fileExists(path)
+    local dirCheck = io.open(path, "r")
+    if dirCheck then
+        dirCheck:close()
+        return true
+    end
+    
     local file = io.open(path, "r")
     if file then
         file:close()
@@ -44,6 +44,38 @@ local function fileExists(path)
     end
 
     return false
+end
+
+-- Debug
+local function debugPrint(...)
+    if Parser.config.debug then
+        print("[Parser]", ...)
+    end
+end
+
+-- Debug path
+local function debugPath(path)
+    print("=== PATH DEBUG ===")
+    print("Path:", path)
+    print("Exists:", fileExists(path))
+    
+    local handle
+    if package.config:sub(1,1) == "\\" then
+        handle = io.popen('dir "' .. path .. '" 2>nul')
+    else
+        handle = io.popen('ls -la "' .. path .. '" 2>/dev/null')
+    end
+    
+    if handle then
+        print("Directory contents:")
+        for line in handle:lines() do
+            print("  " .. line)
+        end
+        handle:close()
+    else
+        print("Could not list directory")
+    end
+    print("==================")
 end
 
 -- Read File
@@ -65,28 +97,25 @@ local function listFiles(dir, extension)
     local files = {}
     local handle
 
-    if not fileExists(dir) then
-        return files
-    end
-
-    if package.config.sub(1,1) == "\\" then
+    if package.config:sub(1,1) == "\\" then
         handle = io.popen('dir /b "' .. dir .. '" 2>nul')
     else
         handle = io.popen('ls "' .. dir .. '" 2>/dev/null')
     end
 
-    if handle then
-        for file in handle:lines() do
-            if extension and file:match(extension .. "$") then
-                table.insert(files, file)
-            elseif not extension then
-                table.insert(files, file)
-            end
-        end
-
-        handle:close()
+    if not handle then
+        return files
     end
 
+    for file in handle:lines() do
+        if extension and file:match(extension .. "$") then
+            table.insert(files, file)
+        elseif not extension then
+            table.insert(files, file)
+        end
+    end
+
+    handle:close()
     return files
 end
 
@@ -137,6 +166,12 @@ end
 
 -- Get Path for Type
 local function getPathForType(type)
+    if Parser.config.registeredPaths[type] then
+        local base = normalizePath(Parser.config.path)
+        local registered = normalizePath(Parser.config.registeredPaths[type])
+        return base .. "/" .. registered .. "/"
+    end
+
     local path = Parser.config.path .. type .. "/"
     return path
 end
@@ -225,62 +260,56 @@ local function parseBlock(content)
 
         local l1 = "^%s*$"
         local l2 = "^%s*%-%-"
-        if line:match(l1) or line:match(l2) then
-            i = i+1
-            goto continue
-        end
+        if not line:match(l1) and not line:match(l2) then
+            local s = "^(%s*)([%w_]+)%s*=%s*~%[%s*$"
+            local start = line:match(s)
 
-        local s = "^(%s*)([%w_]+)%s*=%s*~%[%s*$"
-        local start = line:match(s)
-        if start then
-            local id = "^(%s*)"
-            local indent = start:match(id)
+            if start then
+                local indent = start:match("^(%s*)")
+                local key = start:match("%s*([%w_]+)%s*=%s*~%[%s*$")
 
-            local k = "%s*([%w_]+)%s*=%s*~%[%s*$"
-            local key = start:match(k)
-            if not key then
-                i = i+1
-                goto continue
-            end
+                if key then
+                    local codeLines = {}
+                    i = i+1
+                    
+                    local foundEnd = false
 
-            local codeLines = {}
-            i = i+1
+                    while i <= #lines do
+                        local currentLine = lines[i]
 
-            local foundEnd = false
+                        if currentLine:match("^" .. indent .. "%]%s*,%s*$") or 
+                            currentLine:match("^" .. indent .. "%]%s*$") or
+                            currentLine:match("^%s*%]%s*,%s*$") or
+                            currentLine:match("^%s*%]%s*$") then
+                                foundEnd = true
+                                i = i + 1
+                                break
+                        end
 
-            while i <= #lines do
-                local currentLine = lines[i]
+                        local codeLine = currentLine:gsub("^" .. indent, "")
+                        table.insert(codeLines, codeLine)
+                        i = i+1
+                    end
 
-                if currentLine:match("^" .. indent .. "%]%s*,%s*$") or 
-                    currentLine:match("^" .. indent .. "%]%s*$") or
-                    currentLine:match("^%s*%]%s*,%s*$") or
-                    currentLine:match("^%s*%]%s*$") then
-                        foundEnd = true
-                        i = i + 1
-                        break
+                    if foundEnd then
+                        result[key] = table.concat(codeLines, "\n")
+                    else
+                        print("Warning!: Unclosed code block for key: " .. key)
+                        result[key] = table.concat(lines, "\n", i - #codeLines - 1)
+                    end
+
+                    i = i+1
+                    goto continue
                 end
-
-                local codeLine = currentLine:gsub("^" .. indent, "")
-                table.insert(codeLines, codeLine)
-                i = i+1
             end
 
-            if foundEnd then
-                result[key] = table.concat(codeLines, "\n")
-            else
-                print("Warning!: Unclosed code block for key: " .. key)
-                result[key] = table.concat(lines, "\n", i - #codeLines - 1)
-            end
-
-            goto continue
+            local p1 = "^%s*([%w_]+)%s*=%s*(.-)%s*,%s*$"
+            local p2 = "^%s*([%w_]+)%s*=%s*(.-)%s*$"
+            local key, value = line:match(p1)
+            if not key then key, value = line:match(p2) end
+            if key and value then result[key] = parseValue(value) end
         end
-
-        local p1 = "^%s*([%w_]+)%s*=%s*(.-)%s*,%s*$"
-        local p2 = "^%s*([%w_]+)%s*=%s*(.-)%s*$"
-        local key, value = line:match(p1)
-        if not key then key, value = line:match(p2) end
-        if key and value then result[key] = parseValue(value) end
-
+        
         ::continue::
         i = i+1
     end
@@ -364,12 +393,12 @@ function Parser.loadAll(type)
 
     debugPrint("Loading all...", type, "from", path)
 
-    if not fileExists(path) then
-        print("[Parser] Directory not found", path)
+    local files = listFiles(path, extension)
+    if #files == 0 then
+        print("[Parser] No files found in:", path)
         return results
     end
 
-    local files = listFiles(path, extension)
     for _, file in ipairs(files) do
         local fullPath = buildPath(path, file)
         local parsed = Parser.parseFile(fullPath)
@@ -396,6 +425,7 @@ end
 ]]
 function Parser.registerType(type, path, extension)
     if extension then Parser.config.fileExtension[type] = extension end
+    if path then Parser.config.registeredPaths[type] = path end
     debugPrint("Registered type:", type, "path", path, "extension:", extension)
 end
 
