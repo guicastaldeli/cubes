@@ -4,11 +4,30 @@
 
     ]]
 local ResolveFormat = dofile("utils/ResolveFormat.lua")
-local ThemeParser = dofile("world/platform/themes/ThemeParser.lua")
-local CalculateMovement = dofile("world/platform/themes/CalculateMovement.lua")
+local Parser = dofile("utils/Parser.lua")
+--local CalculateMovement = dofile("world/platform/themes/CalculateMovement.lua")
+
+Parser.registerType("theme", "resource/world/theme/", ".th")
 
 local Theme = {}
 Theme.__index = Theme
+
+-- To Object
+local function toObject(parsedTheme)
+    if not parsedTheme or not parsedTheme.data then return nil end
+
+    local data = parsedTheme.data
+
+    return {
+        id = data.id or 0,
+        name = parsedTheme.name or "Unknown",
+        movement = data.movement or "",
+        audio = data.audio or "",
+        top = data.top or nil,
+        particles = data.particles or "",
+        texture = data.texture or ""
+    }
+end
 
 --[[
     Theme
@@ -51,16 +70,18 @@ end
 function load()
     local themes = {}
 
-    local parsedThemes = ThemeParser.loadAllThemes()
+    local parsedThemes = Parser.loadAll("theme")
     if not parsedThemes or #parsedThemes == 0 then
-        print("No themes found in .th files")
+        print("No themes found")
         return themes
     end
 
     for _, parsedTheme in ipairs(parsedThemes) do
-        local themeData = ThemeParser.toThemeObject(parsedTheme)
-        local theme = Theme:new(themeData)
-        table.insert(themes, theme)
+        local themeData = toObject(parsedTheme)
+        if themeData then
+            local theme = Theme:new(themeData)
+            table.insert(themes, theme)
+        end
     end
 
     print(string.format("Loaded %d themes from .th files", #themes))
