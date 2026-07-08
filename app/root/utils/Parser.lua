@@ -12,6 +12,7 @@ Parser.config = {
     path = "resource/",
     registeredPaths = {},
     fileExtension = {},
+    variables = {},
     directives = {
         start = "{{@",
         endt = "}}",
@@ -176,6 +177,16 @@ local function getPathForType(type)
     return path
 end
 
+-- Set Variable
+function Parser.setVariable(key, value)
+    Parser.config.variables[key] = value
+end
+
+-- Get Variable
+function Parser.getVariable(key)
+    return Parser.config.variables[key]
+end
+
 --[[
     Parse Value
 ]]
@@ -184,6 +195,15 @@ local function parseValue(value)
 
     value = value:gsub(",%s*$", "")
     value = value:gsub("^%s*(.-)%s*$", "%1")
+
+    if type(value) == "string" then
+        local pattern = "%$([%w_]+)"
+        value = value:gsub(pattern, function(varName)
+            local varValue = Parser.config.variables[varName]
+            if varValue ~= nil then return tostring(varValue) end
+            return "$" .. varName
+        end)
+    end
 
     if value == "nil" then return nil end
     if value == "true" then return true end
@@ -432,11 +452,17 @@ end
 --[[
     Clear
 ]]
+-- Clear
 function Parser.clear()
     parserCache.parsed = {}
     parserCache.files = {}
 
     debugPrint("Cleared!")
+end
+
+-- Clear Variables
+function Parser.clearVariables()
+    Parser.config.variables = {}
 end
 
 return Parser

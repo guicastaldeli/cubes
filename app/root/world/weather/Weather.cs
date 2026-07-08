@@ -39,7 +39,7 @@ class WeatherType {
     public const string NORMAL = "NORMAL";
     public const string RAIN = "RAIN";    
     public const string SNOW = "SNOW";
-    public const string DEBUG = "DEBUG";
+    public const string DEBUG = "sulfuric_acid";
 }
 
 /**
@@ -49,7 +49,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.NORMAL;
+    public static string DEFAULT_WEATHER = WeatherType.DEBUG;
 
     private static Weather weather = null!;
     private static Lua data = null!;
@@ -65,8 +65,21 @@ class WeatherData {
 
         string originalDir = Directory.GetCurrentDirectory();
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+
+        var result = data.DoFile(DATA_PATH);
+        if(result != null && result.Length > 0) {
+            var returnTable = result[0] as LuaTable;
+            if(returnTable != null) {
+                foreach(var key in returnTable.Keys) {
+                    var keyStr = key?.ToString();
+                    if(!string.IsNullOrEmpty(keyStr)) {
+                        data[keyStr] = returnTable[key];
+                        Console.WriteLine($"[WeatherData] Registered function: {keyStr}");
+                    }
+                }
+            }
+        }
         
-        data.DoFile(DATA_PATH);
         Directory.SetCurrentDirectory(originalDir);
     }
 
@@ -183,6 +196,7 @@ class Weather : WorldHandler {
     private const float DESPAWN_Y = -40.0f;
 
     private bool initialized = false;
+    public static bool debugMode = true;
 
     public Weather([Inject] Tick tick, [Inject] Mesh mesh, [Inject] ShaderProgram shaderProgram, [Inject] World world) {
         ServiceContainer.ActiveSRegister(true);
@@ -267,14 +281,9 @@ class Weather : WorldHandler {
 
     private void test() {
         string v = WeatherData.DEFAULT_WEATHER;
-        
         weatherCycle.forceWeather(v);
 
-        int weatherValue = getWeatherValue(v);
-        currentTemp = WeatherData.getTempConfig(weatherValue);
-        prevTemp = null;
-        tempTransition = 1.0f;
-
+        updateShader();
         startPartEmitter();
     }
 
@@ -312,6 +321,20 @@ class Weather : WorldHandler {
 
     /**
      * 
+     * Init
+     *
+     */
+    private void init() {
+        if(initialized) return;
+
+        set();
+        test();
+
+        initialized = true;
+    }
+
+    /**
+     * 
      * Render
      *
      */
@@ -319,12 +342,7 @@ class Weather : WorldHandler {
         if(!ContextChunk.hasChunk) return;
         ChunkCoord coord = ContextChunk.current!.Value;
 
-        if(!initialized) {
-            //set();
-            //test();
-            
-            initialized = true;
-        }
+        init();
 
         activeChunks.Add(coord);
     }
@@ -353,17 +371,11 @@ class Weather : WorldHandler {
      */
     // Update
     public override void update() {
-        /*
-        if(!initialized) {
-            set();
-            test();
-            initialized = true;
-        }
-        */
+        init();
 
         float deltaTime = tick.getDeltaTime();
 
-        weatherCycle.update(deltaTime);
+        if(!debugMode) weatherCycle.update(deltaTime);
         updateTempTransition(deltaTime);
         updateShader();
         updateParticles(deltaTime);

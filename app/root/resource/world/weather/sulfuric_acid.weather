@@ -1,0 +1,10 @@
+{{@weather#sulfuric_acid}}
+	data = ~[ meta(99, 0.0, 99) ],
+	color = { 0.659, 0.196, 0.196 },
+	amount = 5,
+	size = 0.5,
+	speed = 0.5,
+	lifetime = 3.0,
+	vel = { 0.0, 0.0, 0.0 },
+	temp = { r = 0.459, g = 0.078, b = 0.078, strength = 0.5 }
+{{@end}}

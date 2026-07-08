@@ -1,0 +1,10 @@
+{{@weather#debug}}
+	data = ~[ meta(9, 0.0, 2.0) ],
+	color = { 0.0, 0.0, 0.0 },
+	amount = 10,
+	size = 0.1,
+	speed = 0.8,
+	lifetime = 1.5,
+	vel = { 0.0, 0.0, 0.0 },
+	temp = { r = 0.0, g = 0.0, b = 0.0, strength = 0.0 }
+{{@end}}

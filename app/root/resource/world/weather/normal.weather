@@ -1,3 +1,10 @@
 {{@weather#normal}}
-    data =  ~[ meta(0.0, 0.5, 0.0) ]
+	data = ~[ meta(0, 0.5, 0.0) ],
+	color = { 1.0, 1.0, 1.0 },
+	amount = 0,
+	size = 0.0,
+	speed = 0.0,
+	lifetime = 0.0,
+	vel = { 0.0, 0.0, 0.0 },
+	temp = { r = 0.0, g = 0.0, b = 0.0, strength = 0.0 }
 {{@end}}

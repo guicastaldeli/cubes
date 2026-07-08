@@ -93,7 +93,8 @@ class WeatherCycle {
         Console.WriteLine($"[WeatherCycle] Initializing with {entries.Count} entries");
         this.entries = entries;
         if(entries.Count > 0) {
-            next(force: true);
+            currentName = entries[0].Name!;
+            if(!Weather.debugMode) next(force: true);
         } else {
             Console.WriteLine("[WeatherCycle] WARNING: No weather entries found!");
         }
