@@ -1,0 +1,9 @@
+{{@theme#test1}}
+	id = -1,
+	name = "TEST_1"
+	movement = ""
+	audio = ""
+	top = 1
+	particles = ""
+	texture = ""
+{{@end}}

@@ -1,0 +1,5 @@
+--[[
+    
+    Calculate Player dynamic movement...
+
+    ]]

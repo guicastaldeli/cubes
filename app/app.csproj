@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Concentus" Version="2.2.2" />
+    <PackageReference Include="NAudio" Version="2.3.0" />
+    <PackageReference Include="NLua" Version="1.7.8" />
+    <PackageReference Include="OpenTK" Version="4.9.4" />
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
+    <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="root\shaders\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>shaders\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\mesh\data\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>mesh\data\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\resource\texture\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>resource\texture\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\resource\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>resource\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\resource\font\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>resource\font\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\screen\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>screen\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\ui\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>ui\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\**\*.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\utils\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>utils\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\**\*.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\**\*.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="root\**\**\s*.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+</Project>

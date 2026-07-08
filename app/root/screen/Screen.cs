@@ -1,0 +1,263 @@
+namespace App.Root.Screen;
+using App.Root.Shaders;
+using App.Root.Text;
+using App.Root.Input;
+using App.Root.Scene;
+using System.Collections.Generic;
+using App.Root.Chunk;
+
+/**
+
+    Screen Handler
+
+    */
+interface ScreenHandler {
+    void render() {}
+    void update() {}
+    void handleAction(string action) {}
+    void handkeKeyPress(int key, int action) {}
+    void handleMouseMove(int mosueX, int mouseY) {}
+    void onWindowResize(int width, int height) {}
+}
+
+/**
+
+    Screen main class
+
+    */
+class Screen : ScreenHandler {
+    public static readonly string DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screen/");
+    
+    public static int screenWidth;
+    public static int screenHeight;
+
+    public static Tick tick = null!;
+    public static Input input = null!;
+    public static Window window = null!;
+    public static ShaderProgram shaderProgram = null!;
+    public static ScreenController screenController = null!;
+    public static MainScene mainScene = null!;
+    public static Network network = null!;
+
+    public static TextRenderer? textRenderer;
+    public bool active = false;
+    public string screenName;
+    public ScreenData? screenData;
+
+    private string filePath;
+
+    public int lastMouseX = -1;
+    public int lastMouseY = -1;
+
+    public static void init(
+        int screenWidth,
+        int screenHeight,
+        Tick tick,
+        Input input,
+        Window window,
+        ShaderProgram shaderProgram,
+        ScreenController screenController,
+        MainScene mainScene,
+        Network network
+    ) {
+        Screen.tick = tick;
+        Screen.input = input;
+        Screen.window = window;
+        Screen.screenWidth = screenWidth;
+        Screen.screenHeight = screenHeight;
+        Screen.shaderProgram = shaderProgram;
+        Screen.screenController = screenController;
+        Screen.mainScene = mainScene;
+        Screen.network = network;
+    }
+
+    public Screen(string filePath, string screenName) {
+        this.filePath = filePath;
+        this.screenName = screenName;
+
+        try {
+            textRenderer ??= new TextRenderer(shaderProgram, screenWidth, screenHeight);
+            //textRenderer.loadFont("arial", "arial.ttf", 16.0f);
+            this.screenData = DocParser.parseScreen(
+                filePath,
+                screenWidth,
+                screenHeight
+            );
+
+            //Console.WriteLine($"Screen '{screenName}' initialized: {screenData?.elements.Count ?? 0} elements");
+        } catch(Exception err) {
+            Console.Error.WriteLine($"Failed to init screen '{screenName}': {err.Message}");
+        }
+    }
+
+    // Get Main Scene
+    public MainScene getMainScene() {
+        return mainScene;
+    }
+
+    // Get Screen Type
+    public string? getScreenType() {
+        return screenData?.screenType;
+    }
+
+    // Get Screen Name
+    public string getScreenName() {
+        return screenName;
+    }
+
+    // Active
+    public void setActive(bool active) {
+        resetMouse();
+        resetHover();
+        this.active = active;
+    }
+
+    public bool isActive() {
+        return active;
+    }
+
+    // Get Element
+    public ScreenElement? getElementById(string id) {
+        ScreenElement? val = 
+            screenData != null ? 
+            DocParser.getElementById(screenData, id) : 
+            null;
+        return val;
+    }
+
+    public static ScreenElement? getElementByIdI(string id) {
+        ScreenData screenData = screenController.currentScreen!.screenData!;
+        ScreenElement? val = screenData != null ? 
+            DocParser.getElementById(screenData, id) : 
+            null;
+
+        return val;
+    }
+
+    public List<ScreenElement> getElementsByType(string type) {
+        List<ScreenElement> val = 
+            screenData != null ? 
+            DocParser.getElementsByType(screenData, type) :
+            new();
+        return val;
+    }
+
+    // Get Text Renderer
+    public TextRenderer? getTextRenderer() {
+        return textRenderer;
+    }
+
+    // Check Click
+    public virtual string? checkClick(int mouseX, int mouseY) {
+        if(!active || screenData == null) return null;
+
+        var buttons = DocParser.getElementsByType(screenData, "button");
+        foreach(var button in buttons) {
+            if(mouseX >= button.x && mouseX <= button.x + button.width &&
+               mouseY >= button.y && mouseY <= button.y + button.height
+            ) {
+                handleAction(button.action);
+                return button.action;
+            }
+        }
+        return null;
+    }
+
+    // Handle Mouse Move
+    public virtual void handleMouseMove(int mouseX, int mouseY) {
+        this.lastMouseX = mouseX;
+        this.lastMouseY = mouseY;
+        if(screenData == null) return;
+
+        foreach(var el in screenData.elements) {
+            if(!el.visible || !el.hoverable) continue;
+
+            bool mouseOver = el.containsPoint(mouseX, mouseY);
+            if(mouseOver && !el.isHovered) el.applyHover();
+            else if(!mouseOver && el.isHovered) el.removeHover();
+        }
+    }
+
+    // Handle Key Press
+    public virtual void handleKeyPress(int key, int action) {}
+
+    // Handle Action
+    public virtual void handleAction(string action) {}
+
+    // Show
+    public void show() {
+        resetMouse();
+        resetHover();
+        active = true;
+    }
+
+    // Hide
+    public void hide() {
+        resetHover();
+        active = false;
+    }
+
+    /**
+     * 
+     * Render
+     *
+     */
+    public virtual void render() {
+        if(!active || textRenderer == null || screenData == null) return;
+
+        DocParser.renderScreen(
+            screenData,
+            screenWidth,
+            screenHeight,
+            shaderProgram,
+            textRenderer
+        );
+    }
+
+    /**
+     * 
+     * Update
+     *
+     */
+    public virtual void update() {
+        if(lastMouseX >= 0 && lastMouseY >= 0) {
+            handleMouseMove(lastMouseX, lastMouseY);
+        }
+    }
+
+    /**
+     * 
+     * On Window Resize
+     *
+     */
+    public virtual void onWindowResize(int width, int height) {
+        screenWidth = width;
+        screenHeight = height;
+        textRenderer?.updateScreenSize(width, height);
+
+        if(screenData != null) {
+            screenData = DocParser.parseScreen(
+                filePath,
+                width,
+                height
+            );
+        }
+    }
+
+    /**
+     * 
+     * Reset
+     *
+     */
+    public void resetMouse() {
+        lastMouseX = -1;
+        lastMouseY = -1;
+    }
+
+    public void resetHover() {
+        if(screenData == null) return;
+        foreach(var el in screenData.elements) {
+            if(el.hoverable && el.isHovered) el.removeHover();
+        }
+    }
+}

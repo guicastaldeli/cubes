@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shop>
+    <div 
+        id="shopDiv" 
+        x="5%" y="5%" 
+        width="80%" height="80%" 
+        background="0,0,0,0.5" 
+        scale="0.7" 
+        visible="true"
+    >
+        <import src="world/points/points.xml" visible="true" />
+        <import src="world/platform/themes/themes.xml" visible="true" />
+    </div>
+</shop>

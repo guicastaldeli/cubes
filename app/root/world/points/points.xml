@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<points>
+    <label
+        id="pointsLabel" 
+        x="5%" y="5%" 
+        scale="0.8" 
+        color="0.0,1.0,1.0,1.0"
+        visible="false"
+    >
+        POINTS: {0}{points}
+    </label>
+</points>
