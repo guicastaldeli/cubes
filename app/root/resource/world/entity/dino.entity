@@ -1,0 +1,6 @@
+{{@entity#dino}}
+	id = "dino",
+	l = "m",
+	tex = "mesh/dino.png",
+	collider = "cube"
+{{@end}}
