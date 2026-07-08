@@ -1,5 +1,0 @@
---[[
-    
-    Calculate Player dynamic movement...
-
-    ]]
