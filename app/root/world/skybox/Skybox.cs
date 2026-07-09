@@ -77,7 +77,21 @@ class Color {
         
         string originalDir = Directory.GetCurrentDirectory();
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-        data.DoFile(DATA_PATH);
+        
+        var result = data.DoFile(DATA_PATH);
+        if(result != null && result.Length > 0) {
+            var returnTable = result[0] as LuaTable;
+            if(returnTable != null) {
+                foreach(var key in returnTable.Keys) {
+                    var keyStr = key?.ToString();
+                    if(!string.IsNullOrEmpty(keyStr)) {
+                        data[keyStr] = returnTable[key];
+                        Console.WriteLine($"[Color] Registered function: {keyStr}");
+                    }
+                }
+            }
+        }
+
         Directory.SetCurrentDirectory(originalDir);
 
         update();

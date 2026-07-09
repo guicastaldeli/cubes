@@ -1,3 +1,5 @@
+meshType = "skybox"
+
 local stacks = 20.0
 local slices = 20.0
 local radius = 1.0
@@ -49,7 +51,7 @@ local function spherePoint(phi, theta)
     return x, y, z
 end
 
-local num = 42
+num = 42
 math.randomseed(num)
 
 -- Vertices
@@ -82,22 +84,18 @@ for i = 0, stacks - 1 do
     end
 end
 
-return {
-    meshType = "skybox",
-    
-    vertices = verts,
-    normals = norms,
-    texCoords = texs,
-    colors = cols,
-    
-    -- Rotation
-    rotation = {
-        axis = "Y",
-        speed = 0.0
-    },
-    
-    -- Collider
-    collider = {
-        shape = "sphere"
-    }
+vertices = verts
+normals = norms
+texCoords = texs
+colors = cols
+
+-- Rotation
+rotation = {
+    axis = "Y",
+    speed = 0.0
+}
+
+-- Collider
+collider = {
+    shape = "sphere"
 }

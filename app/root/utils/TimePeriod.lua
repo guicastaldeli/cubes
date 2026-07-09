@@ -23,7 +23,7 @@ local Period = {
 }
 
 -- Is Active
-local function isActive(period, hour)
+function isActive(period, hour)
     if period.s < period.e then
         local val = hour >= period.s and hour < period.e
         return val
@@ -32,7 +32,7 @@ local function isActive(period, hour)
 end
 
 -- Get Current
-local function getCurrent(hour)
+function getCurrent(hour)
     for name, period in pairs(Period) do
         if isActive(period, hour) then
             period.name = name
@@ -42,9 +42,3 @@ local function getCurrent(hour)
 
     return Period.MIDNIGHT
 end
-
-return {
-    getCurrent = getCurrent,
-    isActive = isActive,
-    Period = Period
-}
