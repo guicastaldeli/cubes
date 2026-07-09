@@ -1,5 +1,3 @@
-meshType = "sphere"
-
 local stacks = 20.0
 local slices = 20.0
 local radius = 1.0
@@ -51,7 +49,7 @@ local function spherePoint(phi, theta)
     return x, y, z
 end
 
-num = 42
+local num = 42
 math.randomseed(num)
 
 -- Vertices
@@ -84,18 +82,22 @@ for i = 0, stacks - 1 do
     end
 end
 
-vertices = verts
-normals = norms
-texCoords = texs
-colors = cols
+return {
+    meshType = "sphere",
 
--- Rotation
-rotation = {
-    axis = "Y",
-    speed = 0.0
-}
-
--- Collider
-collider = {
-    shape = "sphere"
+    vertices = verts,
+    normals = norms,
+    texCoords = texs,
+    colors = cols,
+    
+    -- Rotation
+    rotation = {
+        axis = "Y",
+        speed = 0.0
+    },
+    
+    -- Collider
+    collider = {
+        shape = "sphere"
+    }
 }

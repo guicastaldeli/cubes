@@ -35,7 +35,7 @@ local Colors = {
 }
 
 -- Get Current Color
-function getCurrentColor(hour)
+local function getCurrentColor(hour)
     local currentPeriod = getCurrent(hour)
     local periodName = currentPeriod.name
     
@@ -45,7 +45,7 @@ function getCurrentColor(hour)
 end
 
 -- Get Top Color
-function getTopColor(periodName)
+local function getTopColor(periodName)
     if Colors[periodName] then
         return Colors[periodName].top
     end
@@ -53,9 +53,16 @@ function getTopColor(periodName)
 end
 
 -- Get Bottom Color
-function getBottomColor(periodName)
+local function getBottomColor(periodName)
     if Colors[periodName] then
         return Colors[periodName].bottom
     end
     return Colors.MIDNIGHT.bottom
 end
+
+return {
+    getCurrentColor = getCurrentColor,
+    getTopColor = getTopColor,
+    getBottomColor = getBottomColor,
+    Colors = Colors
+}
