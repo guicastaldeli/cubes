@@ -4,7 +4,7 @@
     general skybox colors and periods 
 
     ]]
-dofile("utils/TimePeriod.lua")
+local TimePeriod = dofile("utils/TimePeriod.lua")
 
 -- Skybox Colors
 local Colors = {
@@ -36,7 +36,7 @@ local Colors = {
 
 -- Get Current Color
 local function getCurrentColor(hour)
-    local currentPeriod = getCurrent(hour)
+    local currentPeriod = TimePeriod.getCurrent(hour)
     local periodName = currentPeriod.name
     
     local colorData = Colors[periodName] or Colors.MIDNIGHT
