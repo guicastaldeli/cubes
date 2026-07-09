@@ -7,7 +7,8 @@
 local Parser = dofile("utils/Parser.lua")
 Parser.registerType("entity", "world/entity/", ".entity")
 
-dofile("world/entity/SetLoader.lua")
+local SetLoader = dofile("world/entity/SetLoader.lua")
+local resolved = SetLoader.resolved
 
 local entityCache = {}
 
@@ -89,11 +90,6 @@ local function getEntities()
     return getAllEntities()
 end
 
--- Resolved
-local function resolved(entities)
-    return entities
-end
-
 --[[
     Build
 ]]
@@ -112,7 +108,7 @@ local function build()
         table.insert(entities, entry)
     end
 
-    return entities
+    return resolved(entities)
 end
 
 Entities = build()
@@ -125,6 +121,11 @@ local function init()
     print("[Entities] Initializing...")
     local all = getAllEntities()
     print(string.format("[Entities] Initialized with %d entities", #all))
+    print(string.format("[Entities] Entities table has %d entries for C#", #Entities))
+    
+    for i, entity in ipairs(Entities) do
+        print(string.format("  Entity %d: id=%s, loader=%s, tex=%s", i, entity.id, entity.loader, entity.tex or ""))
+    end
 end
 init()
 

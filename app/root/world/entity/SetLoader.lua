@@ -24,7 +24,7 @@ local function set(entity)
 end
 
 -- Resolved
-function resolved(entities)
+local function resolved(entities)
     local res = {}
     
     for _, entity in ipairs(entities) do
@@ -33,3 +33,8 @@ function resolved(entities)
     
     return res
 end
+
+return {
+    set = set,
+    resolved = resolved
+}

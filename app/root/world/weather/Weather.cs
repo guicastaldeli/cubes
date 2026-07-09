@@ -39,7 +39,7 @@ class WeatherType {
     public const string NORMAL = "NORMAL";
     public const string RAIN = "RAIN";    
     public const string SNOW = "SNOW";
-    public const string DEBUG = "sulfuric_acid";
+    public const string DEBUG = "DEBUG";
 }
 
 /**
@@ -49,7 +49,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.DEBUG;
+    public static string DEFAULT_WEATHER = WeatherType.NORMAL;
 
     private static Weather weather = null!;
     private static Lua data = null!;
