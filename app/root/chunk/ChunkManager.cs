@@ -97,7 +97,7 @@ static class ChunkPositions {
     */
 [ManagedState]
 class ChunkManager {
-    public static bool USE_FILE { get; set; } = true;
+    public static bool USE_FILE { get; set; } = false;
 
     public const int RENDER_DISTANCE = 8;
     private const int MAX_LOAD_PER_FRAME = 2;

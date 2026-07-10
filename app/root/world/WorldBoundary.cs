@@ -4,7 +4,6 @@
 
     */
 namespace App.Root.World;
-
 using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
@@ -16,7 +15,7 @@ class WorldBoundary {
     private RigidBody rigidBody;
     private CollisionManager collisionManager;
 
-    private BoundaryObject boundary; 
+    private BoundaryObject? boundary; 
 
     private const float BOUNDARY_MULTIPLIER = 5.0f;
     public const float GLOBAL_MULTIPLIER = BOUNDARY_MULTIPLIER * 2.0f;
@@ -26,8 +25,7 @@ class WorldBoundary {
         this.rigidBody = rigidBody;
         this.collisionManager = collisionManager;
 
-        /*this.boundary = new BoundaryObject(0.0f);
-        collisionManager.addStaticCollider(boundary);*/
+        //init();
     }
 
     // Get Boundary Object
@@ -127,5 +125,15 @@ class WorldBoundary {
                 rigidBody.getVelocity().Z
             ));
         }
+    }
+
+    /**
+     * 
+     * Init
+     *
+     */
+    private void init() {
+        this.boundary = new BoundaryObject(0.0f);
+        collisionManager.addStaticCollider(boundary);
     }
 }

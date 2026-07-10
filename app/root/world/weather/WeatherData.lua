@@ -226,7 +226,7 @@ end
 local function init()
     print("[WeatherData] Initializing...")
     getTypes()
-    printAllWeather()
+    --printAllWeather()
     print(string.format("[WeatherData] Initialized with %d weather types", #weatherCache))
 end
 init()

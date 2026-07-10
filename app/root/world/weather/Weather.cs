@@ -5,6 +5,7 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using OpenTK.Mathematics;
 using App.Root.Chunk;
+using App.Root.Player;
 using NLua;
 
 /**
@@ -39,7 +40,7 @@ class WeatherType {
     public const string NORMAL = "NORMAL";
     public const string RAIN = "RAIN";    
     public const string SNOW = "SNOW";
-    public const string DEBUG = "DEBUG";
+    public const string DEBUG = "SULFURIC_ACID";
 }
 
 /**
@@ -49,7 +50,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.SNOW;
+    public static string DEFAULT_WEATHER = WeatherType.DEBUG;
 
     private static Weather weather = null!;
     private static Lua data = null!;
@@ -99,7 +100,7 @@ class WeatherData {
 
             res.Add(new WeatherEntry {
                 Id = Convert.ToInt32(row["i"]),
-                Name = key,
+                Name = key.ToLower(),
                 Frequency = Convert.ToSingle(row["f"]),
                 Value = Convert.ToInt32(row["v"])
             });
@@ -171,13 +172,28 @@ class WeatherData {
 
     */
 [Chunked]
-class Weather : WorldHandler {
-    private Tick tick;      public float DeltaTime { get { return tick.getDeltaTime(); } }
+class Weather : WorldHandler, IChunkUpdatable {
+    private static ChunkPriorityConfig ChunkPriority => new ChunkPriorityConfig {
+        HighDistance = 3.0f,
+        MediumDistance = 6.0f,
+        LowDistance = 10.0f,
+        MaxDistance = 15.0f,
+
+        HighEntityRatio = 1.0f,
+        MediumEntityRatio = 0.5f,
+        LowEntityRatio = 0.25f,
+        VeryLowEntityRatio = 0.1f
+    };
+
+    private Tick tick;      private float DeltaTime { get { return tick.getDeltaTime(); } }
     private Mesh mesh;
     private ShaderProgram shaderProgram;
     private World world;
+    private ChunkManager chunkManager;
+    private PlayerController playerController;
 
     private WeatherCycle weatherCycle;
+    private ChunkPriorityConfig priorityConfig = ChunkPriority;
     private string currentWeather = WeatherData.DEFAULT_WEATHER;
 
     private TempConfig? currentTemp;
@@ -187,34 +203,61 @@ class Weather : WorldHandler {
 
     private Dictionary<ChunkCoord, ParticleEntity> activeEmitters = new();
     private HashSet<ChunkCoord> activeChunks = new();
+    private HashSet<ChunkCoord> seenChunks = new();
+    private HashSet<ChunkCoord> generatedChunks = new();
 
-    private ParticleEntity? partActiveEmitter;
     private float partEmitTimer = 0.0f;
     private float partEmitInterval = 0.08f;
+
+    private Vector3 lastPlayerPosition;
 
     private bool initialized = false;
     public static bool debugMode = true;
 
-    public Weather([Inject] Tick tick, [Inject] Mesh mesh, [Inject] ShaderProgram shaderProgram, [Inject] World world) {
+    public Weather(
+        [Inject] Tick tick, 
+        [Inject] Mesh mesh, 
+        [Inject] ShaderProgram shaderProgram, 
+        [Inject] World world,
+        [Inject] ChunkManager chunkManager,
+        [Inject] PlayerController playerController
+    ) {
         ServiceContainer.ActiveSRegister(true);
         
         this.tick = tick;
         this.mesh = mesh;
         this.shaderProgram = shaderProgram;
         this.world = world;
+        this.chunkManager = chunkManager;
+        this.playerController = playerController;
 
         this.weatherCycle = new WeatherCycle();
+
+        chunkManager.RegisterUpdatable(this, ChunkPriority);
     
         ServiceContainer.ActiveSRegister(false);
+    }
+
+    // Get Active Chunks
+    public override HashSet<ChunkCoord> GetActiveChunks() {
+        return activeChunks;
     }
 
     // On Weather Changed
     private void onWeatherChanged(string prev, string next) {
         Console.WriteLine($"*** Weather changed: {prev} → {next} ***");
+        
         currentWeather = next;
-
         prevTemp = currentTemp;
-        currentTemp = WeatherData.getTempConfig(getWeatherValue(next));
+        
+        var entry = WeatherData.getEntries().FirstOrDefault(e => string.Equals(e.Name, next, StringComparison.OrdinalIgnoreCase));
+        if(entry != null) {
+            currentTemp = WeatherData.getTempConfig(entry.Id);
+        } else {
+            Console.WriteLine($"[Weather] Entry not found for: {next}");
+            currentTemp = null;
+        }
+
         tempTransition = 0.0f;
 
         stopPartEmitter();
@@ -224,17 +267,27 @@ class Weather : WorldHandler {
     // Get Weather Value
     private int getWeatherValue(string name) {
         int val = WeatherData.getEntries()
-            .FirstOrDefault(e => e.Name == name)
-            ?.Value ?? 0;
+            .FirstOrDefault(e => string.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase))
+            ?.Id ?? 0;
         return val;
     }
 
     // Get Weather Name
     public string? getWeatherName(int addonId) {
         string? val = WeatherData.getEntries()
-            .FirstOrDefault(e => e.Value == addonId)
+            .FirstOrDefault(e => e.Id == addonId)
             ?.Name;
         return val;
+    }
+
+    // Get Player Position
+    private Vector3 getPlayerPosition() {
+        if(playerController != null) {
+            Vector3 val = playerController.getPosition();
+            return val;
+        }
+
+        return Vector3.Zero;
     }
 
     /**
@@ -373,7 +426,6 @@ class Weather : WorldHandler {
         if(!debugMode) weatherCycle.update(DeltaTime);
         updateTempTransition();
         updateShader();
-        updateParticles();
     }
 
     // Update Temp Transition
@@ -412,7 +464,7 @@ class Weather : WorldHandler {
     }
 
     // Update Particles
-    private void updateParticles() {
+    private void updateParticles(Dictionary<ChunkCoord, ChunkPriorityData> priorityData) {
         if(currentWeather == WeatherType.NORMAL) return;
     
         partEmitTimer += DeltaTime;
@@ -425,17 +477,37 @@ class Weather : WorldHandler {
         var controller = mesh.getParticleController();
         if(controller == null) return;
 
-        var stale = activeEmitters.Keys.Where(c => !activeChunks.Contains(c)).ToList();
-        foreach(var c in stale) {
-            activeEmitters[c].cleanup();
-            activeEmitters.Remove(c);
+        var toRemove = new List<ChunkCoord>();
+        foreach(var e in activeEmitters) {
+            var coord = e.Key;
+            var emitter = e.Value;
+
+            if(!activeChunks.Contains(coord) || 
+                !priorityData.ContainsKey(coord) || 
+                !emitter.IsActive()) {
+                    emitter.cleanup();
+                    toRemove.Add(coord);
+                }
+        }
+        foreach(var coord in toRemove) {
+            activeEmitters.Remove(coord);
         }
 
         float spawnRadius = ChunkCoord.CHUNK_SIZE;
         Vector3 color = new Vector3(config.Color[0], config.Color[1], config.Color[2]); 
         Vector3 velNum = new Vector3(config.Vel[0], config.Vel[1], config.Vel[2]);
 
-        foreach(var coord in activeChunks) {
+        foreach(var data in priorityData) {
+            var coord = data.Key;
+            var priorityInfo = data.Value;
+
+            if(!activeChunks.Contains(coord)) continue;
+            if(!priorityInfo.IsVisible) continue;
+            if(!priorityInfo.ShouldUpdateThisFrame) continue;
+
+            float entityRatio = priorityInfo.EntityRatio;
+            int adjustAmount = Math.Max(1, (int)(config.Amount * entityRatio));
+
             float multiplier = WorldBoundary.GLOBAL_MULTIPLIER;
 
             Vector3 spawnPos = getChunkCenter(coord);
@@ -444,11 +516,16 @@ class Weather : WorldHandler {
             float minHeight = ChunkCoord.GetMinHeight(coord);
             float targetY = CalculateChunk.Expand(coord, minHeight, multiplier);
 
-            if(!activeEmitters.TryGetValue(coord, out var emitter)) {
+            if(!activeEmitters.TryGetValue(coord, out var emitter) || !emitter.IsActive()) {
+                if(emitter != null) {
+                    emitter.cleanup();
+                    activeEmitters.Remove(coord);
+                }
+
                 emitter = controller.emit(
                     position: spawnPos,
                     color: color,
-                    amount: config.Amount,
+                    amount: adjustAmount,
                     size: config.Size,
                     speed: config.Speed,
                     lifetime: config.Lifetime,
@@ -457,10 +534,25 @@ class Weather : WorldHandler {
                     enableMotion: true,
                     spawnRadius: spawnRadius
                 );
-                activeEmitters[coord] = emitter;
+                
+                if(emitter != null) {
+                    emitter.setUpdateInterval(1);
+                    activeEmitters[coord] = emitter;
+                }
             } else {
                 emitter.set(spawnPos, true, targetY);
             }
         }
+    }
+
+    // Update Chunks
+    public override void UpdateChunks(Dictionary<ChunkCoord, ChunkPriorityData> priorityData, ChunkPriorityConfig config) {
+        if(!initialized) return;
+
+        priorityConfig = config ?? ChunkPriority;
+        Vector3 playerPos = getPlayerPosition();
+        lastPlayerPosition = playerPos;
+
+        updateParticles(priorityData);
     }
 }

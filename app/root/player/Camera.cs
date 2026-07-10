@@ -18,7 +18,7 @@ class Camera {
     private float pitch = 0.0f;
     private float fov = 90.0f;
 
-    private float sensv = 0.8f;
+    private float sensv = 0.5f;
     private float targetAngle = 0.0f;
     
     private Vector3 worldUp;

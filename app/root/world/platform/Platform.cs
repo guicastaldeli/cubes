@@ -3,6 +3,7 @@ using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
 using App.Root.Mesh;
+using App.Root.Particle;
 using App.Root.Physics;
 using App.Root.Player;
 using App.Root.Utils;
@@ -465,12 +466,64 @@ class Platform : WorldHandler {
         ChunkPositions.Remove(GRID_ID, coord);
     }
 
+    private int frameCounter = 0;
+        private ParticleEntity? particleEntity = null;
+
+        private void emitParticle() {
+            ParticleController particleController = mesh.getParticleController()!;
+            Random random = new Random();
+
+            Vector3 position = new Vector3(0.0f, 10.0f, -3.0f);
+            Vector3 color = new Vector3(1.0f, 1.0f, 1.0f); 
+            int amount = 5;
+            float size = 0.1f;
+            float speed = 0.3f;
+            float lifetime = 2.5f;
+            Vector3 velNum = new Vector3(5.0f, 5.0f, 5.0f);
+
+            if(particleEntity == null) {
+                particleEntity = particleController.emit(
+                    position,
+                    color,
+                    amount,
+                    size,
+                    speed,
+                    lifetime,
+                    velNum,
+                    () => {
+                        return new Vector3(
+                            random.NextSingle(),
+                            random.NextSingle(),
+                            random.NextSingle()
+                        );
+                    }
+                );
+            } else {
+                particleEntity.set(
+                    new Vector3(0.0f, 10.0f, -3.0f),
+                    true,
+                    () => {
+                        return new Vector3(
+                            random.NextSingle(),
+                            random.NextSingle(),
+                            random.NextSingle()
+                        );
+                    }
+                );
+            }
+        }
+
     /**
      * 
      * Update
      *
      */
     public override void update() {
+        frameCounter++;
+
+        /*if(frameCounter % 10 == 0) {
+            emitParticle();
+        }*/
         platformRegistry.update();
     }
 

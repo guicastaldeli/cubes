@@ -8,15 +8,13 @@ namespace App.Root.Particle;
 using App.Root.Mesh;
 using Particle = Resource.Mesh.Particle;
 using OpenTK.Mathematics;
+using App.Root.Physics;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";
-    private const string SHARED_MESH_ID = "PARTICLE_SHARED";
     private const string INSTANCED_ID = "PART_BATCH";
 
     private const float GRAVITY_VEL = 9.8f;
-
-    private const int UPDATE_INTERVAL = 2;
 
     private Mesh mesh;
     private Random random;
@@ -48,13 +46,28 @@ class ParticleEntity {
 
     private List<Vector3> instancePositions = new();
     private List<float[]> instanceColors = new();
+
     private bool needsBufferUpdate = false;
+    private int updateInterval = 1;
 
     public ParticleEntity(Mesh mesh) {
         this.mesh = mesh;
         this.random = new Random();
 
         this.particles = new List<Particle>();
+
+        this.isActive = false;
+        this.position = Vector3.Zero;
+        this.color = Vector3.One;
+        this.size = 0.1f;
+        this.speed = 1.0f;
+        this.amount = 10;
+        this.lifetime = 2.0f;
+        this.velNum = Vector3.One;
+        this.spawnRadius = 0.0f;
+        this.targetY = 0.0f;
+        this.vel = false;
+        this.enableMotion = false;
     }
 
     /**
@@ -71,25 +84,8 @@ class ParticleEntity {
      * Id
      *
      */
-    // Set
     private string setId() {
         string val = $"{INSTANCED_ID}_{counter++}";
-        return val;
-    }
-
-    // Generate
-    private string generateId() {
-        string val = 
-            "p_" + 
-            DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 
-            "_" + 
-        random.Next(100000);
-
-        return val;
-    }
-
-    private string generateIndexId(string id, int i) {
-        string val = $"{id}_{i}";
         return val;
     }
 
@@ -118,7 +114,6 @@ class ParticleEntity {
      */
     public void setSize(float size) {
         this.size = size;
-        mesh.setScale(SHARED_MESH_ID, size);
     }
 
     /**
@@ -193,11 +188,38 @@ class ParticleEntity {
 
     /**
      * 
-     * Init
+     * Set Update Interval
      *
      */
-    private void init() {
-        if(sharedMeshInitialized) return;
+    public void setUpdateInterval(int interval) {
+        this.updateInterval = Math.Max(1, interval);
+    }
+
+    /**
+     * 
+     * Generate Id
+     *
+     */
+    // Generate Id
+    private string generateId() {
+        string val = $"{INSTANCED_ID}{Guid.NewGuid():N}";
+        return val;
+    }
+
+    // Generate Index Id
+    private string generateIndexId(string id, int i) {
+        string val = $"{id}_p_{i}";
+        return val;
+    }
+
+    /**
+     * 
+     * Setup
+     *
+     */
+    public void setup() {
+        if(string.IsNullOrEmpty(id)) id = generateId();
+        if(mesh.hasMesh(id)) return;
 
         MeshData data = MeshDataLoader.load(MESH_TYPE);
         data.shaderType = 7;
@@ -211,22 +233,10 @@ class ParticleEntity {
         }
         data.setColors(colors);
 
-        mesh.add(SHARED_MESH_ID, data);
-        var renderer = mesh.getMeshRenderer(SHARED_MESH_ID);
+        mesh.add(id, data);
+        var renderer = mesh.getMeshRenderer(id);
         if(renderer != null) renderer.isInstanced = true;
-        mesh.setScale(SHARED_MESH_ID, 0.1f);
-
-        sharedMeshInitialized = true;
-    }
-
-    /**
-     * 
-     * Setup
-     *
-     */
-    public void setup() {
-        this.id = generateId();
-        init();
+        mesh.setScale(id, size);
     }
 
     /**
@@ -292,6 +302,7 @@ class ParticleEntity {
         }       
 
         needsBufferUpdate = true;
+        updateCounter = 0;
         updateInstance();
     }
 
@@ -309,6 +320,7 @@ class ParticleEntity {
      * Update
      *
      */
+    // Update
     public void update() {
         if(!isActive) return;
 
@@ -345,25 +357,11 @@ class ParticleEntity {
                 needsUpdate = true;
             }
 
-            //instancePositions[i] = particle.position;
-
             float alpha = particle.lifetime / particle.maxLifetime;
             instanceColors[i][0] = particle.color.X;
             instanceColors[i][1] = particle.color.Y;
             instanceColors[i][2] = particle.color.Z;
             instanceColors[i][3] = alpha;
-            /*
-            Vector3 newPos = particle.position + new Vector3(
-                particle.vel.X * deltaTime,
-                particle.vel.Y * deltaTime,
-                particle.vel.Z * deltaTime
-            );
-            if(newPos != particle.position) {
-                particle.position = newPos;
-                instancePositions[i] = newPos;
-                needsUpdate = true;
-            }
-            */
         }
 
         if(needsUpdate) {
@@ -375,13 +373,11 @@ class ParticleEntity {
         }
     }
 
+    // Update Instance
     private void updateInstance() {
         if(!needsBufferUpdate || instancePositions.Count == 0) return;
 
-        updateCounter++;
-        if(updateCounter % UPDATE_INTERVAL != 0) return;
-
-        var renderer = mesh.getMeshRenderer(SHARED_MESH_ID);
+        var renderer = mesh.getMeshRenderer(id);
         if(renderer != null) renderer.setInstanceData(instancePositions, instanceColors);
 
         needsBufferUpdate = false;
@@ -395,7 +391,7 @@ class ParticleEntity {
     public void render() {
         if(!isActive) return;
 
-        mesh.renderId(SHARED_MESH_ID);
+        mesh.renderId(id);
     }
 
     /**
@@ -410,12 +406,7 @@ class ParticleEntity {
 
         isActive = false;
         needsBufferUpdate = false;
-    }
-    
-    private void clear() {
-        instancePositions.Clear();
-        instanceColors.Clear();
-        particles.Clear();
+        updateCounter = 0;
     }
 
     /**
@@ -430,7 +421,6 @@ class ParticleEntity {
 
         isActive = false;
         needsBufferUpdate = false;
-
         updateCounter = 0;
         position = Vector3.Zero;
         color = Vector3.One;
@@ -441,8 +431,9 @@ class ParticleEntity {
         velNum = Vector3.One;
         spawnRadius = 0.0f;
         targetY = 0.0f;
-
+        
         vel = false;
         enableMotion = false;
+        id = null!;
     }
 }

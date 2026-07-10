@@ -21,9 +21,21 @@ class ParticleController {
     }
 
     // Get Particle Entity
-    public ParticleEntity? getParticleEntity() {
-        ParticleEntity? val = activeEntities.Count > 0 ? activeEntities[0] : null;
-        return val;
+    public ParticleEntity getParticleEntity() {
+        ParticleEntity? entity;
+
+        if(particlePool.Count > 0) {
+            entity = particlePool[0];
+            particlePool.RemoveAt(0);
+            
+            entity.reset();
+            entity.setup();
+        } else {
+            entity = new ParticleEntity(mesh);
+            entity.setup();
+        }
+
+        return entity;
     }
 
     public List<ParticleEntity> getParticleEntities() {
@@ -33,7 +45,9 @@ class ParticleController {
 
     // Return Entity
     private void returnEntity(ParticleEntity entity) {
-        entity.cleanup();
+        if(entity == null) return;
+
+        entity.reset();
         activeEntities.Remove(entity);
         particlePool.Add(entity);
     }
@@ -56,15 +70,7 @@ class ParticleController {
         bool enableMotion = false,
         float spawnRadius = 0.0f
     ) {
-        ParticleEntity entity;
-        if(particlePool.Count > 0) {
-            entity = particlePool[0];
-            particlePool.RemoveAt(0);
-            entity.reset();
-        } else {
-            entity = new ParticleEntity(mesh);
-            entity.setup();
-        }
+        ParticleEntity entity = getParticleEntity();
         
         entity.setTargetY(targetY);
         entity.setColor(color);
