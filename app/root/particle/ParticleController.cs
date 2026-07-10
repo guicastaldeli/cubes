@@ -6,25 +6,36 @@
 namespace App.Root.Particle;
 using OpenTK.Mathematics;
 using App.Root.Mesh;
+using App.Root.Chunk;
 
 class ParticleController {
     private Mesh mesh;
 
-    private List<ParticleEntity> particleEntities;
-    private ParticleEntity? particleEntity;
+    [Poolable("particle_entities", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] private PoolableList<ParticleEntity> particlePool = null!;
+    [Poolable("particle_active", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] private PoolableList<ParticleEntity> activeEntities = null!;
 
     public ParticleController(Mesh mesh) {
         this.mesh = mesh;
-        this.particleEntities = new List<ParticleEntity>();
+
+        PoolInjector.Inject(this);
     }
 
     // Get Particle Entity
     public ParticleEntity? getParticleEntity() {
-        return particleEntity;
+        ParticleEntity? val = activeEntities.Count > 0 ? activeEntities[0] : null;
+        return val;
     }
 
     public List<ParticleEntity> getParticleEntities() {
-        return particleEntities;
+        List<ParticleEntity> val = new List<ParticleEntity>(activeEntities);
+        return val;
+    }
+
+    // Return Entity
+    private void returnEntity(ParticleEntity entity) {
+        entity.cleanup();
+        activeEntities.Remove(entity);
+        particlePool.Add(entity);
     }
 
     /**
@@ -45,7 +56,15 @@ class ParticleController {
         bool enableMotion = false,
         float spawnRadius = 0.0f
     ) {
-        ParticleEntity entity = new ParticleEntity(mesh);
+        ParticleEntity entity;
+        if(particlePool.Count > 0) {
+            entity = particlePool[0];
+            particlePool.RemoveAt(0);
+            entity.reset();
+        } else {
+            entity = new ParticleEntity(mesh);
+            entity.setup();
+        }
         
         entity.setTargetY(targetY);
         entity.setColor(color);
@@ -59,7 +78,7 @@ class ParticleController {
 
         entity.set(position, velNum.HasValue, colorSupplier);
 
-        particleEntities.Add(entity);
+        activeEntities.Add(entity);
         return entity;
     }
 
@@ -69,12 +88,10 @@ class ParticleController {
      *
      */
     public void update() {
-        for(int i = particleEntities.Count - 1; i >= 0; i--) {
-            particleEntities[i].update();
-            if(!particleEntities[i].isActiveEntity()) {
-                particleEntities[i].cleanup();
-                particleEntities.RemoveAt(i);
-            }
+        for(int i = activeEntities.Count - 1; i >= 0; i--) {
+            var entity = activeEntities[i];
+            entity.update();
+            if(!entity.IsActive()) returnEntity(entity);
         }
     }
 
@@ -84,7 +101,7 @@ class ParticleController {
      *
      */
     public void render() {
-        foreach(ParticleEntity entity in particleEntities) {
+        foreach(ParticleEntity entity in activeEntities) {
             entity.render();
         }
     }
@@ -95,9 +112,10 @@ class ParticleController {
      * 
      */
     public void cleanup() {
-        foreach(ParticleEntity entity in particleEntities) {
+        foreach(ParticleEntity entity in activeEntities) {
             entity.cleanup();
+            particlePool.Add(entity);
         }
-        particleEntities.Clear();
+        activeEntities.Clear();
     }
 }

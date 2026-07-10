@@ -49,7 +49,7 @@ class WeatherType {
     */
 class WeatherData {
     private static string DATA_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/weather/WeatherData.lua");
-    public static string DEFAULT_WEATHER = WeatherType.NORMAL;
+    public static string DEFAULT_WEATHER = WeatherType.SNOW;
 
     private static Weather weather = null!;
     private static Lua data = null!;
@@ -172,7 +172,7 @@ class WeatherData {
     */
 [Chunked]
 class Weather : WorldHandler {
-    private Tick tick;
+    private Tick tick;      public float DeltaTime { get { return tick.getDeltaTime(); } }
     private Mesh mesh;
     private ShaderProgram shaderProgram;
     private World world;
@@ -191,9 +191,6 @@ class Weather : WorldHandler {
     private ParticleEntity? partActiveEmitter;
     private float partEmitTimer = 0.0f;
     private float partEmitInterval = 0.08f;
-
-    private const float SPAWN_CENTER_Y = 40.0f;
-    private const float DESPAWN_Y = -40.0f;
 
     private bool initialized = false;
     public static bool debugMode = true;
@@ -373,18 +370,16 @@ class Weather : WorldHandler {
     public override void update() {
         init();
 
-        float deltaTime = tick.getDeltaTime();
-
-        if(!debugMode) weatherCycle.update(deltaTime);
-        updateTempTransition(deltaTime);
+        if(!debugMode) weatherCycle.update(DeltaTime);
+        updateTempTransition();
         updateShader();
-        updateParticles(deltaTime);
+        updateParticles();
     }
 
     // Update Temp Transition
-    private void updateTempTransition(float deltaTime) {
+    private void updateTempTransition() {
         if(tempTransition < 1.0f) {
-            tempTransition = Math.Min(1.0f, tempTransition + deltaTime * tempTransSpeed);
+            tempTransition = Math.Min(1.0f, tempTransition + DeltaTime * tempTransSpeed);
         }
     }
 
@@ -417,10 +412,10 @@ class Weather : WorldHandler {
     }
 
     // Update Particles
-    private void updateParticles(float deltaTime) {
+    private void updateParticles() {
         if(currentWeather == WeatherType.NORMAL) return;
     
-        partEmitTimer += deltaTime;
+        partEmitTimer += DeltaTime;
         if(partEmitTimer < partEmitInterval) return;
         partEmitTimer = 0.0f;
 

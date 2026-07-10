@@ -11,16 +11,22 @@ using OpenTK.Mathematics;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";
+    private const string SHARED_MESH_ID = "PARTICLE_SHARED";
     private const string INSTANCED_ID = "PART_BATCH";
 
     private const float GRAVITY_VEL = 9.8f;
 
+    private const int UPDATE_INTERVAL = 2;
+
     private Mesh mesh;
     private Random random;
 
-    public List<Particle> particles;
-    private string id;
+    private static bool sharedMeshInitialized = false;
     private static int counter = 0;
+    private int updateCounter = 0;
+
+    public List<Particle> particles;
+    private string id = null!;
 
     private bool isActive;
     private Vector3 position;
@@ -49,20 +55,15 @@ class ParticleEntity {
         this.random = new Random();
 
         this.particles = new List<Particle>();
+    }
 
-        this.isActive = false;
-        this.position = Vector3.Zero;
-        this.color = Vector3.One;
-        this.size = 0.1f;
-        this.speed = 1.0f;
-        this.amount = 10;
-        this.lifetime = 2.0f;
-        this.velNum = Vector3.One;
-        this.spawnRadius = 0.0f;
-
-        this.id = setId();
-
-        setup();
+    /**
+     * 
+     * Position
+     *
+     */
+    public Vector3 getPosition() {
+        return position;
     }
 
     /**
@@ -117,7 +118,7 @@ class ParticleEntity {
      */
     public void setSize(float size) {
         this.size = size;
-        mesh.setScale(id, size);
+        mesh.setScale(SHARED_MESH_ID, size);
     }
 
     /**
@@ -152,9 +153,10 @@ class ParticleEntity {
      * Is Active
      *
      */
-    public bool isActiveEntity() {
+    public bool IsActive() {
         return isActive;
     }
+    
 
     /**
      * 
@@ -191,12 +193,12 @@ class ParticleEntity {
 
     /**
      * 
-     * Setup
+     * Init
      *
      */
-    private void setup() {
-        if(mesh.hasMesh(id)) return;
-        
+    private void init() {
+        if(sharedMeshInitialized) return;
+
         MeshData data = MeshDataLoader.load(MESH_TYPE);
         data.shaderType = 7;
 
@@ -209,12 +211,22 @@ class ParticleEntity {
         }
         data.setColors(colors);
 
-        mesh.add(id, data);
-
-        var renderer = mesh.getMeshRenderer(id);
+        mesh.add(SHARED_MESH_ID, data);
+        var renderer = mesh.getMeshRenderer(SHARED_MESH_ID);
         if(renderer != null) renderer.isInstanced = true;
+        mesh.setScale(SHARED_MESH_ID, 0.1f);
 
-        mesh.setScale(id, size);
+        sharedMeshInitialized = true;
+    }
+
+    /**
+     * 
+     * Setup
+     *
+     */
+    public void setup() {
+        this.id = generateId();
+        init();
     }
 
     /**
@@ -366,10 +378,11 @@ class ParticleEntity {
     private void updateInstance() {
         if(!needsBufferUpdate || instancePositions.Count == 0) return;
 
-        var renderer = mesh.getMeshRenderer(id);
-        if(renderer != null) {
-            renderer.setInstanceData(instancePositions, instanceColors);
-        }
+        updateCounter++;
+        if(updateCounter % UPDATE_INTERVAL != 0) return;
+
+        var renderer = mesh.getMeshRenderer(SHARED_MESH_ID);
+        if(renderer != null) renderer.setInstanceData(instancePositions, instanceColors);
 
         needsBufferUpdate = false;
     }
@@ -382,7 +395,7 @@ class ParticleEntity {
     public void render() {
         if(!isActive) return;
 
-        mesh.renderId(id);
+        mesh.renderId(SHARED_MESH_ID);
     }
 
     /**
@@ -391,14 +404,45 @@ class ParticleEntity {
      *
      */
     public void cleanup() {
-        mesh.remove(id);
         particles.Clear();
         instancePositions.Clear();
+        instanceColors.Clear();
+
+        isActive = false;
+        needsBufferUpdate = false;
     }
     
     private void clear() {
         instancePositions.Clear();
         instanceColors.Clear();
         particles.Clear();
+    }
+
+    /**
+     * 
+     * Reset
+     *
+     */
+    public void reset() {
+        particles.Clear();
+        instancePositions.Clear();
+        instanceColors.Clear();
+
+        isActive = false;
+        needsBufferUpdate = false;
+
+        updateCounter = 0;
+        position = Vector3.Zero;
+        color = Vector3.One;
+        size = 0.1f;
+        speed = 1.0f;
+        amount = 10;
+        lifetime = 2.0f;
+        velNum = Vector3.One;
+        spawnRadius = 0.0f;
+        targetY = 0.0f;
+
+        vel = false;
+        enableMotion = false;
     }
 }
