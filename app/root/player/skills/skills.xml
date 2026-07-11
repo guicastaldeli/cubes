@@ -7,7 +7,7 @@
         background="0.5,0.5,0.5,0.8"
     >
         {#grid(5,2)}
-        {#foreach playerskills as skill}
+        {#foreach skills as skill}
             <div 
                 id="skill_{skill.Id}" 
                 x="{col * 11 + 2}%" y="{row * 22 + 2}%" 
