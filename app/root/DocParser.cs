@@ -236,49 +236,49 @@ class DocParser {
 
     // Resolve Imports
     private static void resolveImports(XmlElement root, string filePath) {
-    string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-    var imports = root.SelectNodes(".//import")?.Cast<XmlNode>().ToList();
-    if(imports == null) return;
+        var imports = root.SelectNodes(".//import")?.Cast<XmlNode>().ToList();
+        if(imports == null) return;
 
-    foreach(XmlNode node in imports) {
-        if(node is not XmlElement importEl) continue;
+        foreach(XmlNode node in imports) {
+            if(node is not XmlElement importEl) continue;
 
-        string src = importEl.GetAttribute("src");
-        string importPath = Path.Combine(baseDir, src);
+            string src = importEl.GetAttribute("src");
+            string importPath = Path.Combine(baseDir, src);
 
-        if(!File.Exists(importPath)) {
-            Console.Error.WriteLine($"Import not found!: {importPath}");
-            importEl?.ParentNode?.RemoveChild(importEl);
-            continue;
-        }
-
-        string importContent = File.ReadAllText(importPath);
-        string resolvedContent = LResolve(importContent);
-
-        XmlDocument importDoc = new XmlDocument();
-        importDoc.LoadXml(resolvedContent);
-
-        XmlElement importRoot = importDoc.DocumentElement!;
-        XmlNode parent = importEl.ParentNode!;
-
-        foreach(XmlNode child in importRoot.ChildNodes.Cast<XmlNode>().ToList()) {
-            if(child.NodeType != XmlNodeType.Element) continue;
-            XmlNode imported = root.OwnerDocument.ImportNode(child, true);
-
-            if(imported is XmlElement importedEl) {
-                foreach(XmlAttribute attr in importEl.Attributes) {
-                    if(attr.Name == "src") continue;
-                    importedEl.SetAttribute(attr.Name, attr.Value);
-                }
+            if(!File.Exists(importPath)) {
+                Console.Error.WriteLine($"Import not found!: {importPath}");
+                importEl?.ParentNode?.RemoveChild(importEl);
+                continue;
             }
 
-            parent.InsertBefore(imported, importEl);
-        }
+            string importContent = File.ReadAllText(importPath);
+            string resolvedContent = LResolve(importContent);
 
-        importEl?.ParentNode?.RemoveChild(importEl);
+            XmlDocument importDoc = new XmlDocument();
+            importDoc.LoadXml(resolvedContent);
+
+            XmlElement importRoot = importDoc.DocumentElement!;
+            XmlNode parent = importEl.ParentNode!;
+
+            foreach(XmlNode child in importRoot.ChildNodes.Cast<XmlNode>().ToList()) {
+                if(child.NodeType != XmlNodeType.Element) continue;
+                XmlNode imported = root.OwnerDocument.ImportNode(child, true);
+
+                if(imported is XmlElement importedEl) {
+                    foreach(XmlAttribute attr in importEl.Attributes) {
+                        if(attr.Name == "src") continue;
+                        importedEl.SetAttribute(attr.Name, attr.Value);
+                    }
+                }
+
+                parent.InsertBefore(imported, importEl);
+            }
+
+            importEl?.ParentNode?.RemoveChild(importEl);
+        }
     }
-}
 
     // Resolve Instance
     private static void resolveInstance(XmlElement root) {

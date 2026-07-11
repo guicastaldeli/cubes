@@ -9,8 +9,14 @@
         visible="true"
     >
         <import src="world/points/points.xml" visible="true" />
-        <!--<import src="world/platform/themes/themes.xml" visible="true" />
-        <!-->
-        <import src="player/skills/skills.xml" visible="true" />
+        <div 
+            id="content" 
+            x="20%" y="0%" 
+            width="60%" height="80%" 
+            background="0.5,0.5,0.5,0.8"
+        >
+            <import src="world/platform/themes/themes.xml" visible="true" />
+            <import src="player/skills/skills.xml" visible="true" />
+        </div>
     </div>
 </shop>
