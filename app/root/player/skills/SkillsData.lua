@@ -3,10 +3,9 @@
     General Skill Data for Player.
 
     ]]
-local ResolveFormat = dofile("utils/ResolveFormat.lua")
 local Parser = dofile("utils/Parser.lua")
 
-Parser.registerType("skill", "player/skill/", ".sk")
+Parser.registerType("skill", "player/skills/", ".sk")
 
 local Skill = {}
 Skill.__index = Skill
@@ -19,7 +18,7 @@ local function toObject(parsedSkill)
 
     return {
         id = data.id or 0,
-        name = parsedSkill.name or "Unknown",
+        name = data.name or "Unknown",
         movement = data.movement or "",
         audio = data.audio or "",
         particles = data.particles or ""

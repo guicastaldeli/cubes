@@ -1,5 +1,5 @@
 {{@theme#test1}}
-	id = -1,
+	id = -1
 	name = "TEST_1_THEME"
 	movement = ""
 	audio = ""

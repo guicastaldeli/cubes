@@ -534,7 +534,7 @@ class Platform : WorldHandler {
      */
     private void init() {
         platformRegistry.init();
-        test();
+        //test();
     }
 
     private void test() {

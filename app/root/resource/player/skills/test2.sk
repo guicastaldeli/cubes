@@ -1,7 +1,7 @@
 {{@skill#test2}}
 	id = -2,
-	name = "TEST_2_SKILL"
-	movement = ""
-	audio = ""
+	name = "TEST_2_SKILL",
+	movement = "",
+	audio = "",
 	particles = ""
 {{@end}}

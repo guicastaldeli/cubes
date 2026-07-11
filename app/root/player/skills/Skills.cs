@@ -163,9 +163,9 @@ public static class SkillsData {
             if(result != null && result.Length > 0) {
                 var returnTable = result[0] as LuaTable;
                 if(returnTable != null) {
-                    var themes = returnTable["Skills"];
-                    if(themes != null) {
-                        data["Skills"] = skills;
+                    var skillsTable = returnTable["Skills"];
+                    if(skillsTable != null) {
+                        data["Skills"] = skillsTable;
                         Console.WriteLine("[SkillsData] Successfully loaded skills from Lua");
                     } else {
                         Console.WriteLine("[SkillsData] No 'Skills' key in returned table");

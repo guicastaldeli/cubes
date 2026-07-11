@@ -20,7 +20,7 @@ local function toObject(parsedTheme)
 
     return {
         id = data.id or 0,
-        name = parsedTheme.name or "Unknown",
+        name = data.name or "Unknown",
         movement = data.movement or "",
         audio = data.audio or "",
         top = data.top or nil,
