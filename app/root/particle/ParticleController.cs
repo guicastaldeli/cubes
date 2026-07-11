@@ -10,12 +10,15 @@ using App.Root.Chunk;
 
 class ParticleController {
     private Mesh mesh;
+    private ParticleEntity particleEntity;
 
-    [Poolable("particle_entities", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] private PoolableList<ParticleEntity> particlePool = null!;
-    [Poolable("particle_active", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] private PoolableList<ParticleEntity> activeEntities = null!;
+    [Poolable("particle_entities", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] public PoolableList<ParticleEntity> particlePool = null!;
+    [Poolable("particle_active", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] public PoolableList<ParticleEntity> activeEntities = null!;
 
     public ParticleController(Mesh mesh) {
         this.mesh = mesh;
+        this.particleEntity = new ParticleEntity(mesh, this);
+        this.particleEntity.setup();
 
         PoolInjector.Inject(this);
     }
@@ -29,10 +32,8 @@ class ParticleController {
             particlePool.RemoveAt(0);
             
             entity.reset();
-            entity.setup();
         } else {
-            entity = new ParticleEntity(mesh);
-            entity.setup();
+            entity = new ParticleEntity(mesh, this);
         }
 
         return entity;
@@ -41,15 +42,6 @@ class ParticleController {
     public List<ParticleEntity> getParticleEntities() {
         List<ParticleEntity> val = new List<ParticleEntity>(activeEntities);
         return val;
-    }
-
-    // Return Entity
-    private void returnEntity(ParticleEntity entity) {
-        if(entity == null) return;
-
-        entity.reset();
-        activeEntities.Remove(entity);
-        particlePool.Add(entity);
     }
 
     /**
@@ -94,10 +86,22 @@ class ParticleController {
      *
      */
     public void update() {
+        bool hasUpdates = false;
+
         for(int i = activeEntities.Count - 1; i >= 0; i--) {
             var entity = activeEntities[i];
             entity.update();
-            if(!entity.IsActive()) returnEntity(entity);
+            
+            if(!entity.IsActive()) {
+                particleEntity.returnEntity(entity);
+            } else if(entity.needsBufferUpdate) {
+                hasUpdates = true;
+                entity.needsBufferUpdate = false;
+            }
+        }
+
+        if(hasUpdates && activeEntities.Count > 0) {
+            particleEntity.combineAndRender();
         }
     }
 
@@ -107,8 +111,8 @@ class ParticleController {
      *
      */
     public void render() {
-        foreach(ParticleEntity entity in activeEntities) {
-            entity.render();
+        if(particleEntity.allPositions.Count > 0) {
+            particleEntity.render();
         }
     }
 
@@ -122,6 +126,8 @@ class ParticleController {
             entity.cleanup();
             particlePool.Add(entity);
         }
+
         activeEntities.Clear();
+        particleEntity.cleanupAll();
     }
 }
