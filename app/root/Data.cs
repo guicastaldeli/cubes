@@ -104,6 +104,49 @@ public static class ThisData {
         List<T>? val = Data.GetData<List<T>>(id);
         return val;
     }
+
+    /**
+     *
+     * Get Data Type
+     *
+     */
+    public static object? GetDataType(Type type) {
+        var ids = Data.GetAllDataIds();
+
+        foreach(var id in ids) {
+            var data = Data.GetData(id);
+            if(data == null) continue;
+
+            var dataTypeActual = data.GetType();
+            if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) {
+                if(dataTypeActual.IsGenericType && dataTypeActual.GetGenericTypeDefinition() == typeof(List<>)) {
+                    var requestedElementType = type.GetGenericArguments()[0];
+                    var actualElementType = dataTypeActual.GetGenericArguments()[0];
+                    if(requestedElementType == actualElementType) return data;
+                }
+            }
+            if(dataTypeActual == type || type.IsAssignableFrom(dataTypeActual)) {
+                return data;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     *
+     * Find
+     *
+     */
+    public static string? FindId(object data) {
+        var ids = Data.GetAllDataIds();
+        foreach(var id in ids) {
+            var d = Data.GetData(id);
+            if(d == data) return id;
+        }
+
+        return null;
+    }
 }
 
 /**

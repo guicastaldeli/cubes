@@ -10,7 +10,6 @@ class ShopUI : UI {
     
     public ShopUI() : base(PATH, Shop.ID) {
         this.shop = new Shop(input, uiController);
-        this.shop.initData();
         
         resolveContent();
 

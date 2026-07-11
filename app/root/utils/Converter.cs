@@ -4,6 +4,8 @@
     
     */
 namespace App.Root.Utils;
+using System.Collections;
+using System.Reflection;
 
 /**
 
@@ -203,5 +205,24 @@ public static class Converter {
         
         List<int> val = Enumerable.Repeat(texId.Value, count).ToList();
         return val;
+    }
+
+    /**
+     * 
+     * To Data
+     *
+     */
+    [ConverterKey("data")]
+    public static object? ToData(object? input, Type targetType) {
+        try {
+            if(targetType == null && input != null) targetType = input.GetType();
+            if(targetType == null) return null;
+
+            var data = ThisData.GetDataType(targetType);
+            return data;
+        } catch (Exception err) {
+            Console.WriteLine($"[Converter.ToData] Error: {err.Message}");
+            return null;
+        }
     }
 }
