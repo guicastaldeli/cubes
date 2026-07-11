@@ -7,8 +7,6 @@ class ShopUI : UI {
     public static string PATH = SHOP_DIR + "shop.xml";
 
     private Shop shop;
-
-    private bool initialized = false;
     
     public ShopUI() : base(PATH, Shop.ID) {
         this.shop = new Shop(input, uiController);

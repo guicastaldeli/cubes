@@ -10,5 +10,6 @@
     >
         <import src="world/points/points.xml" visible="true" />
         <import src="world/platform/themes/themes.xml" visible="true" />
+        <import src="player/skills/skillx.xml" visible="true" />
     </div>
 </shop>

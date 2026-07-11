@@ -40,7 +40,7 @@ class WeatherType {
     public const string NORMAL = "NORMAL";
     public const string RAIN = "RAIN";    
     public const string SNOW = "SNOW";
-    public const string DEBUG = "SULFURIC_ACID";
+    public const string DEBUG = "DEBUG";
 }
 
 /**
