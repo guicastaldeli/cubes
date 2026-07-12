@@ -25,7 +25,7 @@ class WorldBoundary {
         this.rigidBody = rigidBody;
         this.collisionManager = collisionManager;
 
-        //init();
+        init();
     }
 
     // Get Boundary Object

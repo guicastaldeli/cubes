@@ -2,6 +2,7 @@ namespace App.Root.World.Platform;
 using App.Root.Chunk;
 using App.Root.Collider;
 using App.Root.Collider.Types;
+using App.Root.Input;
 using App.Root.Mesh;
 using App.Root.Particle;
 using App.Root.Physics;
@@ -18,7 +19,7 @@ using System.Reflection;
     */
 [DataInput]
 [DataOutput(Path: "player_storage.ps")]
-public static class PlatformThemes {
+public class PlatformThemes {
     public class Theme {
         [Convert("int32")] [ConverterKey("id")] public int? Id { get; set; }
         [Convert("string")] [ConverterKey("name")] public string? Name { get; set; }
@@ -75,6 +76,12 @@ public static class PlatformThemes {
     public static Theme GetTheme(string name) {
         Theme val = GetThemes().FirstOrDefault(t => t.Name == name)!;
         return val;
+    }
+
+    // Handle Mouse Click
+    [GlobalInput]
+    public static void HandleMouseClick() {
+        Console.WriteLine("TEST!!! Platform");
     }
     
     /**

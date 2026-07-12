@@ -27,6 +27,11 @@ class Shop {
                 m => m
             );
 
+        // Handle Mouse Click
+        public static void HandleMouseClick() {
+            GlobalInputHandler.HandleMouseClick();
+        }
+ 
         /**
          *
          * Init
@@ -96,13 +101,17 @@ class Shop {
         Mapper.Set<Shop>();
     }
 
+    // Handle Mouse Click
+    public void handleMouseClick() {
+        Data.HandleMouseClick();
+    }
+
     /**
      * 
      * Open
      *
      */
     public void open() {
-        // Open Key
         Mapper.Key(Keys.O, pressed => {
             if(!pressed) return;
             if(ChatController.getInstance().isOpen()) return;
@@ -117,7 +126,6 @@ class Shop {
             action();
         });
 
-        // Close Key
         Mapper.Key(Keys.Escape, pressed => {
             if(!pressed) return;
             if(uiController.getActive() != ID) return;

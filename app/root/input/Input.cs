@@ -5,9 +5,11 @@ using App.Root.Screen;
 using App.Root.Screen.Pause;
 using App.Root.UI;
 using App.Root.Voip;
+using System.Reflection;
 using AppWindow = App.Root.Window;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Runtime.CompilerServices;
 
 /**
 
@@ -17,6 +19,108 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 public static class KeyAction {
     public const int Press = 1;
     public const int Release = 0;
+}
+
+/**
+
+    Global Input
+
+    */
+[AttributeUsage(AttributeTargets.Method)]
+public class InputInjector : Attribute {}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class GlobalInput : Attribute {}
+
+public abstract class GlobalInputHandler {
+    private static Dictionary<string, List<Action>> handlers = new();
+    private static HashSet<string> injectorMethodNames = new();
+
+    private static bool initialized = false;
+
+    [InputInjector] public static void HandleMouseClick() { Init(); }
+    [InputInjector] public static void HandleKeyPress() { Init(); }
+
+    // Get Instance
+    private static object? GetInstance(Type type) {
+        try {
+            object? val = Activator.CreateInstance(type);
+            return val;
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     *
+     * Register
+     *
+     */
+    public static void Register() {
+        if(initialized) return;
+
+        var handlerType = typeof(GlobalInputHandler);
+        var injectorMethods = handlerType
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
+            .Where(m => m.GetCustomAttribute<InputInjector>() != null);
+
+        foreach(var method in injectorMethods) {
+            injectorMethodNames.Add(method.Name);
+            if(!handlers.ContainsKey(method.Name)) handlers[method.Name] = new List<Action>();
+        }
+
+        var types = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(a => a.GetTypes())
+            .Where(t => t.IsClass && !t.IsAbstract);
+
+        foreach(var type in types) {
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+                .Where(m => m.GetCustomAttribute<GlobalInput>() != null);
+
+            foreach(var method in methods) {
+                try {
+                    if(injectorMethodNames.Contains(method.Name)) {
+                        Action? action = null;
+
+                        if(method.IsStatic) {
+                            action = (Action)Delegate.CreateDelegate(typeof(Action), method);
+                        } else {
+                            var instance = GetInstance(type);
+                            if(instance != null) action = (Action)Delegate.CreateDelegate(typeof(Action), instance, method);
+                        }
+
+                        if(action != null) {
+                            handlers[method.Name].Add(action);
+                            Console.WriteLine($"[GlobalInput] Registered: {type.Name}.{method.Name}");
+                        }
+                    }
+                } catch(Exception err) {
+                    Console.WriteLine($"[GlobalInput] Error registering {type.Name}.{method.Name}: {err.Message}");
+                }
+            }
+        }
+
+        initialized = true;
+    }
+
+    /**
+     *
+     * Init
+     *
+     */
+    public static void Init([CallerMemberName] string? name = null) {
+        if(!initialized) Register();
+
+        if(name != null && handlers.TryGetValue(name, out var actions)) {
+            foreach(var action in actions) {
+                try {
+                    action();
+                } catch(Exception err) {
+                    Console.WriteLine($"[GlobalInput] Error in {name}: {err.Message}");
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -46,6 +150,8 @@ class Input {
         this.tick = tick;
 
         AddPause<Input>(() => pauseOverlayOpen);
+
+        GlobalInputHandler.Register();
     }
 
     // Screen Controller

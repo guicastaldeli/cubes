@@ -255,7 +255,7 @@ class MeshEntitySpawner {
     }
 
     private void defPosition(ref Instance inst) {
-        float v = 10.0f;
+        float v = 3.0f;
         float speed = v * DeltaTime;
 
         inst.Position = new Vector3(

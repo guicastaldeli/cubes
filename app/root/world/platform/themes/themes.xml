@@ -10,6 +10,7 @@
             hoverable="true" 
             hoverBackground="0.25,0.25,0.45,0.9" 
             hoverScale="1.05"
+            action="action_themes-{theme.Id}"
         >
             <label 
                 id="theme_{theme.Id}_name" 

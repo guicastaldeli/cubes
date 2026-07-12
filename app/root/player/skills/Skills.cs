@@ -1,8 +1,8 @@
-using System.Reflection;
-using App.Root.Utils;
-using NLua;
-
 namespace App.Root.Player.Skills;
+using App.Root.Utils;
+using App.Root.Input;
+using System.Reflection;
+using NLua;
 
 /**
 
@@ -66,6 +66,12 @@ public static class SkillsData {
     public static Skill GetSkill(string name) {
         Skill val = GetSkills().FirstOrDefault(s => s.Name == name)!;
         return val;
+    }
+
+    // Handle Mouse Click
+    [GlobalInput]
+    public static void HandleMouseClick() {
+        Console.WriteLine("TEST!!! Skills");
     }
 
     /**

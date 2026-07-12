@@ -21,6 +21,11 @@ class ShopUI : UI {
         uiData = DocParser.parseUI(PATH, Window.WIDTH, Window.HEIGHT);
     }
 
+    // Handle Action
+    public override void handleAction(string action) {
+        
+    }
+
     /**
      * 
      * Render

@@ -49,10 +49,7 @@ class UI : UIHandler {
     public static int screenWidth;
     public static int screenHeight;
 
-    public bool EnableGeneration {
-        get;
-        set;
-    } = false;
+    public bool EnableGeneration { get; set; } = false;
 
     public static void init(
         int screenWidth,
@@ -106,16 +103,14 @@ class UI : UIHandler {
 
     // Get Element
     public List<UIElement> getElementsByType(string type) {
-        List<UIElement>? val = 
-            uiData != null ?
+        List<UIElement>? val = uiData != null ?
             DocParser.getElementsByType(uiData, type) :
             null;
         return val!;
     }
 
     public UIElement? getElementById(string id) {
-        UIElement? val = 
-            uiData != null ?
+        UIElement? val = uiData != null ?
             DocParser.getElementById(uiData, id) :
             null;
         return val;
@@ -125,14 +120,16 @@ class UI : UIHandler {
     public string? checkClick(int mouseX, int mouseY) {
         if(!visible || uiData == null) return null;
 
-        var buttons = DocParser.getElementsByType(uiData, "button");
-        foreach(var button in buttons) {
-            if(mouseX >= button.x && mouseX <= button.x + button.width &&
-               mouseY >= button.y && mouseY <= button.y + button.height
-            ) {
-                return button.action;
+        foreach(var el in uiData.elements) {
+            if(!el.visible) continue;
+            if(string.IsNullOrEmpty(el.action)) continue;
+
+            if(mouseX >= el.x && mouseX <= el.x + el.width &&
+                mouseY >= el.y && mouseY <= el.y + el.height) {
+                return el.action;
             }
         }
+
         return null;
     }
 
@@ -141,6 +138,9 @@ class UI : UIHandler {
 
     // Handle Key Press
     public virtual void handleKeyPress(int key, int action) {}
+
+    // Handle Mouse Click
+    public virtual void handleMouseClick(int x, int y) {}
 
     // Handle Mouse Move
     public virtual void handleMouseMove(int mouseX, int mouseY) {
@@ -155,11 +155,6 @@ class UI : UIHandler {
             if(mouseOver && !el.isHovered) el.applyHover();
             else if(!mouseOver && el.isHovered) el.removeHover();
         }
-    }
-
-    // Handle Mouse Click
-    public virtual void handleMouseClick(int x, int y) {
-        
     }
 
     /**
