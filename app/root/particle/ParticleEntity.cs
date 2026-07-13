@@ -6,10 +6,10 @@
     */
 namespace App.Root.Particle;
 using App.Root.Mesh;
+using App.Root.Utils;
+using System.Reflection;
 using Particle = Resource.Mesh.Particle;
 using OpenTK.Mathematics;
-using App.Root.Physics;
-using App.Root.Utils;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";
@@ -270,7 +270,7 @@ class ParticleEntity {
                     var convertAttr = 
                         member.prop?.GetCustomAttribute<ConvertAttribute>() ??
                         member.field?.GetCustomAttribute<ConvertAttribute>();
-                    if(convertAttr != null && Particle.converters.TryGetValue(convertAttr, out var converter)) {
+                    if(convertAttr != null && Particle.converters.TryGetValue(convertAttr.Converter, out var converter)) {
                         var result = converter.Invoke(null, new object[] { val });
                         if(member.prop != null) {
                             member.prop.SetValue(particle, result);
