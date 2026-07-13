@@ -18,6 +18,7 @@ using App.Root.Resource;
     Platform Themes
 
     */
+[ActionConverter]
 [DataInput]
 [DataOutput(Path: "player_storage.ps")]
 class PlatformThemes {

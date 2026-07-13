@@ -180,6 +180,9 @@ public abstract class GlobalInputHandler {
             foreach(var method in methods) {
                 try {
                     if(injectorMethodNames.Contains(method.Name)) {
+                        var param = method.GetParameters();
+                        if(param.Length > 0) continue;
+                        
                         Action? action = null;
 
                         if(method.IsStatic) {

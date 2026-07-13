@@ -1,8 +1,8 @@
 namespace App.Root.Player.Shop;
-
 using App.Root.Input;
 using App.Root.Screen;
 using App.Root.UI;
+using App.Root.Utils;
 
 class ShopUI : UI {
     public static string SHOP_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "player/shop/");
@@ -11,6 +11,8 @@ class ShopUI : UI {
     private Shop shop;
     
     public ShopUI() : base(PATH, Shop.ID) {
+        ActionConverter.Init();
+
         this.shop = new Shop(input, uiController);
         
         resolveContent();
@@ -31,7 +33,8 @@ class ShopUI : UI {
 
         var typeName = GlobalInputHandler.FindTypeFromAction(action);
         if(typeName != null) {
-            GlobalInputHandler.HandleByType(typeName);
+            var (_, id) = ActionConverter.Convert(action);
+            if(id.HasValue) GlobalInputHandler.HandleByType(typeName, id.Value);
             return;
         }
     }

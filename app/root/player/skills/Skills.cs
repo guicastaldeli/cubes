@@ -9,6 +9,7 @@ using NLua;
     Skills Data
 
     */
+[ActionConverter]
 [DataInput]
 [DataOutput(Path: "player_storage.ps")]
 public class SkillsData {

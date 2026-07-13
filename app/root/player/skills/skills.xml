@@ -12,7 +12,7 @@
             hoverScale="1.05" 
             border="2" 
             borderColor="0.3,0.3,0.5,1"
-            action="action_skills-{skill.Id}"
+            action="skill:{skill.Id}"
         >
             <label 
                 id="skill_{skill.Id}_name" 
