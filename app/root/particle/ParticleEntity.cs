@@ -9,6 +9,7 @@ using App.Root.Mesh;
 using Particle = Resource.Mesh.Particle;
 using OpenTK.Mathematics;
 using App.Root.Physics;
+using App.Root.Utils;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";
@@ -245,6 +246,49 @@ class ParticleEntity {
 
     /**
      * 
+     * Convert
+     *
+     */
+    public static Particle convert(string data) {
+        var particle = new Particle();
+        if(string.IsNullOrEmpty(data)) return particle;
+
+        var lines = data.Split('\n');
+        foreach(var line in lines) {
+            var trimmed = line.Trim();
+            if(string.IsNullOrEmpty(trimmed)) continue;
+
+            var separator = trimmed.Contains(':') ? ':' : '=';
+            var parts = trimmed.Split(separator, 2);
+            if(parts.Length != 2) continue;
+
+            var key = parts[0].Trim().ToLower();
+            var val = parts[1].Trim().TrimEnd(',');
+
+            if(Particle.configMembers.TryGetValue(key, out var member)) {
+                try {
+                    var convertAttr = 
+                        member.prop?.GetCustomAttribute<ConvertAttribute>() ??
+                        member.field?.GetCustomAttribute<ConvertAttribute>();
+                    if(convertAttr != null && Particle.converters.TryGetValue(convertAttr, out var converter)) {
+                        var result = converter.Invoke(null, new object[] { val });
+                        if(member.prop != null) {
+                            member.prop.SetValue(particle, result);
+                        } else if(member.field != null) {
+                            member.field.SetValue(particle, result);
+                        }
+                    }
+                } catch(Exception err) {
+                    Console.WriteLine($"[Particle] Error setting {key}: {err.Message}");
+                }
+            } 
+        }
+
+        return particle;
+    }
+
+    /**
+     * 
      * Setup
      *
      */
@@ -355,6 +399,7 @@ class ParticleEntity {
      * Update
      *
      */
+    // Update
     public void update() {
         if(!isActive) return;
 
@@ -405,6 +450,32 @@ class ParticleEntity {
         if(particles.Count == 0) {
             isActive = false;
         }
+    }
+
+    // Update Movement
+    public void updateMovement(bool playerMoving, Particle config) {
+        var vel = speed * (playerMoving ? config.playerMovSpeed : config.playerStand);
+        var lifetime = this.lifetime / (vel > 1 ? vel : 1);
+
+        setSpeed(vel);
+        setLifetime(lifetime);
+    }
+
+    /**
+     * 
+     * Apply to Entity
+     *
+     */
+    public void applyToEntity(ParticleEntity entity) {
+        entity.setTargetY(targetY);
+        entity.setColor(color);
+        entity.setAmount(amount);
+        entity.setSize(size);
+        entity.setSpeed(speed);
+        entity.setLifetime(lifetime);
+        entity.setMotion(enableMotion);
+        entity.setSpawnRadius(spawnRadius);
+        entity.setVelNum(velNum);
     }
 
     /**

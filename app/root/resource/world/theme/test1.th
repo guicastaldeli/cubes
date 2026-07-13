@@ -4,6 +4,8 @@
 	movement = ""
 	audio = ""
 	top = 1
-	particles = ""
+	particles = ~[
+		()
+	]
 	texture = "world/theme/test1"
 {{@end}}

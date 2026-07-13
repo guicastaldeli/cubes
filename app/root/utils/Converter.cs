@@ -5,6 +5,7 @@
     */
 namespace App.Root.Utils;
 using System.Collections;
+using System.Numerics;
 using System.Reflection;
 
 /**
@@ -224,5 +225,24 @@ public static class Converter {
             Console.WriteLine($"[Converter.ToData] Error: {err.Message}");
             return null;
         }
+    }
+
+    /**
+     * 
+     * To Vec3
+     *
+     */
+    public static Vector3 ToVec3(string val) {
+        var cleaned = val.Trim().TrimStart('(').TrimEnd(')');
+        var parts = cleaned.Split(',');
+        if(parts.Length >= 3) {
+            return new Vector3(
+                float.TryParse(parts[0].Trim(), out var x) ? x : 0,
+                float.TryParse(parts[0].Trim(), out var y) ? y : 0,
+                float.TryParse(parts[0].Trim(), out var z) ? z : 0
+            );
+        }
+
+        return Vector3.Zero;
     }
 }
