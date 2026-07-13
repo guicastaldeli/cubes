@@ -78,6 +78,13 @@ class Shop {
                                 DocParser.ReplaceObject(id, result);
                                 Console.WriteLine($"[Shop.Data] Loaded {field.Name} with {id}");
                             }
+
+                            var typeName = field.Name.ToLower();
+                            var handlerType = GlobalInputHandler.FindHandlerType(result);
+                            if(handlerType != null) {
+                                GlobalInputHandler.RegisterType(typeName, handlerType);
+                                Console.WriteLine($"[Shop.Data] Registered {typeName} -> {handlerType.Name}");
+                            }
                         }
                     } catch (Exception err) {
                         Console.WriteLine($"[Shop.Data] Error converting {field.Name}: {err.Message}");
@@ -97,6 +104,8 @@ class Shop {
         this.uiController = uiController;
 
         Data.Init();
+
+        GlobalInputHandler.Register();
 
         Mapper.Set<Shop>();
     }

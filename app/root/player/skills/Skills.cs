@@ -11,7 +11,7 @@ using NLua;
     */
 [DataInput]
 [DataOutput(Path: "player_storage.ps")]
-public static class SkillsData {
+public class SkillsData {
     public class Skill {
         [Convert("int32")] [ConverterKey("id")] public int? Id { get; set; }
         [Convert("string")] [ConverterKey("name")] public string? Name { get; set; }

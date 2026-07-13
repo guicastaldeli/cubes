@@ -34,6 +34,8 @@ public class GlobalInput : Attribute {}
 
 public abstract class GlobalInputHandler {
     private static Dictionary<string, List<Action>> handlers = new();
+    private static Dictionary<string, string> typeToMethodMap = new();
+    private static Dictionary<string, Action> typeToActionMap = new();
     private static HashSet<string> injectorMethodNames = new();
 
     private static bool initialized = false;
@@ -51,17 +53,89 @@ public abstract class GlobalInputHandler {
         }
     }
 
+    // Handle By Type
+    public static void HandleByType(string typeName) {
+        if(!initialized) Register();
+
+        if(typeToActionMap.TryGetValue(typeName, out var action)) {
+            try {
+                action();
+            } catch(Exception err) {
+                Console.WriteLine($"[GlobalInput] Error in {typeName}: {err.Message}");
+            }
+        } else {
+            Console.WriteLine($"[GlobalInput] No action found for: {typeName}");
+        } 
+    }
+
+    // Find Handler Type
+    public static Type? FindHandlerType(object data) {
+        var dataType = data.GetType();
+        if(!dataType.IsGenericType || dataType.GetGenericTypeDefinition() != typeof(List<>)) {
+            return null;
+        }
+
+        var elementType = dataType.GetGenericArguments()[0];
+        var elementName = elementType.Name;
+
+        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => {
+            try { return a.GetTypes(); }
+            catch { return new Type[0]; }
+        }).Where(t => t.IsClass && !t.IsAbstract);
+
+        foreach(var type in types) {
+            var hasGlobalInput = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+                .Any(m => m.GetCustomAttribute<GlobalInput>() != null);
+            if(!hasGlobalInput) continue;
+
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
+            foreach(var method in methods) {
+                if(method.ReturnType == dataType) {
+                    Console.WriteLine($"[GlobalInputHandler] Found handler: {type.Name} for {elementType.Name}");
+                    return type;
+                }
+            }
+
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Static);
+            foreach(var prop in props) {
+                if(prop.PropertyType == dataType) {
+                    Console.WriteLine($"[GlobalInputHandler] Found handler: {type.Name} for {elementType.Name}");
+                    return type;
+                }
+            }
+
+            if(type.Name.Contains(elementName, StringComparison.OrdinalIgnoreCase)) {
+                Console.WriteLine($"[GlobalInputHandler] Found handler by name: {type.Name} for {elementType.Name}");
+                return type;
+            }
+        }
+
+        Console.WriteLine($"[GlobalInputHandler] No handler found for {elementType.Name}");
+        return null;
+    }
+
+    // Get Element Type
+    public static Type? GetElementType(object data) {
+        var dataType = data.GetType();
+        if(dataType.IsGenericType && dataType.GetGenericTypeDefinition() == typeof(List<>)) {
+            return dataType.GetGenericArguments()[0];
+        }
+
+        return null;
+    }
+
     /**
      *
      * Register
      *
      */
+    // Register
     public static void Register() {
         if(initialized) return;
 
         var handlerType = typeof(GlobalInputHandler);
         var injectorMethods = handlerType
-            .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
             .Where(m => m.GetCustomAttribute<InputInjector>() != null);
 
         foreach(var method in injectorMethods) {
@@ -101,6 +175,34 @@ public abstract class GlobalInputHandler {
         }
 
         initialized = true;
+    }
+
+    // Register Type
+    public static void RegisterType(string typeName, Type type) {
+        if(!initialized) Register();
+        
+        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+            .Where(m => m.GetCustomAttribute<GlobalInput>() != null);
+
+        foreach(var method in methods) {
+            if(injectorMethodNames.Contains(method.Name)) {
+                Action? action = null;
+                if(method.IsStatic) {
+                    action = (Action)Delegate.CreateDelegate(typeof(Action), method);
+                } else {
+                    var instance = GetInstance(type);
+                    if(instance != null) action = (Action)Delegate.CreateDelegate(typeof(Action), method);
+                }
+
+                if(action != null) {
+                    typeToActionMap[typeName] = action;
+                    Console.WriteLine($"[GlobalInput] Mapped {typeName} -> {type.Name}.{method.Name}");
+                    return;
+                }
+            }
+        }
+
+        Console.WriteLine($"[GlobalInput] No action found for {typeName}");
     }
 
     /**

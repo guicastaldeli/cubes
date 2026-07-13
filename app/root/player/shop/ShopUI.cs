@@ -1,4 +1,6 @@
 namespace App.Root.Player.Shop;
+
+using App.Root.Input;
 using App.Root.Screen;
 using App.Root.UI;
 
