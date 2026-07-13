@@ -36,7 +36,7 @@ public class GlobalInput : Attribute {}
 public abstract class GlobalInputHandler {
     private static Dictionary<string, List<Action>> handlers = new();
     private static Dictionary<string, string> typeToMethodMap = new();
-    private static Dictionary<string, Action> typeToActionMap = new();
+    private static Dictionary<string, Action<object?>> typeToActionMap = new();
     private static HashSet<string> injectorMethodNames = new();
 
     private static bool initialized = false;
@@ -55,12 +55,12 @@ public abstract class GlobalInputHandler {
     }
 
     // Handle By Type
-    public static void HandleByType(string typeName) {
+    public static void HandleByType(string typeName, object? param = null) {
         if(!initialized) Register();
 
         if(typeToActionMap.TryGetValue(typeName, out var action)) {
             try {
-                action();
+                action(param);
             } catch(Exception err) {
                 Console.WriteLine($"[GlobalInput] Error in {typeName}: {err.Message}");
             }
@@ -212,12 +212,29 @@ public abstract class GlobalInputHandler {
 
         foreach(var method in methods) {
             if(injectorMethodNames.Contains(method.Name)) {
-                Action? action = null;
+                Action<object?>? action = null;
+                
                 if(method.IsStatic) {
-                    action = (Action)Delegate.CreateDelegate(typeof(Action), method);
+                    var param = method.GetParameters();
+                    if(param.Length == 0) {
+                        var delegateAction = (Action)Delegate.CreateDelegate(typeof(Action), method);
+                        action = (p) => delegateAction();
+                    } else if(param.Length == 1) {
+                        action = (p) => method.Invoke(null, new object?[] { p });
+                    } else {
+                        action = (p) => method.Invoke(null, new[] { p });
+                    }
                 } else {
                     var instance = GetInstance(type);
-                    if(instance != null) action = (Action)Delegate.CreateDelegate(typeof(Action), method);
+                    if(instance != null) {
+                        var param = method.GetParameters();
+                        if(param.Length == 0) {
+                            var delegateAction = (Action)Delegate.CreateDelegate(typeof(Action), instance, method);
+                            action = (p) => delegateAction();
+                        } else if(param.Length == 1) {
+                            action = (p) => method.Invoke(instance, new[] { p });
+                        }
+                    }
                 }
 
                 if(action != null) {

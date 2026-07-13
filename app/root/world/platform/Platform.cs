@@ -11,6 +11,7 @@ using App.Root.Utils;
 using OpenTK.Mathematics;
 using System.Reflection;
 using NLua;
+using App.Root.Resource;
 
 /**
 
@@ -19,13 +20,13 @@ using NLua;
     */
 [DataInput]
 [DataOutput(Path: "player_storage.ps")]
-public class PlatformThemes {
+class PlatformThemes {
     public class Theme {
-        [Convert("int32")] [ConverterKey("id")] public int? Id { get; set; }
-        [Convert("string")] [ConverterKey("name")] public string? Name { get; set; }
+        [Convert("int32")] [ConverterKey("id")] public int Id { get; set; }
+        [Convert("string")] [ConverterKey("name")] public string Name { get; set; } = "";
         [Convert("string")] [ConverterKey("movement")] public string? Movement { get; set; }
         [Convert("string")] [ConverterKey("audio")] public string? Audio { get; set; }
-        [Convert("int32")] [ConverterKey("top")] public int? Top { get; set; }
+        [Convert("int32")] [ConverterKey("top")] public int Top { get; set; }
         [Convert("string")] [ConverterKey("particles")] public string? Particles { get; set; }
         [Convert("string")] [ConverterKey("texture")] public string? Texture { get; set; }
 
@@ -36,6 +37,8 @@ public class PlatformThemes {
 
     private static Lua data = null!;
     private static List<Theme> themes = null!;
+
+    private static Platform platform = null!;
 
     private static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
         .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -80,8 +83,31 @@ public class PlatformThemes {
 
     // Handle Mouse Click
     [GlobalInput]
-    public static void HandleMouseClick() {
-        Console.WriteLine("TEST!!! Platform");
+    public static void HandleMouseClick(int themeId) {
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine($"[PlatformTheme] Applying theme: {themeId}");
+        Console.ResetColor();
+
+        Apply(themeId);
+    }
+
+    /**
+     *
+     * Apply
+     *
+     */
+    private static void Apply(int id) {
+        var data = GetTheme(id);
+
+        if(data != null) {
+            if(platform != null) {
+                platform.applyTheme(data);
+            } else {
+                Console.WriteLine("err platform null");    
+            }
+        } else {
+            Console.WriteLine("err theme null");
+        }
     }
     
     /**
@@ -195,6 +221,15 @@ public class PlatformThemes {
         
         Directory.SetCurrentDirectory(originalDir);
     }
+
+    /**
+     *
+     * Init
+     *
+     */
+    public static void Init(Platform platform) {
+        PlatformThemes.platform = platform;
+    }
 }
 
 /**
@@ -204,13 +239,56 @@ public class PlatformThemes {
     */
 [Chunked]
 class Platform : WorldHandler {
+    /**
+     *
+     * Props
+     *
+     */
+    private record PlatformProps(
+        string Id,
+        string Name,
+        string Audio,
+        int Top,
+        string Particles,
+        string Texture
+    );
+
+    /**
+     *
+     * Data
+     *
+     */
+    private struct Data {
+        [Convert("string")] [ConverterKey("id")] public string Id;
+        [Convert("string")] [ConverterKey("name")] public string Name;
+        [Convert("string")] [ConverterKey("audio")] public string Audio;
+        [Convert("int")] [ConverterKey("top")] public int Top;
+        [Convert("string")] [ConverterKey("particles")] public string Particles;
+        [Convert("string")] [ConverterKey("texture")] public string Texture;
+
+        public static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Where(m => m.GetCustomAttribute<ConverterKey>() != null)
+            .ToDictionary(
+                m => m.GetCustomAttribute<ConverterKey>()!.Key,
+                m => m
+            );
+    }
+
+    /**
+     *
+     * Platform main
+     *
+     */
+    public const string GRID_ID = "grid";
+    private const string MESH = "cube";
+
     private Mesh mesh;
     private CollisionManager collisionManager;
     private PlatformRegistry platformRegistry;
     private PlayerController playerController;
 
-    public const string GRID_ID = "grid";
-    private const string MESH = "cube";
+    private Data currentData = new Data();
 
     private const int SIZE_X = ChunkCoord.CHUNK_SIZE;
     private const int SIZE_Y = ChunkCoord.CHUNK_SIZE;
@@ -239,6 +317,7 @@ class Platform : WorldHandler {
         this.platformRegistry = new PlatformRegistry(window, mesh, collisionManager, this, playerController);
     
         init();
+        PlatformThemes.Init(this);
     }
 
     // Set Client
@@ -266,6 +345,39 @@ class Platform : WorldHandler {
         return val;
     }
 
+    // To Props
+    private Data toProps(PlatformProps props) {
+        Data d = new Data {
+            Id = props.Id,
+            Name = props.Name,
+            Audio = props.Audio,
+            Top = props.Top,
+            Particles = props.Particles,
+            Texture = props.Texture
+        };
+
+        return d;
+    }
+
+    // Theme to Props
+    private PlatformProps themeToProps(PlatformThemes.Theme theme) {
+        string idVal = theme.Id.ToString();
+        string nameVal = theme.Name;
+        string audioVal = theme.Audio ?? "";
+        int topVal = theme.Top;
+        string particleVal = theme.Particles ?? "";
+        string texVal = theme.Texture ?? "";
+
+        return new PlatformProps(
+            Id: idVal,
+            Name: nameVal,
+            Audio: audioVal,
+            Top: topVal,
+            Particles: particleVal,
+            Texture: texVal
+        );
+    }
+
     /**
      * 
      * On Stream
@@ -274,6 +386,34 @@ class Platform : WorldHandler {
     private void onStream() {
         if(Top.HasValue) EventStream.set("stream-top", (object)Top.Value);
         EventStream.set("streamed-chunks", (object)new List<ChunkCoord>(allGeneratedChunks));
+    }
+
+    /**
+     * 
+     * Apply
+     *
+     */
+    // Apply Theme
+    public void applyTheme(PlatformThemes.Theme theme) {
+        if(theme == null) {
+            Console.WriteLine("[Platform] Cannot apply null theme");
+            return;
+        }
+
+        Console.WriteLine($"[Platform] Applying theme: {theme.Name} (ID: {theme.Id})");
+
+        var props = themeToProps(theme);
+        var data = toProps(props);
+
+        currentData = data;
+        applyData(data);
+
+        Console.WriteLine($"[Platform] Theme applied successfully!");
+    }
+
+    // Apply Data
+    private void applyData(Data data) {
+        updateTexture(data.Texture);
     }
 
     /**
@@ -473,65 +613,33 @@ class Platform : WorldHandler {
         ChunkPositions.Remove(GRID_ID, coord);
     }
 
-    private int frameCounter = 0;
-        private ParticleEntity? particleEntity = null;
-
-        private void emitParticle() {
-            ParticleController particleController = mesh.getParticleController()!;
-            Random random = new Random();
-
-            Vector3 position = new Vector3(0.0f, 10.0f, -3.0f);
-            Vector3 color = new Vector3(1.0f, 1.0f, 1.0f); 
-            int amount = 5;
-            float size = 0.1f;
-            float speed = 0.3f;
-            float lifetime = 2.5f;
-            Vector3 velNum = new Vector3(5.0f, 5.0f, 5.0f);
-
-            if(particleEntity == null) {
-                particleEntity = particleController.emit(
-                    position,
-                    color,
-                    amount,
-                    size,
-                    speed,
-                    lifetime,
-                    velNum,
-                    () => {
-                        return new Vector3(
-                            random.NextSingle(),
-                            random.NextSingle(),
-                            random.NextSingle()
-                        );
-                    }
-                );
-            } else {
-                particleEntity.set(
-                    new Vector3(0.0f, 10.0f, -3.0f),
-                    true,
-                    () => {
-                        return new Vector3(
-                            random.NextSingle(),
-                            random.NextSingle(),
-                            random.NextSingle()
-                        );
-                    }
-                );
-            }
-        }
-
     /**
      * 
      * Update
      *
      */
+    // Update
     public override void update() {
-        frameCounter++;
-
-        /*if(frameCounter % 10 == 0) {
-            emitParticle();
-        }*/
         platformRegistry.update();
+    }
+
+    // Update Top
+
+    // Update Audio
+
+    // Update Particles
+
+    // Update Movement
+
+    // Update Texture
+    private void updateTexture(string texPath) {
+        var texId = TextureLoader.load(texPath);
+        if(texId != -1) {
+            mesh.setTexture(GRID_ID, texId, texPath);
+            Console.WriteLine($"[Platform] Applied texture: {texPath}");
+        } else {
+            Console.WriteLine($"[Platform] Failed to load texture: {texPath}");
+        }
     }
 
     /**
