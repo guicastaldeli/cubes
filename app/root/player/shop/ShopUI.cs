@@ -27,6 +27,8 @@ class ShopUI : UI {
     public override void handleAction(string action) {
         if(string.IsNullOrEmpty(action)) return;
 
+        Console.WriteLine($"[ShopUI] Action: {action}");
+
         var typeName = GlobalInputHandler.FindTypeFromAction(action);
         if(typeName != null) {
             GlobalInputHandler.HandleByType(typeName);
