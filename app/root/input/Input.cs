@@ -10,6 +10,7 @@ using AppWindow = App.Root.Window;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Runtime.CompilerServices;
+using App.Root.Utils;
 
 /**
 
@@ -68,6 +69,11 @@ public abstract class GlobalInputHandler {
         } 
     }
 
+    /**
+     *
+     * Find
+     *
+     */
     // Find Handler Type
     public static Type? FindHandlerType(object data) {
         var dataType = data.GetType();
@@ -111,6 +117,26 @@ public abstract class GlobalInputHandler {
         }
 
         Console.WriteLine($"[GlobalInputHandler] No handler found for {elementType.Name}");
+        return null;
+    }
+
+    // Find Type From Action
+    public static string? FindTypeFromAction(string action) {
+        var types = typeToActionMap.Keys.ToList();
+
+        foreach(var type in types) {
+            if(action.Contains(type, StringComparison.OrdinalIgnoreCase)) return type;
+
+            var singular = WordInflector.ToSingular(type);
+            if(action.Contains(singular, StringComparison.OrdinalIgnoreCase)) return type;
+
+            var plural = WordInflector.ToPlural(type);
+            if(action.Contains(plural, StringComparison.OrdinalIgnoreCase)) return type;
+
+            var actionType = WordInflector.ToSingular(action);
+            if(type.Contains(actionType, StringComparison.OrdinalIgnoreCase)) return type;
+        }
+
         return null;
     }
 

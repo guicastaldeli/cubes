@@ -25,7 +25,13 @@ class ShopUI : UI {
 
     // Handle Action
     public override void handleAction(string action) {
-        
+        if(string.IsNullOrEmpty(action)) return;
+
+        var typeName = GlobalInputHandler.FindTypeFromAction(action);
+        if(typeName != null) {
+            GlobalInputHandler.HandleByType(typeName);
+            return;
+        }
     }
 
     /**
