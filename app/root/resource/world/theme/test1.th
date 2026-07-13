@@ -5,5 +5,5 @@
 	audio = ""
 	top = 1
 	particles = ""
-	texture = ""
+	texture = "theme/test1"
 {{@end}}
