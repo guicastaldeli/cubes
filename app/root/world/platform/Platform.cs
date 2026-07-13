@@ -284,6 +284,7 @@ class Platform : WorldHandler {
     public const string GRID_ID = "grid";
     private const string MESH = "cube";
 
+    private Window window;
     private Mesh mesh;
     private CollisionManager collisionManager;
     private PlatformRegistry platformRegistry;
@@ -312,6 +313,7 @@ class Platform : WorldHandler {
         [Inject] CollisionManager collisionManager, 
         [Inject] PlayerController playerController
     ) {
+        this.window = window;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.playerController = playerController;
@@ -414,7 +416,9 @@ class Platform : WorldHandler {
 
     // Apply Data
     private void applyData(Data data) {
-        updateTexture(data.Texture);
+        window.queueOnRenderThread(() => {
+            updateTexture(data.Texture); 
+        });
     }
 
     /**
@@ -637,9 +641,9 @@ class Platform : WorldHandler {
         var texId = TextureLoader.load(texPath);
         if(texId != -1) {
             mesh.setTexture(GRID_ID, texId, texPath);
-            Console.WriteLine($"[Platform] Applied texture: {texPath}");
+            Console.WriteLine($"[Platform] Applied texture: {texPath} (ID: {texId})");
         } else {
-            Console.WriteLine($"[Platform] Failed to load texture: {texPath}");
+            Console.WriteLine($"[Platform] Failed to load texture: {texPath} (ID: {texId})");
         }
     }
 

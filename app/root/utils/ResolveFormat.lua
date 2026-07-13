@@ -183,7 +183,12 @@ local function resolveTexture(name, options)
 
     if result then
         local format = getFileFormat(result)
-        return result, format, result
+
+        local relativePath = result
+        relativePath = relativePath:gsub("^resource/texture/", "")
+        relativePath = relativePath:gsub("^texture/", "")
+
+        return relativePath, format, result
     end
 
     return nil, nil, nil

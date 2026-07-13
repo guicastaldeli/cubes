@@ -266,6 +266,7 @@ class MeshRenderer : DataEntry {
      * Texture
      *
      */
+    // Set Texture
     public void setTex(int id) {
         if(id > 0) {
             texId = id;
@@ -287,12 +288,34 @@ class MeshRenderer : DataEntry {
         }
     }
 
+    // Get Texture Path
     public string getTexPath() {
         return texPath;
     }
 
+    // Get Texture Id
     public int getTexId() {
         return texId;
+    }
+
+    // Set Global Texture
+    public void setGlobalTex(int texId, string texPath) {
+        this.texId = texId;
+        this.texPath = texPath;
+        hasTex = true;
+
+        if(isInstanced && instanceCount > 0) {
+            cacheInstanceTexIds = Enumerable.Repeat(texId, instanceCount).ToList();
+
+            updateInstanceData(
+                cachedInstancePositions,
+                cachedInstanceColors,
+                cachedInstanceRotations,
+                cachedInstanceTexPaths,
+                cacheInstanceTexIds,
+                cachedInstanceScales
+            );
+        }
     }
 
     /**
