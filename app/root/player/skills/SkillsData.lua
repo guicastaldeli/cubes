@@ -5,7 +5,7 @@
     ]]
 local Parser = dofile("utils/Parser.lua")
 
-Parser.registerType("skill", "player/skills/", ".sk")
+Parser.registerType("skill", "player/skills/", ".skill")
 
 local Skill = {}
 Skill.__index = Skill
