@@ -287,39 +287,37 @@ local function parseBlock(content)
             if start then
                 local key = line:match("^%s*([%w_]+)%s*[=:]%s*~%[")
                 if key then
-                    local indent = line:match("^(%s*)")
-                 
-                    local codeLines = {}
-                    i = i+1
-                    local foundEnd = false
+                        local indent = line:match("^(%s*)")
+                        
+                        local codeLines = {}
+                        i = i+1
+                        local foundEnd = false
 
-                    while i <= #lines do
-                        local currentLine = lines[i]
+                        while i <= #lines do
+                            local currentLine = lines[i]
+                            if currentLine:match("^" .. indent .. "%]%s*,%s*$") or 
+                                currentLine:match("^" .. indent .. "%]%s*$") or
+                                currentLine:match("^%s*%]%s*,%s*$") or
+                                currentLine:match("^%s*%]%s*$") then
+                                    foundEnd = true
+                                    i = i + 1
+                                    break
+                            end
 
-
-                        if currentLine:match("^" .. indent .. "%]%s*,%s*$") or 
-                        currentLine:match("^" .. indent .. "%]%s*$") or
-                        currentLine:match("^%s*%]%s*,%s*$") or
-                        currentLine:match("^%s*%]%s*$") then
-                            foundEnd = true
+                            local codeLine = currentLine:gsub("^" .. indent, "")
+                            table.insert(codeLines, codeLine)
                             i = i+1
-                            break
                         end
 
-                        local codeLine = currentLine:gsub("^" .. indent, "")
-                        table.insert(codeLines, codeLine)
-                        i = i + 1
-                    end
+                        if foundEnd then
+                            result[key] = table.concat(codeLines, "\n")
+                        else
+                            result[key] = table.concat(lines, "\n", i - #codeLines - 1)
+                        end
 
-                    if foundEnd then
-                        result[key] = table.concat(codeLines, "\n")
-                    else
-                        result[key] = table.concat(lines, "\n", i - #codeLines - 1)
+                        i = i+1
+                        goto continue
                     end
-
-                    i = i + 1
-                    goto continue
-                end
             end
 
             local p1 = "^%s*([%w_]+)%s*=%s*(.-)%s*,%s*$"
