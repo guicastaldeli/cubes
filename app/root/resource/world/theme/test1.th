@@ -3,21 +3,21 @@
     name = "TEST_1_THEME",
     movement = "",
     audio = "",
-    top = 1,
+    top = $top,
     texture = "world/theme/test1",
     particles = ~[
         live = false,
         playerMovSpeed = 5.0,
         playerStand = 2.0,
-        position = (0, 1, 0),
+        position = (0, 0, 0),
         color = (0.0, 0.0, 0.0),
         size = 0.5,
-        speed = 5.0,
+        speed = 0.0,
         lifetime = 20.0,
-        velNum = (1.0, 2.0, 1.0),
-        targetY = 2.0,
+        velNum = (0.0, 0.0, 0.0),
+        targetY = 0.0,
         enableMotion = true,
         spawnRadius = 20.0,
-        amount = 50
+        amount = 100
     ]
 {{@end}}

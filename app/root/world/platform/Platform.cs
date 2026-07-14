@@ -92,6 +92,14 @@ class PlatformThemes {
         Apply(themeId);
     }
 
+    // Set Top
+    public static void setTop(float val) {
+        if(data != null) {
+            data["top"] = val;
+            Console.WriteLine($"[PlatformThemes] Set top variable to: {val}");
+        }
+    }
+
     /**
      *
      * Apply
@@ -388,6 +396,26 @@ class Platform : WorldHandler {
         );
     }
 
+    // Get Center
+    public Vector3? getCenter() {
+        foreach(var coord in allGeneratedChunks) {
+            var positions = EventStream.get<List<Vector3>>($"platform-positions-{coord.cx}_{coord.cz}");
+            
+            if(positions != null && positions.Count > 0) {
+                Vector3 center = Vector3.Zero;
+                float top = Top ?? 0;
+
+                foreach(var pos in positions) center += pos;
+                center /= positions.Count;
+                center.Y = top;
+
+                return center;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * 
      * On Stream
@@ -513,7 +541,7 @@ class Platform : WorldHandler {
             );
 
             Top = calculateTop();
-
+            PlatformThemes.setTop(Top.Value);
             EventStream.set("stream-top", (object)Top.Value);
 
             var renderer = mesh.getMeshRenderer(GRID_ID);
@@ -552,6 +580,8 @@ class Platform : WorldHandler {
         ChunkPositions.Add(GRID_ID, coord, positions);
 
         onStream();
+
+        EventStream.set($"platform-positions-{coord.cx}_{coord.cz}", (object)positions);
 
         if(renderMesh) {
             setMesh(positions);
@@ -650,7 +680,7 @@ class Platform : WorldHandler {
         var config = ParticleEntity.convert(data);
         if(config == null) return;
 
-        Vector3 position = new Vector3(0, Top ?? 0, 0);
+        Vector3? positions = getCenter();
         Vector3 color = config.color;
         int amount = config.amount;
         float size = config.size;
@@ -662,7 +692,7 @@ class Platform : WorldHandler {
         float spawnRadius = config.spawnRadius;
 
         var entity = particleController.emit(
-            position: position,
+            position: positions!.Value,
             color: color,
             amount: amount,
             size: size,
@@ -678,7 +708,7 @@ class Platform : WorldHandler {
             particleController.particleEntity.particleConfig = config;
             isMoving = false;
             lastPlayerPosition = Vector3.Zero;
-            
+
             particleController.particleEntity.combineAndRender();
 
             Console.WriteLine($"[Platform] Particles emitted: {config.amount} particles");

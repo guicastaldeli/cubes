@@ -8,6 +8,7 @@ local Parser = dofile("utils/Parser.lua")
 --local CalculateMovement = dofile("world/platform/themes/CalculateMovement.lua")
 
 Parser.registerType("theme", "world/theme/", ".th")
+Parser.setVariable("top", 0.0)
 
 local Theme = {}
 Theme.__index = Theme
