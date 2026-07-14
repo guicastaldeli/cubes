@@ -5,6 +5,7 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using App.Root.Mesh;
 using App.Root.Chunk;
+using App.Root.Particle;
 
 /**
 
@@ -34,6 +35,7 @@ class WorldManager {
     private TimeCycle timeCycle;
     private Camera camera;
     private ChunkManager chunkManager;
+    private ParticleController particleController;
 
     private Network? network;
     private Server? server;
@@ -52,7 +54,8 @@ class WorldManager {
         PlayerController playerController,
         TimeCycle timeCycle,
         Camera camera,
-        ChunkManager chunkManager
+        ChunkManager chunkManager,
+        ParticleController particleController
     ) {
         this.window = window;
         this.tick = tick;
@@ -63,6 +66,7 @@ class WorldManager {
         this.timeCycle = timeCycle;
         this.camera = camera;
         this.chunkManager = chunkManager;
+        this.particleController = particleController;
 
         this.world = new World(
             window, 
@@ -74,7 +78,8 @@ class WorldManager {
             timeCycle, 
             camera, 
             playerController,
-            chunkManager
+            chunkManager,
+            particleController
         );
         this.worldBroadcaster = new WorldBroadcaster(this);
         this.networkWorld = new NetworkWorld(this);

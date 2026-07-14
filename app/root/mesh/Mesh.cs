@@ -61,8 +61,8 @@ class Mesh {
     }
 
     // Get Particle Controller
-    public ParticleController? getParticleController() {
-        return particleController;
+    public ParticleController getParticleController() {
+        return particleController!;
     }
 
     // Get Text Entity Renderer

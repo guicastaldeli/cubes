@@ -289,6 +289,7 @@ class Platform : WorldHandler {
     private CollisionManager collisionManager;
     private PlatformRegistry platformRegistry;
     private PlayerController playerController;
+    private ParticleController particleController;
 
     private Data currentData = new Data();
 
@@ -301,6 +302,9 @@ class Platform : WorldHandler {
     private HashSet<ChunkCoord> allGeneratedChunks = new();
     private Vector3 offset = Vector3.Zero;
 
+    private bool isMoving = false;
+    private Vector3 lastPlayerPosition = Vector3.Zero;
+
     private bool initialized = false;
 
     private const bool DEBUG_EXPANSION = true;
@@ -311,14 +315,17 @@ class Platform : WorldHandler {
         [Inject] Window window,
         [Inject] Mesh mesh, 
         [Inject] CollisionManager collisionManager, 
-        [Inject] PlayerController playerController
+        [Inject] PlayerController playerController,
+        [Inject] ParticleController particleController
     ) {
         this.window = window;
         this.mesh = mesh;
         this.collisionManager = collisionManager;
         this.playerController = playerController;
+        this.particleController = particleController;
+
         this.platformRegistry = new PlatformRegistry(window, mesh, collisionManager, this, playerController);
-    
+
         init();
         PlatformThemes.Init(this);
     }
@@ -633,6 +640,36 @@ class Platform : WorldHandler {
     // Update Audio
 
     // Update Particles
+    private void updateParticles(string data) {
+        cleanupParticles();
+        if(string.IsNullOrEmpty(data)) return;
+
+        var config = ParticleEntity.convert(data);
+        if(config == null) return;
+
+        var position = new Vector3(0, Top ?? 0, 0);
+
+        var entity = particleController.emit(
+            position: position,
+            color: config.color,
+            amount: config.amount,
+            size: config.size,
+            speed: config.speed,
+            lifetime: config.lifetime,
+            velNum: config.velNum,
+            targetY: config.targetY,
+            enableMotion: config.enableMotion,
+            spawnRadius: config.spawnRadius
+        );
+        if(entity != null) {
+            particleController.particleEntity = entity;
+            particleController.particleEntity.particleConfig = config;
+            isMoving = false;
+            lastPlayerPosition = Vector3.Zero;
+
+            Console.WriteLine($"[Platform] Particles emitted: {config.amount} particles");
+        }
+    }
 
     // Update Movement
 
@@ -671,6 +708,19 @@ class Platform : WorldHandler {
                 Console.WriteLine($"        {prop.Name} = {value ?? "null"}");
             }
             Console.WriteLine("");
+        }
+    }
+
+    /**
+     * 
+     * Cleanup
+     *
+     */
+    private void cleanupParticles() {
+        if(particleController.particleEntity != null) {
+            particleController.particleEntity.cleanup();
+            particleController.particleEntity = null;
+            particleController.particleEntity.particleConfig = null;
         }
     }
 }

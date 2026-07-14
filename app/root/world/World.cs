@@ -7,6 +7,7 @@ using App.Root.Shaders;
 using App.Root.Utils;
 using App.Root.Mesh;
 using App.Root.Chunk;
+using App.Root.Particle;
 
 [ManagedState]
 [ClassRegistryIgnore]
@@ -19,6 +20,7 @@ class World : WorldHandler {
     private TimeCycle timeCycle;
     private Camera camera;
     private ChunkManager chunkManager;
+    private ParticleController particleController;
 
     private WorldManager worldManager;
     private WorldBoundary worldBoundary;
@@ -39,7 +41,8 @@ class World : WorldHandler {
         TimeCycle timeCycle,
         Camera camera,
         PlayerController playerController,
-        ChunkManager chunkManager
+        ChunkManager chunkManager,
+        ParticleController particleController
     ) {
         this.window = window;
         this.tick = tick;
@@ -50,6 +53,7 @@ class World : WorldHandler {
         this.timeCycle = timeCycle;
         this.camera = camera;
         this.chunkManager = chunkManager;
+        this.particleController = particleController;
 
         ServiceContainer.Register(window);
         ServiceContainer.Register(tick);
@@ -61,6 +65,7 @@ class World : WorldHandler {
         ServiceContainer.Register(camera);
         ServiceContainer.Register(playerController);
         ServiceContainer.Register(chunkManager);
+        ServiceContainer.Register(particleController);
         ServiceContainer.SRegister(this);
 
         WorldUpdater.getInstance().init(window, mesh, collisionManager);

@@ -70,7 +70,8 @@ class MainScene {
             playerController,
             timeCycle,
             getCamera(),
-            chunkManager
+            chunkManager,
+            mesh.getParticleController()
         );
 
         onStream();

@@ -10,7 +10,7 @@ using App.Root.Chunk;
 
 class ParticleController {
     private Mesh mesh;
-    private ParticleEntity particleEntity;
+    public ParticleEntity particleEntity;
 
     [Poolable("particle_entities", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] public PoolableList<ParticleEntity> particlePool = null!;
     [Poolable("particle_active", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] public PoolableList<ParticleEntity> activeEntities = null!;
@@ -39,6 +39,7 @@ class ParticleController {
         return entity;
     }
 
+    // Get Particle Entities
     public List<ParticleEntity> getParticleEntities() {
         List<ParticleEntity> val = new List<ParticleEntity>(activeEntities);
         return val;

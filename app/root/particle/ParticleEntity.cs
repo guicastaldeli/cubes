@@ -10,10 +10,10 @@ using App.Root.Utils;
 using System.Reflection;
 using Particle = Resource.Mesh.Particle;
 using OpenTK.Mathematics;
+using App.Root.World.Weather;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";
-    private const string INSTANCED_ID = "PART_BATCH";
     private const string SHARED_MESH_ID = "particle_shared";
 
     private const float GRAVITY_VEL = 9.8f;
@@ -21,6 +21,8 @@ class ParticleEntity {
     private Mesh mesh = null!;
     private ParticleController particleController = null!;
     private Random random = null!;
+
+    public Particle particleConfig = null!;
 
     private static bool sharedMeshInitialized = false;
     private static int counter = 0;
@@ -78,6 +80,11 @@ class ParticleEntity {
         this.targetY = 0.0f;
         this.vel = false;
         this.enableMotion = false;
+    }
+
+    // Get Particle Config
+    public Particle getParticleConfig() {
+        return particleConfig;
     }
 
     // Return Entity
