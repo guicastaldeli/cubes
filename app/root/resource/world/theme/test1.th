@@ -1,11 +1,23 @@
 {{@theme#test1}}
-	id = -1
-	name = "TEST_1_THEME"
-	movement = ""
-	audio = ""
-	top = 1
-	particles = ~[
-		()
-	]
-	texture = "world/theme/test1"
+    id = -1,
+    name = "TEST_1_THEME",
+    movement = "",
+    audio = "",
+    top = 1,
+    particles = ~[
+        live = false,
+        playerMovSpeed = 5.0,
+        playerStand = 2.0,
+        position = (0, 1, 0),
+        color = (0.0, 0.0, 0.0),
+        size = 0.5,
+        speed = 5.0,
+        lifetime = 20.0,
+        velNum = (1.0, 2.0, 1.0),
+        targetY = 2.0,
+        enableMotion = true,
+        spawnRadius = 20.0,
+        amount = 50
+    ],
+    texture = "world/theme/test1"
 {{@end}}

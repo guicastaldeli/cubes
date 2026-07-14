@@ -263,7 +263,7 @@ class Platform : WorldHandler {
         [Convert("string")] [ConverterKey("id")] public string Id;
         [Convert("string")] [ConverterKey("name")] public string Name;
         [Convert("string")] [ConverterKey("audio")] public string Audio;
-        [Convert("int")] [ConverterKey("top")] public int Top;
+        [Convert("int32")] [ConverterKey("top")] public int Top;
         [Convert("string")] [ConverterKey("particles")] public string Particles;
         [Convert("string")] [ConverterKey("texture")] public string Texture;
 
@@ -425,6 +425,7 @@ class Platform : WorldHandler {
     private void applyData(Data data) {
         window.queueOnRenderThread(() => {
             updateTexture(data.Texture); 
+            updateParticles(data.Particles);
         });
     }
 
@@ -565,12 +566,13 @@ class Platform : WorldHandler {
      *
      */
     private void merge() {
-       // Console.WriteLine($"[Platform] merge() called - IsUsed: {ChunkPositions.IsUsed(GRID_ID)}");
+        //Console.WriteLine($"[Platform] merge() called - IsUsed: {ChunkPositions.IsUsed(GRID_ID)}");
         
         if(ChunkPositions.IsUsed(GRID_ID)) {
             var merged = ChunkPositions.GetMerged(GRID_ID);
             //Console.WriteLine($"[Platform] uploading {merged.Count} positions to GPU");
             mesh.getMeshRenderer(GRID_ID)?.setInstancePositions(merged);
+            //mesh.getMeshRenderer(GRID_ID)?.setVisible(false);
             ChunkPositions.ClearUsed(GRID_ID);
         }
     }
@@ -641,31 +643,43 @@ class Platform : WorldHandler {
 
     // Update Particles
     private void updateParticles(string data) {
-        cleanupParticles();
+        //cleanupParticles();
+
         if(string.IsNullOrEmpty(data)) return;
 
         var config = ParticleEntity.convert(data);
         if(config == null) return;
 
-        var position = new Vector3(0, Top ?? 0, 0);
+        Vector3 position = new Vector3(0, Top ?? 0, 0);
+        Vector3 color = config.color;
+        int amount = config.amount;
+        float size = config.size;
+        float speed = config.speed;
+        float lifetime = config.lifetime;
+        Vector3 velNum = config.velNum;
+        float targetY = config.targetY;
+        bool enableMotion = config.enableMotion;
+        float spawnRadius = config.spawnRadius;
 
         var entity = particleController.emit(
             position: position,
-            color: config.color,
-            amount: config.amount,
-            size: config.size,
-            speed: config.speed,
-            lifetime: config.lifetime,
-            velNum: config.velNum,
-            targetY: config.targetY,
-            enableMotion: config.enableMotion,
-            spawnRadius: config.spawnRadius
+            color: color,
+            amount: amount,
+            size: size,
+            speed: speed,
+            lifetime: lifetime,
+            velNum: velNum,
+            targetY: targetY,
+            enableMotion: enableMotion,
+            spawnRadius: spawnRadius
         );
         if(entity != null) {
             particleController.particleEntity = entity;
             particleController.particleEntity.particleConfig = config;
             isMoving = false;
             lastPlayerPosition = Vector3.Zero;
+            
+            particleController.particleEntity.combineAndRender();
 
             Console.WriteLine($"[Platform] Particles emitted: {config.amount} particles");
         }
@@ -720,7 +734,6 @@ class Platform : WorldHandler {
         if(particleController.particleEntity != null) {
             particleController.particleEntity.cleanup();
             particleController.particleEntity = null;
-            particleController.particleEntity.particleConfig = null;
         }
     }
 }

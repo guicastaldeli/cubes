@@ -23,12 +23,13 @@ class Particle {
     [Convert("vec3")] [ConverterKey("velNum")] public Vector3 velNum { get; set; } = Vector3.One;
     [Convert("float")] [ConverterKey("targetY")] public float targetY { get; set; } = 1.0f;
     [Convert("bool")] [ConverterKey("enableMotion")] public bool enableMotion { get; set; } = true;
-    [Convert("int")] [ConverterKey("amount")] public int amount { get; set; } = 10;
+    [Convert("int32")] [ConverterKey("amount")] public int amount { get; set; } = 10;
+    [Convert("float")] [ConverterKey("spawnRadius")] public float spawnRadius { get; set; } = 1.0f;
+    [Convert("float")] [ConverterKey("lifetime")] public float lifetime;
     public string id = "";
     public MeshData? cachedMeshData;
     public Vector3 basePos = Vector3.Zero;
     public Vector3 initialVel;
-    public float lifetime;
     public float maxLifetime;
     public float rotation;
     public float rotationSpeed;
@@ -49,12 +50,12 @@ class Particle {
     static Particle() {
         foreach(var prop in typeof(Particle).GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
             var key = prop.GetCustomAttribute<ConverterKey>()?.Key;
-            if(key != null) configMembers[key] = (prop, null);
+            if(key != null) configMembers[key.ToLower()] = (prop, null);
         }
 
         foreach(var field in typeof(Particle).GetFields(BindingFlags.Public | BindingFlags.Instance)) {
             var key = field.GetCustomAttribute<ConverterKey>()?.Key;
-            if(key != null) configMembers[key] = (null, field);
+            if(key != null) configMembers[key.ToLower()] = (null, field);
         }
     }
     public Particle() {

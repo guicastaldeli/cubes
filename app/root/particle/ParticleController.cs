@@ -10,7 +10,7 @@ using App.Root.Chunk;
 
 class ParticleController {
     private Mesh mesh;
-    public ParticleEntity particleEntity;
+    public ParticleEntity? particleEntity;
 
     [Poolable("particle_entities", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] public PoolableList<ParticleEntity> particlePool = null!;
     [Poolable("particle_active", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] public PoolableList<ParticleEntity> activeEntities = null!;
@@ -87,6 +87,8 @@ class ParticleController {
      *
      */
     public void update() {
+        if(particleEntity == null) return;
+
         bool hasUpdates = false;
 
         for(int i = activeEntities.Count - 1; i >= 0; i--) {
@@ -112,6 +114,8 @@ class ParticleController {
      *
      */
     public void render() {
+        if(particleEntity == null) return;
+        
         if(particleEntity.allPositions.Count > 0) {
             particleEntity.render();
         }
@@ -129,6 +133,6 @@ class ParticleController {
         }
 
         activeEntities.Clear();
-        particleEntity.cleanupAll();
+        particleEntity!.cleanupAll();
     }
 }

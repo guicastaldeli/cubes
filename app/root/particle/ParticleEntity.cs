@@ -10,7 +10,6 @@ using App.Root.Utils;
 using System.Reflection;
 using Particle = Resource.Mesh.Particle;
 using OpenTK.Mathematics;
-using App.Root.World.Weather;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";

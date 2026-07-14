@@ -4,9 +4,7 @@
     
     */
 namespace App.Root.Utils;
-using System.Collections;
-using System.Numerics;
-using System.Reflection;
+using OpenTK.Mathematics;
 
 /**
 
@@ -232,15 +230,15 @@ public static class Converter {
      * To Vec3
      *
      */
+    [ConverterKey("vec3")]
     public static Vector3 ToVec3(string val) {
         var cleaned = val.Trim().TrimStart('(').TrimEnd(')');
         var parts = cleaned.Split(',');
         if(parts.Length >= 3) {
-            return new Vector3(
-                float.TryParse(parts[0].Trim(), out var x) ? x : 0,
-                float.TryParse(parts[0].Trim(), out var y) ? y : 0,
-                float.TryParse(parts[0].Trim(), out var z) ? z : 0
-            );
+            float x = float.TryParse(parts[0].Trim(), out var xv) ? xv : 0;
+            float y = float.TryParse(parts[1].Trim(), out var yv) ? yv : 0;
+            float z = float.TryParse(parts[2].Trim(), out var zv) ? zv : 0;
+            return new Vector3(x, y, z);
         }
 
         return Vector3.Zero;

@@ -285,40 +285,39 @@ local function parseBlock(content)
             local start = line:match(s)
 
             if start then
-                local indent = start:match("^(%s*)")
-                local key = start:match("%s*([%w_]+)%s*=%s*~%[%s*$")
-
+                local key = line:match("^%s*([%w_]+)%s*[=:]%s*~%[")
                 if key then
+                    local indent = line:match("^(%s*)")
+                 
                     local codeLines = {}
                     i = i+1
-                    
                     local foundEnd = false
 
                     while i <= #lines do
                         local currentLine = lines[i]
 
+
                         if currentLine:match("^" .. indent .. "%]%s*,%s*$") or 
-                            currentLine:match("^" .. indent .. "%]%s*$") or
-                            currentLine:match("^%s*%]%s*,%s*$") or
-                            currentLine:match("^%s*%]%s*$") then
-                                foundEnd = true
-                                i = i + 1
-                                break
+                        currentLine:match("^" .. indent .. "%]%s*$") or
+                        currentLine:match("^%s*%]%s*,%s*$") or
+                        currentLine:match("^%s*%]%s*$") then
+                            foundEnd = true
+                            i = i+1
+                            break
                         end
 
                         local codeLine = currentLine:gsub("^" .. indent, "")
                         table.insert(codeLines, codeLine)
-                        i = i+1
+                        i = i + 1
                     end
 
                     if foundEnd then
                         result[key] = table.concat(codeLines, "\n")
                     else
-                        print("Warning!: Unclosed code block for key: " .. key)
                         result[key] = table.concat(lines, "\n", i - #codeLines - 1)
                     end
 
-                    i = i+1
+                    i = i + 1
                     goto continue
                 end
             end
