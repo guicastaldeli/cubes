@@ -665,6 +665,14 @@ class Platform : WorldHandler {
     // Update
     public override void update() {
         platformRegistry.update();
+
+        if(particleController != null) {
+            var entity = EventStream.get<ParticleEntity>("particle-entity");
+            if(entity != null) {
+                var config = entity.getParticleConfig();
+                if(config != null) particleController.getParticleEntity().updateMovement(config, playerController, ref lastPlayerPosition, ref isMoving);
+            }
+        }
     }
 
     // Update Top
@@ -711,6 +719,8 @@ class Platform : WorldHandler {
 
             particleController.particleEntity.combineAndRender();
 
+            EventStream.set("particle-entity", entity);
+            
             Console.WriteLine($"[Platform] Particles emitted: {config.amount} particles");
         }
     }

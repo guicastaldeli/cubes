@@ -72,7 +72,7 @@ class PlayerController : DataEntry {
     private Vector3 size;
     
     private bool normalMode = true;
-    private float moveSpeed = 90.0f;
+    private float moveSpeed = 20.0f;
     private bool movingForward = false;
     private bool movingBackward = false;
     private bool movingLeft = false;
@@ -80,7 +80,7 @@ class PlayerController : DataEntry {
     private bool movingUp = false;
     private bool movingDown = false;
     private float jumpForce = 8.0f;
-    private float flySpeed = 90.0f;
+    private float flySpeed = 20.0f;
 
     private Dictionary<MoveDir, (Keys key, Action<bool> apply)>? moveMap;
 

@@ -10,6 +10,7 @@ using App.Root.Utils;
 using System.Reflection;
 using Particle = Resource.Mesh.Particle;
 using OpenTK.Mathematics;
+using App.Root.Player;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";
@@ -459,7 +460,24 @@ class ParticleEntity {
     }
 
     // Update Movement
-    public void updateMovement(bool playerMoving, Particle config) {
+    public void updateMovement(Particle config, PlayerController playerController, ref Vector3 lastPlayerPos, ref bool isMoving) {
+        if(config == null || !config.live) return;
+
+        Vector3 playerPos = playerController.getPosition();
+        Vector3 delta = playerPos - lastPlayerPos;
+        bool _isMoving = delta.Length > 0.1f;
+
+        if(_isMoving != isMoving) {
+            isMoving = _isMoving;
+            updateSpeed(isMoving, config);
+            //Console.WriteLine($"[Platform] Particle speed updated, moving: {isMoving}");
+        }
+
+        lastPlayerPos = playerPos;
+    }
+
+    // Update Speed
+    public void updateSpeed(bool playerMoving, Particle config) {
         var vel = speed * (playerMoving ? config.playerMovSpeed : config.playerStand);
         var lifetime = this.lifetime / (vel > 1 ? vel : 1);
 
