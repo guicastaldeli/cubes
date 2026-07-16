@@ -720,14 +720,13 @@ class Platform : WorldHandler {
         if(entity != null) {
             particleController.particleEntity = entity;
             particleController.particleEntity.particleConfig = config;
+
             isMoving = false;
-            lastPlayerPosition = Vector3.Zero;
+            lastPlayerPosition = playerController.getPosition();
+            entity.updateSpeed(false, config);
 
             particleController.particleEntity.combineAndRender();
-
             EventStream.set("particle-entity", entity);
-            
-            //Console.WriteLine($"[Platform] Particles emitted: {config.amount} particles");
         }
     }
 

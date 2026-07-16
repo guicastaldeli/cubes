@@ -505,7 +505,7 @@ class ParticleEntity {
         Vector2 horizontalDelta = new Vector2(playerPos.X - lastPlayerPos.X, playerPos.Z - lastPlayerPos.Z);
         lastPlayerPos = playerPos;
 
-        float t = 0.05f;
+        float t = 0.02f;
 
         if(horizontalDelta.Length > t) {
             movingTimer = MOVE_TIMEOUT;
@@ -519,8 +519,6 @@ class ParticleEntity {
             isMoving = _isMoving;
             updateSpeed(isMoving, config);
         }
-
-        lastPlayerPos = playerPos;
     }
 
     // Update Speed
