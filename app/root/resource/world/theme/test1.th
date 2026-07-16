@@ -1,10 +1,27 @@
 {{@theme#test1}}
     id = -1,
     name = "TEST_1_THEME",
-    movement = "",
+    movement = ~[
+        gravityScale = 2.0,
+        gravity = -15.0,
+        drag = 0.4,
+        moveSpeed = 12.0,
+        flySpeed = 12.0,
+        jumpForce = 6.0,
+        jumpGravityEnabled = true,
+        jumpGravityScale = 1.5,
+        jumpGravity = -8.0,
+        groundFriction = 0.5,
+        airControl = 0.6,
+        maxFallSpeed = -20.0,
+        waterDrag = 0.7,
+        buoyancy = 5.0
+    ],
     audio = "",
     top = $top,
     texture = "world/theme/test1",
+    collider = "hidden"
+    gravity = "jump",
     particles = ~[
         live = true,
         playerMovSpeed = 1.0,

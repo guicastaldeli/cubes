@@ -5,7 +5,7 @@
     ]]
 local ResolveFormat = dofile("utils/ResolveFormat.lua")
 local Parser = dofile("utils/Parser.lua")
---local CalculateMovement = dofile("world/platform/themes/CalculateMovement.lua")
+local CalculateMovement = dofile("world/platform/themes/CalculateMovement.lua")
 
 Parser.registerType("theme", "world/theme/", ".th")
 Parser.setVariable("top", 0.0)
@@ -30,19 +30,8 @@ local function toObject(parsedTheme)
     }
 end
 
---[[
-    Theme
-    ]]
-function Theme:new(params)
-    params = params or {}
-
-    local self = setmetatable({}, Theme)
-    self.id = params.id
-    self.name = params.name
-    self.movement = params.movement or ""
-    self.audio = params.audio or ""
-    self.top = params.top or nil
-    self.particles = params.particles or ""
+-- Set Texture
+local function setTexture(self, params)
     if params.texture then
         local texturePath, format, fullPath = ResolveFormat.resolveTexture(params.texture)
         if texturePath then
@@ -61,6 +50,29 @@ function Theme:new(params)
         self.textureFormat = nil
         self.textureFullPath = nil
     end
+end
+
+-- Set Movement
+local function setMovement(self, params)
+    if params.movement then
+        local movement = CalculateMovement.set(params.movement)
+    end
+end
+
+--[[
+    Theme
+    ]]
+function Theme:new(params)
+    params = params or {}
+
+    local self = setmetatable({}, Theme)
+    self.id = params.id
+    self.name = params.name
+    setMovement(self, params)
+    self.audio = params.audio or ""
+    self.top = params.top or nil
+    self.particles = params.particles or ""
+    setTexture(self, params)
     
     return self
 end
