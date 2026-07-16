@@ -265,6 +265,9 @@ end
 --[[
     Parse Block
 ]]
+--[[
+    Parse Block
+]]
 local function parseBlock(content)
     local result = {}
 
@@ -287,48 +290,49 @@ local function parseBlock(content)
             if start then
                 local key = line:match("^%s*([%w_]+)%s*[=:]%s*~%[")
                 if key then
-                        local indent = line:match("^(%s*)")
-                        
-                        local codeLines = {}
-                        i = i+1
-                        local foundEnd = false
+                    local indent = line:match("^(%s*)")
+                    
+                    local codeLines = {}
+                    i = i + 1
+                    local foundEnd = false
 
-                        while i <= #lines do
-                            local currentLine = lines[i]
-                            if currentLine:match("^" .. indent .. "%]%s*,%s*$") or 
-                                currentLine:match("^" .. indent .. "%]%s*$") or
-                                currentLine:match("^%s*%]%s*,%s*$") or
-                                currentLine:match("^%s*%]%s*$") then
-                                    foundEnd = true
-                                    i = i + 1
-                                    break
-                            end
-
-                            local codeLine = currentLine:gsub("^" .. indent, "")
-                            table.insert(codeLines, codeLine)
-                            i = i+1
+                    while i <= #lines do
+                        local currentLine = lines[i]
+                        -- Check for closing ] with optional comma
+                        if currentLine:match("^" .. indent .. "%]%s*,%s*$") or 
+                            currentLine:match("^" .. indent .. "%]%s*$") or
+                            currentLine:match("^%s*%]%s*,%s*$") or
+                            currentLine:match("^%s*%]%s*$") then
+                                foundEnd = true
+                                i = i + 1 
+                             break
                         end
 
-                        if foundEnd then
-                            result[key] = table.concat(codeLines, "\n")
-                        else
-                            result[key] = table.concat(lines, "\n", i - #codeLines - 1)
-                        end
-
-                        i = i+1
-                        goto continue
+                        local codeLine = currentLine:gsub("^" .. indent, "")
+                        table.insert(codeLines, codeLine)
+                        i = i + 1
                     end
-            end
 
-            local p1 = "^%s*([%w_]+)%s*=%s*(.-)%s*,%s*$"
-            local p2 = "^%s*([%w_]+)%s*=%s*(.-)%s*$"
-            local key, value = line:match(p1)
-            if not key then key, value = line:match(p2) end
-            if key and value then result[key] = parseValue(value) end
+                    if foundEnd then
+                        result[key] = table.concat(codeLines, "\n")
+                    else
+                        result[key] = table.concat(lines, "\n", i - #codeLines - 1)
+                        i = #lines + 1  -- Exit loop
+                    end
+                end
+            else
+                local p1 = "^%s*([%w_]+)%s*=%s*(.-)%s*,%s*$"
+                local p2 = "^%s*([%w_]+)%s*=%s*(.-)%s*$"
+                local key, value = line:match(p1)
+                if not key then key, value = line:match(p2) end
+                if key and value then 
+                    result[key] = parseValue(value) 
+                end
+                i = i + 1
+            end
+        else
+            i = i + 1
         end
-        
-        ::continue::
-        i = i+1
     end
 
     return result

@@ -6,7 +6,7 @@
 local CalculateMovement = {}
 
 -- Convert Value
-function convertValue(value)
+local function convertValue(value)
     if type(value) == "string" then
         if value == "true" then return true end
         if value == "false" then return false end
@@ -69,18 +69,8 @@ end
 --[[
     Parse
 ]]
--- Parse
-function CalculateMovement.parse(movementData)
-    if not movementData then return {} end
-    
-    if type(movementData) == "string" then return parseMovementString(movementData) end
-    if type(movementData) == "table" then return movementData end
-
-    return {}
-end
-
 -- Parse Movement String
-function parseMovementString(str)
+local function parseMovementString(str)
     local p = "^%s*(.-)%s*$"
     str = str:gsub(p, "%1")
     if str == "" then return {} end
@@ -97,6 +87,16 @@ function parseMovementString(str)
     end
 
     return result
+end
+
+-- Parse
+function CalculateMovement.parse(movementData)
+    if not movementData then return {} end
+    
+    if type(movementData) == "string" then return parseMovementString(movementData) end
+    if type(movementData) == "table" then return movementData end
+
+    return {}
 end
 
 --[[
@@ -127,3 +127,5 @@ function CalculateMovement.get(movementTable, key, default)
     if val == nil then return default end
     return val
 end
+
+return CalculateMovement
