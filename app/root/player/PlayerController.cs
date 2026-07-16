@@ -45,6 +45,7 @@ class PlayerController : DataEntry {
     public static PlayerController? instance;
 
     private AppWindow window;
+    private Tick tick;
     private Camera camera;
     private Input input;
     private PlayerInput playerInput;
@@ -58,6 +59,7 @@ class PlayerController : DataEntry {
     private NetworkPlayer networkPlayer;
 
     private Mode mode;
+    private Skills.Skills skills;
 
     private WorldManager? worldManager = null!;
 
@@ -90,6 +92,7 @@ class PlayerController : DataEntry {
 
     public PlayerController(
         AppWindow window,
+        Tick tick,
         Input input, 
         ShaderProgram shaderProgram,
         Mesh mesh
@@ -100,6 +103,7 @@ class PlayerController : DataEntry {
         this.size = new Vector3(sizeX, sizeY, sizeZ);
 
         this.window = window;
+        this.tick = tick;
         this.input = input;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
@@ -116,6 +120,7 @@ class PlayerController : DataEntry {
         this.raycaster = new Raycaster(camera, mesh);
 
         this.mode = new Mode(window, camera, mesh, this);
+        this.skills = new Skills.Skills(window, tick);
 
         Mapper.Set<PlayerController>();
         

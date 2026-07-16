@@ -82,6 +82,14 @@ class PlatformThemes {
         return val;
     }
 
+    // Set Top
+    public static void setTop(float val) {
+        if(data != null) {
+            data["top"] = val;
+            Console.WriteLine($"[PlatformThemes] Set top variable to: {val}");
+        }
+    }
+
     // Handle Mouse Click
     [GlobalInput]
     public static void HandleMouseClick(int themeId) {
@@ -90,14 +98,6 @@ class PlatformThemes {
         Console.ResetColor();
 
         Apply(themeId);
-    }
-
-    // Set Top
-    public static void setTop(float val) {
-        if(data != null) {
-            data["top"] = val;
-            Console.WriteLine($"[PlatformThemes] Set top variable to: {val}");
-        }
     }
 
     /**

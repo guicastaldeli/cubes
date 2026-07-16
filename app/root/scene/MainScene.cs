@@ -50,6 +50,7 @@ class MainScene {
 
         this.playerController = new PlayerController(
             window, 
+            tick,
             input,
             shaderProgram, 
             mesh

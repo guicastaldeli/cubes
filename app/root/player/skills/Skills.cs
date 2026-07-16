@@ -12,10 +12,10 @@ using NLua;
 [ActionConverter]
 [DataInput]
 [DataOutput(Path: "player_storage.ps")]
-public class SkillsData {
+class SkillsData {
     public class Skill {
-        [Convert("int32")] [ConverterKey("id")] public int? Id { get; set; }
-        [Convert("string")] [ConverterKey("name")] public string? Name { get; set; }
+        [Convert("int32")] [ConverterKey("id")] public int Id { get; set; } = 0;
+        [Convert("string")] [ConverterKey("name")] public string Name { get; set; } = "";
         [Convert("string")] [ConverterKey("movement")] public string? Movement { get; set; }
         [Convert("string")] [ConverterKey("audio")] public string? Audio { get; set; }
         [Convert("string")] [ConverterKey("particles")] public string? Particles { get; set; }
@@ -27,6 +27,8 @@ public class SkillsData {
 
     private static Lua data = null!;
     private static List<Skill> skills = null!;
+
+    private static Skills skill = null!;
 
     private static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
         .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -71,8 +73,31 @@ public class SkillsData {
 
     // Handle Mouse Click
     [GlobalInput]
-    public static void HandleMouseClick() {
-        Console.WriteLine("TEST!!! Skills");
+    public static void HandleMouseClick(int skillId) {
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine($"[SkillsData] Applying skill: {skillId}");
+        Console.ResetColor();
+
+        Apply(skillId);
+    }
+
+    /**
+     *
+     * Apply
+     *
+     */
+    private static void Apply(int id) {
+        var data = GetSkill(id);
+
+        if(data != null) {
+            if(skill != null) {
+                skill.applySkill(data);
+            } else {
+                Console.WriteLine("err skill null");    
+            }
+        } else {
+            Console.WriteLine("err skill data null");
+        }
     }
 
     /**
@@ -186,6 +211,15 @@ public class SkillsData {
         
         Directory.SetCurrentDirectory(originalDir);
     }
+
+    /**
+     *
+     * Init
+     *
+     */
+    public static void Init(Skills skill) {
+        SkillsData.skill = skill;
+    }
 }
 
 /**
@@ -194,7 +228,130 @@ public class SkillsData {
 
     */
 class Skills {
-    public Skills() {
+    /**
+     *
+     * Props
+     *
+     */
+    private record SkillProps(
+        string Id,
+        string Name,
+        string Movement,
+        string Audio,
+        string Particles
+    );
+
+    /**
+     *
+     * Data
+     *
+     */
+    private struct Data {
+        [Convert("string")] [ConverterKey("id")] public string Id;
+        [Convert("string")] [ConverterKey("name")] public string Name;
+        [Convert("string")] [ConverterKey("movement")] public string Movement;
+        [Convert("string")] [ConverterKey("audio")] public string Audio;
+        [Convert("string")] [ConverterKey("particles")] public string Particles;
+
+        public static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Where(m => m.GetCustomAttribute<ConverterKey>() != null)
+            .ToDictionary(
+                m => m.GetCustomAttribute<ConverterKey>()!.Key,
+                m => m
+            );
+    }
+
+    /**
+     *
+     * Skill main
+     *
+     */
+    private Window window;
+    private Tick tick;
+
+    private Data currentData = new Data();
+
+    public Skills(Window window, Tick tick) {
+        this.window = window;
+        this.tick = tick;
+
+        SkillsData.Init(this);
+    }
+
+    // To Props
+    private Data toProps(SkillProps props) {
+        Data d = new Data {
+            Id = props.Id,
+            Name = props.Name,
+            Audio = props.Audio,
+            Movement = props.Movement,
+            Particles = props.Particles
+        };
+
+        return d;
+    }
+
+    // Skill to Props
+    private SkillProps skillToProps(SkillsData.Skill skill) {
+        string idVal = skill.Id.ToString();
+        string nameVal = skill.Name;
+        string moveVal = skill.Movement ?? "";
+        string audioVal = skill.Audio ?? "";
+        string particleVal = skill.Particles ?? "";
+
+        return new SkillProps(
+            Id: idVal,
+            Name: nameVal,
+            Audio: audioVal,
+            Movement: moveVal,
+            Particles: particleVal
+        );
+    }
+
+    /**
+     * 
+     * Apply
+     *
+     */
+    // Apply Theme
+    public void applySkill(SkillsData.Skill skill) {
+        if(skill == null) {
+            Console.WriteLine("[Platform] Cannot apply null theme");
+            return;
+        }
+
+        Console.WriteLine($"[Platform] Applying skill: {skill.Name} (ID: {skill.Id})");
+
+        var props = skillToProps(skill);
+        var data = toProps(props);
+
+        currentData = data;
+        applyData(data);
+
+        Console.WriteLine($"[Skill] Skill applied successfully!");
+    }
+
+    // Apply Data
+    private void applyData(Data data) {
+        window.queueOnRenderThread(() => {
+            Console.WriteLine("TEST Apply DATA!");
+        });
+    }
+
+    /**
+     *
+     * Update
+     *
+     */
+    // Update
+    public void update() {
         
     }
+
+    // Update Movement
+
+    // Update Audio
+
+    // Update Particles
 }
