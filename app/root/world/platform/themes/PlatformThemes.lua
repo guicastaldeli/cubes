@@ -13,6 +13,19 @@ Parser.setVariable("top", 0.0)
 local Theme = {}
 Theme.__index = Theme
 
+-- To Movement Data
+local function toMovementData(data)
+    local movementData = nil
+
+    if data.movement then
+        movementData = CalculateMovement.parse(data.movement)
+    else
+        movementData = {}
+    end
+
+    return movementData
+end
+
 -- To Object
 local function toObject(parsedTheme)
     if not parsedTheme or not parsedTheme.data then return nil end
@@ -22,7 +35,7 @@ local function toObject(parsedTheme)
     return {
         id = data.id or 0,
         name = data.name or "Unknown",
-        movement = data.movement or "",
+        movement = toMovementData(data),
         audio = data.audio or "",
         top = data.top or nil,
         particles = data.particles or "",
@@ -56,6 +69,10 @@ end
 local function setMovement(self, params)
     if params.movement then
         local movement = CalculateMovement.set(params.movement)
+        self.movement =  movement
+    else 
+        self.movement = {}
+        print("No movement data in theme")
     end
 end
 
@@ -75,6 +92,27 @@ function Theme:new(params)
     setTexture(self, params)
     
     return self
+end
+
+-- Get Movement
+function Theme:getMovement()
+    local val = self.movement or {}
+    return val
+end
+
+-- Get Movement String
+function Theme:getMovementString()
+    local val = CalculateMovement.toString(self.movement)
+    return val
+end
+
+-- Get Movement Value
+function Theme:getMovementValue(key)
+    if self.movement and self.movement ~= nil then
+        return self.movement[key]
+    end
+
+    return nil
 end
 
 --[[
