@@ -14,7 +14,6 @@
         groundFriction = 0.5,
         airControl = 0.6,
         maxFallSpeed = -20.0,
-        waterDrag = 0.7,
         buoyancy = 5.0
     ],
     audio = "",
