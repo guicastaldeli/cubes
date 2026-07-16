@@ -15,6 +15,9 @@ class StaticObject : Collider {
     private float halfZ;
     private Func<BBox?>? bboxProvider;
 
+    private bool visible = true;
+    private bool jumpGravityEnabled = false;
+
     public StaticObject(BBox bbox, string id, string type = "") {
         this.bbox = bbox;
         this.id = id;
@@ -79,12 +82,33 @@ class StaticObject : Collider {
         return val;
     }
 
+    // Set Visible
+    public void setVisible(bool visible) {
+        this.visible = visible;
+    }
+
+    // Is Visible
+    public bool isVisible() {
+        return visible;
+    }
+
+    // Set Jump Gravity Enabled
+    public void setJumpGravityEnabled(bool jumpGravityEnabled) {
+        this.jumpGravityEnabled = jumpGravityEnabled;
+    }
+
+    // Is Jump Gravity Enabled
+    public bool isJumpGravityEnabled() {
+        return jumpGravityEnabled;
+    }
+
     // Check Collision
     public CollisionResult checkCollision(BBox bbox) {
+        if(!visible) return new CollisionResult();
+
         BBox self = getBBox();
-        if(bbox.intersects(self)) {
-            return calcCollision(bbox, self);
-        }
+        if(bbox.intersects(self)) return calcCollision(bbox, self);
+        
         return new CollisionResult();
     }
 

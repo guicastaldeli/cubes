@@ -50,15 +50,42 @@ class CollisionManager {
         return pendingRemovals.Count;
     }
 
+    // Set Collider Visibility
+    public void setColliderVisibility(string id, bool visible) {
+        var collider = getCollider(id);
+        if(collider != null) {
+            collider.setVisible(visible);
+            Console.WriteLine($"[CollisionManager] Set collider {id} visibility to {visible}");
+        }
+    }
+
+    // Set Collider Jump Gravity
+    public void setColliderJumpGravity(string id, bool enabled) {
+        var collider = getCollider(id);
+        if(collider != null) {
+            collider.setJumpGravityEnabled(enabled);
+            Console.WriteLine($"[CollisionManager] Set collider {id} jump gravity to {enabled}");
+        }
+    }
+
     /**
      * 
      * Get Collider
      *
      */
-    public List<Collider> getColliders() {
-        return staticColliders.ToList();
+    // Get Collider
+    public Collider? getCollider(string id) {
+        Collider? val = staticColliders.FirstOrDefault(c => c.getId() == id);
+        return val;
     }
 
+    // Get Colliders
+    public List<Collider> getColliders() {
+        List<Collider> val = staticColliders.ToList();
+        return val;
+    }
+
+    // Get Colliders by Prefix
     public List<string> getCollidersByPrefix(string prefix) {
         List<string> val = staticColliders
             .Where(c => c.getId().StartsWith(prefix))
@@ -73,6 +100,7 @@ class CollisionManager {
      * Remove
      *
      */
+    // Remove Collider
     public void removeCollider(Collider coll) {
         pendingRemovals.Add(coll.getId());
     }
@@ -81,6 +109,7 @@ class CollisionManager {
         pendingRemovals.Add(id);
     }
 
+    // Process Removals
     public void processRemovals() {
         if(pendingRemovals.Count == 0) return;
 
@@ -172,14 +201,17 @@ class CollisionManager {
         }
         collisions.Sort((a, b) => b.depth.CompareTo(a.depth));
 
-        bool groundFound = false;
+        bool surfaceFound = false;
 
         foreach(var collision in collisions) {
             Vector3 position = rigidBody.getPosition();
             BBox bbox = rigidBody.getBBox();
 
+            var collider = collision.otherCollider;
+            if(collider != null && collider.isJumpGravityEnabled()) rigidBody.setJumping(true);
+
             // Boundary Object
-            if(collision.otherCollider is BoundaryObject boundaryObj) {
+            if(collider is BoundaryObject boundaryObj) {
                 Vector3 newPos = new Vector3(position);
                 float dist = boundaryObj.getBoundaryDistance();
                 Vector3 center = boundaryObj.getCenter();
@@ -201,8 +233,7 @@ class CollisionManager {
                 continue;
             }
             // Static Object
-            if(collision.otherCollider is StaticObject ||
-                collision.otherCollider is SphereObject) {
+            if(collider is StaticObject || collider is SphereObject) {
                 if(collision.depth > 0.0001f) {
                     rigidBody.setPosition(
                         position + 
@@ -212,10 +243,10 @@ class CollisionManager {
                 }
 
                 if(collision.normal.Y > 0.5f) {
-                    groundFound = true;
+                    surfaceFound = true;
 
                     Vector3 pos = rigidBody.getPosition();
-                    BBox colliderBox = collision.otherCollider!.getBBox();
+                    BBox colliderBox = collider.getBBox();
                     BBox playerBox = rigidBody.getBBox();
 
                     float halfHeight = (playerBox.maxY - playerBox.minY) / 2.0f;
@@ -227,7 +258,7 @@ class CollisionManager {
                     rigidBody.setVelocity(v);
                 }
             }
-            if(collision.otherCollider is TriangleObject) {
+            if(collider is TriangleObject) {
                 float f = 0.0001f;
                 if(collision.depth > f) {
                     Vector3 normal = collision.normal;
@@ -256,7 +287,7 @@ class CollisionManager {
                     }
 
                     if(normal.Y > 0.5f) {
-                        groundFound = true;
+                        surfaceFound = true;
                         Vector3 v = rigidBody.getVelocity();
                         v.Y = 0;
                         rigidBody.setVelocity(v);
@@ -265,7 +296,7 @@ class CollisionManager {
             }
         }
 
-        rigidBody.setOnSurface(groundFound);
+        rigidBody.setOnSurface(surfaceFound);
     } 
 
     /**

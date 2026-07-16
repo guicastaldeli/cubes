@@ -4,6 +4,12 @@ using App.Root.Player;
 interface Collider {
     BBox getBBox();
     RigidBody? getRigidBody();
-    void onCollision(CollisionResult coll) {}
     string getId(); 
+    void onCollision(CollisionResult coll) {}
+
+    void setVisible(bool visible) {}
+    bool isVisible() => true;
+
+    void setJumpGravityEnabled(bool enabled) {}
+    bool isJumpGravityEnabled() => false;
 }
