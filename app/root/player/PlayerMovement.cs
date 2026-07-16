@@ -1,5 +1,6 @@
 namespace App.Root.Player;
 using App.Root.Utils;
+using System.Globalization;
 using System.Reflection;
 
 static class PlayerMovement {
@@ -10,6 +11,7 @@ static class PlayerMovement {
         [Convert("float")] [ConverterKey("moveSpeed")] public float MoveSpeed { get; set; } = 20.0f;
         [Convert("float")] [ConverterKey("flySpeed")] public float FlySpeed { get; set; } = 20.0f;
         [Convert("float")] [ConverterKey("jumpForce")] public float JumpForce { get; set; } = 8.0f;
+        [Convert("bool")] [ConverterKey("jumpGravityEnabled")] public bool JumpGravityEnabled { get; set; } = false;
         [Convert("float")] [ConverterKey("jumpGravity")] public float JumpGravity { get; set; } = -15.0f;
         [Convert("float")] [ConverterKey("jumpGravityScale")] public float JumpGravityScale { get; set; } = 1.0f;
         [Convert("float")] [ConverterKey("friction")] public float Friction { get; set; } = 0.9f;
@@ -62,6 +64,7 @@ static class PlayerMovement {
         rigidBody.setGravity(data.Gravity);
         rigidBody.setGravityScale(data.GravityScale);
         rigidBody.setDrag(data.Drag);
+        rigidBody.setJumpGravityEnabled(data.JumpGravityEnabled);
         rigidBody.setJumpGravity(data.JumpGravity);
         rigidBody.setJumpGravityScale(data.JumpGravityScale);
         rigidBody.setPullDrag(data.PullDrag);
@@ -88,10 +91,11 @@ static class PlayerMovement {
         if(string.IsNullOrEmpty(input)) return null;
 
         var profile = new Data();
-        var lines = input.Split('\n');
+        var inv = CultureInfo.InvariantCulture;
+        var segments = input.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-        foreach(var line in lines) {
-            var trimmed = line.Trim();
+        foreach(var segment in segments) {
+            var trimmed = segment.Trim();
             if(string.IsNullOrEmpty(trimmed)) continue;
 
             var separator = trimmed.Contains(':') ? ':' : '=';
@@ -99,18 +103,38 @@ static class PlayerMovement {
             if(parts.Length != 2) continue;
 
             var key = parts[0].Trim().ToLower();
-            var val = parts[1].Trim().TrimEnd(',');
+            var val = parts[1].Trim();
 
             if(configMembers.TryGetValue(key, out var prop)) {
                 try {
-                    var convertAttr = prop.GetCustomAttribute<ConvertAttribute>();
-                    if(convertAttr != null && converters.TryGetValue(convertAttr.Converter, out var converter)) {
-                        var result = converter.Invoke(null, new object[] { val });
-                        prop.SetValue(profile, result);
+                    var propType = prop.PropertyType;
+                    if(propType == typeof(float)) {
+                        if(float.TryParse(val, NumberStyles.Float, inv, out float result)) {
+                            prop.SetValue(profile, result);
+                            Console.WriteLine($"[PlayerMovement] Set {key} = {result}");
+                        } else {
+                            Console.WriteLine($"[PlayerMovement] Failed to parse float for {key}: '{val}'");
+                        }
+                    } else if(propType == typeof(bool)) {
+                        if(bool.TryParse(val, out bool result)) {
+                            prop.SetValue(profile, result);
+                            Console.WriteLine($"[PlayerMovement] Set {key} = {result}");
+                        } else {
+                            Console.WriteLine($"[PlayerMovement] Failed to parse bool for {key}: '{val}'");
+                        }
+                    } else if(propType == typeof(int)) {
+                        if(int.TryParse(val, out int result)) {
+                            prop.SetValue(profile, result);
+                            Console.WriteLine($"[PlayerMovement] Set {key} = {result}");
+                        } else {
+                            Console.WriteLine($"[PlayerMovement] Failed to parse int for {key}: '{val}'");
+                        }
                     }
                 } catch(Exception err) {
                     Console.WriteLine($"[PlayerMovement] Error setting {key}: {err.Message}");
                 }
+            } else {
+                Console.WriteLine($"[PlayerMovement] Key '{key}' not found in configMembers");
             }
         }
 

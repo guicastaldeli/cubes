@@ -29,12 +29,13 @@ function CalculateMovement.toString(movementTable)
     local fs = "%s='%s'"
 
     for key, value in pairs(movementTable) do
+        local lowerKey = string.lower(key)
         if type(value) == "boolean" then
-            table.insert(parts, string.format(fb, key, tostring(value)))
+            table.insert(parts, string.format(fb, lowerKey, tostring(value)))
         elseif type(value) == "number" then
-            table.insert(parts, string.format(fn, key, value))
+            table.insert(parts, string.format(fn, lowerKey, value))
         elseif type(value) == "string" then
-            table.insert(parts, string.format(fs, key, value))
+            table.insert(parts, string.format(fs, lowerKey, value))
         end
     end
     

@@ -228,49 +228,8 @@ class SkillsData {
 
     */
 class Skills {
-    /**
-     *
-     * Props
-     *
-     */
-    private record SkillProps(
-        string Id,
-        string Name,
-        string Movement,
-        string Audio,
-        string Particles
-    );
-
-    /**
-     *
-     * Data
-     *
-     */
-    private struct Data {
-        [Convert("string")] [ConverterKey("id")] public string Id;
-        [Convert("string")] [ConverterKey("name")] public string Name;
-        [Convert("string")] [ConverterKey("movement")] public string Movement;
-        [Convert("string")] [ConverterKey("audio")] public string Audio;
-        [Convert("string")] [ConverterKey("particles")] public string Particles;
-
-        public static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
-            .GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .Where(m => m.GetCustomAttribute<ConverterKey>() != null)
-            .ToDictionary(
-                m => m.GetCustomAttribute<ConverterKey>()!.Key,
-                m => m
-            );
-    }
-
-    /**
-     *
-     * Skill main
-     *
-     */
     private Window window;
     private Tick tick;
-
-    private Data currentData = new Data();
 
     public Skills(Window window, Tick tick) {
         this.window = window;
@@ -279,63 +238,29 @@ class Skills {
         SkillsData.Init(this);
     }
 
-    // To Props
-    private Data toProps(SkillProps props) {
-        Data d = new Data {
-            Id = props.Id,
-            Name = props.Name,
-            Audio = props.Audio,
-            Movement = props.Movement,
-            Particles = props.Particles
-        };
-
-        return d;
-    }
-
-    // Skill to Props
-    private SkillProps skillToProps(SkillsData.Skill skill) {
-        string idVal = skill.Id.ToString();
-        string nameVal = skill.Name;
-        string moveVal = skill.Movement ?? "";
-        string audioVal = skill.Audio ?? "";
-        string particleVal = skill.Particles ?? "";
-
-        return new SkillProps(
-            Id: idVal,
-            Name: nameVal,
-            Audio: audioVal,
-            Movement: moveVal,
-            Particles: particleVal
-        );
-    }
-
     /**
      * 
      * Apply
      *
      */
     // Apply Theme
-    public void applySkill(SkillsData.Skill skill) {
-        if(skill == null) {
+    public void applySkill(SkillsData.Skill data) {
+        if(data == null) {
             Console.WriteLine("[Platform] Cannot apply null theme");
             return;
         }
 
-        Console.WriteLine($"[Platform] Applying skill: {skill.Name} (ID: {skill.Id})");
+        Console.WriteLine($"[Platform] Applying skill: {data.Name} (ID: {data.Id})");
 
-        var props = skillToProps(skill);
-        var data = toProps(props);
-
-        currentData = data;
         applyData(data);
 
         Console.WriteLine($"[Skill] Skill applied successfully!");
     }
 
     // Apply Data
-    private void applyData(Data data) {
+    private void applyData(SkillsData.Skill data) {
         window.queueOnRenderThread(() => {
-            Console.WriteLine("TEST Apply DATA!");
+            Console.WriteLine($"TEST Apply DATA! {data}");
         });
     }
 

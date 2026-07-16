@@ -30,6 +30,8 @@ class PlatformThemes {
         [Convert("int32")] [ConverterKey("top")] public int Top { get; set; }
         [Convert("string")] [ConverterKey("particles")] public string? Particles { get; set; }
         [Convert("string")] [ConverterKey("texture")] public string? Texture { get; set; }
+        [Convert("string")] [ConverterKey("collider")] public string? Collider { get; set; }
+        [Convert("string")] [ConverterKey("gravity")] public string? Gravity { get; set; }
 
         public Theme() {}
     }
@@ -250,49 +252,6 @@ class PlatformThemes {
     */
 [Chunked]
 class Platform : WorldHandler {
-    /**
-     *
-     * Props
-     *
-     */
-    private record PlatformProps(
-        string Id,
-        string Name,
-        string Movement,
-        string Audio,
-        int Top,
-        string Particles,
-        string Texture
-    );
-
-    /**
-     *
-     * Data
-     *
-     */
-    private struct Data {
-        [Convert("string")] [ConverterKey("id")] public string Id;
-        [Convert("string")] [ConverterKey("name")] public string Name;
-        [Convert("string")] [ConverterKey("movement")] public string Movement;
-        [Convert("string")] [ConverterKey("audio")] public string Audio;
-        [Convert("int32")] [ConverterKey("top")] public int Top;
-        [Convert("string")] [ConverterKey("particles")] public string Particles;
-        [Convert("string")] [ConverterKey("texture")] public string Texture;
-
-        public static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
-            .GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .Where(m => m.GetCustomAttribute<ConverterKey>() != null)
-            .ToDictionary(
-                m => m.GetCustomAttribute<ConverterKey>()!.Key,
-                m => m
-            );
-    }
-
-    /**
-     *
-     * Platform main
-     *
-     */
     public const string GRID_ID = "grid";
     private const string MESH = "cube";
 
@@ -302,8 +261,6 @@ class Platform : WorldHandler {
     private PlatformRegistry platformRegistry;
     private PlayerController playerController;
     private ParticleController particleController;
-
-    private Data currentData = new Data();
 
     private const int SIZE_X = ChunkCoord.CHUNK_SIZE;
     private const int SIZE_Y = ChunkCoord.CHUNK_SIZE;
@@ -367,42 +324,6 @@ class Platform : WorldHandler {
         return val;
     }
 
-    // To Props
-    private Data toProps(PlatformProps props) {
-        Data d = new Data {
-            Id = props.Id,
-            Name = props.Name,
-            Movement = props.Movement,
-            Audio = props.Audio,
-            Top = props.Top,
-            Particles = props.Particles,
-            Texture = props.Texture
-        };
-
-        return d;
-    }
-
-    // Theme to Props
-    private PlatformProps themeToProps(PlatformThemes.Theme theme) {
-        string idVal = theme.Id.ToString();
-        string nameVal = theme.Name;
-        string moveVal = theme.Movement ?? "";
-        string audioVal = theme.Audio ?? "";
-        int topVal = theme.Top;
-        string particleVal = theme.Particles ?? "";
-        string texVal = theme.Texture ?? "";
-
-        return new PlatformProps(
-            Id: idVal,
-            Name: nameVal,
-            Movement: moveVal,
-            Audio: audioVal,
-            Top: topVal,
-            Particles: particleVal,
-            Texture: texVal
-        );
-    }
-
     // Get Center
     public Vector3? getCenter() {
         foreach(var coord in allGeneratedChunks) {
@@ -439,25 +360,21 @@ class Platform : WorldHandler {
      *
      */
     // Apply Theme
-    public void applyTheme(PlatformThemes.Theme theme) {
-        if(theme == null) {
+    public void applyTheme(PlatformThemes.Theme data) {
+        if(data == null) {
             Console.WriteLine("[Platform] Cannot apply null theme");
             return;
         }
 
-        Console.WriteLine($"[Platform] Applying theme: {theme.Name} (ID: {theme.Id})");
+        Console.WriteLine($"[Platform] Applying theme: {data.Name} (ID: {data.Id})");
 
-        var props = themeToProps(theme);
-        var data = toProps(props);
-
-        currentData = data;
         applyData(data);
 
         Console.WriteLine($"[Platform] Theme applied successfully!");
     }
 
     // Apply Data
-    private void applyData(Data data) {
+    private void applyData(PlatformThemes.Theme data) {
         window.queueOnRenderThread(() => {
             updateTexture(data.Texture); 
             updateParticles(data.Particles);
@@ -688,7 +605,7 @@ class Platform : WorldHandler {
     // Update Audio
 
     // Update Particles
-    private void updateParticles(string data) {
+    private void updateParticles(string? data) {
         //cleanupParticles();
 
         if(string.IsNullOrEmpty(data)) return;
@@ -739,17 +656,27 @@ class Platform : WorldHandler {
     }
 
     // Update Movement
-    private void updateMovement(string data) {
-        if(string.IsNullOrEmpty(data)) return;
+    private void updateMovement(string? data) {
+        if(string.IsNullOrEmpty(data)) {
+            Console.WriteLine("[Platform] Movement data is null or empty");
+            return;
+        }
+
+        Console.WriteLine($"[Platform] Raw movement data: {data}");
 
         var config = PlayerMovement.Convert(data);
-        if(config == null) return;
+        if(config == null) {
+            Console.WriteLine("[Platform] Failed to convert movement data");
+            return;
+        }
 
         PlayerMovement.Apply(config);
     }
 
     // Update Texture
-    private void updateTexture(string texPath) {
+    private void updateTexture(string? texPath) {
+        if(texPath == null) return;
+        
         var texId = TextureLoader.load(texPath);
         if(texId != -1) {
             mesh.setTexture(GRID_ID, texId, texPath);
