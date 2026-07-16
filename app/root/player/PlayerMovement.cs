@@ -30,12 +30,12 @@ static class PlayerMovement {
             m => m
         );
 
-    private static Data data = null!;
+    private static Data currentData = null!;
     private static PlayerController playerController = null!;
     private static RigidBody rigidBody = null!;
 
     static PlayerMovement() {
-        foreach(var prop in typeof(PlayerMovement).GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+        foreach(var prop in typeof(Data).GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
             var key = prop.GetCustomAttribute<ConverterKey>()?.Key;
             if(key != null) configMembers[key.ToLower()] = prop;
         }
@@ -47,7 +47,7 @@ static class PlayerMovement {
      *
      */
     // Apply to Player
-    private static void ApplyToPlayer() {
+    private static void ApplyToPlayer(Data data) {
         if(playerController == null) return;
 
         playerController.setMoveSpeed(data.MoveSpeed);
@@ -56,7 +56,7 @@ static class PlayerMovement {
     }
 
     // Apply to RigidBody
-    private static void ApplyToRigidBody() {
+    private static void ApplyToRigidBody(Data data) {
         if(rigidBody == null) return;
 
         rigidBody.setGravity(data.Gravity);
@@ -72,9 +72,11 @@ static class PlayerMovement {
     }
 
     // Apply
-    public static void Apply() {
-        ApplyToPlayer();
-        ApplyToRigidBody();
+    public static void Apply(Data data) {
+        currentData = data;
+
+        ApplyToPlayer(data);
+        ApplyToRigidBody(data);
     }
 
     /**

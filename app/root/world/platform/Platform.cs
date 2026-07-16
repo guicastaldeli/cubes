@@ -744,6 +744,8 @@ class Platform : WorldHandler {
 
         var config = PlayerMovement.Convert(data);
         if(config == null) return;
+
+        PlayerMovement.Apply(config);
     }
 
     // Update Texture

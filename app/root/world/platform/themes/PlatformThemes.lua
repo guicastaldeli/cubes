@@ -68,7 +68,7 @@ end
 -- Set Movement
 local function setMovement(self, params)
     if params.movement then
-        local movement = CalculateMovement.set(params.movement)
+        local movement = CalculateMovement.parse(params.movement)
         self.movement =  movement
     else 
         self.movement = {}

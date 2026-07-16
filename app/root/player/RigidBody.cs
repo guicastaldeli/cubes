@@ -54,8 +54,6 @@ class RigidBody {
         if(!jumpGravityEnabled || !isJumping) return;
 
         if(jumpTimer > 0) {
-            jumpGravity -= Tick.getDeltaTimeI();
-
             float effectiveGravity = jumpGravity * jumpGravityScale;
             float v = effectiveGravity * mass;
 

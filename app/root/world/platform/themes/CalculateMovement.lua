@@ -95,6 +95,8 @@ function parseMovementString(str)
             result[key] = convertValue(val)
         end
     end
+
+    return result
 end
 
 --[[
@@ -119,7 +121,7 @@ end
     Get
 ]]
 function CalculateMovement.get(movementTable, key, default)
-    if not movementTable or type(movementTable) ~= table then return default end
+    if not movementTable or type(movementTable) ~= "table" then return default end
     
     local val = movementTable[key]
     if val == nil then return default end
