@@ -28,6 +28,7 @@ class Main {
 
         this.mesh = new Mesh.Mesh(
             window, 
+            tick,
             shaderProgram, 
             input
         );

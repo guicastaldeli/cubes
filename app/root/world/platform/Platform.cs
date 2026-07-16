@@ -670,7 +670,7 @@ class Platform : WorldHandler {
             var entity = EventStream.get<ParticleEntity>("particle-entity");
             if(entity != null) {
                 var config = entity.getParticleConfig();
-                if(config != null) particleController.getParticleEntity().updateMovement(config, playerController, ref lastPlayerPosition, ref isMoving);
+                if(config != null) entity.updateMovement(config, playerController, ref lastPlayerPosition, ref isMoving);
             }
         }
     }
@@ -698,6 +698,9 @@ class Platform : WorldHandler {
         float targetY = config.targetY;
         bool enableMotion = config.enableMotion;
         float spawnRadius = config.spawnRadius;
+        bool live = config.live;
+        float playerMovSpeed = config.playerMovSpeed;
+        float playerStand = config.playerStand;
 
         var entity = particleController.emit(
             position: positions!.Value,
@@ -709,7 +712,10 @@ class Platform : WorldHandler {
             velNum: velNum,
             targetY: targetY,
             enableMotion: enableMotion,
-            spawnRadius: spawnRadius
+            spawnRadius: spawnRadius,
+            live: live,
+            playerMovSpeed: playerMovSpeed,
+            playerStand: playerStand
         );
         if(entity != null) {
             particleController.particleEntity = entity;
@@ -721,7 +727,7 @@ class Platform : WorldHandler {
 
             EventStream.set("particle-entity", entity);
             
-            Console.WriteLine($"[Platform] Particles emitted: {config.amount} particles");
+            //Console.WriteLine($"[Platform] Particles emitted: {config.amount} particles");
         }
     }
 

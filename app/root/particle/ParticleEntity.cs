@@ -7,10 +7,10 @@
 namespace App.Root.Particle;
 using App.Root.Mesh;
 using App.Root.Utils;
-using System.Reflection;
+using App.Root.Player;
 using Particle = Resource.Mesh.Particle;
 using OpenTK.Mathematics;
-using App.Root.Player;
+using System.Reflection;
 
 class ParticleEntity {
     private const string MESH_TYPE = "quad";
@@ -18,9 +18,11 @@ class ParticleEntity {
 
     private const float GRAVITY_VEL = 9.8f;
 
-    private Mesh mesh = null!;
-    private ParticleController particleController = null!;
-    private Random random = null!;
+    private Tick tick;      private float DeltaTime { get { return tick.getDeltaTime(); } }
+    private Mesh mesh;
+    private ParticleController particleController;
+    
+    private Random random;
 
     public Particle particleConfig = null!;
 
@@ -33,6 +35,8 @@ class ParticleEntity {
     private string sharedMeshId = null!;
 
     private bool isActive;
+    private bool live;
+
     private Vector3 position;
     private Vector3 color;
     private float size;
@@ -50,18 +54,26 @@ class ParticleEntity {
 
     private float targetY = 0.0f;
 
+    private float playerMovSpeed;
+    private float playerStand;
+
     private List<Vector3> instancePositions = new();
     private List<float[]> instanceColors = new();
 
     public bool needsBufferUpdate = false;
     private int updateInterval = 1;
+    
+    private float movingTimer = 0.0f;
+    private const float MOVE_TIMEOUT = 0.1f;
 
     public List<Vector3> allPositions = new();
     private List<float[]> allColors = new();
 
-    public ParticleEntity(Mesh mesh, ParticleController particleController) {
+    public ParticleEntity(Tick tick, Mesh mesh, ParticleController particleController) {
+        this.tick = tick;
         this.mesh = mesh;
         this.particleController = particleController;
+
         this.random = new Random();
 
         this.particles = new List<Particle>();
@@ -69,6 +81,7 @@ class ParticleEntity {
         this.id = generateEntityId();
         
         this.isActive = false;
+        this.live = false;
         this.position = Vector3.Zero;
         this.color = Vector3.One;
         this.size = 0.1f;
@@ -80,6 +93,8 @@ class ParticleEntity {
         this.targetY = 0.0f;
         this.vel = false;
         this.enableMotion = false;
+        this.playerMovSpeed = 0.0f;
+        this.playerStand = 0.0f;
     }
 
     // Get Particle Config
@@ -203,6 +218,15 @@ class ParticleEntity {
 
     /**
      * 
+     * Set Live
+     *
+     */
+    public void setLive(bool live) {
+        this.live = live;
+    }
+
+    /**
+     * 
      * Set Target Y
      *
      */
@@ -223,6 +247,24 @@ class ParticleEntity {
 
     public void setMotion(bool enable) {
         this.enableMotion = enable;
+    }
+
+    /**
+     * 
+     * Set Player Move Speed
+     *
+     */
+    public void setPlayerMovSpeed(float playerMovSpeed) {
+        this.playerMovSpeed = playerMovSpeed;
+    }
+
+    /**
+     * 
+     * Set Player Stand
+     *
+     */
+    public void setPlayerStand(float playerStand) {
+        this.playerStand = playerStand;
     }
 
     /**
@@ -354,11 +396,8 @@ class ParticleEntity {
                     position.Y,
                     position.Z + ((float)random.NextDouble() - 0.5f) * 2.0f * spawnRadius
                 );
-                particle.vel = new Vector3(
-                    velNum.X * speed,
-                    reqTargetY,
-                    velNum.Z * speed
-                );
+
+                updateVel(particle, speed, reqTargetY);
             } else {
                 particle.vel = new Vector3(
                     ((float)random.NextDouble() - 0.5f) * 2.0f * speed,
@@ -410,12 +449,11 @@ class ParticleEntity {
     public void update() {
         if(!isActive) return;
 
-        float deltaTime = Tick.getDeltaTimeI();
         bool needsUpdate = false;
 
         for(int i = particles.Count - 1; i >= 0; i--) {
             Particle particle = particles[i];
-            particle.lifetime -= deltaTime;
+            particle.lifetime -= DeltaTime;
 
             if(particle.lifetime <= 0 || particle.position.Y <= targetY) {
                 particles.RemoveAt(i);
@@ -429,14 +467,14 @@ class ParticleEntity {
             if(!enableMotion) {
                 particle.vel.Y -= 
                     GRAVITY_VEL * 
-                    deltaTime * 
+                    DeltaTime * 
                     speed;
             }
             if(vel) {
                 particle.position += new Vector3(
-                    particle.vel.X * deltaTime,
-                    particle.vel.Y * deltaTime,
-                    particle.vel.Z * deltaTime
+                    particle.vel.X * DeltaTime,
+                    particle.vel.Y * DeltaTime,
+                    particle.vel.Z * DeltaTime
                 );
 
                 instancePositions[i] = particle.position;
@@ -464,25 +502,56 @@ class ParticleEntity {
         if(config == null || !config.live) return;
 
         Vector3 playerPos = playerController.getPosition();
-        Vector3 delta = playerPos - lastPlayerPos;
-        bool _isMoving = delta.Length > 0.1f;
+        Vector2 horizontalDelta = new Vector2(playerPos.X - lastPlayerPos.X, playerPos.Z - lastPlayerPos.Z);
+        lastPlayerPos = playerPos;
+
+        float t = 0.05f;
+
+        if(horizontalDelta.Length > t) {
+            movingTimer = MOVE_TIMEOUT;
+        } else {
+            movingTimer -= DeltaTime;
+        }
+
+        bool _isMoving = movingTimer > 0.0f;
 
         if(_isMoving != isMoving) {
             isMoving = _isMoving;
             updateSpeed(isMoving, config);
-            //Console.WriteLine($"[Platform] Particle speed updated, moving: {isMoving}");
         }
 
         lastPlayerPos = playerPos;
     }
 
     // Update Speed
-    public void updateSpeed(bool playerMoving, Particle config) {
-        var vel = speed * (playerMoving ? config.playerMovSpeed : config.playerStand);
-        var lifetime = this.lifetime / (vel > 1 ? vel : 1);
+    public void updateSpeed(bool isMoving, Particle config) {
+        var newSpeed = config.speed * (isMoving ? config.playerMovSpeed : config.playerStand);
+        var newLifetime = newSpeed > 0 ? config.lifetime / newSpeed : config.lifetime;
 
-        setSpeed(vel);
-        setLifetime(lifetime);
+        Console.WriteLine($"MOVING... {isMoving}");
+
+        setSpeed(newSpeed);
+        setLifetime(newLifetime);
+
+        float startY = position.Y;
+        float distance = startY - targetY;
+        float updatedLifetime = newSpeed > 0 ? newLifetime : 1.0f;
+        float reqTargetY = newSpeed > 0 ? -distance / updatedLifetime : 0.0f;
+
+        foreach(var particle in particles) {
+            particle.vel = new Vector3(updateVel(particle, newSpeed, reqTargetY));
+        }
+        needsBufferUpdate = true;
+    }
+
+    // Update Vel
+    private Vector3 updateVel(Particle particle, float speed, float target) {
+        Vector3 val = particle.vel = new Vector3(
+            velNum.X * speed,
+            target,
+            velNum.Z * speed
+        );
+        return val;
     }
 
     /**
@@ -491,6 +560,7 @@ class ParticleEntity {
      *
      */
     public void applyToEntity(ParticleEntity entity) {
+        entity.setLive(live);
         entity.setTargetY(targetY);
         entity.setColor(color);
         entity.setAmount(amount);
@@ -500,6 +570,8 @@ class ParticleEntity {
         entity.setMotion(enableMotion);
         entity.setSpawnRadius(spawnRadius);
         entity.setVelNum(velNum);
+        entity.setPlayerMovSpeed(playerMovSpeed);
+        entity.setPlayerStand(playerStand);
     }
 
     /**
@@ -528,7 +600,6 @@ class ParticleEntity {
                 allPositions.AddRange(positions);
                 allColors.AddRange(colors);
             }
-
         }
 
         if(allPositions.Count == 0) return;
@@ -550,6 +621,7 @@ class ParticleEntity {
 
         isActive = false;
         needsBufferUpdate = false;
+        live = false;
         updateCounter = 0;
     }
 
@@ -570,6 +642,7 @@ class ParticleEntity {
         instanceColors.Clear();
 
         isActive = false;
+        live = false;
         needsBufferUpdate = false;
         updateCounter = 0;
         position = Vector3.Zero;
@@ -581,6 +654,8 @@ class ParticleEntity {
         velNum = Vector3.One;
         spawnRadius = 0.0f;
         targetY = 0.0f;
+        playerMovSpeed = 0.0f;
+        playerStand = 0.0f;
         
         vel = false;
         enableMotion = false;

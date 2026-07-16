@@ -9,15 +9,18 @@ using App.Root.Mesh;
 using App.Root.Chunk;
 
 class ParticleController {
+    private Tick tick;
     private Mesh mesh;
+
     public ParticleEntity? particleEntity;
 
     [Poolable("particle_entities", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] public PoolableList<ParticleEntity> particlePool = null!;
     [Poolable("particle_active", typeof(PoolableList<ParticleEntity>), InitialSize = 16, MaxSize = 128)] public PoolableList<ParticleEntity> activeEntities = null!;
 
-    public ParticleController(Mesh mesh) {
+    public ParticleController(Tick tick, Mesh mesh) {
+        this.tick = tick;
         this.mesh = mesh;
-        this.particleEntity = new ParticleEntity(mesh, this);
+        this.particleEntity = new ParticleEntity(tick, mesh, this);
         this.particleEntity.setup();
 
         PoolInjector.Inject(this);
@@ -33,7 +36,7 @@ class ParticleController {
             
             entity.reset();
         } else {
-            entity = new ParticleEntity(mesh, this);
+            entity = new ParticleEntity(tick, mesh, this);
         }
 
         return entity;
@@ -61,7 +64,10 @@ class ParticleController {
         Func<Vector3>? colorSupplier = null,
         float targetY = 0.0f,
         bool enableMotion = false,
-        float spawnRadius = 0.0f
+        float spawnRadius = 0.0f,
+        bool live = false,
+        float playerMovSpeed = 0.0f,
+        float playerStand = 0.0f
     ) {
         ParticleEntity entity = getParticleEntity();
         
@@ -73,6 +79,9 @@ class ParticleController {
         entity.setLifetime(lifetime);
         entity.setMotion(enableMotion);
         entity.setSpawnRadius(spawnRadius);
+        entity.setLive(live);
+        entity.setPlayerMovSpeed(playerMovSpeed);
+        entity.setPlayerStand(playerStand);
         if(velNum.HasValue) entity.setVelNum(velNum.Value);
 
         entity.set(position, velNum.HasValue, colorSupplier);

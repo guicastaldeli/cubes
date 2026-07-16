@@ -14,7 +14,7 @@ class Tick {
     public float deltaTime = 0.0f;
     private long lastFrameTime = 0;
 
-    private int frameCount  = 0;
+    public int frameCount  = 0;
     private long lastFpsUpdateTime = 0;
     public int fps = 0;
 

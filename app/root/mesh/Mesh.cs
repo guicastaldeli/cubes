@@ -13,6 +13,7 @@ class Mesh {
     public static string DATA_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resource/mesh/");
 
     private Window window;
+    private Tick tick;
     private ShaderProgram shaderProgram;
     private Camera? camera;
     private Input input;
@@ -29,12 +30,13 @@ class Mesh {
     private Dictionary<string, Vector3> dataPositions = new();
     private Dictionary<string, Vector3> dataScale = new();
 
-    public Mesh(Window window, ShaderProgram shaderProgram, Input input) {
+    public Mesh(Window window, Tick tick, ShaderProgram shaderProgram, Input input) {
         this.window = window;
+        this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.input = input;
 
-        this.particleController = new ParticleController(this);
+        this.particleController = new ParticleController(tick, this);
 
         StateManager.Register(this);
     }

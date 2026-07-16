@@ -5,18 +5,17 @@
 
     */
 namespace App.Root.Resource.Mesh;
-
-using System.Reflection;
 using App.Root.Mesh;
 using App.Root.Utils;
 using OpenTK.Mathematics;
+using System.Reflection;
 
 class Particle {
     [Convert("vec3")] [ConverterKey("position")] public Vector3 position;
     [Convert("vec3")] [ConverterKey("vel")] public Vector3 vel;
     [Convert("vec3")] [ConverterKey("color")] public Vector3 color;
     [Convert("float")] [ConverterKey("size")] public float size;
-    [Convert("bool")] [ConverterKey("live")] public bool live { get; set; } = true;
+    [Convert("bool")] [ConverterKey("live")] public bool live { get; set; } = false;
     [Convert("float")] [ConverterKey("playerMovSpeed")] public float playerMovSpeed { get; set; } = 1.0f;
     [Convert("float")] [ConverterKey("playerStand")] public float playerStand { get; set; } = 1.0f;
     [Convert("float")] [ConverterKey("speed")] public float speed { get; set; } = 1.0f;
