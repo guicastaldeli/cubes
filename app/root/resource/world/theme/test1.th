@@ -12,7 +12,9 @@
         jumpGravityScale = 1.5,
         jumpGravity = -8.0,
         friction = 0.5,
+        airControl = 0.6,
         maxFallSpeed = -20.0,
+        pullDrag = 0.7,
         buoyancy = 5.0
     ],
     audio = "",
