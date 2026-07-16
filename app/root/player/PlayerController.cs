@@ -185,27 +185,111 @@ class PlayerController : DataEntry {
     public void setWorldManager(WorldManager worldManager) {
         this.worldManager = worldManager;
     }
+    
+    // Set Network
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
+
+    // Get Network
+    public Network? getNetwork() {
+        return network;
+    }
+
+    // Get Network Player
+    public NetworkPlayer getNetworkPlayer() {
+        return networkPlayer;
+    }
+
+    // Send State
+    public void sendState() {
+        if(network == null || !network.isConnected) return;
+        network.sendState(
+            position.X, position.Y, position.Z,
+            camera.getYaw(), camera.getPitch()
+        );
+    }
+
+    /**
+     *
+     * Move Speed
+     *
+     */
+    // Set Move Speed
+    public void setMoveSpeed(float moveSpeed) {
+        this.moveSpeed = moveSpeed;
+    }
+
+    // Get Move Speed
+    public float getMoveSpeed() {
+        return moveSpeed;
+    }
+
+    /**
+     *
+     * Fly Speed
+     *
+     */
+    // Set Fly Speed
+    public void setFlySpeed(float flySpeed) {
+        this.flySpeed = flySpeed;
+    }
+
+    // Get Fly Speed
+    public float getFlySpeed() {
+        return flySpeed;
+    }
 
     /**
      * 
      * Position
      *
      */
+    // Set Position
     public void setPosition(float x, float y, float z) {
         position = new Vector3(x, y, z);
         rigidBody.setPosition(position);
         camera.setPosition(position);
     }
     
+    // Get Position
     public Vector3 getPosition() {
         return new Vector3(position);
     }
 
     /**
-     * 
-     * Movement
+     *
+     * Jump
      *
      */
+    // Jump
+    public void jump() {
+        if(rigidBody.isOnSurface()) {
+            Vector3 vel = rigidBody.getVelocity();
+            vel.Y = jumpForce;
+
+            rigidBody.setVelocity(vel);
+            rigidBody.setOnSurface(false);
+            rigidBody.setJumping(true);
+        }
+    }
+
+    // Set Jump Force
+    public void setJumpForce(float jumpForce) {
+        this.jumpForce = jumpForce;
+    }
+
+    // Get Jump Force
+    public float getJumpForce() {
+        return jumpForce;
+    }
+
+    /**
+     * 
+     * Apply
+     *
+     */
+    // Apply Movement
     private void applyMove() {
         Vector3 front = camera.getFront();
         Vector3 right = camera.getRight();
@@ -239,15 +323,7 @@ class PlayerController : DataEntry {
         }
     }
 
-    public void jump() {
-        if(rigidBody.isOnSurface()) {
-            Vector3 vel = rigidBody.getVelocity();
-            vel.Y = jumpForce;
-            rigidBody.setVelocity(vel);
-            rigidBody.setOnSurface(false);
-        }
-    }
-
+    // Apply Jump
     private void applyJump(bool pressed) {
         if(normalMode) {
             if(pressed) jump();
@@ -261,6 +337,7 @@ class PlayerController : DataEntry {
      * Set
      *
      */
+    // Set
     public void set() {
         if(network != null) id = network.userId ?? id;
         playerMesh.set(true);
@@ -271,6 +348,7 @@ class PlayerController : DataEntry {
         }
     }
 
+    // Set Spawn Props
     public Vector3 setSpawnProps() {
         float y = EventStream.getT<float>("stream-top") ?? 1.0f;
         float spawnY = y + 60.0f;
@@ -299,6 +377,7 @@ class PlayerController : DataEntry {
         return val;
     }
 
+    // Set Spawn
     public void setSpawn() {
         if(spawned) return;
 
@@ -370,31 +449,6 @@ class PlayerController : DataEntry {
         playerMesh.update();
         raycaster.update();
         mode.update();
-    }
-
-    /**
-     * 
-     * Network
-     *
-     */
-    public void setNetwork(Network network) {
-        this.network = network;
-    }
-
-    public Network? getNetwork() {
-        return network;
-    }
-
-    public NetworkPlayer getNetworkPlayer() {
-        return networkPlayer;
-    }
-
-    public void sendState() {
-        if(network == null || !network.isConnected) return;
-        network.sendState(
-            position.X, position.Y, position.Z,
-            camera.getYaw(), camera.getPitch()
-        );
     }
 
     /**
