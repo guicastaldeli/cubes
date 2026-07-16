@@ -40,6 +40,7 @@ class PlatformThemes {
     private static List<Theme> themes = null!;
 
     private static Platform platform = null!;
+    private static PlayerController playerController = null!;
 
     private static readonly Dictionary<string, MethodInfo> converters = typeof(Converter)
         .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -236,8 +237,9 @@ class PlatformThemes {
      * Init
      *
      */
-    public static void Init(Platform platform) {
+    public static void Init(Platform platform, PlayerController playerController) {
         PlatformThemes.platform = platform;
+        PlayerMovement.Init(playerController, playerController.getRigidBody());
     }
 }
 
@@ -256,6 +258,7 @@ class Platform : WorldHandler {
     private record PlatformProps(
         string Id,
         string Name,
+        string Movement,
         string Audio,
         int Top,
         string Particles,
@@ -270,6 +273,7 @@ class Platform : WorldHandler {
     private struct Data {
         [Convert("string")] [ConverterKey("id")] public string Id;
         [Convert("string")] [ConverterKey("name")] public string Name;
+        [Convert("string")] [ConverterKey("movement")] public string Movement;
         [Convert("string")] [ConverterKey("audio")] public string Audio;
         [Convert("int32")] [ConverterKey("top")] public int Top;
         [Convert("string")] [ConverterKey("particles")] public string Particles;
@@ -335,7 +339,7 @@ class Platform : WorldHandler {
         this.platformRegistry = new PlatformRegistry(window, mesh, collisionManager, this, playerController);
 
         init();
-        PlatformThemes.Init(this);
+        PlatformThemes.Init(this, playerController);
     }
 
     // Set Client
@@ -368,6 +372,7 @@ class Platform : WorldHandler {
         Data d = new Data {
             Id = props.Id,
             Name = props.Name,
+            Movement = props.Movement,
             Audio = props.Audio,
             Top = props.Top,
             Particles = props.Particles,
@@ -381,6 +386,7 @@ class Platform : WorldHandler {
     private PlatformProps themeToProps(PlatformThemes.Theme theme) {
         string idVal = theme.Id.ToString();
         string nameVal = theme.Name;
+        string moveVal = theme.Movement ?? "";
         string audioVal = theme.Audio ?? "";
         int topVal = theme.Top;
         string particleVal = theme.Particles ?? "";
@@ -389,6 +395,7 @@ class Platform : WorldHandler {
         return new PlatformProps(
             Id: idVal,
             Name: nameVal,
+            Movement: moveVal,
             Audio: audioVal,
             Top: topVal,
             Particles: particleVal,
@@ -454,6 +461,7 @@ class Platform : WorldHandler {
         window.queueOnRenderThread(() => {
             updateTexture(data.Texture); 
             updateParticles(data.Particles);
+            updateMovement(data.Movement);
         });
     }
 
@@ -731,6 +739,12 @@ class Platform : WorldHandler {
     }
 
     // Update Movement
+    private void updateMovement(string data) {
+        if(string.IsNullOrEmpty(data)) return;
+
+        var config = PlayerMovement.Convert(data);
+        if(config == null) return;
+    }
 
     // Update Texture
     private void updateTexture(string texPath) {

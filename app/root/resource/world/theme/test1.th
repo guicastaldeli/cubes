@@ -11,8 +11,7 @@
         jumpGravityEnabled = true,
         jumpGravityScale = 1.5,
         jumpGravity = -8.0,
-        groundFriction = 0.5,
-        airControl = 0.6,
+        friction = 0.5,
         maxFallSpeed = -20.0,
         buoyancy = 5.0
     ],
