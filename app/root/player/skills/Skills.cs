@@ -243,7 +243,7 @@ class Skills {
      * Apply
      *
      */
-    // Apply Theme
+    // Apply Skill
     public void applySkill(SkillsData.Skill data) {
         if(data == null) {
             Console.WriteLine("[Platform] Cannot apply null theme");
@@ -260,7 +260,7 @@ class Skills {
     // Apply Data
     private void applyData(SkillsData.Skill data) {
         window.queueOnRenderThread(() => {
-            Console.WriteLine($"TEST Apply DATA! {data}");
+            updateMovement(data.Movement);
         });
     }
 
@@ -275,6 +275,14 @@ class Skills {
     }
 
     // Update Movement
+    private void updateMovement(string? data) {
+        if(string.IsNullOrEmpty(data)) return;
+
+        var config = PlayerMovement.Convert(data);
+        if(config == null) return;
+
+        PlayerMovement.Apply(config);
+    }
 
     // Update Audio
 

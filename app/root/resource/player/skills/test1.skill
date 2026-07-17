@@ -1,7 +1,22 @@
 {{@skill#test1}}
-	id = -1
-	name = "TEST_1_SKILL"
-	movement = ""
-	audio = ""
+	id = -1,
+	name = "TEST_1_SKILL",
+	movement = ~[
+        gravityScale = 2.0,
+        gravity = -9.8,
+        drag = 0.4,
+        moveSpeed = 1.0,
+        flySpeed = 5.0,
+        jumpForce = 6.0,
+        jumpGravityEnabled = true,
+        jumpGravityScale = 1.5,
+        jumpGravity = -8.0,
+        friction = 0.5,
+        airControl = 0.6,
+        maxFallSpeed = -10.0,
+        pullDrag = 0.7,
+        buoyancy = 5.0
+    ],
+	audio = "",
 	particles = ""
 {{@end}}

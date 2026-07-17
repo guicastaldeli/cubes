@@ -5,7 +5,7 @@
     ]]
 local ResolveFormat = dofile("utils/ResolveFormat.lua")
 local Parser = dofile("utils/Parser.lua")
-local CalculateMovement = dofile("world/platform/themes/CalculateMovement.lua")
+local CalculateMovement = dofile("utils/CalculateMovement.lua")
 
 Parser.registerType("theme", "world/theme/", ".th")
 Parser.setVariable("top", 0.0)

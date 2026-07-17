@@ -4,11 +4,24 @@
 
     ]]
 local Parser = dofile("utils/Parser.lua")
+local CalculateMovement = dofile("utils/CalculateMovement.lua")
 
 Parser.registerType("skill", "player/skills/", ".skill")
 
 local Skill = {}
 Skill.__index = Skill
+
+-- To Movement Data
+local function toMovementData(data)
+    local movementData = nil
+
+    if data.movement then
+        movementData = CalculateMovement.parse(data.movement)
+        return CalculateMovement.toString(movementData)
+    else
+        return ""
+    end
+end
 
 -- To Object
 local function toObject(parsedSkill)
@@ -18,11 +31,21 @@ local function toObject(parsedSkill)
 
     return {
         id = data.id or 0,
-        name = data.name or "Unknown",
-        movement = data.movement or "",
+        name = data.name or "",
+        movement = toMovementData(data),
         audio = data.audio or "",
         particles = data.particles or ""
     }
+end
+
+-- Set Movement
+local function setMovement(self, params)
+    if params.movement then
+        self.movement = params.movement
+    else 
+        self.movement = {}
+        print("No movement data in theme")
+    end
 end
 
 --[[
@@ -34,7 +57,7 @@ function Skill:new(params)
     local self = setmetatable({}, Skill)
     self.id = params.id
     self.name = params.name
-    self.movement = params.movement or ""
+    setMovement(self, params)
     self.audio = params.audio or ""
     self.particles = params.particles or ""
 
