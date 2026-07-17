@@ -38,7 +38,9 @@ local function toObject(parsedTheme)
         audio = data.audio or "",
         top = data.top or nil,
         particles = data.particles or "",
-        texture = data.texture or ""
+        texture = data.texture or "",
+        colliderVisible = data.colliderVisible,
+        gravityRegular = data.gravityRegular
     }
 end
 
@@ -74,6 +76,26 @@ local function setMovement(self, params)
     end
 end
 
+-- Set Collider
+local function setCollider(self, params)
+    if params.colliderVisible ~= nil then
+        self.colliderVisible = params.colliderVisible
+        print(string.format("[Theme] Collider visible: %s", tostring(self.colliderVisible)))
+    else
+        self.colliderVisible = true
+    end
+end
+
+-- Set Gravity
+local function setGravity(self, params)
+    if params.colliderVisible ~= nil then
+        self.gravityRegular = params.gravityRegular
+        print(string.format("[Theme] Gravity regular: %s", tostring(self.gravityRegular)))
+    else
+        self.gravityRegular = true
+    end
+end
+
 --[[
     Theme
     ]]
@@ -88,6 +110,8 @@ function Theme:new(params)
     self.top = params.top or nil
     self.particles = params.particles or ""
     setTexture(self, params)
+    setCollider(self, params)
+    setGravity(self, params)
     
     return self
 end

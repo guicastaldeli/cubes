@@ -526,7 +526,7 @@ class ParticleEntity {
         var newSpeed = config.speed * (isMoving ? config.playerMovSpeed : config.playerStand);
         var newLifetime = newSpeed > 0 ? config.lifetime / newSpeed : config.lifetime;
 
-        Console.WriteLine($"MOVING... {isMoving}");
+        //Console.WriteLine($"MOVING... {isMoving}");
 
         setSpeed(newSpeed);
         setLifetime(newLifetime);

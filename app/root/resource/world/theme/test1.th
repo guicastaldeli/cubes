@@ -20,8 +20,8 @@
     audio = "",
     top = $top,
     texture = "world/theme/test1",
-    collider = "hidden"
-    gravity = "jump",
+    colliderVisible = false,
+    gravityRegular = false,
     particles = ~[
         live = true,
         playerMovSpeed = 5.0,

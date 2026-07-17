@@ -8,10 +8,10 @@ using App.Root.Particle;
 using App.Root.Physics;
 using App.Root.Player;
 using App.Root.Utils;
+using App.Root.Resource;
 using OpenTK.Mathematics;
 using System.Reflection;
 using NLua;
-using App.Root.Resource;
 
 /**
 
@@ -30,8 +30,8 @@ class PlatformThemes {
         [Convert("int32")] [ConverterKey("top")] public int Top { get; set; }
         [Convert("string")] [ConverterKey("particles")] public string? Particles { get; set; }
         [Convert("string")] [ConverterKey("texture")] public string? Texture { get; set; }
-        [Convert("string")] [ConverterKey("collider")] public string? Collider { get; set; }
-        [Convert("string")] [ConverterKey("gravity")] public string? Gravity { get; set; }
+        [Convert("bool")] [ConverterKey("colliderVisible")] public bool? ColliderVisible { get; set; }
+        [Convert("bool")] [ConverterKey("gravityRegular")] public bool? GravityRegular { get; set; }
 
         public Theme() {}
     }
@@ -379,6 +379,8 @@ class Platform : WorldHandler {
             updateTexture(data.Texture); 
             updateParticles(data.Particles);
             updateMovement(data.Movement);
+            updateCollider(data.ColliderVisible);
+            updateGravity(data.GravityRegular);
         });
     }
 
@@ -450,6 +452,13 @@ class Platform : WorldHandler {
         ));
 
         colliderIds.Add(colliderId);
+
+        string e = "collider-id";
+        var ids = EventStream.get<List<string>>(e) ?? new List<string>();
+        if(!ids.Contains(colliderId)) {
+            ids.Add(colliderId);
+            EventStream.set(e, (object)ids);
+        }
     }
 
     // Set Platform
@@ -684,6 +693,47 @@ class Platform : WorldHandler {
         } else {
             Console.WriteLine($"[Platform] Failed to load texture: {texPath} (ID: {texId})");
         }
+    }
+
+    // Update Collider
+    private void updateCollider(bool? data) {
+        if(data == null) return;
+
+        bool colliderVisible = data ?? true;
+
+        var ids = EventStream.get<List<string>>("collider-id");
+        if(ids == null || ids.Count == 0) {
+            Console.WriteLine("No IDs found!");
+            return;
+        }
+
+        foreach(var colliderId in ids) {
+            var collider = collisionManager.getCollider(colliderId);
+            if(collider != null) collider.setVisible(colliderVisible);
+        }
+
+        Console.WriteLine($"[Platform] Updated {ids.Count} colliders");
+    }
+
+    // Update Gravity
+    private void updateGravity(bool? data) {
+        if(data == null) return;
+
+        bool gravityRegular = data ?? true;
+        bool jumpGravityEnabled = !gravityRegular;
+
+        var ids = EventStream.get<List<string>>("collider-id");
+        if(ids == null || ids.Count == 0) {
+            Console.WriteLine("No IDs found!");
+            return;
+        }
+
+        foreach(var colliderId in ids) {
+            var collider = collisionManager.getCollider(colliderId);
+            if(collider != null) collider.setJumpGravityEnabled(jumpGravityEnabled);
+        }
+
+        Console.WriteLine($"[Platform] Updated JumpGravity={jumpGravityEnabled}");
     }
 
     /**
