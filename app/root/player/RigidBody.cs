@@ -12,7 +12,7 @@ class RigidBody {
     private bool onSurface = false;
     
     private bool gravityEnabled = true;
-    private float gravity = -20.0f;
+    private float gravity = -9.8f;
     private float gravityScale = 3.0f;
     private float drag = 0.1f;
     private float pullDrag = 0.5f;
@@ -303,7 +303,7 @@ class RigidBody {
             applyForce(new Vector3(0.0f, c, 0.0f));
         }
 
-        applyBuoyancy();
+        //applyBuoyancy();
 
         velocity += acceleration * deltaTime;
         if(position.Y < 0 && pullDrag > 0) velocity *= (1.0f - (pullDrag * deltaTime));

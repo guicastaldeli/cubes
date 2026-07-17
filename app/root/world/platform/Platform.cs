@@ -262,6 +262,8 @@ class Platform : WorldHandler {
     private PlayerController playerController;
     private ParticleController particleController;
 
+    private PlatformThemes.Theme currentData = null!;
+
     private const int SIZE_X = ChunkCoord.CHUNK_SIZE;
     private const int SIZE_Y = ChunkCoord.CHUNK_SIZE;
     private const int SIZE_Z = ChunkCoord.CHUNK_SIZE;
@@ -270,6 +272,9 @@ class Platform : WorldHandler {
     private Dictionary<ChunkCoord, List<string>> chunkColliders = new();
     private HashSet<ChunkCoord> allGeneratedChunks = new();
     private Vector3 offset = Vector3.Zero;
+
+    private BBox bounds = null!;
+    private bool hasBounds = false;
 
     private bool isMoving = false;
     private Vector3 lastPlayerPosition = Vector3.Zero;
@@ -368,6 +373,7 @@ class Platform : WorldHandler {
 
         Console.WriteLine($"[Platform] Applying theme: {data.Name} (ID: {data.Id})");
 
+        currentData = data;
         applyData(data);
 
         Console.WriteLine($"[Platform] Theme applied successfully!");
@@ -411,12 +417,8 @@ class Platform : WorldHandler {
         return (wx, wy, wz);
     }
 
-    // Set Platform Collider
-    private void setPlatformCollider(List<string> colliderIds, ChunkCoord coord, List<Vector3> positions) {
-        if(positions.Count == 0) return;
-
-        string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}";
-
+    // Calculate Bounds
+    private BBox calculateBounds(List<Vector3> positions) {
         float minX = float.MaxValue;
         float minY = float.MaxValue;
         float minZ = float.MaxValue;
@@ -434,22 +436,32 @@ class Platform : WorldHandler {
             if(pos.Z > maxZ) maxZ = pos.Z;
         }
 
+        return new BBox(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    // Set Platform Collider
+    private void setPlatformCollider(List<string> colliderIds, ChunkCoord coord, List<Vector3> positions) {
+        if(positions.Count == 0) return;
+
+        string colliderId = $"{GRID_ID}_{coord.cx}_{coord.cz}";
+
         Vector3 boxCenter = new Vector3(
-            (minX + maxX) / 2.0f,
-            (minY + maxY) / 2.0f,
-            (minZ + maxZ) / 2.0f
+            (bounds.minX + bounds.maxX) / 2.0f,
+            (bounds.minY + bounds.maxY) / 2.0f,
+            (bounds.minZ + bounds.maxZ) / 2.0f
         );
         Vector3 boxHalf = new Vector3(
-            (maxX - minX) / 2.0f + SPACING / 2.0f,
-            (maxY - minY) / 2.0f + SPACING / 2.0f,
-            (maxZ - minZ) / 2.0f + SPACING / 2.0f
+            (bounds.maxX - bounds.minX) / 2.0f + SPACING / 2.0f,
+            (bounds.maxY - bounds.minY) / 2.0f + SPACING / 2.0f,
+            (bounds.maxZ - bounds.minZ) / 2.0f + SPACING / 2.0f
         );
 
-        collisionManager.addStaticCollider(new StaticObject(
+        var collider = new StaticObject(
             boxCenter,
             boxHalf.X, boxHalf.Y, boxHalf.Z,
             colliderId
-        ));
+        );
+        collisionManager.addStaticCollider(collider);
 
         colliderIds.Add(colliderId);
 
@@ -507,6 +519,9 @@ class Platform : WorldHandler {
         }
 
         if(positions.Count == 0) return;
+
+        bounds = calculateBounds(positions);
+        hasBounds = true;
 
         setPlatformCollider(colliderIds, coord, positions);
         chunkColliders[coord] = colliderIds;
@@ -599,12 +614,43 @@ class Platform : WorldHandler {
     // Update
     public override void update() {
         platformRegistry.update();
+        updateBounds();
 
         if(particleController != null) {
             var entity = EventStream.get<ParticleEntity>("particle-entity");
             if(entity != null) {
                 var config = entity.getParticleConfig();
                 if(config != null) entity.updateMovement(config, playerController, ref lastPlayerPosition, ref isMoving);
+            }
+        }
+    }
+
+    // Update Bounds
+    private void updateBounds() {
+        if(!hasBounds || currentData == null) return;
+
+        bool gravity = currentData.GravityRegular ?? true;
+            
+        if(!gravity) {
+            Vector3 playerPos = playerController.getPosition();
+            var rigidBody = playerController.getRigidBody();
+                
+            float topY = Top ?? bounds.maxY;
+            float y = topY + 1.2f;
+                
+            bool area = 
+                playerPos.X >= bounds.minX && playerPos.X <= bounds.maxX &&
+                playerPos.Z >= bounds.minZ && playerPos.Z <= bounds.maxZ &&
+                playerPos.Y <= y;
+
+            if(area) {
+                rigidBody.setJumpGravityEnabled(true);
+                rigidBody.setGravityEnabled(false);
+            } else {
+                rigidBody.setJumpGravityEnabled(false);
+                rigidBody.setGravityEnabled(true);
+                rigidBody.setGravity(rigidBody.getGravity());
+                rigidBody.setGravityScale(rigidBody.getGravityScale());
             }
         }
     }

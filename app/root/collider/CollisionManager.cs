@@ -202,13 +202,14 @@ class CollisionManager {
         collisions.Sort((a, b) => b.depth.CompareTo(a.depth));
 
         bool surfaceFound = false;
+        bool jumpGravityActive = false;
 
         foreach(var collision in collisions) {
             Vector3 position = rigidBody.getPosition();
             BBox bbox = rigidBody.getBBox();
 
             var collider = collision.otherCollider;
-            if(collider != null && collider.isJumpGravityEnabled()) rigidBody.setJumping(true);
+            if(collider != null && collider.isJumpGravityEnabled()) jumpGravityActive = true;
 
             // Boundary Object
             if(collider is BoundaryObject boundaryObj) {
@@ -297,6 +298,12 @@ class CollisionManager {
         }
 
         rigidBody.setOnSurface(surfaceFound);
+
+        if(jumpGravityActive) {
+            rigidBody.setJumpGravityEnabled(true);
+        } else {
+            if(!rigidBody.getJumping()) rigidBody.setJumpGravityEnabled(false);
+        }
     } 
 
     /**

@@ -3,7 +3,7 @@
     name = "TEST_1_THEME",
     movement = ~[
         gravityScale = 2.0,
-        gravity = -15.0,
+        gravity = -20.0,
         drag = 0.4,
         moveSpeed = 5.0,
         flySpeed = 5.0,
@@ -13,7 +13,7 @@
         jumpGravity = -8.0,
         friction = 0.5,
         airControl = 0.6,
-        maxFallSpeed = -20.0,
+        maxFallSpeed = -10.0,
         pullDrag = 0.7,
         buoyancy = 5.0
     ],
