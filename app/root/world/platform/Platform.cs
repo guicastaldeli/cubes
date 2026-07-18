@@ -9,6 +9,8 @@ using App.Root.Physics;
 using App.Root.Player;
 using App.Root.Utils;
 using App.Root.Resource;
+using App.Root.Player.Shop;
+using App.Root.World.Points;
 using OpenTK.Mathematics;
 using System.Reflection;
 using NLua;
@@ -41,6 +43,7 @@ class PlatformThemes {
 
     private static Lua data = null!;
     private static List<Theme> themes = null!;
+    private static HashSet<int> purchasedThemes = new();
 
     private static Platform platform = null!;
     private static PlayerController playerController = null!;
@@ -94,6 +97,17 @@ class PlatformThemes {
         }
     }
 
+    // Is Theme Purchased
+    private static bool IsThemePurchased(int id) {
+        bool val = purchasedThemes.Contains(id);
+        return val;
+    }
+
+    // Mark Theme Purchased
+    private static void MarkThemePurchased(int id) {
+        purchasedThemes.Add(id);
+    }
+
     // Handle Mouse Click
     [GlobalInput]
     public static void HandleMouseClick(int themeId) {
@@ -102,6 +116,55 @@ class PlatformThemes {
         Console.ResetColor();
 
         Apply(themeId);
+    }
+
+    // Can Afford Theme
+    [ShopPriceChecker]
+    public static bool CanAffordTheme(Theme theme) {
+        if(theme == null) return false;
+        
+        int points = Points.GetTotal();
+        bool val = points >= theme.Price;
+
+        return val;
+    }
+
+    // Purchase Theme
+    [ShopPurchase]
+    public static void PurchaseTheme(Theme theme) {
+        if(theme == null) return;
+
+        if(IsThemePurchased(theme.Id)) {
+            Console.WriteLine($"[Shop] Theme {theme.Name} already purchased");
+            return;
+        }
+
+        Points.Deduct(theme.Price);
+        MarkThemePurchased(theme.Id);
+        Console.WriteLine($"[Shop] Purchased theme: {theme.Name}");
+    }
+
+    // Try Purchase Theme
+    [ShopPurchasable(Type = "theme")]
+    public static bool TryPurchaseTheme(Theme theme) {
+        if(theme == null) return false;
+
+        if(IsThemePurchased(theme.Id)) {
+            Console.WriteLine($"[Shop] Theme {theme.Name} already purchased");
+            return false;
+        }
+
+        int points = Points.GetTotal();
+        if(points < theme.Price) {
+            Console.WriteLine($"[Shop] Cannot afford {theme.Name} (Price: {theme.Price}, Points: {points})");
+            return false;
+        }
+
+        Points.Deduct(theme.Price);
+        MarkThemePurchased(theme.Id);
+
+        Console.WriteLine($"[Shop] Purchased theme: {theme.Name}");
+        return true;
     }
 
     /**

@@ -75,7 +75,7 @@ public static class Points {
     private static bool initialized = false;
 
     // Get Total
-    public static int getTotal() {
+    public static int GetTotal() {
         return TOTAL;
     }
     
@@ -98,6 +98,25 @@ public static class Points {
 
         PointsData.SavePoints(TOTAL);
         EventStream.set("points-added", TOTAL);
+    }
+
+    /**
+     * 
+     * Deduct
+     *
+     */
+    public static bool Deduct(int amount) {
+        if(TOTAL < amount) {
+            Console.WriteLine($"[Points] Not enough points! Have: {TOTAL}, Need: {amount}");
+            return false;
+        }
+
+        TOTAL -= amount;
+        PointsData.SavePoints(TOTAL);
+        EventStream.set("points-added", TOTAL);
+        Console.WriteLine($"[Points] Deducted {amount}, remaining: {TOTAL}");
+        
+        return true;
     }
 
     /**
