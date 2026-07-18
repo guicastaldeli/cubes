@@ -7,6 +7,6 @@
         color="0.0,1.0,1.0,1.0"
         visible="false"
     >
-        POINTS: {0}{points}
+        POINTS: {points}
     </label>
 </points>

@@ -34,7 +34,10 @@ class ShopUI : UI {
         var typeName = GlobalInputHandler.FindTypeFromAction(action);
         if(typeName != null) {
             var (_, id) = ActionConverter.Convert(action);
-            if(id.HasValue) GlobalInputHandler.HandleByType(typeName, id.Value);
+            if(id.HasValue) {
+                GlobalInputHandler.HandleByType(typeName, id.Value);
+                updateUI();
+            }
             return;
         }
     }
@@ -53,7 +56,13 @@ class ShopUI : UI {
      * Update
      *
      */
+    // Update
     public override void update() {
         base.update();
+    }
+
+    // Update UI
+    private void updateUI() {
+        resolveContent();
     }
 }

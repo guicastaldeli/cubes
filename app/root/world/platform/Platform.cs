@@ -111,6 +111,14 @@ class PlatformThemes {
     // Handle Mouse Click
     [GlobalInput]
     public static void HandleMouseClick(int themeId) {
+        var theme = GetTheme(themeId);
+        if(theme == null) return;
+
+        if(!IsThemePurchased(themeId)) {
+            Console.WriteLine($"[PlatformThemes] Theme {theme.Name} not purchased yet!");
+            return;
+        }
+        
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.WriteLine($"[PlatformTheme] Applying theme: {themeId}");
         Console.ResetColor();

@@ -55,9 +55,12 @@ class PointsUI : UI {
      *
      */
     private void init() {
+        DocParser.Replace("points", Points.GetTotal());
+        
         EventStream.on("points-added", (data) => {
             if(data is not int total) return;
             DocParser.Replace("points", total);
+            Console.WriteLine($"[PointsUI] Points updated to: {total}");
         });
     }
 }

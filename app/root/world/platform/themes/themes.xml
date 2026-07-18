@@ -2,32 +2,85 @@
 <themes>
     {#grid(5,2)}
     {#foreach platformthemes as theme}
-        <div 
-            id="theme_{theme.Id}" 
-            x="{col * 11 + 2}%" y="{row * 22 + 2}%" 
-            width="10%" height="20%" 
-            background="0.15,0.15,0.25,0.9" 
-            hoverable="true" 
-            hoverBackground="0.25,0.25,0.45,0.9" 
-            hoverScale="1.05"
-            action="theme:{theme.Id}"
-        >
-            <label 
-                id="theme_{theme.Id}_name" 
-                x="0%" y="8%" text="{theme.Name}" 
-                color="1,1,1,1" 
-                scale="0.5"
+        {#if !IsThemePurchased(theme.Id)}
+            {#if Points.GetTotal() >= theme.Price}
+                <div 
+                    id="theme_{theme.Id}" 
+                    x="{col * 11 + 2}%" y="{row * 22 + 2}%" 
+                    width="10%" height="20%" 
+                    background="0.1,0.3,0.1,0.9" 
+                    hoverable="true" 
+                    hoverBackground="0.2,0.5,0.2,0.9" 
+                    hoverScale="1.05"
+                    action="theme:{theme.Id}"
+                >
+                    <label 
+                        id="theme_{theme.Id}_name" 
+                        x="0%" y="8%" text="{theme.Name}" 
+                        color="1,1,1,1" 
+                        scale="0.5"
+                    >
+                        {theme.Name}
+                    </label>
+                    <label 
+                        id="theme_{theme.Id}_price" 
+                        x="0%" y="12%" text="{theme.Price}" 
+                        color="0,1,0,1" 
+                        scale="0.4"
+                    >
+                        BUY {theme.Price} pts
+                    </label>
+                </div>
+            {#else}
+                <div 
+                    id="theme_{theme.Id}" 
+                    x="{col * 11 + 2}%" y="{row * 22 + 2}%" 
+                    width="10%" height="20%" 
+                    background="0.3,0.1,0.1,0.9" 
+                    hoverable="false"
+                >
+                    <label 
+                        id="theme_{theme.Id}_name" 
+                        x="0%" y="8%" text="{theme.Name}" 
+                        color="0.5,0.5,0.5,1" 
+                        scale="0.5"
+                    >
+                        {theme.Name}
+                    </label>
+                    <label 
+                        id="theme_{theme.Id}_price" 
+                        x="0%" y="12%" text="{theme.Price}" 
+                        color="1,0.3,0.3,1" 
+                        scale="0.4"
+                    >
+                        LOCKED {theme.Price}
+                    </label>
+                </div>
+            {#else}
+                <div 
+                id="theme_{theme.Id}" 
+                x="{col * 11 + 2}%" y="{row * 22 + 2}%" 
+                width="10%" height="20%" 
+                background="0.1,0.1,0.1,0.9" 
+                hoverable="false"
             >
-                {theme.Name}
-            </label>
-            <label 
-                id="theme_{theme.Id}_price" 
-                x="0%" y="12%" text="{theme.Price}" 
-                color="1,1,1,1" 
-                scale="0.5"
-            >
-                {theme.Price}
-            </label>
-        </div>
+                <label 
+                    id="theme_{theme.Id}_name" 
+                    x="0%" y="8%" text="{theme.Name}" 
+                    color="0.5,0.5,0.5,1" 
+                    scale="0.5"
+                >
+                    {theme.Name}
+                </label>
+                <label 
+                    id="theme_{theme.Id}_price" 
+                    x="0%" y="12%" text="OWNED" 
+                    color="0,1,0,1" 
+                    scale="0.4"
+                >
+                    OWNED
+                </label>
+            </div>
+        {#end}
     {#end}
 </themes>
