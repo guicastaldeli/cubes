@@ -271,7 +271,7 @@ class Platform : WorldHandler {
     private const float SPACING = 1.0f;
 
     private Dictionary<ChunkCoord, List<string>> chunkColliders = new();
-    private HashSet<ChunkCoord> allGeneratedChunks = new();
+    public HashSet<ChunkCoord> allGeneratedChunks = new();
     private Vector3 offset = Vector3.Zero;
 
     private BBox bounds = null!;
@@ -563,18 +563,8 @@ class Platform : WorldHandler {
      *
      */
     private void load() {
-        if(!initialized) {
-            /*
-            platformRegistry.render();
-            set2();
-            set3();
-            set4();
-
-            spawnGrid("cube", new Vector3(4f, 3f, -3f), 5, 3);
-            */
-        }
-
         setPlatform();
+        platformRegistry.render();
     }
 
     /**

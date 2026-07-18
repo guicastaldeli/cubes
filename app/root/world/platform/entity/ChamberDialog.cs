@@ -23,6 +23,7 @@ class ChamberDialog : UI {
 
     private ChamberEntity chamberEntity = null!;
     private PlayerController playerController = null!;
+    private TextEntity textEntity = null!;
 
     public ChamberDialog() : base(PATH, CHAMBER_DIALOG_ID) {
         
@@ -55,6 +56,15 @@ class ChamberDialog : UI {
 
         var el = textEntity.getElementById(id);
         if(el != null) el.color = new float[] { color.X, color.Y, color.Z, 1.0f };
+    }
+
+    // Update Position
+    public void updatePosition(Vector3 newPos) {
+        if(textEntity != null) {
+            textEntity.setWorldPosition(newPos);
+            chamberEntity.storedPos = newPos;
+            //Console.WriteLine($"[ChamberDialog] Updated position to: {newPos}");
+        }
     }
 
     /**
@@ -118,13 +128,13 @@ class ChamberDialog : UI {
 
         UI.uiController.register(this);
         
-        (float x, float y, float z) entityPos = chamberEntity.pos;
-        Vector3 pos = new Vector3(entityPos.x, entityPos.y, entityPos.z);
+        Vector3 entityPos = chamberEntity.pos;
+        (float x, float y, float z) pos = (entityPos.X, entityPos.Y, entityPos.Z);
 
         float dist = 8.0f;
         float scale = 0.5f;
 
-        var textEntity = mesh.getTextEntityRenderer()!.addV(entityId, PATH, pos, scale, dist);
+        textEntity = mesh.getTextEntityRenderer()!.addV(entityId, PATH, pos, scale, dist);
         chamberEntity.storedPos = textEntity.getWorldPosition();
         
         var els = get();

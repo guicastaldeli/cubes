@@ -19,6 +19,7 @@ using AppWindow = App.Root.Window;
 using WorldPlatform = Root.World.Platform.Platform;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Mathematics;
+using App.Root.Chunk;
 
 class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
     public const string CHAMBER_ENTITY_ID = "chamber";
@@ -31,7 +32,7 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
 
     private ChamberDialog chamberDialog;
 
-    public (float x, float y, float z) pos = (-3.0f, 2.5f, -3.0f);
+    public Vector3 pos = Vector3.Zero;
     public Vector3 storedPos;
 
     private bool initialized = false;
@@ -53,6 +54,27 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         this.chamberDialog = new ChamberDialog();
 
         init();
+    }
+
+    // Get Platform Position
+    private Vector3 getPlatformPosition() {
+        var chunks = EventStream.get<List<ChunkCoord>>("streamed-chunks");
+        if(chunks == null || chunks.Count == 0) return new Vector3(0.0f, 0.0f, 0.0f);
+        
+        float cx = -3.0f, cz = -3.0f;
+        foreach(var chunk in chunks) {
+            Vector3 pos = chunk.ToWorldPosition();
+            cx += pos.X + ChunkCoord.CHUNK_SIZE / 2.0f;
+            cz += pos.Z + ChunkCoord.CHUNK_SIZE / 2.0f;
+        }
+        cx /= chunks.Count;
+        cz /= chunks.Count;
+
+        float topY = EventStream.getT<float>("stream-top") ?? 0;
+        float y = topY;
+
+        Vector3 val = new Vector3(cx, y, cz);
+        return val;
     }
 
     // Stream Event
@@ -82,8 +104,8 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         var particles = mesh.getParticleController();
 
         if(particles != null) {
-            float y = pos.y + 1.0f;
-            Vector3 emitPos = new Vector3(pos.x, y, pos.z);
+            float y = pos.Y + 1.0f;
+            Vector3 emitPos = new Vector3(pos.X, y, pos.Z);
             
             particles.emit(
                 emitPos,
@@ -146,14 +168,14 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
         MeshData data = MeshModelLoader.loadModel(path);
         data.isModel = true;
         data.modelPath = path;
-        data.isEntity = 1;
+        data.isEntity = 0;
         data.entityType = "chamber";
         data.colliderShape = ColliderType.CUBE;
 
         mesh.add(CHAMBER_ENTITY_ID, data);
 
-        Vector3 dPos = new Vector3(pos.x, pos.y, pos.z);
-        mesh.setPosition(CHAMBER_ENTITY_ID, dPos);
+        Vector3 dpos = new Vector3(pos.X, pos.Y, pos.Z);
+        mesh.setPosition(CHAMBER_ENTITY_ID, dpos);
 
         var renderer = mesh.getMeshRenderer(CHAMBER_ENTITY_ID);
         if(renderer != null) renderer.isInteractive = true;
@@ -186,6 +208,13 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
      */
     public override void update() {
         base.update();
+
+        if(initialized) {
+            Vector3 newPos = getPlatformPosition();
+            pos = newPos;
+            mesh.setPosition(CHAMBER_ENTITY_ID, pos);
+            chamberDialog.updatePosition(pos);
+        }
     }
 
     /**
