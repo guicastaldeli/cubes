@@ -25,6 +25,7 @@ class PlatformThemes {
     public class Theme {
         [Convert("int32")] [ConverterKey("id")] public int Id { get; set; }
         [Convert("string")] [ConverterKey("name")] public string Name { get; set; } = "";
+        [Convert("int32")] [ConverterKey("price")] public int Price { get; set; }
         [Convert("string")] [ConverterKey("movement")] public string? Movement { get; set; }
         [Convert("string")] [ConverterKey("audio")] public string? Audio { get; set; }
         [Convert("int32")] [ConverterKey("top")] public int Top { get; set; }

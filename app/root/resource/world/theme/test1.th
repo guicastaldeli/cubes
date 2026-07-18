@@ -1,6 +1,7 @@
 {{@theme#test1}}
     id = -1,
     name = "TEST_1_THEME",
+    price = 100,
     movement = ~[
         gravityScale = 2.0,
         gravity = -20.0,

@@ -20,6 +20,14 @@
             >
                 {theme.Name}
             </label>
+            <label 
+                id="theme_{theme.Id}_price" 
+                x="10%" y="12%" text="{theme.Price}" 
+                color="1,1,1,1" 
+                scale="0.5"
+            >
+                {theme.Price}
+            </label>
         </div>
     {#end}
 </themes>

@@ -33,7 +33,8 @@ local function toObject(parsedTheme)
 
     return {
         id = data.id or 0,
-        name = data.name or "Unknown",
+        name = data.name or "",
+        price = data.price or "",
         movement = toMovementData(data),
         audio = data.audio or "",
         top = data.top or nil,
@@ -105,6 +106,7 @@ function Theme:new(params)
     local self = setmetatable({}, Theme)
     self.id = params.id
     self.name = params.name
+    self.price = params.price
     setMovement(self, params)
     self.audio = params.audio or ""
     self.top = params.top or nil
