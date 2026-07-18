@@ -9,6 +9,173 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using App.Root.Utils;
 using System.Reflection;
 
+/**
+
+    Shop Purchase system...
+
+    */
+[AttributeUsage(AttributeTargets.Method)]
+public class ShopPriceChecker : Attribute {}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class ShopPurchase : Attribute {}
+
+[AttributeUsage(AttributeTargets.Method, Inherited = false)]
+public class ShopPurchasable : Attribute {
+    public string? Type { get; set; }
+
+    public ShopPurchasable(string? Type = null) {
+        this.Type = Type;
+    }
+}
+
+public static class ShopPurchaseHandler {
+    private static Dictionary<string, Func<object, bool>> priceCheckers = new();
+    private static Dictionary<string, Action<object>> purchasers = new();
+    private static Dictionary<string, string> typeToHandlerMap = new();
+    
+    private static bool initialized = false;
+
+    // Can Afford
+    public static bool CanAfford(object item) {
+        if(item == null) return false;
+
+        var typeName = item.GetType().Name.ToLower();
+        if(priceCheckers.TryGetValue(typeName, out var checker)) return checker(item);
+
+        var singular = WordInflector.ToSingular(typeName);
+        if(priceCheckers.TryGetValue(singular, out checker)) return checker(item);
+        
+        Console.WriteLine($"[ShopPurchaseHandler] No price checker found for {typeName}");
+
+        return false;
+    }
+
+    // Purchase
+    public static bool Purchase(object item) {
+        if(item == null) return false;
+
+        var typeName = item.GetType().Name.ToLower();
+        if(purchasers.TryGetValue(typeName, out var purchaser)) {
+            if(!CanAfford(item)) {
+                Console.WriteLine($"[ShopPurchaseHandler] Cannot afford {typeName}");
+                return false;
+            }
+
+            purchaser(item);
+            return true;
+        }
+
+        var singular = WordInflector.ToSingular(typeName);
+        if(purchasers.TryGetValue(singular, out purchaser)) {
+            if(!CanAfford(item)) {
+                Console.WriteLine($"[ShopPurchaseHandler] Cannot afford {typeName}");
+                return false;
+            }
+
+            purchaser(item);
+            return true;
+        }
+
+        Console.WriteLine($"[ShopPurchaseHandler] No purchase handler found for {typeName}");
+        return false;
+    }
+
+    /**
+     *
+     * Register
+     *
+     */
+    // Register Type
+    public static void RegisterType(Type type) {
+        if(!initialized) RegisterAll();
+
+        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+        foreach(var method in methods) {
+            var attr = method.GetCustomAttribute<ShopPriceChecker>();
+            if(attr != null) {
+                var param = method.GetParameters();
+                if(param.Length == 1) {
+                    var paramType = param[0].ParameterType;
+                    var typeName = paramType.Name.ToLower();
+
+                    if(method.IsStatic) {
+                        var func = (Func<object, bool>)Delegate.CreateDelegate(typeof(Func<object, bool>), method);
+                        priceCheckers[typeName] = func;
+                        Console.WriteLine($"[ShopPurchaseHandler] Registered price checker for {typeName}");
+                    }
+                }
+            }
+        }
+        foreach(var method in methods) {
+            var attr = method.GetCustomAttribute<ShopPurchase>();
+            if(attr != null) {
+                var param = method.GetParameters();
+                if(param.Length == 1) {
+                    var paramType = param[0].ParameterType;
+                    var typeName = paramType.Name.ToLower();
+
+                    if(method.IsStatic) {
+                        var action = (Action<object>)Delegate.CreateDelegate(typeof(Action<object>), method);
+                        purchasers[typeName] = action;
+                        Console.WriteLine($"[ShopPurchaseHandler] Registered price checker for {typeName}");
+                    }
+                }
+            }
+        }
+        foreach(var method in methods) {
+            var attr = method.GetCustomAttribute<ShopPurchasable>();
+            if(attr != null) {
+                var param = method.GetParameters();
+                if(param.Length == 1) {
+                    var paramType = param[0].ParameterType;
+                    var typeName = attr.Type ?? paramType.Name.ToLower();
+
+                    if(method.ReturnType == typeof(bool)) {
+                        var func = (Func<object, bool>)Delegate.CreateDelegate(typeof(Func<object, bool>), method);
+                        priceCheckers[typeName] = func;
+                        Console.WriteLine($"[ShopPurchaseHandler] Registered combined price checker for {typeName}");
+                    } else {
+                        if(method.IsStatic) {
+                            var action = (Action<object>)Delegate.CreateDelegate(typeof(Action<object>), method);
+                            purchasers[typeName] = action;
+                            Console.WriteLine($"[ShopPurchaseHandler] Registered combined purchaser for {typeName}");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Register All
+    public static void RegisterAll() {
+        if(initialized) return;
+        initialized = true;
+
+        var types = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(a => {
+                try { return a.GetTypes(); }
+                catch { return new Type[0]; }
+            })
+            .Where(t => t.IsClass && !t.IsAbstract);
+
+        foreach(var type in types) {
+            var hasAttribute = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+                .Any(m => m.GetCustomAttribute<ShopPurchase>() != null ||
+                    m.GetCustomAttribute<ShopPriceChecker>() != null ||
+                    m.GetCustomAttribute<ShopPurchasable>() != null);
+            if(hasAttribute) {
+                RegisterType(type);
+            }
+        }
+    }
+}
+
+/**
+
+    Shop main class.
+
+    */
 class Shop {
     private class Data {
         private class List {
