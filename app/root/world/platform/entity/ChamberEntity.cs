@@ -55,7 +55,7 @@ class ChamberEntity : PlatformRegistry.PlatformRegistryHandler {
 
         init();
         Points.Init();
-        Points.Set(0);
+        Points.Set(999);
     }
 
     // Get Platform Position

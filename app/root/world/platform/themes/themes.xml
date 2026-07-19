@@ -16,7 +16,7 @@
                 >
                     <label 
                         id="theme_{theme.Id}_name" 
-                        x="0%" y="8%" text="{theme.Name}" 
+                        x="0%" y="8%"
                         color="1,1,1,1" 
                         scale="0.5"
                     >
@@ -24,7 +24,7 @@
                     </label>
                     <label 
                         id="theme_{theme.Id}_price" 
-                        x="0%" y="12%" text="{theme.Price}" 
+                        x="0%" y="12%"
                         color="0,1,0,1" 
                         scale="0.4"
                     >
@@ -41,7 +41,7 @@
                 >
                     <label 
                         id="theme_{theme.Id}_name" 
-                        x="0%" y="8%" text="{theme.Name}" 
+                        x="0%" y="8%"
                         color="0.5,0.5,0.5,1" 
                         scale="0.5"
                     >
@@ -49,15 +49,16 @@
                     </label>
                     <label 
                         id="theme_{theme.Id}_price" 
-                        x="0%" y="12%" text="{theme.Price}" 
+                        x="0%" y="12%"
                         color="1,0.3,0.3,1" 
                         scale="0.4"
                     >
                         LOCKED {theme.Price}
                     </label>
                 </div>
-            {#else}
-                <div 
+            {#end}
+        {#else}
+            <div 
                 id="theme_{theme.Id}" 
                 x="{col * 11 + 2}%" y="{row * 22 + 2}%" 
                 width="10%" height="20%" 
@@ -66,7 +67,7 @@
             >
                 <label 
                     id="theme_{theme.Id}_name" 
-                    x="0%" y="8%" text="{theme.Name}" 
+                    x="0%" y="8%"
                     color="0.5,0.5,0.5,1" 
                     scale="0.5"
                 >
@@ -74,7 +75,7 @@
                 </label>
                 <label 
                     id="theme_{theme.Id}_price" 
-                    x="0%" y="12%" text="OWNED" 
+                    x="0%" y="12%"
                     color="0,1,0,1" 
                     scale="0.4"
                 >

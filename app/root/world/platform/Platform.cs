@@ -98,7 +98,7 @@ class PlatformThemes {
     }
 
     // Is Theme Purchased
-    private static bool IsThemePurchased(int id) {
+    public static bool IsThemePurchased(int id) {
         bool val = purchasedThemes.Contains(id);
         return val;
     }
@@ -114,16 +114,18 @@ class PlatformThemes {
         var theme = GetTheme(themeId);
         if(theme == null) return;
 
-        if(!IsThemePurchased(themeId)) {
-            Console.WriteLine($"[PlatformThemes] Theme {theme.Name} not purchased yet!");
-            return;
-        }
-        
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.WriteLine($"[PlatformTheme] Applying theme: {themeId}");
-        Console.ResetColor();
+        bool success = TryPurchaseTheme(theme);
+        if(success) {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine($"[PlatformTheme] Applying theme: {themeId}");
+            Console.ResetColor();
 
-        Apply(themeId);
+            Apply(themeId);
+        } else {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"[PlatformThemes] Failed to purchase: {theme.Name}");
+            Console.ResetColor();
+        }
     }
 
     // Can Afford Theme
@@ -201,6 +203,8 @@ class PlatformThemes {
      */
     public static object ExtractData() {
         if(themes != null) return themes;
+
+        purchasedThemes.Clear();
 
         Load();
         themes = new List<Theme>();

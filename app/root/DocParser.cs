@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Collections;
 using System.Data;
+using System.Reflection;
 
 /**
 
@@ -73,7 +74,8 @@ class DocParser {
         string grid,
         string loop,
         string idx,
-        string testLoop
+        string testLoop,
+        string ifCondition 
     ) Exp = (
         @"\$\{(.*?)\}",
         @"\{(\w+)\}",
@@ -84,8 +86,107 @@ class DocParser {
         @"\{#grid\((\d+),(\d+)\)\}",
         @"\{#foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}([\s\S]*?)\{#end\}",
         @"\{([^{}]+?)\}(?:%)?",
-        @"{#foreach\s+[a-zA-Z_][a-zA-Z0-9_]*\s+as\s+[a-zA-Z_][a-zA-Z0-9_]*\}([\s\S]*?){#end\}"
+        @"{#foreach\s+[a-zA-Z_][a-zA-Z0-9_]*\s+as\s+[a-zA-Z_][a-zA-Z0-9_]*\}([\s\S]*?){#end\}",
+        @"\{#if\s+(.+?)\}([\s\S]*?)(?:\{#else\}([\s\S]*?))?\{#end\}"
     );
+
+    // Split Instance Name
+    private static List<string>? splitInstanceName(string name, List<string> names) {
+        var result = new List<string>();
+
+        string remaning = name.ToLower();
+        while(remaning.Length > 0) {
+            string? match = names.FirstOrDefault(k => remaning.StartsWith(k));
+            if(match == null) return null;
+
+            result.Add(match);
+            remaning = remaning[match.Length..];
+        }
+
+        return result;
+    }
+
+    // Get Property Value
+    private static object? GetPropertyValue(object obj, string path) {
+        if(obj == null || string.IsNullOrEmpty(path)) return null;
+
+        var parts = path.Split('.');
+        object curr = obj;
+
+        foreach(var part in parts) {
+            if(curr == null) return null;
+
+            var prop = curr.GetType().GetProperty(part);
+            if(prop == null) return null;
+            curr = prop.GetValue(curr)!;
+        }
+
+        return curr;
+    }
+
+    // Calculate Grid
+    private static void calculateGrid(int i, int cols, int rows) {
+        float f = 100.0f;
+
+        int row = i / cols;
+        int col = i % cols;
+
+        Console.WriteLine($"Item {i}: row={row}, col={col}");
+
+        loopContext["col"] = col;
+        loopContext["cols"] = cols;
+        loopContext["row"] = row;
+        loopContext["rows"] = rows;
+
+        float x = (col * f / cols) + (f / cols / 2);
+        float y = (row * f / rows) + (f / rows / 2);
+        loopContext["x"] = x;
+        loopContext["y"] = y;
+    }
+
+    // Remove Grid
+    private static void removeGrid() {
+        loopContext.Remove("row");
+        loopContext.Remove("rows");
+        loopContext.Remove("col");
+        loopContext.Remove("cols");
+        loopContext.Remove("x");
+        loopContext.Remove("y");
+    }
+
+    // Call Static Method
+    private static bool callStaticMethod(string methodName, List<string> args) {
+        try {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            
+            foreach(var assembly in assemblies) {
+                foreach(var type in assembly.GetTypes()) {
+                    var method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static);
+                    
+                    if(method != null && method.ReturnType == typeof(bool)) {
+                        var param = method.GetParameters();
+                        
+                        if(param.Length == args.Count) {
+                            var convertedArgs = new List<object>();
+
+                            for(int i = 0; i < args.Count; i++) {
+                                var paramType = param[i].ParameterType;
+                                object? parsedArg = parseArgument(args[i], paramType);
+                                if(parsedArg == null && paramType.IsValueType) parsedArg = Activator.CreateInstance(paramType);
+                                convertedArgs.Add(parsedArg ?? Convert.ChangeType(args[i], paramType));
+                            }
+
+                            var result = method.Invoke(null, convertedArgs.ToArray());
+                            return result is bool b && b;
+                        }
+                    }
+                }
+            }
+        } catch(Exception err) {
+            Console.WriteLine($"[DocParser] Error calling method {methodName}: {err.Message}");
+        }
+        return false;
+    }
 
     /**
      * 
@@ -136,12 +237,14 @@ class DocParser {
     public static string LResolve(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
+        text = resolveWithIf(text);
         text = resolveWithLoop(text);
         text = Resolve(text);
 
         return text;
     }
 
+    // Resolve With Loop
     private static string resolveWithLoop(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
@@ -198,6 +301,7 @@ class DocParser {
         return text;
     }
 
+    // Resolve With Loop Context
     private static string resolveWithLoopContext(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
@@ -362,6 +466,20 @@ class DocParser {
 
             return match.Value;
         });
+    }
+
+    // Resolve With If
+    private static string resolveWithIf(string text) {
+        if(string.IsNullOrEmpty(text)) return text;
+
+        return Regex.Replace(text, Exp.ifCondition, match => {
+            string condition = match.Groups[1].Value.Trim();
+            string trueContent = match.Groups[2].Value;
+            string falseContent = match.Groups[3].Success ? match.Groups[3].Value : "";
+
+            bool result = evaluateCondition(condition);
+            return result ? trueContent : falseContent;
+        }, RegexOptions.Singleline);
     }
 
     /**
@@ -598,7 +716,19 @@ class DocParser {
     public static List<ScreenElement> parseDivs(string xmlFilePath, int screenWidth, int screenHeight) {
         List<ScreenElement> val = getElementsByType(parseScreen(xmlFilePath, screenWidth, screenHeight), "div");
         return val;
-    }   
+    }
+
+    // Parse Argument
+    private static object? parseArgument(string arg, Type targetType) {
+        arg = arg.Trim();
+
+        if(targetType == typeof(int)) return int.TryParse(arg, out int result) ? result : null;
+        if(targetType == typeof(float)) return float.TryParse(arg, out float result) ? result : null;
+        if(targetType == typeof(bool)) return bool.TryParse(arg, out bool result) ? result : null;
+        if(targetType == typeof(string)) return arg.Trim('"', '\'');
+
+        return null;
+    }
 
     /**
      * 
@@ -1326,21 +1456,10 @@ class DocParser {
 
     /**
      * 
-     * Cleanup
-     *
-     */
-    public static void cleanup() {
-        if(uiVao != 0) GL.DeleteVertexArray(uiVao);
-        if(uiVbo != 0) GL.DeleteBuffer(uiVbo);
-        if(uiEbo != 0) GL.DeleteBuffer(uiEbo);
-        uiBuffersInitialized = false;
-    }
-
-    /**
-     * 
      * Evaluate Expression
      *
      */
+    // Evaluate Expression
     private static string evaluateExpression(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
@@ -1351,6 +1470,7 @@ class DocParser {
         return text;
     }
 
+    // Evaluate Simple Expression
     private static string evaluateSimpleExpression(string expression) {
         expression = expression.Trim();
 
@@ -1374,6 +1494,7 @@ class DocParser {
         return "${" + expression + "}";
     }
 
+    // Evaluate Expression Data
     private static double evaluateExpressionData(string exp) {
         var data = new DataTable();
         var result = data.Compute(exp, "");
@@ -1382,67 +1503,50 @@ class DocParser {
         return val;
     }
 
-    // Split Instance Name
-    private static List<string>? splitInstanceName(string name, List<string> names) {
-        var result = new List<string>();
+    /**
+     *
+     * Evaluate Condition
+     *
+     */
+    private static bool evaluateCondition(string condition) {
+        try {
+            bool negate = false;
+            if(condition.StartsWith("!")) {
+                negate = true;
+                condition = condition.Substring(1).Trim();
+            }
 
-        string remaning = name.ToLower();
-        while(remaning.Length > 0) {
-            string? match = names.FirstOrDefault(k => remaning.StartsWith(k));
-            if(match == null) return null;
+            string p = @"^([a-zA-Z_][a-zA-Z0-9_]*)\((.*)\)$";
+            var match = Regex.Match(condition, p);
+            if(match.Success) {
+                string funcName = match.Groups[1].Value;
+                string args = match.Groups[2].Value;
 
-            result.Add(match);
-            remaning = remaning[match.Length..];
+                var argList = args.Split(',').Select(a => a.Trim()).ToList();
+
+                var result = callStaticMethod(funcName, argList);
+                return negate ? !result : result;
+            }
+
+            var dataTable = new DataTable();
+            var result2 = dataTable.Compute(condition, "");
+            bool boolResult = Convert.ToBoolean(result2);
+            return negate ? !boolResult : boolResult;
+        } catch(Exception err) {
+            Console.WriteLine($"[DocParser] Error evaluating condition: {err.Message}");
+            return false;
         }
-
-        return result;
     }
 
-    // Get Property Value
-    private static object? GetPropertyValue(object obj, string path) {
-        if(obj == null || string.IsNullOrEmpty(path)) return null;
-
-        var parts = path.Split('.');
-        object curr = obj;
-
-        foreach(var part in parts) {
-            if(curr == null) return null;
-
-            var prop = curr.GetType().GetProperty(part);
-            if(prop == null) return null;
-            curr = prop.GetValue(curr)!;
-        }
-
-        return curr;
-    }
-
-    // Calculate Grid
-    private static void calculateGrid(int i, int cols, int rows) {
-        float f = 100.0f;
-
-        int row = i / cols;
-        int col = i % cols;
-
-        Console.WriteLine($"Item {i}: row={row}, col={col}");
-
-        loopContext["col"] = col;
-        loopContext["cols"] = cols;
-        loopContext["row"] = row;
-        loopContext["rows"] = rows;
-
-        float x = (col * f / cols) + (f / cols / 2);
-        float y = (row * f / rows) + (f / rows / 2);
-        loopContext["x"] = x;
-        loopContext["y"] = y;
-    }
-
-    // Remove Grid
-    private static void removeGrid() {
-        loopContext.Remove("row");
-        loopContext.Remove("rows");
-        loopContext.Remove("col");
-        loopContext.Remove("cols");
-        loopContext.Remove("x");
-        loopContext.Remove("y");
+    /**
+     * 
+     * Cleanup
+     *
+     */
+    public static void cleanup() {
+        if(uiVao != 0) GL.DeleteVertexArray(uiVao);
+        if(uiVbo != 0) GL.DeleteBuffer(uiVbo);
+        if(uiEbo != 0) GL.DeleteBuffer(uiEbo);
+        uiBuffersInitialized = false;
     }
 }
