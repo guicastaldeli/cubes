@@ -78,6 +78,12 @@ public static class Points {
     public static int GetTotal() {
         return TOTAL;
     }
+
+    // Can Afford
+    public static bool CanAfford(int price) {
+        bool result = TOTAL >= price;
+        return result;
+    }
     
     // Set
     public static void Set(int amount) {

@@ -84,10 +84,10 @@ class DocParser {
         @"\{([a-zA-Z_][a-zA-Z0-9_]*)(\.[a-zA-Z0-9_]+)?\}",
         @"^'(.*?)'\.repeat\((\d+)\)$",
         @"\{#grid\((\d+),(\d+)\)\}",
-        @"\{#foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}([\s\S]*?)\{#end\}",
+        @"\{#foreach\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}([\s\S]*?)\{#endfor\}",
         @"\{([^{}]+?)\}(?:%)?",
-        @"{#foreach\s+[a-zA-Z_][a-zA-Z0-9_]*\s+as\s+[a-zA-Z_][a-zA-Z0-9_]*\}([\s\S]*?){#end\}",
-        @"\{#if\s+(.+?)\}([\s\S]*?)(?:\{#else\}([\s\S]*?))?\{#end\}"
+        @"{#foreach\s+[a-zA-Z_][a-zA-Z0-9_]*\s+as\s+[a-zA-Z_][a-zA-Z0-9_]*\}([\s\S]*?){#endfor\}",
+        @"\{#if\s+([^}]+?)\}((?:(?!\{#if\b)[\s\S])*?)(?:\{#else\}((?:(?!\{#if\b)[\s\S])*?))?\{#endif\}"
     );
 
     // Split Instance Name
@@ -157,6 +157,8 @@ class DocParser {
     // Call Static Method
     private static bool callStaticMethod(string methodName, List<string> args) {
         try {
+            Console.WriteLine($"[DocParser] Looking for method: {methodName}");
+            
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             
             foreach(var assembly in assemblies) {
@@ -164,6 +166,7 @@ class DocParser {
                     var method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static);
                     
                     if(method != null && method.ReturnType == typeof(bool)) {
+                        Console.WriteLine($"[DocParser] Found method in {type.Name}");
                         var param = method.GetParameters();
                         
                         if(param.Length == args.Count) {
@@ -237,7 +240,6 @@ class DocParser {
     public static string LResolve(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
-        text = resolveWithIf(text);
         text = resolveWithLoop(text);
         text = Resolve(text);
 
@@ -285,6 +287,7 @@ class DocParser {
 
                 var resolved = resolveWithLoopContext(template);
                 resolved = resolveExpressions(resolved);
+                resolved = resolveWithIf(resolved);
                 result.Append(resolved);
 
                 loopContext.Remove(itemName);
@@ -472,14 +475,34 @@ class DocParser {
     private static string resolveWithIf(string text) {
         if(string.IsNullOrEmpty(text)) return text;
 
-        return Regex.Replace(text, Exp.ifCondition, match => {
-            string condition = match.Groups[1].Value.Trim();
-            string trueContent = match.Groups[2].Value;
-            string falseContent = match.Groups[3].Success ? match.Groups[3].Value : "";
+        string prev;
+        do {
+            prev = text;
+            text = Regex.Replace(text, Exp.ifCondition, match => {
+                string condition = match.Groups[1].Value.Trim();
+                string trueContent = match.Groups[2].Value;
+                string falseContent = match.Groups[3].Success ? match.Groups[3].Value : "";
 
-            bool result = evaluateCondition(condition);
-            return result ? trueContent : falseContent;
-        }, RegexOptions.Singleline);
+                foreach(var l in loopContext) {
+                    if(l.Value == null) continue;
+
+                    var props = l.Value.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                    foreach(var prop in props) {
+                        string placeholder = $"{l.Key}.{prop.Name}";
+                        var val = prop.GetValue(l.Value);
+                        condition = condition.Replace(placeholder, val?.ToString() ?? "");
+                    }
+                    if(l.Value.GetType().IsPrimitive) {
+                        condition = condition.Replace(l.Key, l.Value.ToString());
+                    }
+                }
+
+                bool result = evaluateCondition(condition);
+                return result ? trueContent : falseContent; 
+            }, RegexOptions.Singleline);
+        } while(text != prev);
+
+        return text;
     }
 
     /**

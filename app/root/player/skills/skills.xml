@@ -23,5 +23,5 @@
                 {skill.Name}
             </label>
         </div>
-    {#end}
+    {#endfor}
 </skills>

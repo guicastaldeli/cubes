@@ -3,7 +3,7 @@
     {#grid(5,2)}
     {#foreach platformthemes as theme}
         {#if !IsThemePurchased(theme.Id)}
-            {#if Points.GetTotal() >= theme.Price}
+            {#if CanAfford(theme.Price)}
                 <div 
                     id="theme_{theme.Id}" 
                     x="{col * 11 + 2}%" y="{row * 22 + 2}%" 
@@ -26,7 +26,7 @@
                         id="theme_{theme.Id}_price" 
                         x="0%" y="12%"
                         color="0,1,0,1" 
-                        scale="0.4"
+                        scale="0.5"
                     >
                         BUY {theme.Price} pts
                     </label>
@@ -51,12 +51,12 @@
                         id="theme_{theme.Id}_price" 
                         x="0%" y="12%"
                         color="1,0.3,0.3,1" 
-                        scale="0.4"
+                        scale="0.5"
                     >
                         LOCKED {theme.Price}
                     </label>
                 </div>
-            {#end}
+            {#endif}
         {#else}
             <div 
                 id="theme_{theme.Id}" 
@@ -77,11 +77,11 @@
                     id="theme_{theme.Id}_price" 
                     x="0%" y="12%"
                     color="0,1,0,1" 
-                    scale="0.4"
+                    scale="0.5"
                 >
                     OWNED
                 </label>
             </div>
-        {#end}
-    {#end}
+        {#endif}
+    {#endfor}
 </themes>
