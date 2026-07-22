@@ -1,5 +1,5 @@
 namespace App.Root.Save;
 
-class GenerateSave {
+public static class GenerateSave {
     
 }

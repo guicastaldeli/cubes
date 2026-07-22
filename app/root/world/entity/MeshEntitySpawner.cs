@@ -1,6 +1,6 @@
 /**
 
-    Entity Spawner class
+    Mesh Entity Spawner class
 
     */
 namespace App.Root.World.Entity;
@@ -14,7 +14,7 @@ using System.Reflection;
 
 /**
 
-    Entity Instance
+    Mesh Entity Instance
 
     */
 public struct Instance {

@@ -1,5 +1,5 @@
 namespace App.Root.Save;
 
-class SaveFile {
+public static class SaveFile {
     
 }

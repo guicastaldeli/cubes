@@ -27,11 +27,7 @@ static class MeshEntityCollider {
      * Init
      *
      */
-    public static void init(
-        Mesh mesh, 
-        CollisionManager collisionManager,
-        MeshEntitySpawner entitySpawner
-    ) {
+    public static void init(Mesh mesh, CollisionManager collisionManager, MeshEntitySpawner entitySpawner) {
         MeshEntityCollider.mesh = mesh;
         MeshEntityCollider.collisionManager = collisionManager;
         MeshEntityCollider.entitySpawner = entitySpawner;
@@ -75,10 +71,9 @@ static class MeshEntityCollider {
      */
     // Entity Id
     public static string? resolveEntityId(string colliderId) {
-        string? val = 
-            colliderToEntity.TryGetValue(colliderId, out string? entityId) ? 
-                entityId : 
-                null;
+        string? val = colliderToEntity.TryGetValue(colliderId, out string? entityId) ? 
+            entityId : 
+            null;
         return val; 
     }
 

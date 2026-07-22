@@ -68,7 +68,10 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
 
     private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/MeshEntity.lua");
     
-    private Tick tick;
+	private string const DATA_TYPE = "mesh";
+	private int const ENTITY_TYPE = 1;
+    
+	private Tick tick;
     private Mesh mesh;
     private CollisionManager collisionManager;
     private PlayerController playerController;
@@ -157,8 +160,8 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
      */
     private void generateSource(EntityProps entity, MeshData data, ChunkCoord spawnChunk, Vector3 boundaryCenter) {
         MeshData meshData = MeshEntityFactory.clone(data);
-        meshData.isEntity = 1;
-        meshData.entityType = "mesh";
+        meshData.isEntity = ENTITY_TYPE;
+        meshData.entityType = DATA_TYPE;
 
         if(!mesh.hasMesh(entity.MeshType)) {
             mesh.add(entity.MeshType, meshData);

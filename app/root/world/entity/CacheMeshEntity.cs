@@ -1,9 +1,9 @@
 namespace App.Root.World.Entity;
+using App.Root.Mesh;
+using App.Root.Utils;
 using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
-using App.Root.Mesh;
-using App.Root.Utils;
 
 static class CacheMeshEntity {
     public static MethodInfo? cachedUpdateMethod = null;
