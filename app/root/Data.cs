@@ -1,27 +1,28 @@
+namespace App.Root;
 using System.Collections.Concurrent;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace App.Root;
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+public class StoreDataAttribute : Attribute {
+    public string? Id { get; set; }
+    public string? Section { get; set; }
 
-/**
-    
-    Data Type
-
-    */
-enum DataType {
-    MESH,
-    PLAYER,
-    WORLD
+    public StoreDataAttribute() {}
+    public StoreDataAttribute(string Id) {
+        this.Id = Id;
+    }
 }
 
-/**
-    
-    Data Entry interface
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = false)]
+public class StoreFieldAttribute : Attribute {
+    public string? Key { get; set; }
+    public bool Ignore { get; set; } = false;
 
-    */
-interface DataEntry {
-    string? getId() => null;
-    Dictionary<string, object> serialize();
+    public StoreFieldAttribute() {}
+    public StoreFieldAttribute(string Key) {
+        this.Key = Key;
+    }
 }
 
 /**
@@ -156,239 +157,195 @@ public static class ThisData {
     */
 [ManagedState]
 static class Data {
-    private static Dictionary<DataType, List<DataEntry>> entries = new();
+    public class StoreFieldInfo {
+        public string Key { get; set; } = "";
+        public PropertyInfo Property { get; set; }
+        public FieldInfo? Field { get; set; }
+        public Type FieldType { get; set; } = null!;
+        public bool Ignore { get; set; }
+        public bool IsStatic { get; set; }
+    }
+
+    private static ConcurrentDictionary<string, List<StoreFieldInfo>> storeFieldCache = new();
+
     private static ConcurrentDictionary<string, object> dataStore = new();
     private static ConcurrentDictionary<string, Type> dataTypes = new();
     private static ConcurrentDictionary<string, DateTime> dataTimestamps = new();
 
     private static bool initialized = false;
+    private static bool storeDataInitialized = false;
 
     static Data() {
         StateManager.SRegister(typeof(Data));
         Init();
     }
 
-    // Register
-    public static void Register(DataType type, DataEntry entry) {
-        if(!entries.ContainsKey(type)) entries[type] = new();
-        entries[type].Add(entry);
+    /**
+     *
+     * Get Store Fields
+     *
+     */
+    public static List<StoreFieldInfo>? GetStoreFields(string id) {
+        if(storeFieldCache.TryGetValue(id, out var fields)) {
+            return fields;
+        }
+
+        return null;
     }
 
-    // Unregister
-    public static void Unregister(DataType type, DataEntry entry) {
-        if(entries.TryGetValue(type, out var list)) list.Remove(entry);
-    }
+    public static List<StoreFieldInfo>? GetStoreFields(Type type) {
+        var attr = type.GetCustomAttribute<StoreDataAttribute>();
+        if(attr == null) return null;
 
-    // Get
-    public static List<DataEntry> Get(DataType type) {
-        List<DataEntry> val = entries.TryGetValue(type, out var list) ? list : new();
+        List<StoreFieldInfo>? val = GetStoreFields(attr.Id ?? type.Name.ToLower());
         return val;
     }
+    
+    public static Dictionary<string, object>? SerializeStoreData(object obj) {
+        if(obj == null) return null;
 
-    // Snapshot
-    public static DataSnapshot Snapshot() {
-        DataSnapshot val = new DataSnapshot(entries);
-        return val;
+        var result = new Dictionary<string, object>();
+
+        var type = obj.GetType();
+        var attr = type.GetCustomAttribute<StoreDataAttribute>();
+        if(attr == null) {
+            Console.WriteLine($"[Data] No StoreData attribute on {type.Name}");
+            return null;
+        }
+
+        string id = attr.Id ?? type.Name.ToLower();
+        var fields = GetStoreFields(id);
+        if(fields == null) {
+            CacheStoreFields(type);
+            fields = GetStoreFields(id);
+            if(fields == null) return null;
+        }
+        foreach(var field in fields) {
+            try {
+                object? value = null;
+                if(field.Property != null) {
+                    value = field.Property.GetValue(obj);
+                } else if(field.Field != null) {
+                    value = field.Field.GetValue(obj);
+                }
+
+                if(value != null) result[field.Key] = value;
+            } catch(Exception ex) {
+                Console.WriteLine($"[Data] Error serializing {field.Key}: {ex.Message}");
+            }
+        }
+
+        return result;
     }
 
-    // Apply Snapshot
-    public static void ApplySnapshot(DataSnapshot snapshot, DataType type, Action<Dictionary<string, object>> handler) {
-        foreach(var entry in snapshot.get(type)) {
-            handler(entry);
+    public static void DeserializeStoreData(object obj, Dictionary<string, object> data) {
+        if(obj == null || data == null) return;
+
+        var type = obj.GetType();
+        var attr = type.GetCustomAttribute<StoreDataAttribute>();
+        if(attr == null) return;
+
+        string id = attr.Id ?? type.Name.ToLower();
+        var fields = GetStoreFields(id);
+        if(fields == null) {
+            CacheStoreFields(type);
+            fields = GetStoreFields(id);
+            if(fields == null) return;
+        }
+        foreach(var field in fields) {
+            if(!data.TryGetValue(field.Key, out var value)) continue;
+            if(value == null) continue;
+
+            try {
+                var converted = Convert.ChangeType(value, field.FieldType);
+
+                if(field.Property != null) {
+                    field.Property.SetValue(obj, converted);
+                } else if(field.Field != null) {
+                    field.Field.SetValue(obj, converted);
+                }
+            } catch(Exception err) {
+                Console.WriteLine($"[Data] Error deserializing {field.Key}: {err.Message}");
+            }
         }
     }
 
-    // Clear
-    public static void Clear(DataType type) {
-        if(entries.ContainsKey(type)) entries[type].Clear();
-    }
+    private static void CacheStoreFields(Type type) {
+        var attr = type.GetCustomAttribute<StoreDataAttribute>();
+        if(attr == null) return;
 
-    // Clear All
-    public static void ClearAll() {
-        entries.Clear();
-    }
-
-    /**
-        ***
+        string id = attr.Id ?? type.Name.ToLower();
+        var fields = new List<StoreFieldInfo>();
         
-        ***
-                */
-    
-    /**
-     * 
-     * Register
-     *
-     */
-    // Register Data
-    public static void RegisterData(string id, object data) {
-        if(string.IsNullOrEmpty(id)) throw new ArgumentException("Data ID cannot be null or empty!!");
-
-        dataStore[id] = data;
-        dataTypes[id] = data.GetType();
-        dataTimestamps[id] = DateTime.Now;
-
-        Console.WriteLine($"[Data] Registered data: {id} ({dataTypes[id]?.Name ?? "null"})");
-    }
-
-    /**
-     * 
-     * Get
-     *
-     */
-    // Get Data
-    public static object? GetData(string id) {
-        if(dataStore.TryGetValue(id, out var data)) return data;
-        return null;
-    }
-
-    public static T? GetData<T>(string id) {
-        if(dataStore.TryGetValue(id, out var data)) {
-            if(data is T typedData) {
-                return typedData;
+        foreach(var prop in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
+            var fieldAttr = prop.GetCustomAttribute<StoreFieldAttribute>();
+            if(fieldAttr != null && !fieldAttr.Ignore) {
+                fields.Add(new StoreFieldInfo {
+                    Key = fieldAttr.Key ?? prop.Name,
+                    Property = prop,
+                    Field = null,
+                    FieldType = prop.PropertyType,
+                    Ignore = fieldAttr.Ignore,
+                    IsStatic = prop.GetMethod?.IsStatic ?? false
+                });
             }
-
-            try {
-                if(data != null && typeof(T).IsAssignableFrom(data.GetType())) {
-                    return (T)data;
-                }
-            } catch(Exception err) {
-                throw new Exception($"Data -- Get Data -- Error -- {err.Message}");
+        }
+        foreach(var field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
+            var fieldAttr = field.GetCustomAttribute<StoreFieldAttribute>();
+            if(fieldAttr != null && !fieldAttr.Ignore) {
+                fields.Add(new StoreFieldInfo {
+                    Key = fieldAttr.Key ?? field.Name,
+                    Property = null,
+                    Field = field,
+                    FieldType = field.FieldType,
+                    Ignore = fieldAttr.Ignore,
+                    IsStatic = field.IsStatic
+                });
             }
         }
 
-        return default;
-    }
-
-    // Get All Data Ids
-    public static List<string> GetAllDataIds() {
-        List<string> val = dataStore.Keys.ToList();
-        return val;
-    }
-
-    // Get Data Timestamp
-    public static DateTime? GetDataTimestamp(string id) {
-        if(dataTimestamps.TryGetValue(id, out var timestamp)) {
-            return timestamp;
-        }
-        return null;
+        storeFieldCache[id] = fields;
+        Console.WriteLine($"[Data] Cached {fields.Count} StoreFields for {type.Name} (ID: {id})");
     }
 
     /**
-     * 
-     * Has Data
      *
-     */
-    public static bool HasData(string id) {
-        bool val = dataStore.ContainsKey(id);
-        return val;
-    }
-
-    /**
-     * 
-     * Save
-     *
-     */
-    // Save Data
-    public static void SaveData(string id) {
-        DataOutput.Save(id);
-    }
-
-    // Save All Data
-    public static void SaveAllData() {
-        DataOutput.SaveAll();
-    }
-
-    /**
-     * 
-     * Load
-     *
-     */
-    // Load Saved Data
-    public static void LoadSavedData(string id) {
-        DataOutput.Load(id);
-    }
-
-    // Load All Saved Data
-    private static void LoadAllSavedData() {
-        var ids = DataOutput.GetRegisteredIds();
-        foreach(var id in ids) {
-            try {
-                if(DataOutput.HasSavedData(id)) {
-                    DataOutput.Load(id);
-                    Console.WriteLine($"[Data] Loaded saved data for: {id}");
-                }
-            } catch(Exception err) {
-                Console.WriteLine($"[Data] Error loading saved data for {id}: {err.Message}");
-            }
-        }
-    }
-    
-    /**
-     * 
-     * Reload
-     *
-     */
-    public static void ReloadData(string id) {
-        DataInput.Reload(id);
-    }
-
-    /**
-     * 
      * Init
      *
      */
-    private static void Init() {
+    // Init Store Data
+    private static void InitStoreData() {
+        if(storeDataInitialized) return;
+
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach(var assembly in assemblies) {
+            try {
+                var types = assembly.GetTypes()
+                    .Where(t => t.GetCustomAttribute<StoreDataAttribute>() != null &&
+                        !t.IsAbstract &&
+                        !t.IsInterface);
+                foreach(var type in types) {
+                    CacheStoreFields(type);
+                }
+            } catch(Exception err) {
+                Console.WriteLine($"[Data] Error scanning StoreData: {err.Message}");
+            }
+        }
+    }
+
+    // Init
+    public static void Init() {
         if(initialized) return;
 
         DataInput.Init();
         DataOutput.Init();
 
         DataInput.LoadAll();
-
         LoadAllSavedData();
+
+        InitStoreData();
 
         initialized = true;
         Console.WriteLine("[Data] Data system initialized");
-    }
-
-    /**
-     * 
-     * Update
-     *
-     */
-    public static void UpdateData(string id, object data) {
-        if(dataStore.ContainsKey(id)) {
-            dataStore[id] = data;
-            dataTypes[id] = data.GetType();
-            dataTimestamps[id] = DateTime.Now;
-
-            Console.WriteLine($"[Data] Updated data: {id}");
-        } else {
-            RegisterData(id, data);
-        }
-    }
-
-    /**
-     * 
-     * Clear
-     *
-     */
-    // Clear All Data
-    public static void ClearAllData() {
-        dataStore.Clear();
-        dataTypes.Clear();
-        dataTimestamps.Clear();
-    }
-
-    /**
-     * 
-     * Remove Data
-     *
-     */
-    public static bool RemoveData(string id) {
-        bool removed = dataStore.TryRemove(id, out _);
-        dataTypes.TryRemove(id, out _);
-        dataTimestamps.TryRemove(id, out _);
-        return removed;
     }
 }
