@@ -24,20 +24,5 @@ class ServerPlayerData : PacketHandler {
         var packet = Packet.deserialize<PacketData>(json);
         if(packet == null) return;
 
-        var snapshot = packet.toSnapshot();
-
-        foreach(var entry in snapshot.get(DataType.PLAYER)) {
-            string? id = entry["id"] as string;
-            if(id == null) continue;
-            if(server.players.TryGetValue(id, out var player)) {
-                player.x = Convert.ToSingle(entry["x"]);
-                player.y = Convert.ToSingle(entry["y"]);
-                player.z = Convert.ToSingle(entry["z"]);
-                player.yaw = Convert.ToSingle(entry["yaw"]);
-                player.pitch = Convert.ToSingle(entry["pitch"]);
-                if(entry.TryGetValue("username", out var u) && u is string username) player.username = username;
-                player.updatePing();
-            }
-        }
     }
 }

@@ -68,8 +68,8 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
 
     private static readonly string DATA_FILE = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "world/entity/MeshEntity.lua");
     
-	private string const DATA_TYPE = "mesh";
-	private int const ENTITY_TYPE = 1;
+	private const string DATA_TYPE = "mesh";
+	private const int ENTITY_TYPE = 1;
     
 	private Tick tick;
     private Mesh mesh;

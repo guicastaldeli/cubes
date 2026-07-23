@@ -25,7 +25,6 @@ class Client {
     private Thread? receiveThread;
     private Thread? pingThread;
 
-    public ConcurrentQueue<DataSnapshot> incomingData = new();
     private bool running = false;
 
     private PacketReassember reassember = new PacketReassember();

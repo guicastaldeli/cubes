@@ -1,12 +1,11 @@
 namespace App.Root.Mesh;
 using App.Root.Player;
 using App.Root.Shaders;
+using App.Root.Resource;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
-using App.Root.Resource;
-using App.Root.Chunk;
 
-class MeshRenderer : DataEntry {
+class MeshRenderer {
     private Window window;
     private ShaderProgram shaderProgram;
     private Mesh mesh;
@@ -1180,48 +1179,5 @@ class MeshRenderer : DataEntry {
                 cachedInstanceScales
             );
         }
-    }
-
-    /**
-    
-        Data Entry
-    
-        */ 
-    public void setId(string id) {
-        this.id = id;
-        
-        Data.Register(Root.DataType.MESH, this);
-        ServerSnapshot.getInstance().register(Root.DataType.MESH, this);
-    }
-
-    public string getId() {
-        return id;
-    }
-
-    public Dictionary<string, object> serialize() {
-        var dict = new Dictionary<string, object> {
-            ["id"] = id,
-            ["meshType"] = meshType,
-            ["x"] = position.X,
-            ["y"] = position.Y,
-            ["z"] = position.Z,
-            ["texId"] = texId,
-            ["texPath"] = texPath,
-            ["isInstanced"] = isInstanced,
-            ["r00"] = rotationMatrix.M11, ["r01"] = rotationMatrix.M12, ["r02"] = rotationMatrix.M13,
-            ["r10"] = rotationMatrix.M21, ["r11"] = rotationMatrix.M22, ["r12"] = rotationMatrix.M23,
-            ["r20"] = rotationMatrix.M31, ["r21"] = rotationMatrix.M32, ["r22"] = rotationMatrix.M33
-        };
-        if(isInstanced && cachedInstancePositions.Count > 0) {
-            dict["instancePositions"] = cachedInstancePositions.Select(p => 
-                new Dictionary<string, object> {
-                    ["x"] = p.X, 
-                    ["y"] = p.Y, 
-                    ["z"] = p.Z
-                }
-            ).ToList();
-        }
-
-        return dict;
     }
 }

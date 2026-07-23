@@ -12,7 +12,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using App.Root.Chunk;
 
 [ManagedState]
-class PlayerController : DataEntry {
+class PlayerController {
     /**
      * 
      * Movement Direction
@@ -112,8 +112,6 @@ class PlayerController : DataEntry {
         this.playerInput = new PlayerInput(input, this);
         this.rigidBody = new RigidBody(position, size);
         this.playerMesh = new PlayerMesh(window, camera, this, mesh);
-
-        Data.Register(DataType.PLAYER, this);
 
         this.networkPlayer = new NetworkPlayer(this);
 
@@ -461,29 +459,5 @@ class PlayerController : DataEntry {
         foreach(var dir in Enum.GetValues<MoveDir>()) {
             updatePosition(dir);
         }
-    }
-
-    /**
-    
-        Data Entry
-
-        */
-    public static string getId() {
-        if(instance != null && instance.id != null) {
-            return instance.id;
-        }
-        return "";
-    }
-
-    public Dictionary<string, object> serialize() {
-        return new Dictionary<string, object> {
-            ["id"] = network?.userId ?? InfoController.UserId,
-            ["username"] = InfoController.Username,
-            ["x"] = position.X,
-            ["y"] = position.Y,
-            ["z"] = position.Z,
-            ["yaw"] = camera.getYaw(),
-            ["pitch"] = camera.getPitch()
-        };
     }
 }

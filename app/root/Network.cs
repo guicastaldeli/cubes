@@ -5,7 +5,6 @@ using App.Root.Packets;
 class Network {
     private Server server = null!;
     private Client client = null!;
-    private DataSnapshot? cachedSnapshot = null;
 
     public static IP IP { get { return IP.Instance; } }
     public static Port Port { get { return Port.Instance; } }
@@ -23,30 +22,6 @@ class Network {
     public Client getClient() {
         return client;
     }   
-
-    // Poll
-    public DataSnapshot? pollData() {
-        if(!isConnected) return null;
-        client.incomingData.TryDequeue(out var snapshot);
-        return snapshot;
-    }
-
-    public void pollAndCache() {
-        if(!isConnected) return;
-
-        DataSnapshot? latest = null;
-        DataSnapshot? s;
-        while(client.incomingData.TryDequeue(out s)) {
-            latest = s;
-        }
-        
-        cachedSnapshot = latest;
-    }
-
-    // Cached Snapshot
-    public DataSnapshot? getCachedSnapshot() {
-        return cachedSnapshot;
-    }
 
     // Is Host
     public bool isHost() {
@@ -99,16 +74,5 @@ class Network {
     ) {
         if(client == null) return;
 
-        var snapshot = new DataSnapshot();
-        snapshot.data[DataType.PLAYER] = new List<Dictionary<string, object>> {
-            new() {
-                ["id"] = userId ?? "",
-                ["username"] = username ?? "",
-                ["x"] = x, ["y"] = y, ["z"] = z,
-                ["yaw"] = yaw, ["pitch"] = pitch
-            }
-        };
-        
-        client.send(PacketData.fromSnapshot(snapshot));
     }
 }

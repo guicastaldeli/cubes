@@ -107,7 +107,7 @@ public static class DataInput {
         if(extractors.TryGetValue(id, out var extractor)) {
             try {
                 var data = extractor();
-                if(data != null) Data.UpdateData(id, data);
+                if(data != null) Data.Update(id, data);
                 Console.WriteLine($"[DataInput] Reloaded data: {id}");
             } catch(Exception err) {
                 Console.WriteLine($"[DataInput] Error reloading {id}: {err.Message}");

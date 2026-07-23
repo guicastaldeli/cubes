@@ -1,7 +1,7 @@
 namespace App.Root.Player;
 using System.Net;
 
-class ServerPlayer : DataEntry {
+class ServerPlayer {
     public static int SERVER_MAX_PLAYERS = 15;
     
     public string id {
@@ -60,22 +60,5 @@ class ServerPlayer : DataEntry {
         long time = 5000;
         bool date = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastPing > time;
         return date;
-    }
-
-    /**
-    
-        Data Entry
-
-        */
-    public Dictionary<string, object> serialize() {
-        return new Dictionary<string, object> {
-            ["id"] = id,
-            ["username"] = username,
-            ["x"] = x,
-            ["y"] = y,
-            ["z"] = z,
-            ["yaw"] = yaw,
-            ["pitch"] = pitch
-        };
     }
 }
