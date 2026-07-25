@@ -1,4 +1,6 @@
 namespace App.Root.Screen.Main.Client;
+
+using App.Root.Input;
 using App.Root.Screen.Main.Server;
 using App.Root.Utils;
 
@@ -26,12 +28,25 @@ class ClientDialog : MainScreenHandler {
     // Handle Action
     public override void handleAction(string action) {
         switch(action) {
-            case "start":
-                clientDialogAction.start();
+            case "create_save":
+                clientDialogAction.createSave();
+                break;
+            case "delete_save":
+                clientDialogAction.deleteSave();
                 break;
             case "back":
                 clientDialogAction.back();
                 break;
+        }
+        
+        var typeName = GlobalInputHandler.FindTypeFromAction(action);
+        if(typeName != null) {
+            var (_, id) = ActionConverter.Convert(action);
+            if(id.HasValue) {
+                GlobalInputHandler.HandleByType(typeName, id.Value);
+                updateSaveList();
+                return;
+            }
         }
     }
 

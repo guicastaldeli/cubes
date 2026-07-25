@@ -1,12 +1,14 @@
 namespace App.Root.Save;
+using App.Root.Utils;
 
+[ActionConverter]
 public static class SaveManager {
     private static string currentSaveName = "";
     private static string currentSavePath = "";
 
     private static bool initialized = false;
 
-    // Get ALl Saves
+    // Get All Saves
     public static List<SaveFile> GetAllSaves() {
         List<SaveFile> val = SaveLoader.GetAllSaves();
         return val;
