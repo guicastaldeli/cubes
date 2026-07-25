@@ -38,6 +38,7 @@
         background="0.1,0.1,0.1,0.9" 
         visible="false"
     >
+        <!-- Cancel -->
         <div 
             id="save-name-cancel" 
             x="89%" y="0%" 
@@ -56,6 +57,7 @@
             </label>
         </div>
 
+        <!-- Save Name -->
         <label
             id="save-name-label" 
             x="2%" y="0%"
@@ -73,6 +75,7 @@
             scale="0.4"
         />
 
+        <!-- Confirm -->
         <div
             id="save-name-confirm" 
             x="78%" y="0%" 
@@ -90,5 +93,107 @@
                 Confirm
             </label>
         </div>
+    </div>
+
+    <!-- Saves List -->
+    <div
+        id="saves-list"
+        x="5%" y="22%" 
+        width="90%" height="70%" 
+        background="0.05,0.05,0.05,0.5"
+        overflow="scroll"
+    >
+        {#if Saves.GetAllSaves().Count > 0}
+            {#foreach Saves.GetAllSaves() as save}
+                <div
+                    id="save-entry-{save.SaveName}"
+                    x="0%" y="{index * 12}%"
+                    width="100%" height="10%" 
+                    background="0.1,0.1,0.15,0.9" 
+                    hoverable="true" 
+                    hoverBackground="0.15,0.15,0.25,0.9"
+                    margin="2px"
+                >
+                    <!-- Save Content -->
+                        <!-- Save Name -->
+                        <label
+                            id="save-name-{save.SaveName}"
+                            x="5%" y="0%"
+                            color="1,1,1,1"
+                            scale="0.5"
+                        >
+                            {save.SaveName}
+                        </label>
+
+                        <!-- Last Played -->
+                        <label
+                            id="save-last-played-{save.LastPlayed}"
+                            x="5%" y="0%"
+                            color="1,1,1,1"
+                            scale="0.5"
+                        >
+                            Last Played {save.LastPlayed}
+                        </label>
+
+                        <!-- Play Time -->
+                        <label
+                            id="save-play-time-{save.SaveName}"
+                            x="5%" y="0%"
+                            color="1,1,1,1"
+                            scale="0.5"
+                        >
+                            Last Played {save.LastPlayed}
+                        </label>
+
+                    <!-- Actions -->
+                        <!-- Load -->
+                        <div 
+                            id="load-{save.SaveName}" 
+                            x="55%" y="0%" 
+                            width="15%" height="100%" 
+                            background="0.2,0.5,0.2,0.9" 
+                            hoverable="true" 
+                            hoverBackground="0.3,0.7,0.3,0.9"
+                            action="load-save:{save.SaveName}"
+                        >
+                            <label 
+                                x="0%" y="0%" 
+                                color="1,1,1,1" 
+                                scale="0.35"
+                            >
+                                Load
+                            </label>
+                        </div>
+
+                        <!-- Delete -->
+                        <div 
+                            id="delete-{save.SaveName}" 
+                            x="72%" y="0%" 
+                            width="15%" height="100%" 
+                            background="0.5,0.2,0.2,0.9" 
+                            hoverable="true" 
+                            hoverBackground="0.7,0.3,0.3,0.9"
+                            action="delete-save:{save.SaveName}"
+                        >
+                            <label 
+                                x="0%" y="0%" 
+                                color="1,1,1,1" 
+                                scale="0.35"
+                            >
+                                Delete
+                            </label>
+                        </div>
+                </div>
+            {#endfor}
+        {#else}
+            <label 
+                id="no_saves_label" 
+                x="0%" y="0%"  
+                color="0.5,0.5,0.5,1" 
+                scale="0.4"
+            >
+                No saves found. Create a new save!
+            </label>
+        {#endif}
     </div>
 </saves>
