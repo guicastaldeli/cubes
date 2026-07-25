@@ -12,6 +12,17 @@ public static class GenerateSave {
         return "default"; // TODO: New World_1, _2 etc...   
     }
 
+    // Is Valid Save Name
+    public static bool IsValidSaveName(string saveName) {
+        if(string.IsNullOrEmpty(saveName)) return false;
+
+        var invalidChars = Path.GetInvalidFileNameChars();
+        
+        bool val = !saveName.Any(c => invalidChars.Contains(c));
+        if(!val) throw new ArgumentException("Save name contains invalid chars!");
+        return val;
+    }
+
     // Create Manifest
     private static void CreateManifest(string saveFolder, string saveName) {
         var manifest = new {
@@ -56,8 +67,9 @@ public static class GenerateSave {
     public static string CreateSave(string saveName) {
         if(string.IsNullOrEmpty(saveName)) throw new ArgumentException("Save name cannot be empty!");
 
-        var invalidChars = Path.GetInvalidPathChars();
-        if(saveName.Any(c => invalidChars.Contains(c))) throw new ArgumentException("Save name contains invalid chars!");
+        string meta = M.SAVE_META;
+
+        IsValidSaveName(saveName);
 
         string saveFolder = Path.Combine(SAVES_DIR, saveName);
         if(Directory.Exists(saveFolder)) throw new InvalidOperationException($"Save '{saveName}' already exists!");
@@ -69,12 +81,12 @@ public static class GenerateSave {
 
         var saveFile = new SaveFile(saveName);
         Data.RegisterStoreData(saveFile);
-        Data.RegisterData(SaveFile.SAVE_META, saveFile);
+        Data.RegisterData(meta, saveFile);
 
         DataOutput.SetSavePath(saveFolder);
 
         DataOutput.SaveAll();
-        SaveStoreDataToFolder(saveFolder);
+        SaveStoreDataToFolder(saveFolder, meta);
         CreateManifest(saveFolder, saveName);
 
         Console.ForegroundColor = ConsoleColor.Blue;
