@@ -30,6 +30,11 @@ public class SaveFile {
         this.PlayerName = InfoController.Username ?? "";
     }
 
+    // Update Last Played
+    public void UpdateLastPlayed() {
+        LastPlayed = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    }
+
     /**
      *
      * Extract Data

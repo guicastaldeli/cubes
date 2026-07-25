@@ -24,7 +24,7 @@ public static class GenerateSave {
     }
 
     // Create Manifest
-    private static void CreateManifest(string saveFolder, string saveName) {
+    public static void CreateManifest(string saveFolder, string saveName) {
         var manifest = new {
             save_name = saveName,
             created_at = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -40,7 +40,7 @@ public static class GenerateSave {
     }
  
     // Save Store Data to Folder
-    private static void SaveStoreDataToFolder(string saveFolder, string meta) {
+    public static void SaveStoreDataToFolder(string saveFolder, string meta) {
         var ids = Data.GetAllStoreDataIds();
         foreach(var id in ids) {
             if(id == meta) continue;
