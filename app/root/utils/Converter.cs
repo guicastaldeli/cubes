@@ -36,9 +36,7 @@ public class ConverterKey : Attribute {
     */
 public static class Converter {
     /**
-     * 
      * To Int
-     *
      */
     [ConverterKey("int32")]
     public static int ToInt32(object i) {
@@ -47,9 +45,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Float
-     *
      */
     [ConverterKey("float")]
     public static float ToFloat(object f) {
@@ -58,9 +54,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Double
-     *
      */
     [ConverterKey("double")]
     public static double ToDouble(object d) {
@@ -69,9 +63,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Bool
-     *
      */
     [ConverterKey("bool")]
     public static bool ToBool(object b) {
@@ -80,9 +72,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To String
-     *
      */
     [ConverterKey("string")]
     public static string ToString(object s) {
@@ -91,9 +81,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Long
-     *
      */
     [ConverterKey("int64")]
     public static long ToInt64(object l) {
@@ -102,9 +90,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Decimal
-     *
      */
     [ConverterKey("decimal")]
     public static decimal ToDecimal(object d) {
@@ -113,9 +99,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Byte
-     *
      */
     [ConverterKey("byte")]
     public static byte ToByte(object b) {
@@ -124,9 +108,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Char
-     *
      */
     [ConverterKey("char")]
     public static char ToChar(object c) {
@@ -135,9 +117,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To DateTime
-     *
      */
     [ConverterKey("dateTime")]
     public static DateTime ToDateTime(object dt) {
@@ -146,9 +126,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Rgba
-     *
      */
     [ConverterKey("rgba")]
     public static float[] ToRgba(string hex) {
@@ -160,9 +138,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Rgba List
-     *
      */
     [ConverterKey("rgbaList")]
     public static List<float[]> ToRgbaList(string hex, int count) {
@@ -175,9 +151,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Rotation List
-     *
      */
     [ConverterKey("rotationList")]
     public static List<float> ToRotationList(float rotation, int count) {
@@ -186,9 +160,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Texture
-     *
      */
     // Tex Path
     [ConverterKey("texPath")]
@@ -207,9 +179,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Data
-     *
      */
     [ConverterKey("data")]
     public static object? ToData(object? input, Type targetType) {
@@ -226,9 +196,7 @@ public static class Converter {
     }
 
     /**
-     * 
      * To Vec3
-     *
      */
     [ConverterKey("vec3")]
     public static Vector3 ToVec3(string val) {
