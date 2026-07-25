@@ -1,7 +1,6 @@
+namespace App.Root.Save;
 using App.Root.Info;
 using App.Root.Utils;
-
-namespace App.Root.Save;
 
 public static class M {
     public const string SAVE_META = "SV_ST.info.meta";
@@ -15,7 +14,7 @@ public class SaveFile {
     [StoreField("created_at")] [Convert("string")] [ConverterKey("created_at")] public string CreatedAt { get; set; } = "";
     [StoreField("last_played")] [Convert("string")] [ConverterKey("last_played")] public string LastPlayed { get; set; } = "";
     [StoreField("version")] [Convert("string")] [ConverterKey("version")] public string Version { get; set; } = "";
-    [StoreField("play_time")] [Convert("string")] [ConverterKey("play_time")] public string PlayTime { get; set; } = "";
+    [StoreField("play_time")] [Convert("string")] [ConverterKey("play_time")] public float PlayTime { get; set; } = 0.0f;
     
     [StoreField("player_id")] [Convert("string")] [ConverterKey("player_id")] public string PlayerId { get; set; } = "";
     [StoreField("player_name")] [Convert("string")] [ConverterKey("player_name")] public string PlayerName { get; set; } = "";
