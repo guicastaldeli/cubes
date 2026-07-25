@@ -1,41 +1,51 @@
-using System.Text.Json;
-using App.Root.Info;
-
 namespace App.Root.Save;
+using App.Root.Info;
+using System.Text.Json;
 
 public static class GenerateSave {
     private static string SAVES_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "saves");
 
-    // Get All Saves
-    public static List<string> GetAllSaves() {
-        if(!Directory.Exists(SAVES_DIR)) return new List<string>();
+    private static string Json(string id) { return $"{id}.json"; }
 
-        List<string> val = Directory.GetDirectories(SAVES_DIR)
-            .Select(Path.GetFileName)
-            .Where(name => !string.IsNullOrEmpty(name))
-            .ToList()!;
-        return val;
+    // Generate Default Save Name
+    public static string GenerateDefaultSaveName() {
+        return "default"; // TODO: New World_1, _2 etc...   
     }
 
-    // Save Exists
-    public static bool SaveExists(string saveName) {
-        string saveFolder = Path.Combine(SAVES_DIR, saveName);
-        
-        bool val = Directory.Exists(saveFolder);
-        return val;
-    }
-    
     // Create Manifest
     private static void CreateManifest(string saveFolder, string saveName) {
         var manifest = new {
             save_name = saveName,
             created_at = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            version = "1.1.1",
             files = Directory.GetFiles(saveFolder).Select(Path.GetFileName).ToList()
         };
 
         string manifestPath = Path.Combine(saveFolder, "manifest.json");
-        var json = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(manifestPath, json);
+        var data = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(manifestPath, data);
+
+        Console.WriteLine($"[SaveGenerator] Created manifest: {manifestPath}");
+    }
+ 
+    // Save Store Data to Folder
+    private static void SaveStoreDataToFolder(string saveFolder, string meta) {
+        var ids = Data.GetAllStoreDataIds();
+        foreach(var id in ids) {
+            if(id == meta) continue;
+
+            var obj = Data.GetData(id);
+            if(obj == null) return;
+
+            var serialized = Data.SerializeStoreData(obj);
+            if(serialized != null) {
+                string filePath = Path.Combine(saveFolder, Json(id));
+                var data = JsonSerializer.Serialize(serialized, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(filePath, data);
+
+                Console.WriteLine($"[SaveGenerator] Saved StoreData {id} to {filePath}");
+            }
+        }
     }
 
     /**
@@ -44,27 +54,32 @@ public static class GenerateSave {
      *
      */
     public static string CreateSave(string saveName) {
+        if(string.IsNullOrEmpty(saveName)) throw new ArgumentException("Save name cannot be empty!");
+
+        var invalidChars = Path.GetInvalidPathChars();
+        if(saveName.Any(c => invalidChars.Contains(c))) throw new ArgumentException("Save name contains invalid chars!");
+
         string saveFolder = Path.Combine(SAVES_DIR, saveName);
-        if(Directory.Exists(saveFolder)) {
-            Console.WriteLine($"[GenerateSave] Save '{saveName}' already exists!");
-            return saveFolder;
-        }
+        if(Directory.Exists(saveFolder)) throw new InvalidOperationException($"Save '{saveName}' already exists!");
 
         Directory.CreateDirectory(saveFolder);
-        Console.WriteLine($"[GenerateSave] Created save folder: {saveFolder}");
-    
-        var saveInfo = new SaveFile {
-            SaveName = saveName,
-            CreatedAt = DateTime.Now,
-            LastPlayed = DateTime.Now,
-            PlayerId = InfoController.UserId
-        };
+        Console.ForegroundColor = ConsoleColor.DarkBlue;
+        Console.WriteLine($"[SaveGenerator] Created save folder: {saveFolder}");
+        Console.ResetColor();
 
-        SaveManager.Save(saveInfo, saveFolder);
+        var saveFile = new SaveFile(saveName);
+        Data.RegisterStoreData(saveFile);
+        Data.RegisterData(SaveFile.SAVE_META, saveFile);
+
+        DataOutput.SetSavePath(saveFolder);
+
         DataOutput.SaveAll();
-
+        SaveStoreDataToFolder(saveFolder);
         CreateManifest(saveFolder, saveName);
-        Console.WriteLine($"[GenerateSave] Save '{saveName}' created successfully!");
+
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine($"[SaveGenerator] Save '{saveName}' created successfully!");
+        Console.ResetColor();
         return saveFolder;
     }
 }

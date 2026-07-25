@@ -52,6 +52,14 @@ public static class DataOutput {
             this.Id = Id;
             this.Path = DPath.Combine(PATH_DIR, Path);
         }
+
+        // Get Full Path
+        public string GetFullPath() {
+            string basePath = GetCurrentSavePath();
+            
+            string val = DPath.Combine(basePath, Path);
+            return val;
+        }
     }
 
     /**
@@ -60,6 +68,7 @@ public static class DataOutput {
      *
      */
     private static Dictionary<string, DataOutputInfo> outputRegistry = new();
+    private static string? currentSavePath = null;
 
     private static bool initialized = false;
 
@@ -73,7 +82,7 @@ public static class DataOutput {
     public static bool HasSavedData(string id) {
         if(!outputRegistry.TryGetValue(id, out var info)) return false;
 
-        string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, info.Path);
+        string fullPath = info.GetFullPath();
         if(!File.Exists(fullPath)) return false;
 
         try {
@@ -87,6 +96,18 @@ public static class DataOutput {
         }
     }
 
+    // Set Save Path
+    public static void SetSavePath(string savePath) {
+        currentSavePath = savePath;
+        Console.WriteLine($"[DataOutput] Save path set to: {savePath}");
+    }
+
+    // Get Current Save Path
+    public static string GetCurrentSavePath() {
+        string val = currentSavePath ?? "err";
+        return val;
+    }
+ 
     /**
      *
      * Save
@@ -117,7 +138,7 @@ public static class DataOutput {
 
     // Save Data
     public static void SaveData(DataOutputInfo info, object data) {
-        string path = info.Path;
+        string path = info.GetFullPath();
         string? directory = DPath.GetDirectoryName(path);
         if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
@@ -295,7 +316,7 @@ public static class DataOutput {
             return;
         }
 
-        string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, info.Path);
+        string fullPath = info.GetFullPath();
         if(!File.Exists(fullPath)) {
             Console.WriteLine($"[DataOutput] File not found: {fullPath}");
             return;

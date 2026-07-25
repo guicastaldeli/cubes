@@ -29,4 +29,6 @@ public class SaveFile {
     [SaveField("last_played")] public DateTime LastPlayed { get; set; } = DateTime.Now;
     [SaveField("play_time")] public float PlayTime { get; set; } = 0.0f;
     [SaveField("player_id")] public string PlayerId { get; set; } = ""; 
+
+    public const string SAVE_META = "SV_ST.info.meta";
 }
