@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 
 namespace App.Root.Save;
@@ -19,12 +20,72 @@ public static class SaveLoader {
         public bool IsCorrupted { get; set; } = false;
     }
 
+    // Get All Saves
+    public static List<SaveFile> GetAllSaves() {
+        var saves = new List<SaveFile>();
+        if(!Directory.Exists(GenerateSave.SAVES_DIR)) return saves;
+
+        foreach(var dir in Directory.GetDirectories(GenerateSave.SAVES_DIR)) {
+            string saveName = Path.GetFileName(dir);
+            string metaPath = Path.Combine(dir, M.SAVE_META_JSON);
+
+            if(File.Exists(metaPath)) {
+                try {
+                    var json = File.ReadAllText(metaPath);
+                    var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                    if(data != null) {
+                        if(data != null) {
+                            var saveFile = new SaveFile();
+                            Data.DeserializeStoreData(saveFile, data);
+                            saves.Add(saveFile);
+                        }
+                    }
+                } catch(Exception err) {
+                    Console.WriteLine($"Skipped: {err}");
+                }
+            }
+        }
+
+        List<SaveFile> val = saves.OrderByDescending(s => s.LastPlayed).ToList();
+        return val;
+    }
+
+    // Get Save Names
+    public static List<string> GetSaveNames() {
+        string savesDir = GenerateSave.SAVES_DIR;
+        if(!Directory.Exists(savesDir)) return new List<string>();
+
+        List<string> val = Directory.GetDirectories(savesDir)
+            .Select(Path.GetFileName)
+            .Where(name => !string.IsNullOrEmpty(name))
+            .ToList()!;
+        return val;
+    }
+    
+    // Save Exists
+    public static bool SaveExists(string saveName) {
+        string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveName);
+        
+        bool val = Directory.Exists(saveFolder);
+        return val;
+    }
+
+    // Get Save Size
+    public static long GetSaveSize(string saveName) {
+        string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveName);
+        if(!Directory.Exists(saveFolder)) return 0;
+
+        long val = Directory.GetFiles(saveFolder, "*", SearchOption.AllDirectories).Sum(f => new FileInfo(f).Length);
+        return val;
+    }
+
     /**
      *
-     * Load Save
+     * Load
      *
      */
-    public static LoadResultInfo LoadSave(string saveName) {
+    // Load
+    public static LoadResultInfo Load(string saveName) {
         string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveName);
         var result = new LoadResultInfo {
             Result = LoadResult.Success,
@@ -68,7 +129,7 @@ public static class SaveLoader {
         DataOutput.SetSavePath(saveFolder);
         try {
             DataOutput.LoadAll();
-            LoadStoreFromFolder(saveFolder);
+            LoadStoreDataFromFolder(saveFolder);
             DataInput.LoadAll();
 
             Console.WriteLine($"[SaveLoader] Loaded save: {saveName}");
@@ -81,5 +142,55 @@ public static class SaveLoader {
         }
 
         return result;
+    }
+
+    // Load Store Data From Folder
+    public static void LoadStoreDataFromFolder(string saveFolder) {
+        var jsonFiles = Directory.GetFiles(saveFolder, "*.json");
+        foreach(var file in jsonFiles) {
+            string manifest = GenerateSave.ManifestPath(saveFolder);
+            string meta = M.SAVE_META_JSON;
+
+            string fileName = Path.GetFileName(file);
+            if(fileName == manifest || fileName == meta) continue;
+
+            try {
+                string id = Path.GetFileNameWithoutExtension(file);
+
+                var json = File.ReadAllText(file);
+                var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                if(data == null) continue;
+
+                var obj = Data.GetData(id);
+                if(obj != null) {
+                    Data.DeserializeStoreData(obj, data);
+                    Console.WriteLine($"[SaveLoader] Restored StoreData {id}");
+                }
+            } catch(Exception ex) {
+                Console.WriteLine($"[SaveLoader] Error loading {file}: {ex.Message}");
+            }
+        }
+    } 
+
+    /**
+     *
+     * Delete
+     *
+     */
+    public static bool Delete(string saveName) {
+        string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveName);
+        if(!Directory.Exists(saveFolder)) return false;
+
+        try {
+            Directory.Delete(saveFolder, true);
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine($"[SaveLoader] Deleted save: {saveName}");
+            Console.ResetColor();
+            
+            return true;
+        } catch(Exception ex) {
+            Console.WriteLine($"[SaveLoader] Error deleting save: {ex.Message}");
+            return false;
+        }
     }
 }
