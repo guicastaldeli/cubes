@@ -1,11 +1,11 @@
 namespace App.Root.Save;
-using App.Root.Info;
 using System.Text.Json;
 
 public static class GenerateSave {
-    private static string SAVES_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "saves");
+    public static string SAVES_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "saves");
 
     private static string Json(string id) { return $"{id}.json"; }
+    public static string ManifestPath(string saveFolder) { return Path.Combine(saveFolder, "manifest.json"); }
 
     // Generate Default Save Name
     public static string GenerateDefaultSaveName() {
@@ -32,7 +32,7 @@ public static class GenerateSave {
             files = Directory.GetFiles(saveFolder).Select(Path.GetFileName).ToList()
         };
 
-        string manifestPath = Path.Combine(saveFolder, "manifest.json");
+        string manifestPath = ManifestPath(saveFolder);
         var data = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(manifestPath, data);
 
@@ -67,8 +67,6 @@ public static class GenerateSave {
     public static string CreateSave(string saveName) {
         if(string.IsNullOrEmpty(saveName)) throw new ArgumentException("Save name cannot be empty!");
 
-        string meta = M.SAVE_META;
-
         IsValidSaveName(saveName);
 
         string saveFolder = Path.Combine(SAVES_DIR, saveName);
@@ -79,7 +77,8 @@ public static class GenerateSave {
         Console.WriteLine($"[SaveGenerator] Created save folder: {saveFolder}");
         Console.ResetColor();
 
-        var saveFile = new SaveFile(saveName);
+        SaveFile saveFile = new SaveFile(saveName);
+        string meta = M.SAVE_META;
         Data.RegisterStoreData(saveFile);
         Data.RegisterData(meta, saveFile);
 
