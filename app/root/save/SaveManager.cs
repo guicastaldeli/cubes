@@ -3,7 +3,7 @@ using App.Root.Utils;
 
 [ActionConverter]
 public static class SaveManager {
-    private static string currentSaveName = "";
+    private static string currentSaveId = "";
     private static string currentSavePath = "";
 
     private static bool initialized = false;
@@ -15,8 +15,8 @@ public static class SaveManager {
     }
 
     // Get Save Names
-    public static List<string> GetSaveNames() {
-        List<string> val = SaveLoader.GetSaveNames();
+    public static SaveFile GetSave(string saveId) {
+        SaveFile val = GetSaveById(saveId);
         return val;
     }
 

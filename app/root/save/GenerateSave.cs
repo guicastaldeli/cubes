@@ -24,11 +24,12 @@ public static class GenerateSave {
     }
 
     // Create Manifest
-    public static void CreateManifest(string saveFolder, string saveName) {
+    public static void CreateManifest(string saveFolder, SaveFile saveFile) {
         var manifest = new {
-            save_name = saveName,
-            created_at = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-            version = "1.1.1",
+            save_id = saveFile.SaveId,
+            save_name = saveFile.SaveName,
+            created_at = saveFile.CreatedAt,
+            version = saveFile.Version,
             files = Directory.GetFiles(saveFolder).Select(Path.GetFileName).ToList()
         };
 
@@ -64,33 +65,34 @@ public static class GenerateSave {
      * Create Save
      *
      */
-    public static string CreateSave(string saveName) {
+    public static SaveFile CreateSave(string saveName) {
         if(string.IsNullOrEmpty(saveName)) throw new ArgumentException("Save name cannot be empty!");
-
         IsValidSaveName(saveName);
 
+        SaveFile saveFile = new SaveFile(saveName);
+        string saveId = saveFile.SaveId;
         string saveFolder = Path.Combine(SAVES_DIR, saveName);
+
         if(Directory.Exists(saveFolder)) throw new InvalidOperationException($"Save '{saveName}' already exists!");
 
         Directory.CreateDirectory(saveFolder);
         Console.ForegroundColor = ConsoleColor.DarkBlue;
-        Console.WriteLine($"[SaveGenerator] Created save folder: {saveFolder}");
+        Console.WriteLine($"[SaveGenerator] Created save folder: {saveFolder}; ID: {saveId}, Name: {saveName}");
         Console.ResetColor();
 
-        SaveFile saveFile = new SaveFile(saveName);
         string meta = M.SAVE_META;
         Data.RegisterStoreData(saveFile);
         Data.RegisterData(meta, saveFile);
 
         DataOutput.SetSavePath(saveFolder);
-
         DataOutput.SaveAll();
         SaveStoreDataToFolder(saveFolder, meta);
-        CreateManifest(saveFolder, saveName);
+
+        CreateManifest(saveFolder, saveFile);
 
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.WriteLine($"[SaveGenerator] Save '{saveName}' created successfully!");
         Console.ResetColor();
-        return saveFolder;
+        return saveFile;
     }
 }

@@ -1,9 +1,10 @@
-using System.Net;
+namespace App.Root.Save;
 using System.Text.Json;
 
-namespace App.Root.Save;
-
 public static class SaveLoader {
+    private static string SaveId { get { return "save_id"; } }
+    private static string SaveName { get { return "save_name"; } }
+
     public enum LoadResult {
         Success,
         NotFound,
@@ -15,7 +16,7 @@ public static class SaveLoader {
     public class LoadResultInfo {
         public LoadResult Result { get; set; }
         public string? Message { get; set; }
-        public string? SaveFolder { get; set; }
+        public string? Save { get; set; }
         public SaveFile? SaveInfo { get; set; }
         public bool IsCorrupted { get; set; } = false;
     }
@@ -34,11 +35,9 @@ public static class SaveLoader {
                     var json = File.ReadAllText(metaPath);
                     var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
                     if(data != null) {
-                        if(data != null) {
-                            var saveFile = new SaveFile();
-                            Data.DeserializeStoreData(saveFile, data);
-                            saves.Add(saveFile);
-                        }
+                        var saveFile = new SaveFile();
+                        Data.DeserializeStoreData(saveFile, data);
+                        saves.Add(saveFile);
                     }
                 } catch(Exception err) {
                     Console.WriteLine($"Skipped: {err}");
@@ -78,6 +77,83 @@ public static class SaveLoader {
         long val = Directory.GetFiles(saveFolder, "*", SearchOption.AllDirectories).Sum(f => new FileInfo(f).Length);
         return val;
     }
+    
+    // Get Save Name by Id
+    public static string? GetSaveNameById(string saveId) {
+        if(string.IsNullOrEmpty(saveId)) return null;
+        if(!Directory.Exists(GenerateSave.SAVES_DIR)) return null;
+
+        foreach(var dir in Directory.GetDirectories(GenerateSave.SAVES_DIR)) {
+            string metaPath = Path.Combine(dir, M.SAVE_META_JSON);
+            if(!File.Exists(metaPath)) continue;
+
+            try {
+                var json = File.ReadAllText(metaPath);
+                var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                if(data != null && data.TryGetValue(SaveId, out var obj)) {
+                    string id = obj.ToString() ?? "";
+                    if(id == saveId) {
+                        if(data.TryGetValue(SaveName, out var name)) {
+                            return name.ToString();
+                        }
+
+                        return Path.GetFileName(dir);
+                    }
+                }
+            } catch(Exception err) {
+                Console.WriteLine(err);
+            }
+        }
+
+        return null;
+    }
+
+    // Get Save Folder by Id
+    public static string? GetSaveFolderById(string saveId) {
+        if(string.IsNullOrEmpty(saveId)) return null;
+        if(!Directory.Exists(GenerateSave.SAVES_DIR)) return null;
+
+        foreach(var dir in Directory.GetDirectories(GenerateSave.SAVES_DIR)) {
+            string metaPath = Path.Combine(dir, M.SAVE_META_JSON);
+            if(!File.Exists(metaPath)) continue;
+
+            try {
+                var json = File.ReadAllText(metaPath);
+                var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                if(data != null && data.TryGetValue(SaveId, out var obj)) {
+                    string id = obj.ToString() ?? "";
+                    if(id == saveId) return dir;
+                }
+            } catch(Exception err) {
+                Console.WriteLine(err);
+            }
+        }
+
+        return null;
+    }
+
+    // Get Save File by Id
+    private static SaveFile? GetSaveFileById(string saveId) {
+        string? saveFolder = GetSaveFolderById(saveId);
+        if(string.IsNullOrEmpty(saveFolder)) return null;
+
+        string metaPath = Path.Combine(saveFolder, M.SAVE_META_JSON);
+        if(!File.Exists(metaPath)) return null;
+
+        try {
+            var json = File.ReadAllText(metaPath);
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+            if(data != null) {
+                var file = new SaveFile();
+                Data.DeserializeStoreData(file, data);
+                return file;
+            }
+        } catch(Exception err) {
+            Console.WriteLine(err);
+        }
+
+        return null;
+    }
 
     /**
      *
@@ -85,58 +161,66 @@ public static class SaveLoader {
      *
      */
     // Load
-    public static LoadResultInfo Load(string saveName) {
-        string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveName);
-        var result = new LoadResultInfo {
-            Result = LoadResult.Success,
-            SaveFolder = saveFolder
-        };
-
-        if(!Directory.Exists(saveFolder)) {
+    public static LoadResultInfo Load(string saveId) {
+        var result = new LoadResultInfo();
+        
+        string? save = GetSaveFolderById(saveId);
+        string? saveName = GetSaveNameById(saveId);
+        if(string.IsNullOrEmpty(save)) {
             result.Result = LoadResult.NotFound;
-            result.Message = $"Save '{saveName}' not found!";
+            result.Message = $"Save ID '{saveId}' not found!";
             return result;
         }
+        result.Save = save;
 
         Console.ForegroundColor = ConsoleColor.DarkYellow;
-        Console.WriteLine($"[SaveLoader] Loading save: {saveName}");
+        Console.WriteLine($"[SaveLoader] Loading Save... Name: {saveName} ; Id: {saveId}");
         Console.ResetColor();
 
-        string manifestPath = GenerateSave.ManifestPath(saveFolder);
-        if(!File.Exists(manifestPath)) {
+        string metaPath = Path.Combine(save, M.SAVE_META_JSON);
+        if(!File.Exists(metaPath)) {
             result.Result = LoadResult.MissingFiles;
-            result.Message = "Missing manifest.json!";
+            result.Message = "Missing meta";
             result.IsCorrupted = true;
             return result;
         }
 
         try {
-            string metaPath = Path.Combine(saveFolder, M.SAVE_META_JSON);
-            if(File.Exists(metaPath)) {
-                var json = File.ReadAllText(metaPath);
-                var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-                if(data != null) {
-                    var saveFile = new SaveFile();
-                    Data.DeserializeStoreData(saveFile, data);
-                    result.SaveInfo = saveFile;
-                }
+            var json = File.ReadAllText(metaPath);
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+            if(data != null) {
+                var file = new SaveFile();
+                Data.DeserializeStoreData(file, data);
+                result.SaveInfo = file;
+                Console.WriteLine($"[SaveLoader] Loading save: {file.SaveName} (ID: {saveId})");
             }
         } catch(Exception ex) {
-            Console.WriteLine($"[SaveLoader] Error loading save meta: {ex.Message}");
+            result.Result = LoadResult.Corrupt;
+            result.Message = $"Error loading meta: {ex.Message}";
             result.IsCorrupted = true;
+            return result;
         }
 
-        DataOutput.SetSavePath(saveFolder);
+        string manifestPath = GenerateSave.ManifestPath(save);
+        if(!File.Exists(manifestPath)) {
+            result.Result = LoadResult.MissingFiles;
+            result.Message = "Missing manifest meta";
+            result.IsCorrupted = true;
+            return result;
+        }
+
+        DataOutput.SetSavePath(save);
         try {
             DataOutput.LoadAll();
-            LoadStoreDataFromFolder(saveFolder);
+            LoadStoreDataFromFolder(save);
             DataInput.LoadAll();
 
-            Console.WriteLine($"[SaveLoader] Loaded save: {saveName}");
+            result.Result = LoadResult.Success;
             result.Message = "Save loaded successfully!";
+            Console.WriteLine($"[SaveLoader] Loaded save: {saveId}");
         } catch(Exception ex) {
             result.Result = LoadResult.Corrupt;
-            result.Message = $"Error loading save: {ex.Message}";
+            result.Message = $"Error loading data: {ex.Message}";
             result.IsCorrupted = true;
             Console.WriteLine($"[SaveLoader] Error: {ex.Message}");
         }
@@ -145,10 +229,10 @@ public static class SaveLoader {
     }
 
     // Load Store Data From Folder
-    public static void LoadStoreDataFromFolder(string saveFolder) {
-        var jsonFiles = Directory.GetFiles(saveFolder, "*.json");
+    public static void LoadStoreDataFromFolder(string save) {
+        var jsonFiles = Directory.GetFiles(save, "*.json");
         foreach(var file in jsonFiles) {
-            string manifest = GenerateSave.ManifestPath(saveFolder);
+            string manifest = GenerateSave.ManifestPath(save);
             string meta = M.SAVE_META_JSON;
 
             string fileName = Path.GetFileName(file);
@@ -177,16 +261,16 @@ public static class SaveLoader {
      * Delete
      *
      */
-    public static bool Delete(string saveName) {
-        string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveName);
-        if(!Directory.Exists(saveFolder)) return false;
+    public static bool Delete(string saveId) {
+        string? save = GetSaveFolderById(saveId);
+        if(string.IsNullOrEmpty(save)) return false;
 
         try {
-            Directory.Delete(saveFolder, true);
+            Directory.Delete(save, true);
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($"[SaveLoader] Deleted save: {saveName}");
+            Console.WriteLine($"[SaveLoader] Deleted save: {saveId}");
             Console.ResetColor();
-            
+
             return true;
         } catch(Exception ex) {
             Console.WriteLine($"[SaveLoader] Error deleting save: {ex.Message}");

@@ -10,6 +10,7 @@ public static class M {
 [StoreData(M.SAVE_META)]
 [DataOutput(Path: M.SAVE_META_JSON)]
 public class SaveFile {
+    [StoreField("save_name")] [Convert("string")] [ConverterKey("save_id")] public string SaveId { get; set; } = "";
     [StoreField("save_name")] [Convert("string")] [ConverterKey("save_name")] public string SaveName { get; set; } = "";
     [StoreField("created_at")] [Convert("string")] [ConverterKey("created_at")] public string CreatedAt { get; set; } = "";
     [StoreField("last_played")] [Convert("string")] [ConverterKey("last_played")] public string LastPlayed { get; set; } = "";
@@ -20,7 +21,8 @@ public class SaveFile {
     [StoreField("player_name")] [Convert("string")] [ConverterKey("player_name")] public string PlayerName { get; set; } = "";
 
     public SaveFile() {}
-    public SaveFile(string SaveName) {
+    public SaveFile(string SaveId, string SaveName) {
+        this.SaveId = SaveId;
         this.SaveName = SaveName;
         this.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         this.LastPlayed = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
