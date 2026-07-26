@@ -310,6 +310,7 @@ public static class DataOutput {
      * Load
      *
      */
+    // Load
     public static void Load(string id) {
         if(!outputRegistry.TryGetValue(id, out var info)) {
             Console.WriteLine($"[DataOutput] No registered output for {id}");
@@ -333,6 +334,20 @@ public static class DataOutput {
             }
         } catch(Exception err) {
             throw new Exception($"DataOutput -- Load {id} -- Error {err.Message}");
+        }
+    }
+
+    // Load All
+    public static void LoadAll() {
+        foreach(var id in outputRegistry.Keys) {
+            try {
+                if(HasSavedData(id)) {
+                    Load(id);
+                    Console.WriteLine($"[DataOutput] Loaded all data for: {id}");
+                }
+            } catch(Exception err) {
+                Console.WriteLine($"[DataOutput] Error loading {id}: {err.Message}");
+            }
         }
     }
 }

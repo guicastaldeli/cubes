@@ -2,9 +2,6 @@ namespace App.Root.Save;
 using System.Text.Json;
 
 public static class GenerateSave {
-    private static string Json(string id) { return $"{id}.json"; }
-    public static string ManifestPath(string saveFolder) { return Path.Combine(saveFolder, "manifest.json"); }
-
     // Generate Default Save Name
     public static string GenerateDefaultSaveName() {
         return "default"; // TODO: New World_1, _2 etc...   
@@ -31,7 +28,7 @@ public static class GenerateSave {
             files = Directory.GetFiles(saveFolder).Select(Path.GetFileName).ToList()
         };
 
-        string manifestPath = ManifestPath(saveFolder);
+        string manifestPath = SavePath.GetManifestPath(saveFolder);
         var data = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(manifestPath, data);
 
@@ -49,7 +46,7 @@ public static class GenerateSave {
 
             var serialized = Data.SerializeStoreData(obj);
             if(serialized != null) {
-                string filePath = Path.Combine(saveFolder, Json(id));
+                string filePath = Path.Combine(saveFolder, M.STORE_DATA(id));
                 var data = JsonSerializer.Serialize(serialized, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(filePath, data);
 
@@ -69,8 +66,8 @@ public static class GenerateSave {
         
         SaveFile saveFile = new SaveFile(saveName);
         string saveId = saveFile.SaveId;
-        string saveFolder = Path.Combine(SAVES_DIR, saveName);
-        if(Directory.Exists(saveFolder)) throw new InvalidOperationException($"Save '{saveName}' already exists!");
+        string saveFolder = SavePath.GetSaveFolder(saveName);
+        if(SavePath.SaveFolderExists(saveName)) throw new InvalidOperationException($"Save '{saveName}' already exists!");
 
         Directory.CreateDirectory(saveFolder);
         Console.ForegroundColor = ConsoleColor.DarkBlue;

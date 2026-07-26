@@ -21,12 +21,10 @@ public static class SaveLoader {
     // Get All Saves
     public static List<SaveFile> GetAllSaves() {
         var saves = new List<SaveFile>();
-        if(!Directory.Exists(GenerateSave.SAVES_DIR)) return saves;
+        if(!Directory.Exists(SavePath.SAVES_DIR)) return saves;
 
-        foreach(var dir in Directory.GetDirectories(GenerateSave.SAVES_DIR)) {
-            string saveName = Path.GetFileName(dir);
-            string metaPath = Path.Combine(dir, M.SAVE_META_JSON);
-
+        foreach(var dir in Directory.GetDirectories(SavePath.SAVES_DIR)) {
+            string metaPath = SavePath.GetSaveMetaPath(dir);
             if(File.Exists(metaPath)) {
                 try {
                     var json = File.ReadAllText(metaPath);
@@ -48,7 +46,7 @@ public static class SaveLoader {
 
     // Get Save Names
     public static List<string> GetSaveNames() {
-        string savesDir = GenerateSave.SAVES_DIR;
+        string savesDir = SavePath.SAVES_DIR;
         if(!Directory.Exists(savesDir)) return new List<string>();
 
         List<string> val = Directory.GetDirectories(savesDir)
@@ -67,7 +65,7 @@ public static class SaveLoader {
 
     // Get Save Size
     public static long GetSaveSize(string saveName) {
-        string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveName);
+        string saveFolder = Path.Combine(SavePath.SAVES_DIR, saveName);
         if(!Directory.Exists(saveFolder)) return 0;
 
         long val = Directory.GetFiles(saveFolder, "*", SearchOption.AllDirectories).Sum(f => new FileInfo(f).Length);
@@ -120,7 +118,7 @@ public static class SaveLoader {
             return result;
         }
 
-        string manifestPath = GenerateSave.ManifestPath(save);
+        string manifestPath = SavePath.GetManifestPath(save);
         if(!File.Exists(manifestPath)) {
             result.Result = LoadResult.MissingFiles;
             result.Message = "Missing manifest meta";
@@ -151,7 +149,7 @@ public static class SaveLoader {
     public static void LoadStoreDataFromFolder(string save) {
         var jsonFiles = Directory.GetFiles(save, "*.json");
         foreach(var file in jsonFiles) {
-            string manifest = GenerateSave.ManifestPath(save);
+            string manifest = SavePath.GetManifestPath(save);
             string meta = M.SAVE_META_JSON;
 
             string fileName = Path.GetFileName(file);
@@ -181,7 +179,7 @@ public static class SaveLoader {
      *
      */
     public static bool Delete(string saveId) {
-        string? save = GetSaveFolderById(saveId);
+        string? save = SaveManager.GetSaveFolderById(saveId);
         if(string.IsNullOrEmpty(save)) return false;
 
         try {

@@ -2,23 +2,6 @@ namespace App.Root.Save;
 using App.Root.Utils;
 using System.Text.Json;
 
-public static class SavePath {
-    public static string SAVES_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "saves");
-
-    /**
-     * Get Save Folder
-     */
-    public static string GetSaveFolder(string saveName) { return Path.Combine(SAVES_DIR, saveName); }
-    public static string GetSaveFolder(SaveFile saveFile) { return Path.Combine(SAVES_DIR, saveFile.SaveName); }
-
-    /**
-     * Get Save Meta Path
-     */
-    public static string GetSaveMetaPath(string saveFolder) { return Path.Combine(saveFolder, M.SAVE_META_JSON); }
-    public static string GetSaveMetaPath(SaveFile saveFile) { return Path.Combine(GetSaveFolder(saveFile), M.SAVE_META_JSON); }
-    public static string GetSaveMetaPath(string saveName) { return Path.Combine(GetSaveFolder(saveName), M.SAVE_META_JSON); }
-}
-
 [ActionConverter]
 public static class SaveManager {
     public static string SaveId { get { return "save_id"; } }
@@ -39,10 +22,10 @@ public static class SaveManager {
     // Get Save Name by Id
     public static string? GetSaveNameById(string saveId) {
         if(string.IsNullOrEmpty(saveId)) return null;
-        if(!Directory.Exists(GenerateSave.SAVES_DIR)) return null;
+        if(!Directory.Exists(SavePath.SAVES_DIR)) return null;
 
-        foreach(var dir in Directory.GetDirectories(GenerateSave.SAVES_DIR)) {
-            string metaPath = Path.Combine(dir, M.SAVE_META_JSON);
+        foreach(var dir in Directory.GetDirectories(SavePath.SAVES_DIR)) {
+            string metaPath = SavePath.GetSaveMetaPath(dir);
             if(!File.Exists(metaPath)) continue;
 
             try {
@@ -69,10 +52,10 @@ public static class SaveManager {
     // Get Save Folder by Id
     public static string? GetSaveFolderById(string saveId) {
         if(string.IsNullOrEmpty(saveId)) return null;
-        if(!Directory.Exists(GenerateSave.SAVES_DIR)) return null;
+        if(!Directory.Exists(SavePath.SAVES_DIR)) return null;
 
-        foreach(var dir in Directory.GetDirectories(GenerateSave.SAVES_DIR)) {
-            string metaPath = Path.Combine(dir, M.SAVE_META_JSON);
+        foreach(var dir in Directory.GetDirectories(SavePath.SAVES_DIR)) {
+            string metaPath = SavePath.GetSaveMetaPath(dir);
             if(!File.Exists(metaPath)) continue;
 
             try {
@@ -95,7 +78,7 @@ public static class SaveManager {
         string? saveFolder = GetSaveFolderById(saveId);
         if(string.IsNullOrEmpty(saveFolder)) return null;
 
-        string metaPath = Path.Combine(saveFolder, M.SAVE_META_JSON);
+        string metaPath = SavePath.GetSaveMetaPath(saveFolder);
         if(!File.Exists(metaPath)) return null;
 
         try {
@@ -156,7 +139,7 @@ public static class SaveManager {
         string saveId = file.SaveId;
         currentSaveId = saveId;
         currentSaveName = saveName;
-        currentSavePath = Path.Combine(GenerateSave.SAVES_DIR, file.SaveName);
+        currentSavePath = SavePath.GetSaveFolder(file);
 
         return saveId;
     }
@@ -198,7 +181,7 @@ public static class SaveManager {
             return;
         }
 
-        string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveFile.SaveName);
+        string saveFolder = SavePath.GetSaveFolder(saveFile);
         currentSavePath = saveFolder;
 
         GenerateSave.SaveStoreDataToFolder(currentSavePath, M.SAVE_META);
@@ -236,10 +219,7 @@ public static class SaveManager {
     public static void Init() {
         if(initialized) return;
 
-        if(!Directory.Exists(GenerateSave.SAVES_DIR)) {
-            Directory.CreateDirectory(GenerateSave.SAVES_DIR);
-        }
-
+        SavePath.EnsureSavesDirectory();
         initialized = true;
 
         Console.ForegroundColor = ConsoleColor.Magenta;
