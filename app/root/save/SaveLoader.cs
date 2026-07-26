@@ -2,9 +2,6 @@ namespace App.Root.Save;
 using System.Text.Json;
 
 public static class SaveLoader {
-    private static string SaveId { get { return "save_id"; } }
-    private static string SaveName { get { return "save_name"; } }
-
     public enum LoadResult {
         Success,
         NotFound,
@@ -62,10 +59,9 @@ public static class SaveLoader {
     }
     
     // Save Exists
-    public static bool SaveExists(string saveName) {
-        string saveFolder = Path.Combine(GenerateSave.SAVES_DIR, saveName);
-        
-        bool val = Directory.Exists(saveFolder);
+    public static bool SaveExists(string saveId) {
+        string? folder = SaveManager.GetSaveFolderById(saveId);
+        bool val = !string.IsNullOrEmpty(folder);
         return val;
     }
 
@@ -77,83 +73,6 @@ public static class SaveLoader {
         long val = Directory.GetFiles(saveFolder, "*", SearchOption.AllDirectories).Sum(f => new FileInfo(f).Length);
         return val;
     }
-    
-    // Get Save Name by Id
-    public static string? GetSaveNameById(string saveId) {
-        if(string.IsNullOrEmpty(saveId)) return null;
-        if(!Directory.Exists(GenerateSave.SAVES_DIR)) return null;
-
-        foreach(var dir in Directory.GetDirectories(GenerateSave.SAVES_DIR)) {
-            string metaPath = Path.Combine(dir, M.SAVE_META_JSON);
-            if(!File.Exists(metaPath)) continue;
-
-            try {
-                var json = File.ReadAllText(metaPath);
-                var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-                if(data != null && data.TryGetValue(SaveId, out var obj)) {
-                    string id = obj.ToString() ?? "";
-                    if(id == saveId) {
-                        if(data.TryGetValue(SaveName, out var name)) {
-                            return name.ToString();
-                        }
-
-                        return Path.GetFileName(dir);
-                    }
-                }
-            } catch(Exception err) {
-                Console.WriteLine(err);
-            }
-        }
-
-        return null;
-    }
-
-    // Get Save Folder by Id
-    public static string? GetSaveFolderById(string saveId) {
-        if(string.IsNullOrEmpty(saveId)) return null;
-        if(!Directory.Exists(GenerateSave.SAVES_DIR)) return null;
-
-        foreach(var dir in Directory.GetDirectories(GenerateSave.SAVES_DIR)) {
-            string metaPath = Path.Combine(dir, M.SAVE_META_JSON);
-            if(!File.Exists(metaPath)) continue;
-
-            try {
-                var json = File.ReadAllText(metaPath);
-                var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-                if(data != null && data.TryGetValue(SaveId, out var obj)) {
-                    string id = obj.ToString() ?? "";
-                    if(id == saveId) return dir;
-                }
-            } catch(Exception err) {
-                Console.WriteLine(err);
-            }
-        }
-
-        return null;
-    }
-
-    // Get Save File by Id
-    private static SaveFile? GetSaveFileById(string saveId) {
-        string? saveFolder = GetSaveFolderById(saveId);
-        if(string.IsNullOrEmpty(saveFolder)) return null;
-
-        string metaPath = Path.Combine(saveFolder, M.SAVE_META_JSON);
-        if(!File.Exists(metaPath)) return null;
-
-        try {
-            var json = File.ReadAllText(metaPath);
-            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-            if(data != null) {
-                var file = new SaveFile();
-                Data.DeserializeStoreData(file, data);
-                return file;
-            }
-        } catch(Exception err) {
-            Console.WriteLine(err);
-        }
-
-        return null;
-    }
 
     /**
      *
@@ -164,8 +83,8 @@ public static class SaveLoader {
     public static LoadResultInfo Load(string saveId) {
         var result = new LoadResultInfo();
         
-        string? save = GetSaveFolderById(saveId);
-        string? saveName = GetSaveNameById(saveId);
+        string? save = SaveManager.GetSaveFolderById(saveId);
+        string? saveName = SaveManager.GetSaveNameById(saveId);
         if(string.IsNullOrEmpty(save)) {
             result.Result = LoadResult.NotFound;
             result.Message = $"Save ID '{saveId}' not found!";

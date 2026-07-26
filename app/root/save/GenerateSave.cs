@@ -2,8 +2,6 @@ namespace App.Root.Save;
 using System.Text.Json;
 
 public static class GenerateSave {
-    public static string SAVES_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "saves");
-
     private static string Json(string id) { return $"{id}.json"; }
     public static string ManifestPath(string saveFolder) { return Path.Combine(saveFolder, "manifest.json"); }
 
@@ -68,11 +66,10 @@ public static class GenerateSave {
     public static SaveFile CreateSave(string saveName) {
         if(string.IsNullOrEmpty(saveName)) throw new ArgumentException("Save name cannot be empty!");
         IsValidSaveName(saveName);
-
+        
         SaveFile saveFile = new SaveFile(saveName);
         string saveId = saveFile.SaveId;
         string saveFolder = Path.Combine(SAVES_DIR, saveName);
-
         if(Directory.Exists(saveFolder)) throw new InvalidOperationException($"Save '{saveName}' already exists!");
 
         Directory.CreateDirectory(saveFolder);

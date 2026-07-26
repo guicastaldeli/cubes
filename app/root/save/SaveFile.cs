@@ -20,9 +20,10 @@ public class SaveFile {
     [StoreField("player_id")] [Convert("string")] [ConverterKey("player_id")] public string PlayerId { get; set; } = "";
     [StoreField("player_name")] [Convert("string")] [ConverterKey("player_name")] public string PlayerName { get; set; } = "";
 
-    public SaveFile() {}
-    public SaveFile(string SaveId, string SaveName) {
-        this.SaveId = SaveId;
+    public SaveFile() {
+        this.SaveId = Guid.NewGuid().ToString();
+    }
+    public SaveFile(string SaveName) : this() {
         this.SaveName = SaveName;
         this.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         this.LastPlayed = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -33,7 +34,7 @@ public class SaveFile {
 
     // Update Last Played
     public void UpdateLastPlayed() {
-        LastPlayed = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        this.LastPlayed = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     /**
