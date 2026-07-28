@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF_8"?>
 <saves>
     <label 
-        id="saves-title"
+        id="saves_title"
         x="5%" y="2%"
         color="1,1,1,1"
         scale="0.8"
@@ -11,17 +11,17 @@
 
     <!-- Create New Save -->
     <div
-        id="create-save-container"
+        id="create_save_container"
         x="5%" y="8%"
         width="90%" height="10%"
         background="0.2,0.4,0.8,0.9" 
         hoverable="true" 
         hoverBackground="0.3,0.5,0.9,0.9" 
         hoverScale="1.02"
-        action="create-save"
+        action="create_save"
     >
         <label
-            id="create-save-label"
+            id="create_save_label"
             x="0%" y="0%"
             color="1,1,1,1" 
             scale="0.5"
@@ -32,7 +32,7 @@
 
     <!-- Save Name Input -->
     <div
-        id="save-name-container"
+        id="save_name_container"
         x="5%" y="15%" 
         width="90%" height="6%" 
         background="0.1,0.1,0.1,0.9" 
@@ -40,13 +40,13 @@
     >
         <!-- Cancel -->
         <div 
-            id="save-name-cancel" 
+            id="save_name_cancel" 
             x="89%" y="0%" 
             width="10%" height="100%" 
             background="0.6,0.2,0.2,0.9" 
             hoverable="true" 
             hoverBackground="0.8,0.3,0.3,0.9"
-            action="cancel-save"
+            action="cancel_save"
         >
             <label 
                 x="0%" y="0%" 
@@ -59,7 +59,7 @@
 
         <!-- Save Name -->
         <label
-            id="save-name-label" 
+            id="save_name_label" 
             x="2%" y="0%"
             color="1,1,1,1" 
             scale="0.4"
@@ -67,7 +67,7 @@
             Save Name:
         </label>
         <input
-            id="save-name-input" 
+            id="save_name_input" 
             x="15%" y="0%" 
             width="60%" height="100%" 
             background="0.2,0.2,0.2,0.9" 
@@ -77,13 +77,13 @@
 
         <!-- Confirm -->
         <div
-            id="save-name-confirm" 
+            id="save_name_confirm" 
             x="78%" y="0%" 
             width="10%" height="100%" 
             background="0.2,0.6,0.2,0.9" 
             hoverable="true" 
             hoverBackground="0.3,0.8,0.3,0.9"
-            action="confirm-save"
+            action="confirm_save"
         >
             <label 
                 x="0%" y="0%" 
@@ -97,7 +97,7 @@
 
     <!-- Saves List -->
     <div
-        id="saves-list"
+        id="saves_list"
         x="5%" y="22%" 
         width="90%" height="70%" 
         background="0.05,0.05,0.05,0.5"
@@ -106,7 +106,7 @@
         {#if Saves.GetAllSaves().Count > 0}
             {#foreach Saves.GetAllSaves() as save}
                 <div
-                    id="save-entry-{save.SaveId}"
+                    id="save_entry_{save.SaveId}"
                     x="0%" y="{index * 12}%"
                     width="100%" height="10%" 
                     background="0.1,0.1,0.15,0.9" 
@@ -117,7 +117,7 @@
                     <!-- Save Content -->
                         <!-- Save Name -->
                         <label
-                            id="save-name-{save.SaveId}"
+                            id="save_name_{save.SaveId}"
                             x="5%" y="0%"
                             color="1,1,1,1"
                             scale="0.5"
@@ -127,7 +127,7 @@
 
                         <!-- Last Played -->
                         <label
-                            id="save-last-played-{save.LastPlayed}"
+                            id="save_last_played_{save.LastPlayed}"
                             x="5%" y="0%"
                             color="1,1,1,1"
                             scale="0.5"
@@ -137,7 +137,7 @@
 
                         <!-- Play Time -->
                         <label
-                            id="save-play-time-{save.SaveId}"
+                            id="save_play_time_{save.SaveId}"
                             x="5%" y="0%"
                             color="1,1,1,1"
                             scale="0.5"
@@ -148,13 +148,13 @@
                     <!-- Actions -->
                         <!-- Load -->
                         <div 
-                            id="load-{save.SaveId}" 
+                            id="load_{save.SaveId}" 
                             x="55%" y="0%" 
                             width="15%" height="100%" 
                             background="0.2,0.5,0.2,0.9" 
                             hoverable="true" 
                             hoverBackground="0.3,0.7,0.3,0.9"
-                            action="load-save:{save.SaveId}"
+                            action="load_save:{save.SaveId}"
                         >
                             <label 
                                 x="0%" y="0%" 
@@ -167,13 +167,13 @@
 
                         <!-- Delete -->
                         <div 
-                            id="delete-{save.SaveId}" 
+                            id="delete_{save.SaveId}" 
                             x="72%" y="0%" 
                             width="15%" height="100%" 
                             background="0.5,0.2,0.2,0.9" 
                             hoverable="true" 
                             hoverBackground="0.7,0.3,0.3,0.9"
-                            action="delete-save:{save.SaveId}"
+                            action="delete_save:{save.SaveId}"
                         >
                             <label 
                                 x="0%" y="0%" 
@@ -187,7 +187,7 @@
             {#endfor}
         {#else}
             <label 
-                id="no-saves-label" 
+                id="no_saves_label" 
                 x="0%" y="0%"  
                 color="0.5,0.5,0.5,1" 
                 scale="0.4"

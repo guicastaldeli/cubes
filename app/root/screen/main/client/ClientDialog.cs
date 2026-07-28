@@ -2,11 +2,10 @@ namespace App.Root.Screen.Main.Client;
 using App.Root.Screen.Main.Server;
 using App.Root.Input;
 using App.Root.Utils;
-using App.Root.UI;
 
 class ClientDialog : MainScreenHandler {
     private const string ID = "client_dialog";
-    public static readonly string PATH = Screen.DIR + "main/client/client_dialog.xml";
+    public static readonly string PATH = DIR + "main/client/client_dialog.xml";
     
     private ClientDialogAction clientDialogAction;
 
@@ -34,8 +33,11 @@ class ClientDialog : MainScreenHandler {
             case "create_save":
                 clientDialogAction.createSave();
                 return;
-            case "delete_save":
-                clientDialogAction.deleteSave();
+            case "confirm_save":
+                clientDialogAction.confirmCreateSave();
+                return;
+            case "cancel_save":
+                clientDialogAction.cancelSave();
                 return;
         }
         
@@ -62,12 +64,6 @@ class ClientDialog : MainScreenHandler {
         mainScreen.show();
     }
 
-    // Refresh Save List
-    public void refreshSaveList() {
-        screenData = DocParser.parseUI(PATH, Screen.screenWidth, Screen.screenHeight);
-        clientDialogAction.elements = ElementEntry.C<UIElement>(id => getElementById(id), clientDialogAction.Elements);
-    }
-
     /**
      * 
      * On Window Resize
@@ -82,12 +78,19 @@ class ClientDialog : MainScreenHandler {
      * Update
      *
      */
+    // Update
     public override void update() {
         if(mainScreen.getMainScene().isInit()) {
             if(!tick.isPaused()) mainScreen.getMainScene().update();
             return;
         }  
         base.update();  
+    }
+
+    // Update Save List
+    public void updateSaveList() {
+        screenData = DocParser.parseScreen(PATH, Screen.screenWidth, Screen.screenHeight);
+        clientDialogAction.elements = ElementEntry.C<ScreenElement>(id => getElementById(id), ClientDialogAction.Elements);
     }
 
     /**

@@ -15,7 +15,7 @@ class ClientDialogAction {
     
     public dynamic? elements;
 
-    private static string[] Elements = {
+    public static string[] Elements = {
         "saves-list",
         "create-save-container",
         "save-name-container",
@@ -70,11 +70,6 @@ class ClientDialogAction {
 
         var displayType = typeof(DisplaySave);
         DocParser.ReplaceObject(displayType.Name, displayType);
-    }
-
-    // Update UI
-    public void updateUI() {
-        clientDialog.refreshSaveList();
     }
 
     // Show Create Input
@@ -171,7 +166,7 @@ class ClientDialogAction {
 
         if(SaveManager.Delete(saveId)) {
             Console.WriteLine($"[ClientDialog] Deleted Save... name: {saveName} ; id: {saveId}");
-            updateUI();
+            clientDialog.updateSaveList();
         } else {
             Console.WriteLine($"[ClientDialog] Failed to delete save... name: {saveName} ; id: {saveId}");
         }
