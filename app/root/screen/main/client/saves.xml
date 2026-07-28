@@ -33,66 +33,67 @@
     <!-- Save Name Input -->
     <div
         id="save_name_container"
-        x="5%" y="15%" 
-        width="90%" height="6%" 
-        background="0.1,0.1,0.1,0.9" 
+        x="5%" y="5%" 
+        width="90%" height="90%" 
+        background="0.6,0.4,0.3,1" 
         visible="false"
     >
-        <!-- Cancel -->
-        <div 
-            id="save_name_cancel" 
-            x="89%" y="0%" 
-            width="10%" height="100%" 
-            background="0.6,0.2,0.2,0.9" 
-            hoverable="true" 
-            hoverBackground="0.8,0.3,0.3,0.9"
-            action="cancel_save"
-        >
-            <label 
-                x="0%" y="0%" 
-                color="1,1,1,1" 
-                scale="0.4"
-            >
-                Cancel
-            </label>
-        </div>
-
         <!-- Save Name -->
         <label
             id="save_name_label" 
-            x="2%" y="0%"
+            x="5%" y="43%"
             color="1,1,1,1" 
-            scale="0.4"
+            scale="0.6"
         >
             Save Name:
         </label>
         <input
             id="save_name_input" 
-            x="15%" y="0%" 
-            width="60%" height="100%" 
-            background="0.2,0.2,0.2,0.9" 
-            color="1,1,1,1" 
-            scale="0.4"
+            x="20%" y="40%" 
+            width="60%" height="10%" 
+            background="0.8,0.8,0.8,0.9" 
+            color="0,0,0,1" 
+            scale="1.0"
         />
 
-        <!-- Confirm -->
-        <div
-            id="save_name_confirm" 
-            x="78%" y="0%" 
-            width="10%" height="100%" 
-            background="0.2,0.6,0.2,0.9" 
-            hoverable="true" 
-            hoverBackground="0.3,0.8,0.3,0.9"
-            action="confirm_save"
-        >
-            <label 
-                x="0%" y="0%" 
-                color="1,1,1,1" 
-                scale="0.4"
+        <!-- Actions -->
+            <!-- Cancel -->
+            <div 
+                id="save_name_cancel" 
+                x="65%" y="78%" 
+                width="10%" height="10%" 
+                background="0.6,0.2,0.2,0.9" 
+                hoverable="true" 
+                hoverBackground="0.8,0.3,0.3,0.9"
+                action="cancel_save"
             >
-                Confirm
-            </label>
-        </div>
+                <label 
+                    x="0%" y="0%" 
+                    color="1,1,1,1" 
+                    scale="0.4"
+                >
+                    Cancel
+                </label>
+            </div>
+
+            <!-- Confirm -->
+            <div
+                id="save_name_confirm" 
+                x="78%" y="78%" 
+                width="10%" height="10%" 
+                background="0.2,0.6,0.2,0.9" 
+                hoverable="true" 
+                hoverBackground="0.3,0.8,0.3,0.9"
+                action="confirm_save"
+            >
+                <label 
+                    x="0%" y="0%" 
+                    color="1,1,1,1" 
+                    scale="0.4"
+                >
+                    Confirm
+                </label>
+            </div>
     </div>
 
     <!-- Saves List -->

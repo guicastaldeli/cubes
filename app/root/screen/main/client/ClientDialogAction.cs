@@ -22,7 +22,7 @@ class ClientDialogAction {
         "save_name_input", 
         "create_save_label",
         "saves_title",
-        "back-btn"
+        "back_btn"
     };
 
     public ClientDialogAction(
@@ -75,6 +75,9 @@ class ClientDialogAction {
 
         els.save_name_container.visible = true;
         els.create_save_container.visible = false;
+        els.saves_list.visible = false;
+        els.saves_title.visible = false;
+        els.back_btn.visible = false; 
 
         string? inputId = els.save_name_input.id;
         if(!string.IsNullOrEmpty(inputId)) {
@@ -90,6 +93,10 @@ class ClientDialogAction {
 
         els.save_name_container.visible = false;
         els.create_save_container.visible = true;
+        els.saves_list.visible = true;
+        els.saves_title.visible = true;
+        els.back_btn.visible = true;
+
         els.save_name_input.text = "";
     } 
 
