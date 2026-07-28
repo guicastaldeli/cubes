@@ -57,16 +57,29 @@ class ClientDialogAction {
     }
 
     // Register Objects
-    private void registerObjects() {
+    public void registerObjects() {
         var saveType = typeof(SaveManager);
         var typeName = saveType.Name;
         var name = WordInflector.ToPlural(typeName);
 
-        DocParser.ReplaceObject(typeName, saveType);
+        DocParser.ReplaceObject(saveType.Name, saveType);
         DocParser.ReplaceObject(name, saveType);
+
+        registerList(SaveManager.GetAllSaves());
 
         var displayType = typeof(DisplaySave);
         DocParser.ReplaceObject(displayType.Name, displayType);
+    }
+
+    // Register List
+    private void registerList<T>(IEnumerable<T> list) {
+        var result = list.ToList();
+        var elementTypeName = typeof(T).Name.ToLower();
+        var name = WordInflector.ToPlural(elementTypeName);
+
+        Console.WriteLine($"[registerList] Registering: {elementTypeName} / {name} ({result.Count} items)");
+        DocParser.ReplaceObject(elementTypeName, result);
+        DocParser.ReplaceObject(name, result);
     }
 
     // Show Create Input
@@ -120,7 +133,23 @@ class ClientDialogAction {
     // Confirm Create Save
     [GlobalInput]
     public void confirmCreateSave() {
-        // todo
+        var els = getElements();
+        string saveName = InputField.getText(els.save_name_input.id);
+        
+        if(string.IsNullOrWhiteSpace(saveName)) {
+            Console.WriteLine("[ClientDialog] Save name is empty!");
+            return;
+        }
+
+        try {
+            string saveId = SaveManager.CreateSave(saveName);
+            Console.WriteLine($"[ClientDialog] Save created: {saveName} ({saveId})");
+
+            cancelCreateSave();
+            clientDialog.updateSaveList();
+        } catch(Exception err) {
+            Console.WriteLine($"[ClientDialog] Failed to create save: {err.Message}");
+        }
     }
 
     /**

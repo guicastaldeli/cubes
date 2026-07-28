@@ -99,13 +99,13 @@
     <!-- Saves List -->
     <div
         id="saves_list"
-        x="5%" y="22%" 
+        x="5%" y="5%" 
         width="90%" height="70%" 
         background="0.05,0.05,0.05,0.5"
         overflow="scroll"
     >
-        {#if Saves.GetAllSaves().Count > 0}
-            {#foreach Saves.GetAllSaves() as save}
+        {#if savefiles.Count > 0}
+            {#foreach savefiles as save}
                 <div
                     id="save_entry_{save.SaveId}"
                     x="0%" y="{index * 12}%"
@@ -189,9 +189,9 @@
         {#else}
             <label 
                 id="no_saves_label" 
-                x="0%" y="0%"  
+                x="25%" y="25%"  
                 color="0.5,0.5,0.5,1" 
-                scale="0.4"
+                scale="1.0"
             >
                 No saves found. Create a new save!
             </label>

@@ -42,7 +42,7 @@ public static class GenerateSave {
             if(id == meta) continue;
 
             var obj = Data.GetData(id);
-            if(obj == null) return;
+            if(obj == null) continue;
 
             var serialized = Data.SerializeStoreData(obj);
             if(serialized != null) {

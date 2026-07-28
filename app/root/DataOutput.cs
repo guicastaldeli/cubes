@@ -122,6 +122,11 @@ public static class DataOutput {
 
         var data = Data.GetData(id);
         if(data == null) {
+            data = Data.GetAllDataIds()
+                .Select(k => Data.GetData(k))
+                .FirstOrDefault(d => d != null && d.GetType() == info.Type);
+        }
+        if(data == null) {
             Console.WriteLine($"[DataOutput] No data found for {id}");
             return;
         }
@@ -185,6 +190,7 @@ public static class DataOutput {
         var type = data.GetType();
 
         foreach(var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+            if(prop.GetIndexParameters().Length > 0) continue;
             try {
                 var val = prop.GetValue(data);
                 if(val != null) resDict[prop.Name.ToLower()] = SerializeData(val)!;
