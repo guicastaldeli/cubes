@@ -393,7 +393,7 @@ class Mesh {
         
         MeshRenderer renderer = new MeshRenderer(window, shaderProgram, this);
         renderer.setData(data);
-        renderer.setId(id);
+        //renderer.setId(id);
 
         if(camera != null) renderer.setCamera(camera);
         meshRendererMap[id] = renderer;

@@ -195,7 +195,7 @@ class MainScene {
 
         playerController.getNetworkPlayer()?.update();
 
-        network?.pollAndCache();
+        //network?.pollAndCache();
         NetworkUpdate.getInstance().update();
     }
 

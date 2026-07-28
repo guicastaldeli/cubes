@@ -16,12 +16,12 @@ class ClientDialogAction {
     public dynamic? elements;
 
     public static string[] Elements = {
-        "saves-list",
-        "create-save-container",
-        "save-name-container",
-        "save-name-input",
-        "create-save-label",
-        "saves-title",
+        "saves_list",
+        "create_save_container",
+        "save_name_container",
+        "save_name_input", 
+        "create_save_label",
+        "saves_title",
         "back-btn"
     };
 
@@ -42,10 +42,7 @@ class ClientDialogAction {
 
     // Get Elements
     public dynamic getElements() {
-        if(elements == null) {
-            elements = ElementEntry.C<ScreenElement>(id => clientDialog.getElementById(id), Elements);
-        }
-
+        elements = ElementEntry.C<ScreenElement>(id => clientDialog.getElementById(id), Elements);
         return elements;
     }
 

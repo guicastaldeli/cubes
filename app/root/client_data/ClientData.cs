@@ -22,6 +22,6 @@ class ClientData : PacketHandler {
     public void handle(string json) {
         var packet = Packet.deserialize<PacketData>(json);
         if(packet == null) return;
-        client.incomingData.Enqueue(packet.toSnapshot());
+        //client.incomingData.Enqueue(packet.toSnapshot());
     }
 }

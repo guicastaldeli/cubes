@@ -90,6 +90,17 @@ class DocParser {
         @"\{#if\s+([^}]+?)\}((?:(?!\{#if\b)[\s\S])*?)(?:\{#else\}((?:(?!\{#if\b)[\s\S])*?))?\{#endif\}"
     );
 
+    // Is Visible
+    public static bool isVisible(ScreenElement el, List<ScreenElement> all) {
+        if(!el.visible) return false;
+        if(el.parentId == null) return true;
+
+        var parent = all.FirstOrDefault(e => e.id == el.parentId);
+        
+        bool val = parent == null || isVisible(parent, all);
+        return val;
+    }
+
     // Split Instance Name
     private static List<string>? splitInstanceName(string name, List<string> names) {
         var result = new List<string>();
@@ -939,6 +950,9 @@ class DocParser {
             }
         }
 
+        if(parentElement != null) {
+            screenElement.parentId = parentElement.id;
+        }
         return screenElement;
     }
 
@@ -1078,15 +1092,15 @@ class DocParser {
             }
         }
         foreach(var el in screenData.elements) {
-            if(el.visible && el.type == "div")
+            if(isVisible(el, screenData.elements) && el.type == "div")
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
         }
         foreach(var el in screenData.elements) {
-            if(el.visible && el.type == "img")
+            if(isVisible(el, screenData.elements) && el.type == "img")
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
         }
         foreach(var el in screenData.elements) {
-            if(el.visible && el.type == "input") {
+            if(isVisible(el, screenData.elements) && el.type == "input") {
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
                 if(textRenderer != null && !string.IsNullOrEmpty(el.text))
                     textRenderer.renderText(
@@ -1098,7 +1112,7 @@ class DocParser {
             }
         }
         foreach(var el in screenData.elements) {
-            if(el.visible && el.type == "button") {
+            if(isVisible(el, screenData.elements) && el.type == "button") {
                 renderScreenElement(el, screenWidth, screenHeight, shaderProgram);
 
                 if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
@@ -1120,7 +1134,7 @@ class DocParser {
             }
         }
         foreach(var el in screenData.elements) {
-            if(el.visible && el.type == "label") {
+            if(isVisible(el, screenData.elements) && el.type == "label") {
                 if(textRenderer != null && !string.IsNullOrEmpty(el.text)) {
                     if(el.hasShadow) {
                         textRenderer.renderTextWithShadow(

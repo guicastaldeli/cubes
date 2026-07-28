@@ -1,7 +1,5 @@
 namespace App.Root.Screen;
 using System.Collections.Generic;
-using App.Root.Text;
-using App.Root.UI;
 
 class ScreenElement {
     public string type;
@@ -48,6 +46,8 @@ class ScreenElement {
     public bool hasTexture = false;
 
     public string? template;
+
+    public string? parentId = null;
 
     public ScreenElement(
         string type,

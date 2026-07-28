@@ -151,17 +151,27 @@ class Screen : ScreenHandler {
     public virtual string? checkClick(int mouseX, int mouseY) {
         if(!active || screenData == null) return null;
 
-        var buttons = DocParser.getElementsByType(screenData, "button");
-        foreach(var button in buttons) {
-            if(mouseX >= button.x && mouseX <= button.x + button.width &&
-               mouseY >= button.y && mouseY <= button.y + button.height
-            ) {
-                handleAction(button.action);
-                return button.action;
+        foreach(var el in screenData.elements) {
+            if(!DocParser.isVisible(el, screenData.elements)) continue;
+            if(string.IsNullOrEmpty(el.action)) continue;
+
+            if(mouseX >= el.x && mouseX <= el.x + el.width &&
+                mouseY >= el.y && mouseY <= el.y + el.height) {
+                return el.action;
             }
         }
+
         return null;
     }
+
+    // Handle Key Press
+    public virtual void handleKeyPress(int key, int action) {}
+
+    // Handle Action
+    public virtual void handleAction(string action) {}
+
+    // Handle Mouse Click
+    public virtual void handleMouseClick(int x, int y) {}
 
     // Handle Mouse Move
     public virtual void handleMouseMove(int mouseX, int mouseY) {
@@ -177,12 +187,6 @@ class Screen : ScreenHandler {
             else if(!mouseOver && el.isHovered) el.removeHover();
         }
     }
-
-    // Handle Key Press
-    public virtual void handleKeyPress(int key, int action) {}
-
-    // Handle Action
-    public virtual void handleAction(string action) {}
 
     // Show
     public void show() {

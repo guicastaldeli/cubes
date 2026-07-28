@@ -464,7 +464,7 @@ class Input {
         uiController.handleMouseClick(x, y, 0, 1);
         InputField.handleClick(x, y);
         if(screenController.isRunning() && !pauseOverlayOpen) return;
-        screenController.checkClick(x, y);
+        screenController.handleMouseClick(x, y, 0, 1);
     }
 
     private void onMouseButton(int button, bool pressed) {

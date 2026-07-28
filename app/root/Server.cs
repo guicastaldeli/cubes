@@ -113,10 +113,10 @@ class Server {
                 foreach(var (id, player) in players) {
                     if(player.isTimedOut()) {
                         players.TryRemove(id, out _);
-                        ServerSnapshot.getInstance().clearAll();
+                        /*ServerSnapshot.getInstance().clearAll();
                         foreach(var (_, p) in players) {
                             ServerSnapshot.getInstance().register(DataType.PLAYER, p);
-                        }
+                        }*/
                         Console.WriteLine($"Player {id} timed out");
                     }
                 }

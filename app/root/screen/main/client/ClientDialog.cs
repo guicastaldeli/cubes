@@ -90,7 +90,11 @@ class ClientDialog : MainScreenHandler {
     // Update Save List
     public void updateSaveList() {
         screenData = DocParser.parseScreen(PATH, Screen.screenWidth, Screen.screenHeight);
-        clientDialogAction.elements = ElementEntry.C<ScreenElement>(id => getElementById(id), ClientDialogAction.Elements);
+        clientDialogAction.elements = ElementEntry.C<ScreenElement>(
+            id => getElementById(id), 
+            ClientDialogAction.Elements
+        );
+        Console.WriteLine("[ClientDialog] Save list updated");
     }
 
     /**

@@ -49,12 +49,12 @@ class ServerJoin : PacketHandler {
         var player = new ServerPlayer(id, remote);
         if(!string.IsNullOrEmpty(packet.username)) player.username = packet.username;
         server.players[id] = player;
-        ServerSnapshot.getInstance().register(DataType.PLAYER, player);
+        //ServerSnapshot.getInstance().register(DataType.PLAYER, player);
 
         server.send(new PacketJoin { userId = id }, remote);
 
         // Server
-        var serverSnapshot = ServerSnapshot.getInstance().snapshot();
+        /*var serverSnapshot = ServerSnapshot.getInstance().snapshot();
         var worldSnapshot = Data.Snapshot();
         
         foreach(var (type, list) in worldSnapshot.data) {
@@ -65,7 +65,7 @@ class ServerJoin : PacketHandler {
         }
         
         server.send(PacketData.fromSnapshot(serverSnapshot), remote);
-
+        */
         // Alert
         Console.ForegroundColor = ConsoleColor.Green;
         string italic = "\x1b[3m";

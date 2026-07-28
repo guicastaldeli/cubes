@@ -138,7 +138,7 @@ class UIController {
         return false;
     }
 
-    // Mouse Click
+    // Handle Mouse Click
     public bool handleMouseClick(int mouseX, int mouseY, int button, int action) {
         if(!isVisible || currentUI == null) return false;
 
@@ -155,7 +155,7 @@ class UIController {
         return false;
     }
 
-    // Mouse Move
+    // Handle Mouse Move
     public void handleMouseMove(int mouseX, int mouseY) {
         if(currentUI != null && isVisible) {
             currentUI.handleMouseMove(mouseX, mouseY);

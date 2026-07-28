@@ -208,6 +208,14 @@ class PlayerController {
         );
     }
 
+    // Get Id
+    public static string getId() {
+        if(instance != null && instance.id != null) {
+            return instance.id;
+        }
+        return "";
+    }
+
     /**
      *
      * Move Speed

@@ -34,14 +34,14 @@ class ServerLeave : PacketHandler {
         var packet = Packet.deserialize<PacketLeave>(json);
         if(packet?.userId == null) return;
 
-        if(server.players.TryGetValue(packet.userId, out var player)) {
+        /*if(server.players.TryGetValue(packet.userId, out var player)) {
             sendAlert(player);
             server.players.TryRemove(packet.userId, out _);
             ServerSnapshot.getInstance().clearAll();
             foreach(var (_, p) in server.players) {
                 ServerSnapshot.getInstance().register(DataType.PLAYER, p);
             }
-        }
+        }*/
 
         string color = "\e[0;31m";
         Console.WriteLine($"{color}Player {packet.userId} left");

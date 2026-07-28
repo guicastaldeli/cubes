@@ -2,8 +2,8 @@
 <main_screen>
     <div
         id="client-content"
-        x="10%" y="10%" 
-        width="80%" height="80%" 
+        x="0%" y="0%" 
+        width="100%" height="100%" 
         background="0,0,0,0.8" 
         scale="0.7" 
         visible="true"
@@ -12,7 +12,7 @@
             <!-- Back -->
             <button 
                 id="back-btn" 
-                x="20%" y="18%" 
+                x="0%" y="80%" 
                 scale="1.0" 
                 width="150"
                 height="100"
@@ -29,7 +29,6 @@
         <!-- Saves -->
         <import
             src="screen/main/client/saves.xml"
-            visible="true"
         />
     </div>
 </main_screen>

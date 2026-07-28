@@ -77,11 +77,24 @@ class ScreenController {
         return running;
     }
 
-    // Mouse
-    public string? checkClick(int mouseX, int mouseY) {
-        return currentScreen?.checkClick(mouseX, mouseY);
+    // Handle Mouse Click
+    public bool handleMouseClick(int mouseX, int mouseY, int button, int action) {
+        if(currentScreen == null) return false;
+
+        if(button == 0 && action == 1) {
+            string? clicked = currentScreen.checkClick(mouseX, mouseY);
+            if(clicked != null) {
+                currentScreen.handleAction(clicked);
+                return true;
+            }
+
+            currentScreen.handleMouseClick(mouseX, mouseY);
+            return true;
+        }
+        return false;
     }
 
+    // Handle Mouse Move
     public void handleMouseMove(int mouseX, int mouseY) {
         currentScreen?.handleMouseMove(mouseX, mouseY);
     }

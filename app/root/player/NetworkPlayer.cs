@@ -79,7 +79,7 @@ class NetworkPlayer : NetworkUpdateHandler {
         Network? network = playerController.getNetwork();
         if(network == null) return;
 
-        var snapshot = network.getCachedSnapshot();
+        /*var snapshot = network.getCachedSnapshot();
         if(snapshot == null) return;
 
         var view = playerController.getCamera().getView();
@@ -95,6 +95,6 @@ class NetworkPlayer : NetworkUpdateHandler {
             nameLabels[id] = username;
 
             render(mesh, id, entry);
-        });
+        });*/
     }
 }
