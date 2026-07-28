@@ -1,8 +1,8 @@
 namespace App.Root.Screen.Main.Client;
-
-using App.Root.Input;
 using App.Root.Screen.Main.Server;
+using App.Root.Input;
 using App.Root.Utils;
+using App.Root.UI;
 
 class ClientDialog : MainScreenHandler {
     private const string ID = "client_dialog";
@@ -28,15 +28,15 @@ class ClientDialog : MainScreenHandler {
     // Handle Action
     public override void handleAction(string action) {
         switch(action) {
-            case "create_save":
-                clientDialogAction.createSave();
-                break;
-            case "delete_save":
-                clientDialogAction.deleteSave();
-                break;
             case "back":
                 clientDialogAction.back();
-                break;
+                return;
+            case "create_save":
+                clientDialogAction.createSave();
+                return;
+            case "delete_save":
+                clientDialogAction.deleteSave();
+                return;
         }
         
         var typeName = GlobalInputHandler.FindTypeFromAction(action);
@@ -60,6 +60,12 @@ class ClientDialog : MainScreenHandler {
     public override void close() {
         hide();
         mainScreen.show();
+    }
+
+    // Refresh Save List
+    public void refreshSaveList() {
+        screenData = DocParser.parseUI(PATH, Screen.screenWidth, Screen.screenHeight);
+        clientDialogAction.elements = ElementEntry.C<UIElement>(id => getElementById(id), clientDialogAction.Elements);
     }
 
     /**

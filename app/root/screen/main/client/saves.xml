@@ -106,7 +106,7 @@
         {#if Saves.GetAllSaves().Count > 0}
             {#foreach Saves.GetAllSaves() as save}
                 <div
-                    id="save-entry-{save.SaveName}"
+                    id="save-entry-{save.SaveId}"
                     x="0%" y="{index * 12}%"
                     width="100%" height="10%" 
                     background="0.1,0.1,0.15,0.9" 
@@ -117,12 +117,12 @@
                     <!-- Save Content -->
                         <!-- Save Name -->
                         <label
-                            id="save-name-{save.SaveName}"
+                            id="save-name-{save.SaveId}"
                             x="5%" y="0%"
                             color="1,1,1,1"
                             scale="0.5"
                         >
-                            {save.SaveName}
+                            {save.SaveId}
                         </label>
 
                         <!-- Last Played -->
@@ -137,24 +137,24 @@
 
                         <!-- Play Time -->
                         <label
-                            id="save-play-time-{save.SaveName}"
+                            id="save-play-time-{save.SaveId}"
                             x="5%" y="0%"
                             color="1,1,1,1"
                             scale="0.5"
                         >
-                            Last Played {save.LastPlayed}
+                            Play time: {save.PlayTime}
                         </label>
 
                     <!-- Actions -->
                         <!-- Load -->
                         <div 
-                            id="load-{save.SaveName}" 
+                            id="load-{save.SaveId}" 
                             x="55%" y="0%" 
                             width="15%" height="100%" 
                             background="0.2,0.5,0.2,0.9" 
                             hoverable="true" 
                             hoverBackground="0.3,0.7,0.3,0.9"
-                            action="load-save:{save.SaveName}"
+                            action="load-save:{save.SaveId}"
                         >
                             <label 
                                 x="0%" y="0%" 
@@ -167,13 +167,13 @@
 
                         <!-- Delete -->
                         <div 
-                            id="delete-{save.SaveName}" 
+                            id="delete-{save.SaveId}" 
                             x="72%" y="0%" 
                             width="15%" height="100%" 
                             background="0.5,0.2,0.2,0.9" 
                             hoverable="true" 
                             hoverBackground="0.7,0.3,0.3,0.9"
-                            action="delete-save:{save.SaveName}"
+                            action="delete-save:{save.SaveId}"
                         >
                             <label 
                                 x="0%" y="0%" 
@@ -187,7 +187,7 @@
             {#endfor}
         {#else}
             <label 
-                id="no_saves_label" 
+                id="no-saves-label" 
                 x="0%" y="0%"  
                 color="0.5,0.5,0.5,1" 
                 scale="0.4"

@@ -40,6 +40,22 @@ class InputField {
         return focusedId != null;
     }
 
+    public static void focus(string id) {
+        if(string.IsNullOrEmpty(id)) return;
+
+        if(!fields.ContainsKey(id)) register(id);
+        focusedId = id;
+
+        Console.WriteLine($"[InputField] Focused: {id}");
+    }
+
+    public static void unfocus() {
+        if(focusedId != null) {
+            Console.WriteLine($"[InputField] Unfocused: {focusedId}");
+            focusedId = null;
+        }
+    }
+
     // Get Text
     public static string getText(string id) {
         string val = fields.TryGetValue(id, out var h) ? 

@@ -11,7 +11,7 @@
         <!-- Actions -->
             <!-- Back -->
             <button 
-                id="backBtn" 
+                id="back-btn" 
                 x="20%" y="18%" 
                 scale="1.0" 
                 width="150"
