@@ -93,7 +93,7 @@ public static class SavePath {
 
     */
 [StoreData(M.SAVE_META)]
-[DataOutput(Path: M.SAVE_META_JSON)]
+[DataOutput(typeof(SavePath), nameof(SavePath.SaveMetaPath))]
 public class SaveFile {
     [StoreField("save_name")] [Convert("string")] [ConverterKey("save_id")] public string SaveId { get; set; } = "";
     [StoreField("save_name")] [Convert("string")] [ConverterKey("save_name")] public string SaveName { get; set; } = "";

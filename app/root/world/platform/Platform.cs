@@ -11,6 +11,7 @@ using App.Root.Utils;
 using App.Root.Resource;
 using App.Root.Player.Shop;
 using App.Root.World.Points;
+using App.Root.Save;
 using OpenTK.Mathematics;
 using System.Reflection;
 using NLua;
@@ -22,7 +23,7 @@ using NLua;
     */
 [ActionConverter]
 [DataInput]
-[DataOutput(Path: "player_storage.ps")]
+[DataOutput(typeof(SavePath), nameof(SavePath.PlayerStorage))]
 class PlatformThemes {
     public class Theme {
         [Convert("int32")] [ConverterKey("id")] public int Id { get; set; }

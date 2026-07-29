@@ -1,10 +1,10 @@
 namespace App.Root.World.Points;
-
+using App.Root.Save;
 using App.Root.Utils;
 using App.Root.World.Entity;
 
 [ActionConverter]
-[DataOutput("player_storage.ps")]
+[DataOutput(typeof(SavePath), nameof(SavePath.PlayerStorage))]
 class PointsData {
     [Convert("int32")] [ConverterKey("total")] public int Total { get; set; }
 

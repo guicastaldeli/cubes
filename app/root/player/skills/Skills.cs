@@ -3,6 +3,7 @@ using App.Root.Utils;
 using App.Root.Input;
 using System.Reflection;
 using NLua;
+using App.Root.Save;
 
 /**
 
@@ -11,7 +12,7 @@ using NLua;
     */
 [ActionConverter]
 [DataInput]
-[DataOutput(Path: "player_storage.ps")]
+[DataOutput(typeof(SavePath), nameof(SavePath.PlayerStorage))]
 class SkillsData {
     public class Skill {
         [Convert("int32")] [ConverterKey("id")] public int Id { get; set; } = 0;
