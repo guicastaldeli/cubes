@@ -168,12 +168,24 @@ class DocParser {
     // Call Static Method
     private static bool callStaticMethod(string methodName, List<string> args) {
         try {
-            Console.WriteLine($"[DocParser] Looking for method: {methodName}");
-            
+            string? typeHint = null;
+            string actualMethod = methodName;
+            if(methodName.Contains('.')) {
+                int dot = methodName.LastIndexOf('.');
+                typeHint = methodName[..dot];
+                actualMethod = methodName[(dot+1)..];
+            }
+
+            Console.WriteLine($"[DocParser] Looking for method: {actualMethod} on type: {typeHint ?? "any"}");
+        
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             
             foreach(var assembly in assemblies) {
                 foreach(var type in assembly.GetTypes()) {
+                    if(typeHint != null && type.Name.Equals(typeHint, StringComparison.OrdinalIgnoreCase)) {
+                        continue;
+                    }
+
                     var method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static);
                     
                     if(method != null && method.ReturnType == typeof(bool)) {
@@ -252,6 +264,7 @@ class DocParser {
         if(string.IsNullOrEmpty(text)) return text;
 
         text = resolveWithLoop(text);
+        text = resolveWithIf(text);
         text = Resolve(text);
 
         return text;
@@ -1553,21 +1566,80 @@ class DocParser {
                 condition = condition.Substring(1).Trim();
             }
 
-            string p = @"^([a-zA-Z_][a-zA-Z0-9_]*)\((.*)\)$";
+            string p = @"^([a-zA-Z_][a-zA-Z0-9_.]*)\((.*)\)$";
             var match = Regex.Match(condition, p);
             if(match.Success) {
                 string funcName = match.Groups[1].Value;
                 string args = match.Groups[2].Value;
+                var argList = args.Split(',').Select(a => a.Trim()).Where(a => a.Length > 0).ToList();
+            
+                var resolvedArgs = argList.Select(arg => {
+                    foreach(var l in loopContext) {
+                        if(l.Value == null) continue;
 
-                var argList = args.Split(',').Select(a => a.Trim()).ToList();
+                        var props = l.Value.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                        foreach(var prop in props) {
+                            string placeholder = $"{l.Key}.{prop.Name}";
+                            if(arg == placeholder) {
+                                var val = prop.GetValue(l.Value);
+                                return val?.ToString() ?? "";
+                            }
+                        }
 
-                var result = callStaticMethod(funcName, argList);
-                return negate ? !result : result;
+                        if(arg == l.Key) {
+                            string val = l.Value.ToString() ?? "";
+                            return val;
+                        }
+                    }
+
+                    return arg;
+                }).ToList();
+
+                var res = callStaticMethod(funcName, resolvedArgs);
+                return negate ? !res : res;
+            }
+
+            foreach(var l in loopContext) {
+                if(l.Value == null) continue;
+
+                var props = l.Value.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                foreach(var prop in props) {
+                    string placeholder = $"{l.Key}.{prop.Name}";
+                    if(condition.Contains(placeholder)) {
+                        var val = prop.GetValue(l.Value);
+                        string v = val?.ToString() ?? "0";
+                        condition = condition.Replace(placeholder, v);
+                    }
+                }
+                if(l.Value.GetType().IsPrimitive || l.Value is string) {
+                    string v = l.Value.ToString() ?? "0";
+                    condition = condition.Replace(l.Key, v);
+                }
+            }
+
+            foreach(var d in dataObjects.OrderByDescending(k => k.Key.Length)) {
+                if(!condition.Contains(d.Key)) continue;
+
+                var obj = d.Value;
+
+                var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                foreach(var prop in props) {
+                    string placeholder = $"{d.Key}.{prop.Name}";
+                    if(condition.Contains(placeholder)) {
+                        var val = prop.GetValue(obj);
+                        string v = val?.ToString() ?? "0";
+                        condition = condition.Replace(placeholder, v);
+                    }
+                }
+
+                if(obj is IList list) {
+                    condition = condition.Replace(d.Key, list.Count.ToString());
+                }
             }
 
             var dataTable = new DataTable();
-            var result2 = dataTable.Compute(condition, "");
-            bool boolResult = Convert.ToBoolean(result2);
+            var result = dataTable.Compute(condition, "");
+            bool boolResult = Convert.ToBoolean(result);
             return negate ? !boolResult : boolResult;
         } catch(Exception err) {
             Console.WriteLine($"[DocParser] Error evaluating condition: {err.Message}");
