@@ -2,6 +2,7 @@ namespace App.Root;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class StoreDataAttribute : Attribute {
@@ -296,33 +297,93 @@ static class Data {
      *
      */
     public static void DeserializeStoreData(object obj, Dictionary<string, object> data) {
-        if(obj == null || data == null) return;
+        if(obj == null || data == null) {
+            Console.WriteLine("[Data] DeserializeStoreData: obj or data is null");
+            return;
+        }
+
+        Console.WriteLine($"[Data] DeserializeStoreData: Starting with {data.Count} keys: {string.Join(", ", data.Keys)}");
+
+        Dictionary<string, object>? actualData = data;
+        if(data.Count == 1) {
+            var firstKey = data.Keys.First();
+            var firstValue = data[firstKey];
+            if(firstValue is Dictionary<string, object> nested) {
+                actualData = nested;
+                Console.WriteLine($"[Data] Unwrapped nested data from section '{firstKey}' with {nested.Count} keys");
+            } else if(firstValue is JsonElement el && el.ValueKind == JsonValueKind.Object) {
+                try {
+                    var nestedDict = JsonSerializer.Deserialize<Dictionary<string, object>>(el.GetRawText());
+                    if(nestedDict != null) {
+                        actualData = nestedDict;
+                        Console.WriteLine($"[Data] Unwrapped nested JsonElement from section '{firstKey}' with {nestedDict.Count} keys");
+                    }
+                } catch(Exception ex) {
+                    Console.WriteLine($"[Data] Failed to unwrap JsonElement: {ex.Message}");
+                }
+            }
+        }
 
         var type = obj.GetType();
         var attr = type.GetCustomAttribute<StoreDataAttribute>();
-        if(attr == null) return;
+        if(attr == null) {
+            Console.WriteLine($"[Data] No StoreData attribute on {type.Name}");
+            return;
+        }
 
         string id = attr.Id ?? type.Name.ToLower();
         var fields = GetStoreFields(id);
         if(fields == null) {
             CacheStoreFields(type);
             fields = GetStoreFields(id);
-            if(fields == null) return;
+            if(fields == null) {
+                Console.WriteLine($"[Data] No fields found for {id}");
+                return;
+            }
         }
+
+        Console.WriteLine($"[Data] Deserializing {fields.Count} fields for {type.Name}");
+    
         foreach(var field in fields) {
-            if(!data.TryGetValue(field.Key, out var value)) continue;
-            if(value == null) continue;
+            string key = field.Key;
+            if(actualData.TryGetValue(key, out var value)) {
+                try {
+                    object? converted = null;
+                    var targetType = field.FieldType;
+                    if(value is JsonElement el) {
+                        if(targetType == typeof(string)) {
+                            converted = el.GetString() ?? "";
+                        } else if(targetType == typeof(int)) {
+                            converted = el.GetInt32();
+                        } else if(targetType == typeof(float)) {
+                            converted = (float)el.GetDouble();
+                        } else if(targetType == typeof(double)) {
+                            converted = el.GetDouble();
+                        } else if(targetType == typeof(bool)) {
+                            converted = el.GetBoolean();
+                        } else if(targetType == typeof(long)) {
+                            converted = el.GetInt64();
+                        } else if(targetType == typeof(DateTime)) {
+                            converted = el.GetDateTime();
+                        } else {
+                            converted = Convert.ChangeType(el.GetRawText(), targetType);
+                        }
+                    } else {
+                        converted = Convert.ChangeType(value, targetType);
+                    }
 
-            try {
-                var converted = Convert.ChangeType(value, field.FieldType);
-
-                if(field.Property != null) {
-                    field.Property.SetValue(obj, converted);
-                } else if(field.Field != null) {
-                    field.Field.SetValue(obj, converted);
+                    if(field.Property != null) {
+                        field.Property.SetValue(obj, converted);
+                        Console.WriteLine($"[Data] ✅ Set {field.Property.Name} = {converted}");
+                    } else if(field.Field != null) {
+                        field.Field.SetValue(obj, converted);
+                        Console.WriteLine($"[Data] ✅ Set {field.Field.Name} = {converted}");
+                    }
+                } catch(Exception ex) {
+                    Console.WriteLine($"[Data] ❌ Error deserializing {field.Key}: {ex.Message}");
                 }
-            } catch(Exception err) {
-                Console.WriteLine($"[Data] Error deserializing {field.Key}: {err.Message}");
+            } else {
+                Console.WriteLine($"[Data] ❌ Key '{key}' not found in data");
             }
         }
     }

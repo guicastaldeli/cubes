@@ -112,7 +112,7 @@ public static class SavePath {
 [StoreData(M.SAVE_META)]
 [DataOutput(typeof(SavePath), nameof(SavePath.SaveMetaPath))]
 public class SaveFile {
-    [StoreField("save_name")] [Convert("string")] [ConverterKey("save_id")] public string SaveId { get; set; } = "";
+    [StoreField("save_id")] [Convert("string")] [ConverterKey("save_id")] public string SaveId { get; set; } = "";
     [StoreField("save_name")] [Convert("string")] [ConverterKey("save_name")] public string SaveName { get; set; } = "";
     [StoreField("created_at")] [Convert("string")] [ConverterKey("created_at")] public string CreatedAt { get; set; } = "";
     [StoreField("last_played")] [Convert("string")] [ConverterKey("last_played")] public string LastPlayed { get; set; } = "";
@@ -129,7 +129,7 @@ public class SaveFile {
         this.SaveName = SaveName;
         this.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         this.LastPlayed = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        this.Version = "";
+        this.Version = "1.1.1";
         this.PlayerId = InfoController.UserId ?? "";
         this.PlayerName = InfoController.Username ?? "";
     }

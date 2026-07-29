@@ -254,7 +254,11 @@ public static class DataOutput {
             if(prop.GetIndexParameters().Length > 0) continue;
             try {
                 var val = prop.GetValue(data);
-                if(val != null) resDict[prop.Name.ToLower()] = SerializeData(val)!;
+               if(val != null) {
+                    var keyAttr = prop.GetCustomAttribute<ConverterKey>();
+                    string key = keyAttr != null ? keyAttr.Key : prop.Name.ToLower();
+                    resDict[key] = SerializeData(val)!;
+                }
             } catch(Exception err) {
                 throw new Exception($"DataOutput -- Serialize Data -- Error {err}");
             }
@@ -262,7 +266,11 @@ public static class DataOutput {
         foreach(var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance)) {
             try {
                 var val = field.GetValue(data);
-                if(val != null) resDict[field.Name.ToLower()] = SerializeData(val)!;
+                if(val != null) {
+                    var keyAttr = field.GetCustomAttribute<ConverterKey>();
+                    string key = keyAttr != null ? keyAttr.Key : field.Name.ToLower();
+                    resDict[key] = SerializeData(val)!;
+                }
             } catch(Exception err) {
                 throw new Exception($"DataOutput -- Serialize Data -- Error {err}");
             }
@@ -282,7 +290,6 @@ public static class DataOutput {
         if(targetType.IsPrimitive || targetType == typeof(string)) {
             return Convert.ChangeType(data, targetType);
         }
-
         if(targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(List<>)) {
             var elementType = targetType.GetGenericArguments()[0];
             var convertedItems = new List<object>();
@@ -310,24 +317,82 @@ public static class DataOutput {
                 return CollectionFactory.CreateDictionary(keyType, valueType, convertedDict);
             }
         }
-        if(data is IDictionary<string, object> objData) {
+
+        if(data is IDictionary<string, object> dictionaryData) {
             var instance = Activator.CreateInstance(targetType);
-            
+
+            var keyMap = new Dictionary<string, PropertyInfo>();
             foreach(var prop in targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
-                if(objData.TryGetValue(prop.Name.ToLower(), out var val)) {
+                var keyAttr = prop.GetCustomAttribute<ConverterKey>();
+                string key = keyAttr != null ? keyAttr.Key : prop.Name.ToLower();
+                keyMap[key] = prop;
+            }
+            foreach(var d in dictionaryData) {
+                if(keyMap.TryGetValue(d.Key, out var prop)) {
                     try {
-                        var converted = DeserializeData(val, prop.PropertyType);
-                        prop.SetValue(instance, converted);
+                        object? convertedValue;
+                        if(d.Value is JsonElement el) {
+                            var propType = prop.PropertyType;
+                            if(propType == typeof(string)) {
+                                convertedValue = el.GetString() ?? "";
+                            } else if(propType == typeof(int)) {
+                                convertedValue = el.GetInt32();
+                            } else if(propType == typeof(float)) {
+                                convertedValue = (float)el.GetDouble();
+                            } else if(propType == typeof(double)) {
+                                convertedValue = el.GetDouble();
+                            } else if(propType == typeof(bool)) {
+                                convertedValue = el.GetBoolean();
+                            } else if(propType == typeof(long)) {
+                                convertedValue = el.GetInt64();
+                            } else if(propType == typeof(DateTime)) {
+                                convertedValue = el.GetDateTime();
+                            } else {
+                                convertedValue = Convert.ChangeType(el.GetRawText(), propType);
+                            }
+                        } else {
+                            convertedValue = DeserializeData(d.Value, prop.PropertyType);
+                        }
+                        prop.SetValue(instance, convertedValue);
                     } catch(Exception err) {
                         throw new Exception($"DataOutput -- Deserialize Data -- Error {err.Message}");
                     }
                 }
             }
+
+            var fieldMap = new Dictionary<string, FieldInfo>();
             foreach(var field in targetType.GetFields(BindingFlags.Public | BindingFlags.Instance)) {
-                if(objData.TryGetValue(field.Name.ToLower(), out var val)) {
+                var keyAttr = field.GetCustomAttribute<ConverterKey>();
+                string key = keyAttr != null ? keyAttr.Key : field.Name.ToLower();
+                fieldMap[key] = field;
+            }
+            foreach(var d in dictionaryData) {
+                if(fieldMap.TryGetValue(d.Key, out var field)) {
                     try {
-                        var converted = DeserializeData(val, field.FieldType);
-                        field.SetValue(instance, converted);
+                        object? convertedValue;
+                        if(d.Value is JsonElement el) {
+                            var fieldType = field.FieldType;
+                            if(fieldType == typeof(string)) {
+                                convertedValue = el.GetString() ?? "";
+                            } else if(fieldType == typeof(int)) {
+                                convertedValue = el.GetInt32();
+                            } else if(fieldType == typeof(float)) {
+                                convertedValue = (float)el.GetDouble();
+                            } else if(fieldType == typeof(double)) {
+                                convertedValue = el.GetDouble();
+                            } else if(fieldType == typeof(bool)) {
+                                convertedValue = el.GetBoolean();
+                            } else if(fieldType == typeof(long)) {
+                                convertedValue = el.GetInt64();
+                            } else if(fieldType == typeof(DateTime)) {
+                                convertedValue = el.GetDateTime();
+                            } else {
+                                convertedValue = Convert.ChangeType(el.GetRawText(), fieldType);
+                            }
+                        } else {
+                            convertedValue = DeserializeData(d.Value, field.FieldType);
+                        }
+                        field.SetValue(instance, convertedValue);
                     } catch(Exception err) {
                         throw new Exception($"DataOutput -- Deserialize Data -- Error {err.Message}");
                     }

@@ -48,7 +48,7 @@ class ClientDialog : MainScreenHandler {
             var (_, id) = ActionConverter.Convert(action);
             if(id.HasValue) {
                 GlobalInputHandler.HandleByType(typeName, id.Value);
-                updateSaves();
+                if(active) updateSaves();
                 return;
             }
         }
@@ -91,19 +91,18 @@ class ClientDialog : MainScreenHandler {
         base.update();  
     }
 
-    // Update Save
+    // Update Saves
     public void updateSaves() {
-        clientDialogAction.elements = ElementEntry.C<ScreenElement>(id => getElementById(id), ClientDialogAction.Elements);
-        Console.WriteLine("[ClientDialog] Save list updated");
-    }
-
-    // Update Screen
-    private void updateScreen() {
         clientDialogAction.registerObjects();
-        refresh();
-        updateSaves();
-
-        needsUpdate = false;
+        
+        if(needsUpdate) {
+            refresh();
+            needsUpdate = false;
+        }
+        
+        clientDialogAction.elements = ElementEntry.C<ScreenElement>(id => getElementById(id), ClientDialogAction.Elements);
+        
+        Console.WriteLine("[ClientDialog] Screen refreshed");
     }
 
     /**
@@ -117,7 +116,7 @@ class ClientDialog : MainScreenHandler {
             return;
         }
 
-        if(needsUpdate) updateScreen();
+        if(needsUpdate) updateSaves();
         base.render();
     }
 }
