@@ -1,4 +1,0 @@
-{{@entity#sphere}}
-	id = "sphere",
-	l = "d"
-{{@end}}

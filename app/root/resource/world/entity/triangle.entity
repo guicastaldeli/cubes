@@ -1,4 +1,0 @@
-{{@entity#triangle}}
-	id = "triangle",
-	l = "d"
-{{@end}}

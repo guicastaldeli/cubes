@@ -1,4 +1,0 @@
-{{@entity#cube}}
-	id = "cube",
-	l = "d"
-{{@end}}
