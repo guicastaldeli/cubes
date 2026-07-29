@@ -128,6 +128,11 @@ public static class SaveManager {
         return val;
     }
 
+    public static bool HasSaves() {
+        bool val = GetAllSaves().Count > 0;
+        return val;
+    }
+
     /**
      *
      * Create Save

@@ -302,7 +302,7 @@ static class Data {
             return;
         }
 
-        Console.WriteLine($"[Data] DeserializeStoreData: Starting with {data.Count} keys: {string.Join(", ", data.Keys)}");
+        //Console.WriteLine($"[Data] DeserializeStoreData: Starting with {data.Count} keys: {string.Join(", ", data.Keys)}");
 
         Dictionary<string, object>? actualData = data;
         if(data.Count == 1) {
@@ -310,13 +310,13 @@ static class Data {
             var firstValue = data[firstKey];
             if(firstValue is Dictionary<string, object> nested) {
                 actualData = nested;
-                Console.WriteLine($"[Data] Unwrapped nested data from section '{firstKey}' with {nested.Count} keys");
+                //Console.WriteLine($"[Data] Unwrapped nested data from section '{firstKey}' with {nested.Count} keys");
             } else if(firstValue is JsonElement el && el.ValueKind == JsonValueKind.Object) {
                 try {
                     var nestedDict = JsonSerializer.Deserialize<Dictionary<string, object>>(el.GetRawText());
                     if(nestedDict != null) {
                         actualData = nestedDict;
-                        Console.WriteLine($"[Data] Unwrapped nested JsonElement from section '{firstKey}' with {nestedDict.Count} keys");
+                        //Console.WriteLine($"[Data] Unwrapped nested JsonElement from section '{firstKey}' with {nestedDict.Count} keys");
                     }
                 } catch(Exception ex) {
                     Console.WriteLine($"[Data] Failed to unwrap JsonElement: {ex.Message}");
@@ -342,7 +342,7 @@ static class Data {
             }
         }
 
-        Console.WriteLine($"[Data] Deserializing {fields.Count} fields for {type.Name}");
+        //Console.WriteLine($"[Data] Deserializing {fields.Count} fields for {type.Name}");
     
         foreach(var field in fields) {
             string key = field.Key;
@@ -374,16 +374,16 @@ static class Data {
 
                     if(field.Property != null) {
                         field.Property.SetValue(obj, converted);
-                        Console.WriteLine($"[Data] ✅ Set {field.Property.Name} = {converted}");
+                        //Console.WriteLine($"[Data] Set {field.Property.Name} = {converted}");
                     } else if(field.Field != null) {
                         field.Field.SetValue(obj, converted);
-                        Console.WriteLine($"[Data] ✅ Set {field.Field.Name} = {converted}");
+                        //Console.WriteLine($"[Data] Set {field.Field.Name} = {converted}");
                     }
                 } catch(Exception ex) {
-                    Console.WriteLine($"[Data] ❌ Error deserializing {field.Key}: {ex.Message}");
+                    Console.WriteLine($"[Data] Error deserializing {field.Key}: {ex.Message}");
                 }
             } else {
-                Console.WriteLine($"[Data] ❌ Key '{key}' not found in data");
+                Console.WriteLine($"[Data] Key '{key}' not found in data");
             }
         }
     }
