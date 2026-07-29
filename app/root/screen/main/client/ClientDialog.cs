@@ -88,7 +88,7 @@ class ClientDialog : MainScreenHandler {
     // Update Saves
     public void updateSaves() {
         clientDialogAction.registerObjects();
-
+        
         refresh();
         
         clientDialogAction.elements = ElementEntry.C<ScreenElement>(id => getElementById(id), ClientDialogAction.Elements);

@@ -183,7 +183,7 @@ class ClientDialogAction {
      *
      */
     [GlobalInput]
-    public void save(string saveId) {
+    public void loadSave(string saveId) {
         string? saveName = SaveManager.GetSaveNameById(saveId);
         Console.WriteLine($"[ClientDialog] Loading Save... name: {saveName} ; id: {saveId}");
 
