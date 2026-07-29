@@ -201,6 +201,14 @@ class Screen : ScreenHandler {
         active = false;
     }
 
+    // Refresh
+    public virtual void refresh() {
+        if(!string.IsNullOrEmpty(filePath)) {
+            screenData = DocParser.parseScreen(filePath, screenWidth, screenHeight);
+            resetHover();
+        }
+    }
+
     /**
      * 
      * Render

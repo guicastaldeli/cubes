@@ -9,6 +9,8 @@ class ClientDialog : MainScreenHandler {
     
     private ClientDialogAction clientDialogAction;
 
+    private bool needsUpdate = true;
+
     public ClientDialog([Inject] MainScreen mainScreen) : base(PATH, ID) {
         this.mainScreen = mainScreen;
         this.clientDialogAction = new ClientDialogAction(
@@ -46,7 +48,7 @@ class ClientDialog : MainScreenHandler {
             var (_, id) = ActionConverter.Convert(action);
             if(id.HasValue) {
                 GlobalInputHandler.HandleByType(typeName, id.Value);
-                updateSaveList();
+                updateSaves();
                 return;
             }
         }
@@ -56,6 +58,8 @@ class ClientDialog : MainScreenHandler {
     public override void open() {
         mainScreen.hide();
         show();
+
+        needsUpdate = true;
     }
 
     // Close
@@ -87,16 +91,19 @@ class ClientDialog : MainScreenHandler {
         base.update();  
     }
 
-    // Update Save List
-    public void updateSaveList() {
-        
-        clientDialogAction.registerObjects();
-        screenData = DocParser.parseScreen(PATH, Screen.screenWidth, Screen.screenHeight);
-        clientDialogAction.elements = ElementEntry.C<ScreenElement>(
-            id => getElementById(id), 
-            ClientDialogAction.Elements
-        );
+    // Update Save
+    public void updateSaves() {
+        clientDialogAction.elements = ElementEntry.C<ScreenElement>(id => getElementById(id), ClientDialogAction.Elements);
         Console.WriteLine("[ClientDialog] Save list updated");
+    }
+
+    // Update Screen
+    private void updateScreen() {
+        clientDialogAction.registerObjects();
+        refresh();
+        updateSaves();
+
+        needsUpdate = false;
     }
 
     /**
@@ -109,6 +116,8 @@ class ClientDialog : MainScreenHandler {
             mainScreen.getMainScene().render();
             return;
         }
+
+        if(needsUpdate) updateScreen();
         base.render();
     }
 }

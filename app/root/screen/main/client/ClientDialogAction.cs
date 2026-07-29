@@ -65,21 +65,27 @@ class ClientDialogAction {
         DocParser.ReplaceObject(saveType.Name, saveType);
         DocParser.ReplaceObject(name, saveType);
 
-        registerList(SaveManager.GetAllSaves());
+        updateSaves();
 
         var displayType = typeof(DisplaySave);
         DocParser.ReplaceObject(displayType.Name, displayType);
     }
 
     // Register List
-    private void registerList<T>(IEnumerable<T> list) {
+    private void registerSaveList<T>(IEnumerable<T> list) {
         var result = list.ToList();
         var elementTypeName = typeof(T).Name.ToLower();
         var name = WordInflector.ToPlural(elementTypeName);
 
-        Console.WriteLine($"[registerList] Registering: {elementTypeName} / {name} ({result.Count} items)");
+        Console.WriteLine($"[registerSaveList] Registering: {elementTypeName} / {name} ({result.Count} items)");
         DocParser.ReplaceObject(elementTypeName, result);
         DocParser.ReplaceObject(name, result);
+    }
+
+    // Update Saves
+    private void updateSaves() {
+        var saves = SaveManager.GetAllSaves();
+        registerSaveList(saves);
     }
 
     // Show Create Input
@@ -146,7 +152,7 @@ class ClientDialogAction {
             Console.WriteLine($"[ClientDialog] Save created: {saveName} ({saveId})");
 
             cancelCreateSave();
-            clientDialog.updateSaveList();
+            clientDialog.updateSaves();
         } catch(Exception err) {
             Console.WriteLine($"[ClientDialog] Failed to create save: {err.Message}");
         }
@@ -199,7 +205,7 @@ class ClientDialogAction {
 
         if(SaveManager.Delete(saveId)) {
             Console.WriteLine($"[ClientDialog] Deleted Save... name: {saveName} ; id: {saveId}");
-            clientDialog.updateSaveList();
+            clientDialog.updateSaves();
         } else {
             Console.WriteLine($"[ClientDialog] Failed to delete save... name: {saveName} ; id: {saveId}");
         }
