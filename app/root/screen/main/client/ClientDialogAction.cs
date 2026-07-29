@@ -5,6 +5,7 @@ using App.Root.Utils;
 using App.Root.Input;
 using App.Root.UI;
 
+[ActionConverter]
 class ClientDialogAction {
     private Window window;
     private ScreenController screenController;
@@ -127,6 +128,7 @@ class ClientDialogAction {
     // Create Save
     [GlobalInput]
     public void createSave() {
+        Console.WriteLine("TETST");
         if(isCreatingSave) {
             cancelCreateSave();
             return;
@@ -181,7 +183,7 @@ class ClientDialogAction {
      *
      */
     [GlobalInput]
-    public void loadSave(string saveId) {
+    public void save(string saveId) {
         string? saveName = SaveManager.GetSaveNameById(saveId);
         Console.WriteLine($"[ClientDialog] Loading Save... name: {saveName} ; id: {saveId}");
 

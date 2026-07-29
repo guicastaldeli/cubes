@@ -18,7 +18,7 @@
         hoverable="true" 
         hoverBackground="0.3,0.5,0.9,0.9" 
         hoverScale="1.02"
-        action="create_save"
+        action="createSave"
     >
         <label
             id="create_save_label"
@@ -65,7 +65,7 @@
                 background="0.6,0.2,0.2,0.9" 
                 hoverable="true" 
                 hoverBackground="0.8,0.3,0.3,0.9"
-                action="cancel_save"
+                action="cancelSave"
             >
                 <label 
                     x="0%" y="0%" 
@@ -84,7 +84,7 @@
                 background="0.2,0.6,0.2,0.9" 
                 hoverable="true" 
                 hoverBackground="0.3,0.8,0.3,0.9"
-                action="confirm_save"
+                action="confirmCreateSave"
             >
                 <label 
                     x="0%" y="0%" 
@@ -155,7 +155,7 @@
                             background="0.2,0.5,0.2,0.9" 
                             hoverable="true" 
                             hoverBackground="0.3,0.7,0.3,0.9"
-                            action="load_save:{save.SaveId}"
+                            action="loadSave:{save.SaveId}"
                         >
                             <label 
                                 x="0%" y="0%" 
@@ -174,7 +174,7 @@
                             background="0.5,0.2,0.2,0.9" 
                             hoverable="true" 
                             hoverBackground="0.7,0.3,0.3,0.9"
-                            action="delete_save:{save.SaveId}"
+                            action="deleteSave:{save.SaveId}"
                         >
                             <label 
                                 x="0%" y="0%" 

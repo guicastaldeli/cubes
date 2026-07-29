@@ -2,6 +2,7 @@ namespace App.Root.Screen.Main.Client;
 using App.Root.Screen.Main.Server;
 using App.Root.Input;
 using App.Root.Utils;
+using System.Reflection;
 
 class ClientDialog : MainScreenHandler {
     private const string ID = "client_dialog";
@@ -27,22 +28,7 @@ class ClientDialog : MainScreenHandler {
     }
 
     // Handle Action
-    public override void handleAction(string action) {
-        switch(action) {
-            case "back":
-                clientDialogAction.back();
-                return;
-            case "create_save":
-                clientDialogAction.createSave();
-                return;
-            case "confirm_save":
-                clientDialogAction.confirmCreateSave();
-                return;
-            case "cancel_save":
-                clientDialogAction.cancelSave();
-                return;
-        }
-        
+    public override void handleAction(string action) {        
         var typeName = GlobalInputHandler.FindTypeFromAction(action);
         if(typeName != null) {
             var (_, id) = ActionConverter.Convert(action);
@@ -52,6 +38,14 @@ class ClientDialog : MainScreenHandler {
                 return;
             }
         }
+
+        var method = clientDialogAction.GetType().GetMethod(action, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+        if(method != null) {
+            method.Invoke(clientDialogAction, null);
+            return;
+        }
+
+        Console.WriteLine($"[ClientDialog] Unhandled action: {action}");
     }
 
     // Open
@@ -94,14 +88,11 @@ class ClientDialog : MainScreenHandler {
     // Update Saves
     public void updateSaves() {
         clientDialogAction.registerObjects();
-        
-        if(needsUpdate) {
-            refresh();
-            needsUpdate = false;
-        }
+
+        refresh();
         
         clientDialogAction.elements = ElementEntry.C<ScreenElement>(id => getElementById(id), ClientDialogAction.Elements);
-        
+        needsUpdate = false;
         Console.WriteLine("[ClientDialog] Screen refreshed");
     }
 

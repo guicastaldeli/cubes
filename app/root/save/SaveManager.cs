@@ -1,8 +1,6 @@
 namespace App.Root.Save;
-using App.Root.Utils;
 using System.Text.Json;
 
-[ActionConverter]
 public static class SaveManager {
     public static string SaveId { get { return "save_id"; } }
     public static string SaveName { get { return "save_name"; } }
