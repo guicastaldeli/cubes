@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inventory>
+    <img 
+        id="inventory"
+        src="texture/player/hud/inventory.png"
+        x="25%" y="50%"
+        width="40%" height="20%"
+    />
+    <slotconfig
+        id="slotconfig"
+        cols="12" rows="3"
+        edgePaddingPct="0.03"
+        topPaddingPct="0.05"
+        slotWidthPct="0.065"
+        slotHeightPct="0.25"
+        gapPct="0.015"
+    />
+</inventory>

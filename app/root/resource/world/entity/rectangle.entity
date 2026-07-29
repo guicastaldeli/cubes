@@ -1,0 +1,4 @@
+{{@entity#rectangle}}
+	id = "rectangle",
+	l = "d"
+{{@end}}

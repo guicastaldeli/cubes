@@ -1,0 +1,41 @@
+{{@theme#test1}}
+    id = -1,
+    name = "TEST_1_THEME",
+    price = 100,
+    movement = ~[
+        gravityScale = 2.0,
+        gravity = -20.0,
+        drag = 0.4,
+        moveSpeed = 5.0,
+        flySpeed = 5.0,
+        jumpForce = 6.0,
+        jumpGravityEnabled = true,
+        jumpGravityScale = 1.5,
+        jumpGravity = -8.0,
+        friction = 0.5,
+        airControl = 0.6,
+        maxFallSpeed = -10.0,
+        pullDrag = 0.7,
+        buoyancy = 5.0
+    ],
+    audio = "",
+    top = $top,
+    texture = "world/theme/test1",
+    colliderVisible = true,
+    gravityRegular = true,
+    particles = ~[
+        live = true,
+        playerMovSpeed = 5.0,
+        playerStand = 0.0,
+        position = (0, 0, 0),
+        color = (0.3, 0.3, 0.3),
+        size = 0.5,
+        speed = 2.0,
+        lifetime = 20.0,
+        velNum = (2.0, 0.0, 0.0),
+        targetY = 0.0,
+        enableMotion = true,
+        spawnRadius = 20.0,
+        amount = 100
+    ]
+{{@end}}

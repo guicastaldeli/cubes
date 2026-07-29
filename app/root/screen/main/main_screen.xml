@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<main_screen>
+    <!-- Main -->
+    <button 
+        id="clientBtn" 
+        x="20%" y="38%" 
+        scale="1.0" 
+        width="250"
+        height="200"
+        color="0.0, 0.0, 0.0" 
+        background="1.0,1.0,1.0,1.0"
+        action="client"
+        hoverTextColor="0.2, 0.2, 0.2, 1.0"
+        hoverBackground="0.7, 0.7, 0.7, 1.0"
+        textOffset="25%, 37%"
+    >
+        Client
+    </button>
+    <button 
+        id="serverBtn" 
+        x="60%" y="38%" 
+        scale="1.0" 
+        width="250"
+        height="200"
+        color="0.0, 0.0, 0.0" 
+        background="1.0,1.0,1.0,1.0"
+        action="server"
+        hoverTextColor="0.2, 0.2, 0.2, 1.0"
+        hoverBackground="0.7, 0.7, 0.7, 1.0"
+        textOffset="23%, 37%"
+    >
+        Server
+    </button>
+
+    <!-- Info -->
+        <label 
+            id="usernameInfoLabel" 
+            x="5%" y="75%" 
+            scale="1.0" 
+            color="0.0,0.0,0.0,1.0"
+        >
+            User: {username}
+        </label>
+
+        <!-- Change ID (Dev and Debug Mode) -->
+        <DevDebug>
+            <label 
+                id="idInfoLabel" 
+                x="35%" y="75%" 
+                scale="0.6" 
+                color="0.0,0.0,0.0,1.0"
+            >
+                ID: {id}
+            </label>
+            <button 
+                id="idBtn" 
+                x="35%" y="80%" 
+                width="200" height="50"
+                color="0.0,0.0,0.0" 
+                background="1.0,1.0,1.0,1.0"
+                action="id" 
+                hoverBackground="0.7,0.7,0.7,1.0" 
+                textOffset="25%,37%"
+            >
+                -ID
+            </button>
+        </DevDebug>
+    <!---->
+
+    <!-- Custom Menu -->
+    <button 
+        id="customBtn" 
+        x="5%" y="80%" 
+        width="200" height="50"
+        color="0.0,0.0,0.0" 
+        background="1.0,1.0,1.0,1.0"
+        action="custom" 
+        hoverBackground="0.7,0.7,0.7,1.0" 
+        textOffset="25%,37%"
+    >
+        Custom
+    </button>
+</main_screen>
