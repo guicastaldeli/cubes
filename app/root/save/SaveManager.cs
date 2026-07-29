@@ -25,7 +25,7 @@ public static class SaveManager {
         if(!Directory.Exists(SavePath.SAVES_DIR)) return null;
 
         foreach(var dir in Directory.GetDirectories(SavePath.SAVES_DIR)) {
-            string metaPath = SavePath.GetSaveMetaPath(dir);
+            string metaPath = SavePath.SaveMetaPath(dir);
             if(!File.Exists(metaPath)) continue;
 
             try {
@@ -55,7 +55,7 @@ public static class SaveManager {
         if(!Directory.Exists(SavePath.SAVES_DIR)) return null;
 
         foreach(var dir in Directory.GetDirectories(SavePath.SAVES_DIR)) {
-            string metaPath = SavePath.GetSaveMetaPath(dir);
+            string metaPath = SavePath.SaveMetaPath(dir);
             if(!File.Exists(metaPath)) continue;
 
             try {
@@ -78,7 +78,7 @@ public static class SaveManager {
         string? saveFolder = GetSaveFolderById(saveId);
         if(string.IsNullOrEmpty(saveFolder)) return null;
 
-        string metaPath = SavePath.GetSaveMetaPath(saveFolder);
+        string metaPath = SavePath.SaveMetaPath(saveFolder);
         if(!File.Exists(metaPath)) return null;
 
         try {
@@ -139,7 +139,7 @@ public static class SaveManager {
         string saveId = file.SaveId;
         currentSaveId = saveId;
         currentSaveName = saveName;
-        currentSavePath = SavePath.GetSaveFolder(file);
+        currentSavePath = SavePath.SaveFolder(file);
 
         return saveId;
     }
@@ -181,7 +181,7 @@ public static class SaveManager {
             return;
         }
 
-        string saveFolder = SavePath.GetSaveFolder(saveFile);
+        string saveFolder = SavePath.SaveFolder(saveFile);
         currentSavePath = saveFolder;
 
         GenerateSave.SaveStoreDataToFolder(currentSavePath, M.SAVE_META);

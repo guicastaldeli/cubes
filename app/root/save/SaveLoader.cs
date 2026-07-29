@@ -24,7 +24,7 @@ public static class SaveLoader {
         if(!Directory.Exists(SavePath.SAVES_DIR)) return saves;
 
         foreach(var dir in Directory.GetDirectories(SavePath.SAVES_DIR)) {
-            string metaPath = SavePath.GetSaveMetaPath(dir);
+            string metaPath = SavePath.SaveMetaPath(dir);
             if(File.Exists(metaPath)) {
                 try {
                     var json = File.ReadAllText(metaPath);
@@ -118,7 +118,7 @@ public static class SaveLoader {
             return result;
         }
 
-        string manifestPath = SavePath.GetManifestPath(save);
+        string manifestPath = SavePath.ManifestPath(save);
         if(!File.Exists(manifestPath)) {
             result.Result = LoadResult.MissingFiles;
             result.Message = "Missing manifest meta";
@@ -149,7 +149,7 @@ public static class SaveLoader {
     public static void LoadStoreDataFromFolder(string save) {
         var jsonFiles = Directory.GetFiles(save, "*.json");
         foreach(var file in jsonFiles) {
-            string manifest = SavePath.GetManifestPath(save);
+            string manifest = SavePath.ManifestPath(save);
             string meta = M.SAVE_META_JSON;
 
             string fileName = Path.GetFileName(file);

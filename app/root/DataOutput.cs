@@ -13,13 +13,21 @@ using System.Text.Json;
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class DataOutputAttribute : Attribute {
     public string? Path { get; set; }
+    public Type? PathProvider { get; set; }
+    public string? PathMethod { get; set; }
     public string? Section { get; set; }
 
     public DataOutputAttribute(string? Path = null, string? Section = null) {
         this.Path = Path;
         this.Section = Section;
     }
+    public DataOutputAttribute(Type PathProvider, string PathMethod, string? Section = null) {
+        this.PathProvider = PathProvider;
+        this.PathMethod = PathMethod;
+        this.Section = Section;
+    }
 
+    // Generate Section
     public static string GenerateSection(Type type) {
         string val = type.Name.ToLower();
         return val;
@@ -43,22 +51,58 @@ public static class DataOutput {
         public string Section { get; set; }
         public string Id { get; set; }
         public string Path { get; set; }
+        public Type? PathProvider { get; set; }
+        public string? PathMethod { get; set; }
 
-        private string PATH_DIR = DPath.GetFullPath(DPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "root", ".INFO-DATA"));
+        public static string PATH_DIR = DPath.GetFullPath(DPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "root"));
 
         public DataOutputInfo(Type Type, string Path, string Section, string Id) {
             this.Type = Type;
             this.Section = Section;
             this.Id = Id;
             this.Path = DPath.Combine(PATH_DIR, Path);
+            this.PathProvider = null;
+            this.PathMethod = null;
+        }
+        public DataOutputInfo(Type Type, Type PathProvider, string PathMethod, string Section, string Id) {
+            this.Type = Type;
+            this.Section = Section;
+            this.Id = Id;
+            this.PathProvider = PathProvider;
+            this.PathMethod = PathMethod;
+            this.Path = ResolvePath();
         }
 
         // Get Full Path
         public string GetFullPath() {
-            string basePath = GetCurrentSavePath();
-            
-            string val = DPath.Combine(basePath, Path);
-            return val;
+            if(PathProvider != null && !string.IsNullOrEmpty(PathMethod)) {
+                return ResolvePath();
+            }
+
+            return Path;
+        }
+
+        // Resolve Path
+        private string ResolvePath() {
+            if(PathProvider == null || string.IsNullOrEmpty(PathMethod)) return "";
+
+            try {
+                var method = PathProvider.GetMethod(PathMethod,
+                    BindingFlags.Public | BindingFlags.NonPublic |
+                    BindingFlags.Static | BindingFlags.FlattenHierarchy);
+                if(method != null && method.GetParameters().Length == 0) {
+                    var result = method.Invoke(null, null);
+                    if(result != null) {
+                        string resolved = result.ToString() ?? "";
+                        Console.WriteLine($"[DataOutput] Called {PathProvider.Name}.{PathMethod}() = {resolved}");
+                        return resolved;
+                    }
+                }
+            } catch(Exception ex) {
+                Console.WriteLine($"[DataOutput] Error calling {PathProvider?.Name}.{PathMethod}: {ex.Message}");
+            }
+
+            return "";
         }
     }
 

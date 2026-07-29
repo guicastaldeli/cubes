@@ -28,7 +28,7 @@ public static class GenerateSave {
             files = Directory.GetFiles(saveFolder).Select(Path.GetFileName).ToList()
         };
 
-        string manifestPath = SavePath.GetManifestPath(saveFolder);
+        string manifestPath = SavePath.ManifestPath(saveFolder);
         var data = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(manifestPath, data);
 
@@ -66,7 +66,7 @@ public static class GenerateSave {
         
         SaveFile saveFile = new SaveFile(saveName);
         string saveId = saveFile.SaveId;
-        string saveFolder = SavePath.GetSaveFolder(saveName);
+        string saveFolder = SavePath.SaveFolder(saveName);
         if(SavePath.SaveFolderExists(saveName)) throw new InvalidOperationException($"Save '{saveName}' already exists!");
 
         Directory.CreateDirectory(saveFolder);
