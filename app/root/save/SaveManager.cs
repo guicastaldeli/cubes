@@ -156,6 +156,8 @@ public static class SaveManager {
             currentSavePath = result.Save ?? "";
             currentSaveName = GetSaveNameById(saveId) ?? "";
 
+            SavePath.SetCurrentSave(currentSaveName);
+
             Console.WriteLine($"[SaveManager] Loaded Save... name: {currentSaveName} ; id: {currentSaveId}");
         } else {
             Console.WriteLine($"[SaveManager] Failed to load save: {result.Message}");

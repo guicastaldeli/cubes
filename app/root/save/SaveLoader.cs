@@ -94,6 +94,8 @@ public static class SaveLoader {
         Console.WriteLine($"[SaveLoader] Loading Save... Name: {saveName} ; Id: {saveId}");
         Console.ResetColor();
 
+        if(!string.IsNullOrEmpty(saveName)) SavePath.SetCurrentSave(saveName);
+
         string metaPath = Path.Combine(save, M.SAVE_META_JSON);
         if(!File.Exists(metaPath)) {
             result.Result = LoadResult.MissingFiles;
@@ -126,7 +128,6 @@ public static class SaveLoader {
             return result;
         }
 
-        DataOutput.SetSavePath(save);
         try {
             DataOutput.LoadAll();
             LoadStoreDataFromFolder(save);

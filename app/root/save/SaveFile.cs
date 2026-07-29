@@ -85,6 +85,23 @@ public static class SavePath {
         if(!string.IsNullOrEmpty(currentSaveFolder)) return Path.Combine(currentSaveFolder, M.PLAYER_STORAGE);
         return Path.Combine(DefaultPath(), M.PLAYER_STORAGE);
     }
+
+    /**
+     * 
+     * Set Current Save
+     *
+     */
+    public static void SetCurrentSave(string saveName) {
+        if(string.IsNullOrEmpty(saveName)) {
+            currentSaveName = null;
+            currentSaveFolder = null;
+            Console.WriteLine("[SavePath] Current save cleared");
+            return;
+        }
+
+        currentSaveName = saveName;
+        currentSaveFolder = Path.Combine(SAVES_DIR, saveName);
+    }
 }
 
 /**

@@ -75,7 +75,7 @@ public static class DataOutput {
             this.PathProvider = PathProvider;
             this.PathMethod = PathMethod;
             this.MethodArgs = MethodArgs;
-            this.Path = ResolvePath();
+            this.Path = "";
         }
 
         // Get Full Path
@@ -142,7 +142,6 @@ public static class DataOutput {
      *
      */
     private static Dictionary<string, DataOutputInfo> outputRegistry = new();
-    private static string? currentSavePath = null;
 
     private static bool initialized = false;
 
@@ -168,18 +167,6 @@ public static class DataOutput {
         } catch(Exception err) {
             throw new Exception($"DataOutput -- HaSavedData -- Error {err}");
         }
-    }
-
-    // Set Save Path
-    public static void SetSavePath(string savePath) {
-        currentSavePath = savePath;
-        Console.WriteLine($"[DataOutput] Save path set to: {savePath}");
-    }
-
-    // Get Current Save Path
-    public static string GetCurrentSavePath() {
-        string val = currentSavePath ?? "err";
-        return val;
     }
  
     /**
@@ -236,7 +223,7 @@ public static class DataOutput {
 
         string outputText = JsonSerializer.Serialize(existingData, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(path, outputText);
-        Console.WriteLine($"[DataOutput] Saved {info.Id} to {info.Path}:{info.Section}");
+        Console.WriteLine($"[DataOutput] Saved {info.Id} to {path}:{info.Section}");
     }
 
     /**
@@ -374,7 +361,7 @@ public static class DataOutput {
 
                         if(attr.PathProvider != null && !string.IsNullOrEmpty(attr.PathMethod)) {
                             info = new DataOutputInfo(type, attr.PathProvider, attr.PathMethod, section, id);
-                            Console.WriteLine($"[DataOutput] Registered {type.Name} with ID: {id} -> {attr.PathProvider.Name}.{attr.PathMethod}():{section}");
+                            Console.WriteLine($"[DataOutput] Registered {type.Name} with ID: {id} -> {info.GetFullPath()}:{section}");
                         } else if(!string.IsNullOrEmpty(attr.Path)) {
                             info = new DataOutputInfo(type, attr.Path, section, id);
                             Console.WriteLine($"[DataOutput] Registered {type.Name} with ID: {id} -> {attr.Path}:{section}");

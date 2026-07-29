@@ -74,11 +74,12 @@ public static class GenerateSave {
         Console.WriteLine($"[SaveGenerator] Created save folder: {saveFolder}; ID: {saveId}, Name: {saveName}");
         Console.ResetColor();
 
+        SavePath.SetCurrentSave(saveName);
+
         string meta = M.SAVE_META;
         Data.RegisterStoreData(saveFile);
         Data.RegisterData(meta, saveFile);
 
-        DataOutput.SetSavePath(saveFolder);
         DataOutput.SaveAll();
         SaveStoreDataToFolder(saveFolder, meta);
 
