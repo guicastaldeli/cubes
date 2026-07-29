@@ -16,15 +16,17 @@ public class DataOutputAttribute : Attribute {
     public Type? PathProvider { get; set; }
     public string? PathMethod { get; set; }
     public string? Section { get; set; }
+    public Type[]? MethodArgs { get; set; }
 
     public DataOutputAttribute(string? Path = null, string? Section = null) {
         this.Path = Path;
         this.Section = Section;
     }
-    public DataOutputAttribute(Type PathProvider, string PathMethod, string? Section = null) {
+    public DataOutputAttribute(Type PathProvider, string PathMethod, string? Section = null, Type[]? MethodArgs = null) {
         this.PathProvider = PathProvider;
         this.PathMethod = PathMethod;
         this.Section = Section;
+        this.MethodArgs = MethodArgs;
     }
 
     // Generate Section
@@ -53,6 +55,7 @@ public static class DataOutput {
         public string Path { get; set; }
         public Type? PathProvider { get; set; }
         public string? PathMethod { get; set; }
+        public Type[]? MethodArgs { get; set; }
 
         public static string PATH_DIR = DPath.GetFullPath(DPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "root"));
 
@@ -63,13 +66,15 @@ public static class DataOutput {
             this.Path = DPath.Combine(PATH_DIR, Path);
             this.PathProvider = null;
             this.PathMethod = null;
+            this.MethodArgs = null;
         }
-        public DataOutputInfo(Type Type, Type PathProvider, string PathMethod, string Section, string Id) {
+        public DataOutputInfo(Type Type, Type PathProvider, string PathMethod, string Section, string Id, Type[]? MethodArgs = null) {
             this.Type = Type;
             this.Section = Section;
             this.Id = Id;
             this.PathProvider = PathProvider;
             this.PathMethod = PathMethod;
+            this.MethodArgs = MethodArgs;
             this.Path = ResolvePath();
         }
 
@@ -87,19 +92,44 @@ public static class DataOutput {
             if(PathProvider == null || string.IsNullOrEmpty(PathMethod)) return "";
 
             try {
-                var method = PathProvider.GetMethod(PathMethod,
-                    BindingFlags.Public | BindingFlags.NonPublic |
-                    BindingFlags.Static | BindingFlags.FlattenHierarchy);
-                if(method != null && method.GetParameters().Length == 0) {
-                    var result = method.Invoke(null, null);
+                MethodInfo? method = null;
+
+                if(MethodArgs != null && MethodArgs.Length > 0) {
+                    method = PathProvider.GetMethod(PathMethod, 
+                        BindingFlags.Public | BindingFlags.NonPublic | 
+                        BindingFlags.Static | BindingFlags.FlattenHierarchy,
+                        null, MethodArgs, null);
+                } else {
+                    method = PathProvider.GetMethod(PathMethod, 
+                        BindingFlags.Public | BindingFlags.NonPublic | 
+                        BindingFlags.Static | BindingFlags.FlattenHierarchy,
+                        null, Type.EmptyTypes, null);
+                }
+
+                if(method != null) {
+                    var param = method.GetParameters();
+                    object?[]? args = null;
+
+                    if(param.Length > 0) {
+                        args = new object?[param.Length];
+                        for(int i = 0; i < param.Length; i++) {
+                            if(param[i].ParameterType.IsValueType) {
+                                args[i] = Activator.CreateInstance(param[i].ParameterType);
+                            } else {
+                                args[i] = null;
+                            }
+                        }
+                    }
+
+                    var result = method.Invoke(null, args);
                     if(result != null) {
                         string resolved = result.ToString() ?? "";
                         Console.WriteLine($"[DataOutput] Called {PathProvider.Name}.{PathMethod}() = {resolved}");
                         return resolved;
                     }
                 }
-            } catch(Exception ex) {
-                Console.WriteLine($"[DataOutput] Error calling {PathProvider?.Name}.{PathMethod}: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[DataOutput] Error calling {PathProvider?.Name}.{PathMethod}: {err.Message}");
             }
 
             return "";
@@ -339,12 +369,21 @@ public static class DataOutput {
                     var attr = type.GetCustomAttribute<DataOutputAttribute>();
                     if(attr != null) {
                         string id = DataInputAttribute.GenerateId(type);
-                        string path = attr.Path!;
                         string section = attr.Section ?? DataOutputAttribute.GenerateSection(type);
+                        DataOutputInfo info;
 
-                        outputRegistry[id] = new DataOutputInfo(type, path, section, id);
+                        if(attr.PathProvider != null && !string.IsNullOrEmpty(attr.PathMethod)) {
+                            info = new DataOutputInfo(type, attr.PathProvider, attr.PathMethod, section, id);
+                            Console.WriteLine($"[DataOutput] Registered {type.Name} with ID: {id} -> {attr.PathProvider.Name}.{attr.PathMethod}():{section}");
+                        } else if(!string.IsNullOrEmpty(attr.Path)) {
+                            info = new DataOutputInfo(type, attr.Path, section, id);
+                            Console.WriteLine($"[DataOutput] Registered {type.Name} with ID: {id} -> {attr.Path}:{section}");
+                        } else {
+                            Console.WriteLine($"[DataOutput] Warning: No path specified for {type.Name}");
+                            continue;
+                        }
 
-                        Console.WriteLine($"[DataOutput] Registered {type.Name} with ID: {id} -> {path}:{section}");
+                        outputRegistry[id] = info;
                     }
                 }
             } catch(Exception err) {

@@ -24,7 +24,7 @@ public static class M {
 
     */
 public static class SavePath {
-    public static string SAVES_DIR = DefaultPath();
+    public static string SAVES_DIR => DefaultPath();
 
     public static string? currentSaveName = null;
     public static string? currentSaveFolder = null;
