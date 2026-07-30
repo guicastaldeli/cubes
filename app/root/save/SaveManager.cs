@@ -151,7 +151,7 @@ public static class SaveManager {
         currentSaveId = saveId;
         currentSaveName = saveName;
         currentSavePath = SavePath.SaveFolder(file);
-
+        
         return saveId;
     }
 
