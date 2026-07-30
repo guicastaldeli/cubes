@@ -70,6 +70,15 @@ class ClientDialogAction {
         return null;
     }
 
+    // Back
+    [GlobalInput]
+    public void backToMain() {
+        clientDialog.hide();
+        clientDialog.getMainScreen().show();
+        
+        network.stop();
+    }
+
     // Register Objects
     public void registerObjects() {
         var saveType = typeof(SaveManager);
@@ -205,7 +214,7 @@ class ClientDialogAction {
         var result = SaveManager.LoadSave(saveId);
         if(result.Result == SaveLoader.LoadResult.Success) {
             Console.WriteLine($"[ClientDialog] Save loaded successfully!");
-            Screen.screenController.switchTo(null);
+            //Screen.screenController.switchTo(null);
             clientDialog.getMainScreen().getMainScene().init();
         }
     }
@@ -227,18 +236,5 @@ class ClientDialogAction {
         } else {
             Console.WriteLine($"[ClientDialog] Failed to delete save... name: {saveName} ; id: {saveId}");
         }
-    }
-
-    // Start
-    public void start() {
-        clientDialog.getMainScreen().getMainScene().init();
-    }
-
-    // Back
-    public void back() {
-        clientDialog.hide();
-        clientDialog.getMainScreen().show();
-        
-        network.stop();
     }
 }

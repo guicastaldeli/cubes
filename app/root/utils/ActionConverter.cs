@@ -210,7 +210,7 @@ public static class ActionConverter {
                 }
             }
 
-            Console.WriteLine($"[ActionConverter] Plain method: {result.MethodName}");
+            //Console.WriteLine($"[ActionConverter] Plain method: {result.MethodName}");
             return result;
         }
 

@@ -18,7 +18,7 @@
                 height="100"
                 color="0.0, 0.0, 0.0" 
                 background="1.0,1.0,1.0,1.0"
-                action="back"
+                action="backToMain"
                 hoverTextColor="0.2, 0.2, 0.2, 1.0"
                 hoverBackground="0.7, 0.7, 0.7, 1.0"
                 textOffset="25%, 37%"

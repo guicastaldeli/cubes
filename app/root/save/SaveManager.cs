@@ -28,7 +28,11 @@ public static class SaveManager {
 
             try {
                 var json = File.ReadAllText(metaPath);
-                var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                
+                var root = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                if(root == null) continue;
+
+                var data = SaveFile.UnwrapMeta(root, SaveId);
                 if(data != null && data.TryGetValue(SaveId, out var obj)) {
                     string id = obj.ToString() ?? "";
                     if(id == saveId) {
