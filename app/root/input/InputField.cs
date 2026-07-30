@@ -13,7 +13,7 @@ class InputField {
     private static string? focusedId = null;
 
     // Get Element
-    private static InputElement? getElement(string id) {
+    private static InputElement? GetElement(string id) {
         foreach(var screen in Screen.screenController.screens.Values) {
             if(!screen.isActive()) continue;
 
@@ -32,24 +32,24 @@ class InputField {
     }
 
     // Focus
-    public static bool isFocused(string id) {
+    public static bool IsFocused(string id) {
         return focusedId == id;
     }
 
-    public static bool isFocus() {
+    public static bool IsFocus() {
         return focusedId != null;
     }
 
-    public static void focus(string id) {
+    public static void Focus(string id) {
         if(string.IsNullOrEmpty(id)) return;
 
-        if(!fields.ContainsKey(id)) register(id);
+        if(!fields.ContainsKey(id)) Register(id);
         focusedId = id;
 
         Console.WriteLine($"[InputField] Focused: {id}");
     }
 
-    public static void unfocus() {
+    public static void Unfocus() {
         if(focusedId != null) {
             Console.WriteLine($"[InputField] Unfocused: {focusedId}");
             focusedId = null;
@@ -57,7 +57,7 @@ class InputField {
     }
 
     // Get Text
-    public static string getText(string id) {
+    public static string GetText(string id) {
         string val = fields.TryGetValue(id, out var h) ? 
             h.getText() : 
             "";
@@ -69,8 +69,35 @@ class InputField {
      * Register
      *
      */
-    public static void register(string id) {
+    // Register
+    public static void Register(string id) {
         fields[id] = new KeyboardInput();
+    }
+    
+    // Register Elements
+    private static void RegisterElements(IEnumerable<string> ids) {
+        foreach(var id in ids) {
+            if(!string.IsNullOrEmpty(id) && !fields.ContainsKey(id)) {
+                Register(id);
+            }
+        }
+    }
+    
+    // Scan and Register
+    public static void ScanAndRegister() {
+        foreach(var screen in Screen.screenController.screens.Values) {
+            //Console.WriteLine($"[InputField] Screen: {screen.screenName} | data: {screen.screenData?.elements.Count}");
+            if(screen.screenData == null) continue;
+            RegisterElements(screen.screenData.elements.Select(e => e.id));
+        }
+
+        foreach(var ui in UI.uiController.getUIs().Values) {
+            //Console.WriteLine($"[InputField] UI: {ui.uiName} | data: {ui.uiData?.elements.Count}");
+            if(ui.uiData == null) continue;
+            RegisterElements(ui.uiData.elements.Select(e => e.id));
+        }
+        
+        //Console.WriteLine($"[InputField] Registered fields: {string.Join(", ", fields.Keys)}");
     }
 
     /**
@@ -78,10 +105,11 @@ class InputField {
      * Handle Click
      *
      */
-    public static void handleClick(int mouseX, int mouseY) {
+    public static void HandleClick(int mouseX, int mouseY) {
         focusedId = null;
+
         foreach(var (id, _) in fields) {
-            var el = getElement(id);
+            var el = GetElement(id);
             if(el != null && el.ContainsPoint(mouseX, mouseY)) {
                 focusedId = id;
                 break;
@@ -94,11 +122,11 @@ class InputField {
      * Handle Key Press
      *
      */
-    public static void handleKeyPress(Keys key, int action) {
+    public static void HandleKeyPress(Keys key, int action) {
         if(focusedId == null) return;
         if(fields.TryGetValue(focusedId, out var handler)) {
             handler.handleKey(key, action);
-            sync(focusedId);
+            Sync(focusedId);
         }
     }
 
@@ -107,9 +135,9 @@ class InputField {
      * Sync
      *
      */
-    private static void sync(string id) {
+    private static void Sync(string id) {
         if(!fields.TryGetValue(id, out var handler)) return;
-        var el = getElement(id);
+        var el = GetElement(id);
         if(el != null) el.text = handler.getText();
     }
 
@@ -118,10 +146,10 @@ class InputField {
      * Clear
      *
      */
-    public static void clear(string id) {
+    public static void Clear(string id) {
         if(fields.TryGetValue(id, out var h)) {
             h.clear();
-            sync(id);
+            Sync(id);
         }
     }
 }

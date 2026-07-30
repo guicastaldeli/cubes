@@ -383,8 +383,8 @@ class Input {
             inputVoip.onKeyDown(key);
         }    
 
-        if(InputField.isFocus()) {
-            InputField.handleKeyPress(key, KeyAction.Press);
+        if(InputField.IsFocus()) {
+            InputField.HandleKeyPress(key, KeyAction.Press);
             return;
         }
 
@@ -462,7 +462,7 @@ class Input {
 
     private void onMouseClick(int x, int y) {
         uiController.handleMouseClick(x, y, 0, 1);
-        InputField.handleClick(x, y);
+        InputField.HandleClick(x, y);
         if(screenController.isRunning() && !pauseOverlayOpen) return;
         screenController.handleMouseClick(x, y, 0, 1);
     }
@@ -526,6 +526,8 @@ class Input {
     public void init() {
         setMouse();
         setKeys();
+
+        InputField.ScanAndRegister();
 
         inputChat = new InputChat(screenController, network);
         inputVoip = new InputVoip(screenController, uiController);

@@ -110,8 +110,8 @@ class ClientDialogAction {
 
         string? inputId = els.save_name_input.id;
         if(!string.IsNullOrEmpty(inputId)) {
-            InputField.register(inputId);
-            InputField.focus(inputId);
+            InputField.Register(inputId);
+            InputField.Focus(inputId);
             els.save_name_input.text = "";
         }
     }
@@ -152,7 +152,7 @@ class ClientDialogAction {
     [UpdateAfter]
     public void confirmCreateSave() {
         var els = getElements();
-        string saveName = InputField.getText(els.save_name_input.id);
+        string saveName = InputField.GetText(els.save_name_input.id);
         
         if(string.IsNullOrWhiteSpace(saveName)) {
             Console.WriteLine("[ClientDialog] Save name is empty!");

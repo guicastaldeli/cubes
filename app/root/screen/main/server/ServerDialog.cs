@@ -27,13 +27,13 @@ class ServerDialog : MainScreenHandler {
 
     // Check Click
     public override string? checkClick(int mouseX, int mouseY) {
-        InputField.handleClick(mouseX, mouseY);
+        InputField.HandleClick(mouseX, mouseY);
         return base.checkClick(mouseX, mouseY);
     }
 
     // Handle Key Press
     public override void handleKeyPress(int key, int action) {
-        InputField.handleKeyPress((Keys)key, action);
+        InputField.HandleKeyPress((Keys)key, action);
     }
 
     // Handle Action

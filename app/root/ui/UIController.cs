@@ -17,7 +17,7 @@ class UIController {
     private Input input;
     private PlayerController? playerController = null!;
 
-    private Dictionary<string, UI> uis = new();
+    public Dictionary<string, UI> uis = new();
     private string? active = null;
     private UI? currentUI = null;
     private bool isVisible = false;
