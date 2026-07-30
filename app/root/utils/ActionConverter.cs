@@ -14,29 +14,67 @@ public class ActionConverterAttribute : Attribute {}
 
 /**
 
+    Converted Action result
+
+    */
+public class ConvertedAction {
+    public string? MethodName { get; set; }
+    public string? TypeName { get; set; }
+    public int? IntId { get; set; }
+    public string? StringId {  get; set; }
+    public object? Param => (object?)StringId ?? IntId;
+
+    public void Deconstruct(out string? TypeName, out int? IntId) {
+        TypeName = this.TypeName;
+        IntId = this.IntId;
+    }
+}
+
+/**
+
     Action Converter main class.
 
     */
 public static class ActionConverter {
     private static Dictionary<string, HashSet<int>> typeIdCache = new();
+    private static Dictionary<string, HashSet<string>> typeStringIdCache = new();
     private static Dictionary<Type, PropertyInfo?> idPropertyCache = new();
 
     private static bool initialized = false;
 
+    // Extract Method Name
+    private static string ExtractMethodName(string action) {
+        var colonIndex = action.IndexOf(':');
+        if(colonIndex > 0) return action.Substring(0, colonIndex);
+
+        var separatorIndex = action.IndexOfAny(new char[] { '_', '.' });
+        if(separatorIndex > 0) return action.Substring(0, separatorIndex);
+
+        return action;
+    }
+
     // Extract Type Part
     private static string ExtractTypePart(string action) {
-        var separatorIndex = action.IndexOfAny(new char[] { ':', '-', '_', '.' });
+        var separatorIndex = action.IndexOfAny(new char[] { ':', '_', '.' });
         if(separatorIndex > 0) return action.Substring(0, separatorIndex);
         return action;
     }
 
-    // Extract All Number
+    // Extract Param
+    private static string? ExtractParam(string action) {
+        var colonIndex = action.IndexOf(':');
+        if(colonIndex > 0) return action.Substring(colonIndex + 1);
+        return null;
+    }
+
+    // Extract All Numbers
     private static List<int> ExtractAllNumbers(string text) {
-        string r = @"-?\d+";
+        if(Guid.TryParse(text, out _)) return new List<int>();
 
-        var numbers = new List<int>();
-        var matches = Regex.Matches(text, r);
+        List<int> numbers = new List<int>();
 
+        string p = @"-?\d+";
+        var matches = Regex.Matches(text, p);
         foreach(Match match in matches) {
             if(int.TryParse(match.Value, out int num)) {
                 numbers.Add(num);
@@ -49,33 +87,42 @@ public static class ActionConverter {
     // Extract Ids from Data
     private static void ExtractIdsFromData() {
         var dataIds = Data.GetAllDataIds();
-        
-        foreach(var dataId in dataIds) {
-            var data = Data.GetData(dataId);
+
+        foreach(var id in dataIds) {
+            var data = Data.GetData(id);
             if(data == null) continue;
-            
+
             var dataType = data.GetType();
             if(!dataType.IsGenericType || dataType.GetGenericTypeDefinition() != typeof(List<>)) continue;
-            
+
             var list = data as IList;
             if(list == null || list.Count == 0) continue;
-            
+
             var elementType = dataType.GetGenericArguments()[0];
             var idProp = FindIdProp(elementType);
             if(idProp == null) continue;
-            
-            var ids = new HashSet<int>();
+
+            var intIds = new HashSet<int>();
+            var stringIds = new HashSet<string>();
+
             foreach(var item in list) {
                 if(item == null) continue;
+                
                 var val = idProp.GetValue(item);
                 if(val is int intVal) {
-                    ids.Add(intVal);
+                    intIds.Add(intVal);
+                } else if(val is string strVal) {
+                    stringIds.Add(strVal);
                 }
-            }
-            
-            if(ids.Count > 0) {
-                typeIdCache[dataId] = ids;
-                Console.WriteLine($"[ActionConverter] Cached {ids.Count} IDs for: {dataId}");
+
+                if(intIds.Count > 0) {
+                    typeIdCache[id] = intIds;
+                    Console.WriteLine($"[ActionConverter] Cached {intIds.Count} int IDs for: {id}");
+                }
+                if(stringIds.Count > 0) {
+                    typeStringIdCache[id] = stringIds;
+                    Console.WriteLine($"[ActionConverter] Cached {stringIds.Count} string IDs for: {id}");
+                }
             }
         }
     }
@@ -84,26 +131,25 @@ public static class ActionConverter {
     private static PropertyInfo? FindIdProp(Type type) {
         if(idPropertyCache.TryGetValue(type, out var cached)) return cached;
 
-        (string a, string b) Dict = ( "id", "Id" );
+        string id = "id";
 
         var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         foreach(var prop in props) {
             var keyAttr = prop.GetCustomAttribute<ConverterKey>();
-            if(keyAttr != null && string.Equals(keyAttr.Key, Dict.a, StringComparison.OrdinalIgnoreCase)) {
+            if(keyAttr != null && string.Equals(keyAttr.Key, id, StringComparison.OrdinalIgnoreCase)) {
                 idPropertyCache[type] = prop;
                 return prop;
             }
         }
         foreach(var prop in props) {
-            if(string.Equals(prop.Name, Dict.a, StringComparison.OrdinalIgnoreCase)) {
+            if(string.Equals(prop.Name, id, StringComparison.OrdinalIgnoreCase)) {
                 idPropertyCache[type] = prop;
                 return prop;
             }
         }
         foreach(var prop in props) {
-            if(prop.PropertyType == typeof(int) &&
-                (prop.Name.Contains(Dict.a, StringComparison.OrdinalIgnoreCase) ||
-                prop.Name.Contains(Dict.b, StringComparison.OrdinalIgnoreCase))) {
+            if((prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string)) &&
+                prop.Name.Contains(id, StringComparison.OrdinalIgnoreCase)) {
                 idPropertyCache[type] = prop;
                 return prop;
             }
@@ -113,48 +159,98 @@ public static class ActionConverter {
         return null;
     }
 
+    // Match Type Name
+    private static string? MatchTypeName(string methodName, IEnumerable<string> keys) {
+        foreach(var key in keys) {
+            if(key.Contains(methodName, StringComparison.OrdinalIgnoreCase) || methodName.Contains(key, StringComparison.OrdinalIgnoreCase)) {
+                return key;
+            }
+
+            var singular = WordInflector.ToSingular(key);
+            if(methodName.Contains(singular, StringComparison.OrdinalIgnoreCase)) return key;
+
+            var plural = WordInflector.ToPlural(key);
+            if(methodName.Contains(plural, StringComparison.OrdinalIgnoreCase)) return key;
+        }   
+
+        return null;
+    }
+
     /**
      *
      * Convert
      *
      */
-    public static (string? typeName, int? id) Convert(string action) {
+    public static ConvertedAction Convert(string action) {
+        var result = new ConvertedAction();
         if(string.IsNullOrEmpty(action)) {
             Console.WriteLine("[ActionConverter] Empty action");
-            return (null, null);
+            return result;
         }
 
         if(!initialized) Init();
 
-        var typePart = ExtractTypePart(action);
-        if(string.IsNullOrEmpty(typePart)) {
-            Console.WriteLine($"[ActionConverter] Could not extract type from: {action}");
-            return (null, null);
-        }
+        result.MethodName = ExtractMethodName(action);
+        
+        var param = ExtractParam(action);
+        if(param == null) {
+            var typePart = ExtractTypePart(action);
+            var extractIds = ExtractAllNumbers(action);
 
-        var extractedIds = ExtractAllNumbers(action);
-        if(extractedIds.Count == 0) {
-            Console.WriteLine($"[ActionConverter] No ID found in: {action}");
-            return (null, null);
-        }
-
-        foreach(var id in typeIdCache) {
-            var cachedTypeId = id.Key;
-            var cachedIds = id.Value;
-
-            if(cachedTypeId.Contains(typePart, StringComparison.OrdinalIgnoreCase) ||
-                typePart.Contains(cachedTypeId, StringComparison.OrdinalIgnoreCase)) {
-                foreach(var eid in extractedIds) {
-                    if(cachedIds.Contains(eid)) {
-                        Console.WriteLine($"[ActionConverter] Converted: {action} -> {cachedTypeId}:{eid}");
-                        return (cachedTypeId, eid);
+            foreach(var entry in typeIdCache) {
+                if(entry.Key.Contains(typePart, StringComparison.OrdinalIgnoreCase) || typePart.Contains(entry.Key, StringComparison.OrdinalIgnoreCase)) {
+                    foreach(var eid in extractIds) {
+                        if(entry.Value.Contains(eid)) {
+                            result.TypeName = entry.Key;
+                            result.IntId = eid;
+                            Console.WriteLine($"[ActionConverter] Converted (legacy int): {action} -> {result.TypeName}:{result.IntId}");
+                            return result;
+                        }
                     }
+                }
+            }
+
+            Console.WriteLine($"[ActionConverter] Plain method: {result.MethodName}");
+            return result;
+        }
+
+        var guidMatch = Guid.TryParse(param, out _);
+        if(guidMatch) {
+            result.StringId = param;
+            result.TypeName = 
+                MatchTypeName(result.MethodName, typeStringIdCache.Keys) ??
+                MatchTypeName(result.MethodName, typeIdCache.Keys) ??
+                result.MethodName;
+
+            Console.WriteLine($"[ActionConverter] Converted (GUID): {action} -> {result.TypeName}:{result.StringId}");
+            return result;
+        }
+
+        var stringMatch = MatchTypeName(result.MethodName, typeStringIdCache.Keys);
+        if(stringMatch != null && typeStringIdCache[stringMatch].Contains(param)) {
+            result.TypeName = stringMatch;
+            result.StringId = param;
+            Console.WriteLine($"[ActionConverter] Converted (string): {action} -> {result.TypeName}:{result.StringId}");
+            return result;
+        }
+
+        var intIds = ExtractAllNumbers(param);
+        var intMatch = MatchTypeName(result.MethodName, typeIdCache.Keys);
+        if(intMatch != null) {
+            foreach(var id in intIds) {
+                if(typeIdCache[intMatch].Contains(id)) {
+                    result.TypeName = intMatch;
+                    result.IntId = id;
+                    Console.WriteLine($"[ActionConverter] Converted (int): {action} -> {result.TypeName}:{result.IntId}");
+                    return result;
                 }
             }
         }
 
-        Console.WriteLine($"[ActionConverter] No match found for: {action}");
-        return (null, null);
+        result.StringId = param;
+        result.TypeName = result.MethodName;
+        Console.WriteLine($"[ActionConverter] Passthrough param: {action} -> {result.TypeName}:{result.StringId}");
+        return result;
     }
 
     /**
@@ -168,15 +264,13 @@ public static class ActionConverter {
         var types = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => {
                 try { return a.GetTypes(); }
-                catch { return new Type[0]; }
+                catch{ return new Type[0]; }
             })
             .Where(t => t.GetCustomAttribute<ActionConverterAttribute>() != null);
-
         foreach(var type in types) {
             var typeId = type.Name.ToLower();
-            if(!typeIdCache.ContainsKey(typeId)) {
-                typeIdCache[typeId] = new HashSet<int>();
-            }
+            if(!typeIdCache.ContainsKey(typeId)) typeIdCache[typeId] = new HashSet<int>();
+            if(!typeStringIdCache.ContainsKey(typeId)) typeStringIdCache[typeId] = new HashSet<string>();
         }
 
         ExtractIdsFromData();

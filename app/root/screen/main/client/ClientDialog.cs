@@ -29,23 +29,19 @@ class ClientDialog : MainScreenHandler {
 
     // Handle Action
     public override void handleAction(string action) {        
-        var typeName = GlobalInputHandler.FindTypeFromAction(action);
-        if(typeName != null) {
-            var (_, id) = ActionConverter.Convert(action);
-            if(id.HasValue) {
-                GlobalInputHandler.HandleByType(typeName, id.Value);
-                if(active) updateSaves();
-                return;
-            }
-        }
+        var converted = ActionConverter.Convert(action);
+        if(converted.MethodName == null) return;
 
-        var method = clientDialogAction.GetType().GetMethod(action, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+        var method = clientDialogAction.GetType().GetMethod(converted.MethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
         if(method != null) {
-            method.Invoke(clientDialogAction, null);
+            var args = converted.Param != null ? 
+                new object[] { converted.Param } :
+                null;
+            method.Invoke(clientDialogAction, args);
+            
+            if(active) updateSaves();
             return;
         }
-
-        Console.WriteLine($"[ClientDialog] Unhandled action: {action}");
     }
 
     // Open
