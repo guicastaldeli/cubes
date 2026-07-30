@@ -1,10 +1,9 @@
 namespace App.Root.Screen.Main;
-
-using System.Reflection;
 using App.Root.Screen.Main.Client;
 using App.Root.Screen.Main.Custom;
 using App.Root.Screen.Main.Server;
 using App.Root.Utils;
+using System.Reflection;
 
 class MainScreen : Screen {
     public const string ID = "main";

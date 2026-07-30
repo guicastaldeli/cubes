@@ -90,6 +90,7 @@ class PlayerController {
     private string id = "";
 
     private bool spawned = false;
+    private bool hasSavedPosition = false;
 
     public PlayerController(
         AppWindow window,
@@ -129,6 +130,11 @@ class PlayerController {
         Data.RegisterStoreData(this);
 
         EventStream.on("chunk-ready", _ => setSpawn());
+        EventStream.on("save-loaded", _ => {
+            hasSavedPosition = true;
+            spawned = false;
+            setSpawn();
+        });
     }
 
     // Get Window
@@ -351,8 +357,11 @@ class PlayerController {
         playerMesh.set(true);
         spawned = false;
 
-        if(EventStream.getT<bool>("chunk-ready") == true) {
-            setSpawn();
+        if(!hasSavedPosition) {
+            spawned = false;
+            if(EventStream.getT<bool>("chunk-ready") == true) {
+                setSpawn();
+            }
         }
     }
 
@@ -389,15 +398,18 @@ class PlayerController {
     public void setSpawn() {
         if(spawned) return;
 
-        bool hasSavedPos = posX != 0 || posY != 0 || posZ != 0;
-        Vector3 spawn = hasSavedPos ? 
-            new Vector3(posX, posY, posZ) : 
-            setSpawnProps();
-            
+        Vector3 spawn = hasSavedPosition ? new Vector3(posX, posY, posZ) : setSpawnProps();
         setPosition(spawn.X, spawn.Y, spawn.Z);
+        
+        rigidBody.setVelocity(Vector3.Zero);
         spawned = true;
+        //Console.WriteLine($"[PlayerController] spawned at {spawn} (saved: {hasSavedPosition})");
+    }
 
-        Console.WriteLine($"[PlayerController] spawned at {spawn}");
+    // Reset Spawn
+    public void resetSpawn() {
+        spawned = false;
+        setSpawn();
     }
     
     /**
@@ -454,9 +466,11 @@ class PlayerController {
         }
         
         position = rigidBody.getPosition();
+        if(spawned) {
         posX = position.X;
         posY = position.Y;
         posZ = position.Z;
+    }
 
         camera.setPosition(position);
 

@@ -109,10 +109,7 @@ class WorldBoundary {
         float maxHeight = boundary.getMaxHeight();
 
         if(pos.Y <= minHeight) {
-            Vector3 spawn = playerController.setSpawnProps();
-            playerController.setPosition(spawn.X, spawn.Y, spawn.Z);
-
-            Console.WriteLine($"[WorldBoundary] spawned at {spawn}");
+            playerController.resetSpawn();
             return;
         }
         

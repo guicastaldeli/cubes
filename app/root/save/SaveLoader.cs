@@ -133,6 +133,8 @@ public static class SaveLoader {
             LoadStoreDataFromFolder(save);
             DataInput.LoadAll();
 
+            EventStream.set("save-loaded", (object)true);
+
             result.Result = LoadResult.Success;
             result.Message = "Save loaded successfully!";
             Console.WriteLine($"[SaveLoader] Loaded save: {saveId}");

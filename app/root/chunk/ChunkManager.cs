@@ -1,5 +1,4 @@
 namespace App.Root.Chunk;
-using App.Root.Mesh;
 using App.Root.Player;
 using OpenTK.Mathematics;
 using System.Runtime.CompilerServices;
