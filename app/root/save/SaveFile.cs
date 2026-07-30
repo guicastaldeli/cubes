@@ -1,4 +1,6 @@
 namespace App.Root.Save;
+
+using System.Text.Json;
 using App.Root.Info;
 using App.Root.Utils;
 
@@ -132,6 +134,22 @@ public class SaveFile {
         this.Version = "1.1.1";
         this.PlayerId = InfoController.UserId ?? "";
         this.PlayerName = InfoController.Username ?? "";
+    }
+
+    // Unwrap Meta
+    public static Dictionary<string, object>? UnwrapMeta(Dictionary<string, object> root, string saveId) {
+        if(root.ContainsKey(saveId)) return root;
+
+        foreach(var val in root.Values) {
+            try {
+                var inner = JsonSerializer.Deserialize<Dictionary<string, object>>(val.ToString()!);
+                if(inner != null && inner.ContainsKey(saveId)) return inner;
+            } catch {
+                Console.WriteLine("err");
+            }
+        }
+
+        return null;
     }
 
     // Update Last Played

@@ -5,6 +5,19 @@ using App.Root.Utils;
 using App.Root.Input;
 using App.Root.UI;
 
+/** 
+    
+    Update After
+    
+    */
+[AttributeUsage(AttributeTargets.Method)]
+public class UpdateAfter : Attribute {}
+
+/** 
+    
+    Client Dialog Action main class.
+    
+    */
 [ActionConverter]
 class ClientDialogAction {
     private Window window;
@@ -140,6 +153,7 @@ class ClientDialogAction {
 
     // Confirm Create Save
     [GlobalInput]
+    [UpdateAfter]
     public void confirmCreateSave() {
         var els = getElements();
         string saveName = InputField.getText(els.save_name_input.id);
@@ -183,6 +197,7 @@ class ClientDialogAction {
      *
      */
     [GlobalInput]
+    [UpdateAfter]
     public void loadSave(string saveId) {
         string? saveName = SaveManager.GetSaveNameById(saveId);
         Console.WriteLine($"[ClientDialog] Loading Save... name: {saveName} ; id: {saveId}");
@@ -201,6 +216,7 @@ class ClientDialogAction {
      *
      */
     [GlobalInput]
+    [UpdateAfter]
     public void deleteSave(string saveId) {
         string? saveName = SaveManager.GetSaveNameById(saveId);
         Console.WriteLine($"[ClientDialog] Deleting Save... name: {saveName} ; id: {saveId}");

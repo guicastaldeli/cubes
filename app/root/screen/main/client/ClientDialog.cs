@@ -34,13 +34,12 @@ class ClientDialog : MainScreenHandler {
 
         var method = clientDialogAction.GetType().GetMethod(converted.MethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
         if(method != null) {
-            var args = converted.Param != null ? 
-                new object[] { converted.Param } :
-                null;
+            var args = converted.Param != null ? new object[] { converted.Param } : null;
             method.Invoke(clientDialogAction, args);
-            
-            if(active) updateSaves();
-            return;
+
+            if(active && method.GetCustomAttribute<UpdateAfter>() != null) {
+                updateSaves();
+            }
         }
     }
 
