@@ -12,6 +12,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using App.Root.Chunk;
 
 [ManagedState]
+[StoreData("player_position")]
 class PlayerController {
     /**
      * 
@@ -63,9 +64,9 @@ class PlayerController {
 
     private WorldManager? worldManager = null!;
 
-    private float posX = 50.0f;
-    private float posY = 50.0f;
-    private float posZ = 50.0f;
+    [StoreField("pos_x")] private float posX = 50.0f;
+    [StoreField("pos_y")] private float posY = 50.0f;
+    [StoreField("pos_z")] private float posZ = 50.0f;
     private Vector3 position;
     
     private float sizeX = 1.0f;
@@ -125,6 +126,7 @@ class PlayerController {
         init();   
 
         StateManager.Register(this);
+        Data.RegisterStoreData(this);
 
         EventStream.on("chunk-ready", _ => setSpawn());
     }
@@ -387,7 +389,11 @@ class PlayerController {
     public void setSpawn() {
         if(spawned) return;
 
-        Vector3 spawn = setSpawnProps();
+        bool hasSavedPos = posX != 0 || posY != 0 || posZ != 0;
+        Vector3 spawn = hasSavedPos ? 
+            new Vector3(posX, posY, posZ) : 
+            setSpawnProps();
+            
         setPosition(spawn.X, spawn.Y, spawn.Z);
         spawned = true;
 
@@ -448,9 +454,13 @@ class PlayerController {
         }
         
         position = rigidBody.getPosition();
+        posX = position.X;
+        posY = position.Y;
+        posZ = position.Z;
+
         camera.setPosition(position);
 
-        //Console.WriteLine($"position Y: {position.Y}");
+        Console.WriteLine($"position: {position}");
         
         playerMesh.update();
         raycaster.update();

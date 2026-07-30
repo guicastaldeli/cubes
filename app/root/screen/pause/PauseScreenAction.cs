@@ -1,6 +1,7 @@
 namespace App.Root.Screen.Pause;
 using App.Root.Screen.Main;
 using App.Root.Input;
+using App.Root.Save;
 
 class PauseScreenAction {
     private Tick tick;
@@ -49,7 +50,8 @@ class PauseScreenAction {
         input.pauseOverlayOpen = false;
 
         pauseScreen.getMainScene()?.getChunkManager()?.save();
-        
+        SaveManager.Save();
+
         screenController.running = false;
         network.stop();
         

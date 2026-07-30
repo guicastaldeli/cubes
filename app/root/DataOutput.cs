@@ -236,6 +236,19 @@ public static class DataOutput {
             return data;
         }
 
+        if(data is JsonElement el) {
+            return el.ValueKind switch {
+                JsonValueKind.String => el.GetString(),
+                JsonValueKind.Number => el.TryGetInt64(out var l) ? l : el.GetDouble(),
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.Null => null,
+                JsonValueKind.Object => JsonSerializer.Deserialize<Dictionary<string, object>>(el.GetRawText()),
+                JsonValueKind.Array => JsonSerializer.Deserialize<List<object>>(el.GetRawText()),
+                _ => null
+            };
+        }
+
         if(data is IEnumerable en) {
             var list = new List<object>();
             foreach(var item in en) list.Add(SerializeData(item)!);

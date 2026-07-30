@@ -385,7 +385,7 @@ class Input {
 
         if(InputField.IsFocus()) {
             InputField.HandleKeyPress(key, KeyAction.Press);
-            return;
+            //return;
         }
 
         // Pause
