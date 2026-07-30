@@ -1,4 +1,6 @@
 namespace App.Root.Screen.Main.Custom;
+
+using System.Reflection;
 using App.Root.Input;
 using App.Root.Utils;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -12,12 +14,6 @@ class CustomMenu : MainScreenHandler {
     public CustomMenu([Inject] MainScreen mainScreen) : base(PATH, ID) {
         this.mainScreen = mainScreen;
         this.customMenuActions = new CustomMenuActions(this);
-
-        this.registerInputs();
-    }
-
-    private void registerInputs() {
-        InputField.register("usernameInput");
     }
 
     // Get Main Screen
@@ -38,13 +34,13 @@ class CustomMenu : MainScreenHandler {
 
     // Handle Action
     public override void handleAction(string action) {
-        switch(action) {
-            case "confirm":
-                customMenuActions.confirm();
-                break;
-            case "back":
-                customMenuActions.back();
-                break;
+        var converted = ActionConverter.Convert(action);
+        if(converted.MethodName == null) return;
+
+        var method = customMenuActions.GetType().GetMethod(converted.MethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+        if(method != null) {
+            var args = converted.Param != null ? new object[] { converted.Param } : null;
+            method.Invoke(customMenuActions, args);
         }
     }
 
@@ -67,7 +63,6 @@ class CustomMenu : MainScreenHandler {
      */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
-        registerInputs();
     }
 
     /**

@@ -1,7 +1,6 @@
 namespace App.Root.Screen.Pause;
 using App.Root.Screen.Main;
 using App.Root.Input;
-using App.Root.Chunk;
 
 class PauseScreenAction {
     private Tick tick;
@@ -29,6 +28,7 @@ class PauseScreenAction {
      * Resume
      *
      */
+    [GlobalInput]
     public void resume() {
         if(!network.isConnected) tick.setPaused(false);
         input.lockMouse();
@@ -41,6 +41,7 @@ class PauseScreenAction {
      * Back to Menu
      *
      */
+    [GlobalInput]
     public void backToMenu() {
         tick.setPaused(false);
 

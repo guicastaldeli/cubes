@@ -1,4 +1,6 @@
 namespace App.Root.Screen.Pause;
+using App.Root.Utils;
+using System.Reflection;
 
 class PauseScreen : Screen {
     public const string ID = "pause";
@@ -28,14 +30,14 @@ class PauseScreen : Screen {
      */
     // Handle Action
     public override void handleAction(string action) {
-        switch(action) {
-            case "resume":
-                pauseScreenAction.resume();
-                break;
-            case "back":
-                pauseScreenAction.backToMenu();
-                break;
-        }
+        var converted = ActionConverter.Convert(action);
+            if(converted.MethodName == null) return;
+
+            var method = pauseScreenAction.GetType().GetMethod(converted.MethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if(method != null) {
+                var args = converted.Param != null ? new object[] { converted.Param } : null;
+                method.Invoke(pauseScreenAction, args);
+            }
     }
 
     // Handle Mouse Move

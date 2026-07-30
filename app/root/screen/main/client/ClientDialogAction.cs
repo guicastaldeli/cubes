@@ -5,19 +5,6 @@ using App.Root.Utils;
 using App.Root.Input;
 using App.Root.UI;
 
-/** 
-    
-    Update After
-    
-    */
-[AttributeUsage(AttributeTargets.Method)]
-public class UpdateAfter : Attribute {}
-
-/** 
-    
-    Client Dialog Action main class.
-    
-    */
 [ActionConverter]
 class ClientDialogAction {
     private Window window;

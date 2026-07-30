@@ -1,6 +1,7 @@
 namespace App.Root.Screen.Main.Server;
 using App.Root.Player;
 using App.Root.Utils;
+using App.Root.Input;
 
 class ServerDialogAction {
     private static List<string> Elements = new() {
@@ -41,6 +42,7 @@ class ServerDialogAction {
      * Host
      *
      */
+    [GlobalInput]
     public void hostServer() {
         int port = Network.Port.Get();
 
@@ -57,6 +59,7 @@ class ServerDialogAction {
      * Join
      *
      */
+    [GlobalInput]
     public void joinServer() {
         string ip = get().ipInput.text;
         string port = get().joinPortInput.text;
@@ -72,6 +75,7 @@ class ServerDialogAction {
      * Back
      *
      */
+    [GlobalInput]
     public void back() {
         serverDialog.hide();
         serverDialog.getMainScreen().show();

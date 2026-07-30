@@ -1,7 +1,9 @@
 namespace App.Root.Screen.Main;
 using App.Root.Info;
 using App.Root.Utils;
+using App.Root.Input;
 
+[ActionConverter]
 class MainScreenAction {
     private static List<string> Elements = new() {
         "usernameInfoLabel",
@@ -18,6 +20,7 @@ class MainScreenAction {
     }
 
     // Open Client
+    [GlobalInput]
     public void openClient() {
         mainScreen.show();
         mainScreen.setActive(false);
@@ -25,12 +28,14 @@ class MainScreenAction {
     }
 
     // Open Server 
+    [GlobalInput]
     public void openServer() {
         mainScreen.hide();
         mainScreen.serverDialog.setActive(true);
     }
 
     // Open Custom Menu
+    [GlobalInput]
     public void openCustomMenu() {
         mainScreen.hide();
         mainScreen.customMenu.setActive(true);
@@ -57,6 +62,7 @@ class MainScreenAction {
     }
 
     // Id
+    [GlobalInput]
     public void generateTempId() {
         InfoController.getInstance().getUserInfo().switchTempId();
         switchId();

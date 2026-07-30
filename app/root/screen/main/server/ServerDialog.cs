@@ -1,7 +1,7 @@
 namespace App.Root.Screen.Main.Server;
 using App.Root.Input;
 using App.Root.Utils;
-using AppWindow = App.Root.Window;
+using System.Reflection;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 class ServerDialog : MainScreenHandler {
@@ -18,15 +18,6 @@ class ServerDialog : MainScreenHandler {
             this,
             network
         );
-        
-        registerInputs();
-    }
-
-    private void registerInputs() {
-        InputField.register("portInput");
-        InputField.register("maxPlayersInput");
-        InputField.register("ipInput");
-        InputField.register("joinPortInput");
     }
 
     // Get Main Screen
@@ -47,16 +38,13 @@ class ServerDialog : MainScreenHandler {
 
     // Handle Action
     public override void handleAction(string action) {
-        switch(action) {
-            case "host":
-                serverDialogAction.hostServer();
-                break;
-            case "join":
-                serverDialogAction.joinServer();
-                break;
-            case "back":
-                serverDialogAction.back();
-                break;
+        var converted = ActionConverter.Convert(action);
+        if(converted.MethodName == null) return;
+
+        var method = serverDialogAction.GetType().GetMethod(converted.MethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+        if(method != null) {
+            var args = converted.Param != null ? new object[] { converted.Param } : null;
+            method.Invoke(serverDialogAction, args);
         }
     }
 
@@ -79,7 +67,6 @@ class ServerDialog : MainScreenHandler {
      */
     public override void onWindowResize(int width, int height) {
         base.onWindowResize(width, height);
-        registerInputs();
     }
 
     /**

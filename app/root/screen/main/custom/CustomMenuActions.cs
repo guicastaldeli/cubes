@@ -1,6 +1,7 @@
 namespace App.Root.Screen.Main.Custom;
 using App.Root.Info;
 using App.Root.Utils;
+using App.Root.Input;
 
 class CustomMenuActions {
     private static List<string> Elements = new() {
@@ -23,6 +24,7 @@ class CustomMenuActions {
     }
 
     // Confirm
+    [GlobalInput]
     public void confirm() {
         string inputEl = get().usernameInput.text;
         if(string.IsNullOrWhiteSpace(inputEl)) return;
@@ -34,6 +36,7 @@ class CustomMenuActions {
     }
 
     // Back
+    [GlobalInput]
     public void back() {
         customMenu.hide();
         customMenu.getMainScreen().show();

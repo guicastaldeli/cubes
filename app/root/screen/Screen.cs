@@ -4,7 +4,14 @@ using App.Root.Text;
 using App.Root.Input;
 using App.Root.Scene;
 using System.Collections.Generic;
-using App.Root.Chunk;
+
+/** 
+    
+    Update After
+    
+    */
+[AttributeUsage(AttributeTargets.Method)]
+public class UpdateAfter : Attribute {}
 
 /**
 

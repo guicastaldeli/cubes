@@ -1,7 +1,10 @@
 namespace App.Root.Screen.Main;
+
+using System.Reflection;
 using App.Root.Screen.Main.Client;
 using App.Root.Screen.Main.Custom;
 using App.Root.Screen.Main.Server;
+using App.Root.Utils;
 
 class MainScreen : Screen {
     public const string ID = "main";
@@ -35,32 +38,22 @@ class MainScreen : Screen {
 
     // Handle Action
     public override void handleAction(string action) {
-        if(clientDialog.isActive()) {
-            clientDialog.handleAction(action);
-            return;
-        }
-        if(serverDialog.isActive()) {
-            serverDialog.handleAction(action);
-            return;
-        }
-        if(customMenu.isActive()) {
-            customMenu.handleAction(action);
+        if(mainScreenRegistry.anyActive()) {
+            mainScreenRegistry.handleAction(action);
             return;
         }
         
-        switch(action) {
-            case "client":
-                mainScreenAction.openClient();
-                break;
-            case "server":
-                mainScreenAction.openServer();
-                break;
-            case "custom":
-                mainScreenAction.openCustomMenu();
-                break;
-            case "id":
-                mainScreenAction.generateTempId();
-                break;
+        var converted = ActionConverter.Convert(action);
+        if(converted.MethodName == null) return;
+
+        var method = mainScreenAction.GetType().GetMethod(converted.MethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+        if(method != null) {
+            var args = converted.Param != null ? new object[] { converted.Param } : null;
+            method.Invoke(mainScreenAction, args);
+
+            if(active && method.GetCustomAttribute<UpdateAfter>() != null) {
+                updateScreen();
+            }
         }
     }
 
