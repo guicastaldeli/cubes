@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace App.Root.Utils;
 
 public static class WordInflector {
