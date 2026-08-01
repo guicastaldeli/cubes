@@ -1,7 +1,7 @@
 namespace App.Root.Utils;
 
 public static class Env {
-    private static string ENV_PATH = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "root", ".env", ".env"));
+    private static string ENV_PATH = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", ".env", ".env"));
 
     private static Dictionary<string, string> values = new();
     private static bool loaded = false;
