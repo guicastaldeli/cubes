@@ -1,4 +1,5 @@
 namespace App.Root._Binary;
+using App.Root._Sync;
 using System.Collections;
 using System.Text;
 using System.Reflection;

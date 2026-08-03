@@ -3,7 +3,7 @@ using System.Text;
 using IBinaryReader = System.IO.BinaryReader; 
 
 public class BinaryReader : IDisposable {
-    private MemoryStream stream;
+    public MemoryStream stream;
     private IBinaryReader reader;
     
     private bool disposed = false;
@@ -11,6 +11,12 @@ public class BinaryReader : IDisposable {
     public BinaryReader(byte[] data) {
         stream = new MemoryStream(data);
         reader = new IBinaryReader(stream);
+    }
+
+    // Get IBinaryReader
+    public IBinaryReader GetIBinaryReader() {
+        IBinaryReader val = reader;
+        return val;
     }
 
     // Dispose
