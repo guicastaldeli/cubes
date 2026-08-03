@@ -1,0 +1,45 @@
+using System.Collections.Concurrent;
+
+namespace App.Root._Sync;
+
+public class SyncDispatcher {
+    private static SyncDispatcher? instance;
+    public static SyncDispatcher Instance => instance ??= new SyncDispatcher();
+
+    private ConcurrentQueue<Action> queue = new();
+
+    private bool isRunning = true;
+
+    /**
+     *
+     * Enqueue
+     *
+     */
+    public void Enqueue(Action action) {
+        queue.Enqueue(action);
+    }
+
+    /**
+     *
+     * Process
+     *
+     */
+    public void Process() {
+        while(queue.TryDequeue(out var action)) {
+            try {
+                action();
+            } catch(Exception ex) {
+                Console.WriteLine($"[SyncDispatcher] Error: {ex.Message}");
+            }
+        }
+    }
+
+    /**
+     *
+     * Stop
+     *
+     */
+    public void Stop() {
+        isRunning = false;
+    }
+}
