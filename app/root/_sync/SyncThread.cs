@@ -5,8 +5,8 @@ public class SyncThread {
     private SyncManager syncManager;
 
     private Thread thread;
-    private ConcurrentQueue<SyncPacket> sendQueue = new();
-    private ConcurrentQueue<SyncPacket> receiveQueue = new();
+    private ConcurrentQueue<PacketSync> sendQueue = new();
+    private ConcurrentQueue<PacketSync> receiveQueue = new();
 
     private AutoResetEvent signal = new AutoResetEvent(false);
 
@@ -26,13 +26,13 @@ public class SyncThread {
      *
      */
     // Enqueue Packet
-    public void EnqueuePacket(SyncPacket packet) {
+    public void EnqueuePacket(PacketSync packet) {
         sendQueue.Enqueue(packet);
         signal.Set();
     }
 
     // Enqueue Received Packet
-    public void EnqueueReceivedPacket(SyncPacket packet) {
+    public void EnqueueReceivedPacket(PacketSync packet) {
         receiveQueue.Enqueue(packet);
         signal.Set();
     }
@@ -43,7 +43,7 @@ public class SyncThread {
      *
      */
     // Process Send Packet
-    private void ProcessSendPacket(SyncPacket packet) {
+    private void ProcessSendPacket(PacketSync packet) {
         try {
             var bytes = packet.ToBytes();
             Console.WriteLine($"[SyncThread] Sent packet: {packet.DataId} ({bytes.Length} bytes)");
@@ -53,7 +53,7 @@ public class SyncThread {
     }
 
     // Process Receive Packet
-    private void ProcessReceivePacket(SyncPacket packet) {
+    private void ProcessReceivePacket(PacketSync packet) {
         try {
             SyncDispatcher.Instance.Enqueue(() => { syncManager.ApplyPacket(packet); });
             Console.WriteLine($"[SyncThread] Received packet: {packet.DataId}");

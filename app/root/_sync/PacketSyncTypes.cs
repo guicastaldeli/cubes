@@ -1,7 +1,7 @@
 namespace App.Root._Sync;
 using System.Reflection;
 
-public static class SyncPacketTypes {
+public static class PacketSyncTypes {
     public const string ACTION_FULL_SYNC = "full_sync";
     public const string ACTION_DELTA_SYNC = "delta_sync";
     public const string ACTION_UPDATE = "update";
@@ -111,7 +111,7 @@ public static class SyncPacketTypes {
                 object? val = Activator.CreateInstance(type);
                 return val;
             } catch (Exception ex) {
-                Console.WriteLine($"[SyncPacketTypes] Error creating instance of {dataId}: {ex.Message}");
+                Console.WriteLine($"[PacketSyncTypes] Error creating instance of {dataId}: {ex.Message}");
                 return null;
             }
         }
@@ -138,16 +138,16 @@ public static class SyncPacketTypes {
                     if(!registeredAttributes.ContainsKey(id)) {
                         registeredTypes[id] = type;
                         registeredAttributes[id] = attr;
-                        Console.WriteLine($"[SyncPacketTypes] Registered sync type: {id} ({type.Name})");
+                        Console.WriteLine($"[PacketSyncTypes] Registered sync type: {id} ({type.Name})");
                     }
                 }
             } catch (Exception ex) {
-                Console.WriteLine($"[SyncPacketTypes] Error scanning assembly: {ex.Message}");
+                Console.WriteLine($"[PacketSyncTypes] Error scanning assembly: {ex.Message}");
             }
         }
 
         isInitialized = true;
-        Console.WriteLine($"[SyncPacketTypes] Initialized with {registeredTypes.Count} sync types");
+        Console.WriteLine($"[PacketSyncTypes] Initialized with {registeredTypes.Count} sync types");
     }
 
     /**
@@ -165,9 +165,24 @@ public static class SyncPacketTypes {
         if(!registeredTypes.ContainsKey(id)) {
             registeredTypes[id] = type;
             registeredAttributes[id] = attr;
-            Console.WriteLine($"[SyncPacketTypes] Registered sync type dynamically: {id} ({type.Name})");
+            Console.WriteLine($"[PacketSyncTypes] Registered sync type dynamically: {id} ({type.Name})");
         }
     } 
+
+    public static void RegisterType(Type type, string? customId = null) {
+        if(type == null) return;
+
+        var attr = type.GetCustomAttribute<DataSyncAttribute>();
+        if(attr == null) attr = new DataSyncAttribute();
+
+        string id = customId ?? attr.Id ?? type.Name.ToLower();
+
+        if(!registeredTypes.ContainsKey(id)) {
+            registeredTypes[id] = type;
+            registeredAttributes[id] = attr;
+            Console.WriteLine($"[PacketSyncTypes] Registered sync type dynamically: {id} ({type.Name})");
+        }
+    }
 
     /**
      *

@@ -2,7 +2,7 @@ namespace App.Root._Sync;
 using App.Root._Binary;
 using App.Root._Crypto; 
 
-public class SyncPacket {
+public class PacketSync {
     public string DataId { get; set; } = "";
     public string Action { get; set; }= "";
     public byte[] Payload { get; set; } = Array.Empty<byte>();
@@ -15,8 +15,8 @@ public class SyncPacket {
     public bool IsResponse { get; set; }
     public string? RequestId { get; set; }
 
-    public SyncPacket() {}
-    public SyncPacket(string DataId, string Action, byte[] Payload, bool IsDelta = false) {
+    public PacketSync() {}
+    public PacketSync(string DataId, string Action, byte[] Payload, bool IsDelta = false) {
         this.DataId = DataId;
         this.Action = Action;
         this.Payload = Payload;
@@ -46,13 +46,13 @@ public class SyncPacket {
     }
 
     // From Bytes
-    public static SyncPacket FromBytes(byte[] data) {
+    public static PacketSync FromBytes(byte[] data) {
         using var reader = new BinaryReader(data);
         
         int payloadLength = reader.ReadInt();
         int checksumLength = reader.ReadInt();
         
-        var packet = new SyncPacket();
+        var packet = new PacketSync();
         packet.DataId = reader.ReadString();
         packet.Action = reader.ReadString();
         if(payloadLength > 0) packet.Payload = reader.GetIBinaryReader().ReadBytes(payloadLength);
@@ -69,8 +69,8 @@ public class SyncPacket {
     }
 
     // Create Response
-    public SyncPacket CreateResponse(byte[] payload) {
-        SyncPacket val = new SyncPacket {
+    public PacketSync CreateResponse(byte[] payload) {
+        PacketSync val = new PacketSync {
             DataId = this.DataId,
             Action = this.Action + "_response",
             Payload = this.Payload,

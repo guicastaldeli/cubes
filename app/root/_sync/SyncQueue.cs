@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 
 public class SyncQueue {
-    private ConcurrentQueue<SyncPacket> queue = new();
+    private ConcurrentQueue<PacketSync> queue = new();
     private string queueFile = "sync_queue.dat";
 
     private object lockObj = new object();
@@ -43,7 +43,7 @@ public class SyncQueue {
      * Enqueue
      *
      */
-    public void Enqueue(SyncPacket packet) {
+    public void Enqueue(PacketSync packet) {
         if(!isOnline) {
             queue.Enqueue(packet);
             SaveQueue();
@@ -56,8 +56,8 @@ public class SyncQueue {
      * Dequeue All
      *
      */
-    public List<SyncPacket> DequeueAll() {
-        var packets = new List<SyncPacket>();
+    public List<PacketSync> DequeueAll() {
+        var packets = new List<PacketSync>();
         while(queue.TryDequeue(out var packet)) {
             packets.Add(packet);
         }
@@ -107,7 +107,7 @@ public class SyncQueue {
                 if(File.Exists(queueFile)) {
                     var data = File.ReadAllText(queueFile);
                     
-                    var packets = JsonSerializer.Deserialize<List<SyncPacket>>(data);
+                    var packets = JsonSerializer.Deserialize<List<PacketSync>>(data);
                     if(packets != null) {
                         foreach(var packet in packets) {
                             queue.Enqueue(packet);
