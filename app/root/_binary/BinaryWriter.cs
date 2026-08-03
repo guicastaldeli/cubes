@@ -2,16 +2,16 @@ namespace App.Root.Binary;
 using System.Collections;
 using System.Text;
 using System.Reflection;
-using BBinaryWriter = System.IO.BinaryWriter;
+using IBinaryWriter = System.IO.BinaryWriter;
 
-public class BinaryWriter {
+public class BinaryWriter : IDisposable {
     private MemoryStream stream;
-    private BBinaryWriter writer;
+    private IBinaryWriter writer;
     private bool disposed = false;
 
     public BinaryWriter() {
         stream = new MemoryStream();
-        writer = new BBinaryWriter(stream);
+        writer = new IBinaryWriter(stream);
     }
 
     // Get Bytes
