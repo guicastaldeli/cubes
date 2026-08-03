@@ -1,7 +1,6 @@
 namespace App.Root._Sync;
 using App.Root._Binary;
-using App.Root._Crypto;
-using IBinaryReader = System.IO.BinaryReader; 
+using App.Root._Crypto; 
 
 public class SyncPacket {
     public string DataId { get; set; } = "";
