@@ -1,5 +1,4 @@
-namespace App.Root.Binary;
-
+namespace App.Root._Binary;
 using System.Text;
 using IBinaryReader = System.IO.BinaryReader; 
 
