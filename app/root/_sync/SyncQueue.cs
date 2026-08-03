@@ -1,7 +1,6 @@
+namespace App.Root._Sync;
 using System.Collections.Concurrent;
 using System.Text.Json;
-
-namespace App.Root._Sync;
 
 public class SyncQueue {
     private ConcurrentQueue<SyncPacket> queue = new();
