@@ -5,7 +5,7 @@ namespace App.Root._Sync;
     Conflict Resoltion
 
     */
-public enum ConflicResolution {
+public enum ConflictResolution {
     SERVER_AUTHORITY,
     LAST_WRITE_WINS,
     MERGE_WITH_ARBITER,
@@ -61,7 +61,7 @@ public class SyncFieldAttribute : Attribute {
 public class DataSyncAttribute : Attribute {
     public string? Id { get; set; }
     public SyncMode Mode { get; set; } = SyncMode.BROADCAST;
-    public ConflicResolution Resolution { get; set; } = ConflicResolution.SERVER_AUTHORITY;
+    public ConflictResolution Resolution { get; set; } = ConflictResolution.SERVER_AUTHORITY;
     public bool EnableDelta { get; set; } = true;
     public bool ValidateAlways { get; set; } = true;
     public string? RequiredPermission { get; set; }
