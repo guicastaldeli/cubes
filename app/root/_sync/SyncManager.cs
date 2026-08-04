@@ -69,6 +69,7 @@ public class DataSyncAttribute : Attribute {
     public bool ValidateAlways { get; set; } = true;
     public string? RequiredPermission { get; set; }
     public float SyncThreshold { get; set; } = 0.0f;
+    public bool Sync { get; set; } = true;
 
     public DataSyncAttribute() {}
     public DataSyncAttribute(string Id) {
@@ -97,7 +98,7 @@ public class SyncManager {
 
     private CryptoProvider? crypto;
 
-    public event Action<PacketSync>? OnPacketReceived;
+    public event Action<Packet>? OnPacketReceived;
     public event Action<string, object>? OnDataSynced;
 
     private bool isRunning = false;
@@ -106,7 +107,10 @@ public class SyncManager {
         queue = new SyncQueue();
         syncThread = new SyncThread(this);
 
-        PacketSyncTypes.Init();
+        PacketTypes.Init();
+
+        Data.OnDataChanged += OnDataChanged;
+        Data.OnDataRegistered += OnDataRegistered;
     }
 
     // Get Crypto
@@ -151,6 +155,35 @@ public class SyncManager {
         return true;
     }
 
+    // Apply Dictionary To Object
+    private void ApplyDictionaryToObject(object target, Dictionary<string, object> data) {
+        var type = target.GetType();
+
+        foreach(var d in data) {
+            var prop = type.GetProperty(d.Key);
+            if(prop != null && prop.CanWrite) {
+                try {
+                    var value = Convert.ChangeType(d.Value, prop.PropertyType);
+                    prop.SetValue(target, value);
+                } catch {
+                    prop.SetValue(target, d.Value);
+                }
+
+                continue;
+            }
+
+            var field = type.GetField(d.Key);
+            if(field != null) {
+                try {
+                    var value = Convert.ChangeType(d.Value, field.FieldType);
+                    field.SetValue(target, value);
+                } catch {
+                    field.SetValue(target, d.Value);
+                }
+            }
+        }
+    }
+
     // Resolve Conflict
     private object ResolveConflict(object existing, object incoming, ConflictResolution resolution, long timestamp) {
         switch(resolution) {
@@ -158,12 +191,17 @@ public class SyncManager {
                 return existing;
             case ConflictResolution.LAST_WRITE_WINS:
                 if(timestamp > lastSyncTime.GetValueOrDefault(existing.GetType().Name.ToLower()).Ticks) {
-                    return incoming;
+                    if(incoming is Dictionary<string, object> d1) ApplyDictionaryToObject(existing, d1);
+                    return existing;
                 }
 
                 return existing;
             case ConflictResolution.MERGE_WITH_ARBITER:
-                return MergeData(existing, incoming);
+                if(incoming is Dictionary<string, object> d2) {
+                    return MergeData(existing, d2);
+                }
+
+                return existing;
             case ConflictResolution.LOCK_BASED:
                 if(IsLocked(existing)) return existing;
                 return incoming;
@@ -173,33 +211,34 @@ public class SyncManager {
     }
 
     // Merge Data
-    private object MergeData(object existing, object incoming) {
+    private object MergeData(object existing, Dictionary<string, object> incoming) {
         var type = existing.GetType();
-        var merged = existing;
+        
+        var merged = Activator.CreateInstance(type);
+        if(merged == null) return existing;
 
         foreach(var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
             if(prop.CanWrite) {
                 var existingValue = prop.GetValue(existing);
-                var incomingValue = prop.GetValue(incoming);
-
-                if(!Equals(existingValue, incomingValue)) prop.SetValue(merged, incomingValue);
+                prop.SetValue(merged, existingValue);
             }
         }
 
+        ApplyDictionaryToObject(merged, incoming);
         return merged;
     }
 
     // Create And Send Packet
-    private void CreateAndSendPacket(string dataId, object data, bool isFull) {
+    private void CreateAndSendPacket(string dataId, Dictionary<string, object> data, bool isFull) {
         using var writer = new BinaryWriter();
         writer.WriteObject(data);
 
         var payload = writer.GetBytes();
         if(crypto != null) payload = crypto.Encrypt(payload);
 
-        var packet = new PacketSync {
+        var packet = new Packet {
             DataId = dataId,
-            Action = isFull ? PacketSyncTypes.ACTION_FULL_SYNC : PacketSyncTypes.ACTION_DELTA_SYNC,
+            Action = isFull ? PacketTypes.ACTION_FULL_SYNC : PacketTypes.ACTION_DELTA_SYNC,
             Payload = payload,
             Timestamp = DateTime.UtcNow.Ticks,
             IsDelta = !isFull,
@@ -214,49 +253,57 @@ public class SyncManager {
     // Trigger Sync
     public void TriggerSync(string dataId) {
         if(!isRunning) return;
-        if(!PacketSyncTypes.IsRegistered(dataId)) return;
+        if(!PacketTypes.IsRegistered(dataId)) return;
 
-        if(syncRegistry.TryGetValue(dataId, out var data)) {
-            using var writer = new BinaryWriter();
-            writer.WriteObject(data);
+        var data = Data.GetData(dataId);
+        if (data == null) return;
 
-            var currentState = writer.GetBytes();
+        var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
+        if(attr == null || !attr.Sync) return;
 
-            if(lastState.TryGetValue(dataId, out var prevState)) {
-                if(!CompareByteArrays(prevState, currentState)) {
-                    var attr = PacketSyncTypes.GetAttribute(dataId);
-                    bool isDelta = attr?.EnableDelta ?? true;
+        var serialized = Data.SerializeStoreData(data);
+        if(serialized == null) return;
 
-                    CreateAndSendPacket(dataId, data, !isDelta);
+        using var writer = new BinaryWriter();
+        writer.WriteObject(serialized);
 
-                    lastState[dataId] = currentState;
-                    lastSyncTime[dataId] = DateTime.UtcNow;
-                    usedFlags[dataId] = false;
-                }
-            } else {
-                CreateAndSendPacket(dataId, data, true);
-
-                lastState[dataId] = currentState;
-                lastSyncTime[dataId] = DateTime.UtcNow;
-                usedFlags[dataId] = false;
+        var currentState = writer.GetBytes();
+        if(lastState.TryGetValue(dataId, out var prevState)) {
+            if(CompareByteArrays(prevState, currentState)) {
+                return;
             }
         }
+
+        CreateAndSendPacket(dataId, serialized, !attr.EnableDelta);
+
+        lastState[dataId] = currentState;
+        lastSyncTime[dataId] = DateTime.UtcNow;
     }
 
     // Full Sync
     public void FullSync() {
-        foreach(var (id, data) in syncRegistry) {
+        foreach(var id in Data.GetAllDataIds()) {
+            var data = Data.GetData(id);
+            if(data == null) continue;
+
+            var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
+            if(attr == null || !attr.Sync) continue;
+
+            var serialized = Data.SerializeStoreData(data);
+            if(serialized == null) continue;
+
+            CreateAndSendPacket(id, serialized, true);
+
             using var writer = new BinaryWriter();
-            writer.WriteObject(data);
+            writer.WriteObject(serialized);
 
             lastState[id] = writer.GetBytes();
-
-            CreateAndSendPacket(id, data, true);
+            lastSyncTime[id] = DateTime.UtcNow;
         }
     }
 
     // Apply Packet
-    public void ApplyPacket(PacketSync packet) {
+    public void ApplyPacket(Packet packet) {
         if(!isRunning) return;
 
         if(!packet.IsValid()) {
@@ -264,7 +311,7 @@ public class SyncManager {
             return;
         }
 
-        if(!PacketSyncTypes.IsRegistered(packet.DataId)) {
+        if(!PacketTypes.IsRegistered(packet.DataId)) {
             Console.WriteLine($"[SyncManager] Unknown data ID: {packet.DataId}");
             return;
         }
@@ -273,19 +320,23 @@ public class SyncManager {
             packet.Payload = crypto.Decrypt(packet.Payload);
         }
 
-        if(!syncRegistry.TryGetValue(packet.DataId, out var existing)) {
-            Console.WriteLine($"[SyncManager] Data not in registry: {packet.DataId}");
-            return;
-        }
-
         using var reader = new BinaryReader(packet.Payload);
         
-        var newData = reader.ReadObject();
-        if(newData == null) return;
+        var data = reader.ReadObject<Dictionary<string, object>>();
+        if(data == null) return;
+    
+        var existing = Data.GetData(packet.DataId);
+        if(existing == null) {
+            var type = PacketTypes.GetType(packet.DataId);
+            if(type != null) {
+                existing = Activator.CreateInstance(type);
+                Data.RegisterData(packet.DataId, existing!);
+            }
+        }
 
-        var resolution = PacketSyncTypes.GetConflictResolution(packet.DataId);
-        var resolved = ResolveConflict(existing, newData, resolution, packet.Timestamp);
-        if(resolved != null && resolved != existing) {
+        var resolution = PacketTypes.GetConflictResolution(packet.DataId);
+        var resolved = ResolveConflict(existing!, data, resolution, packet.Timestamp);
+        if(existing != null && resolved != null && resolved != existing) {
             var type = existing.GetType();
             foreach(var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
                 if(prop.CanWrite) {
@@ -296,12 +347,32 @@ public class SyncManager {
         }
 
         using var writer = new BinaryWriter();
-        writer.WriteObject(existing);
-
+        writer.WriteObject(data);
         lastState[packet.DataId] = writer.GetBytes();
         lastSyncTime[packet.DataId] = DateTime.UtcNow;
 
-        OnDataSynced?.Invoke(packet.DataId, existing);
+        OnDataSynced?.Invoke(packet.DataId, existing!);
+    }
+
+    // On Data Registered
+    private void OnDataRegistered(string id, object data) {
+        if(!isRunning) return;
+
+        if(!lastState.ContainsKey(id)) {
+            using var writer = new BinaryWriter();
+            writer.WriteObject(Data.SerializeStoreData(data));
+
+            lastState[id] = writer.GetBytes();
+            lastSyncTime[id] = DateTime.UtcNow;
+        }
+    }
+
+    // On Data Changed
+    private void OnDataChanged(string id, object data) {
+        if(!isRunning) return;
+
+        var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
+        if(attr != null && attr.Sync) TriggerSync(id);
     }
 
     /**
@@ -309,38 +380,33 @@ public class SyncManager {
      * Register Sync
      *
      */
-    public void RegisterSync<T>(T data, string? customId = null) where T : class {
-        var type = data.GetType();
-        var attr = type.GetCustomAttribute<DataSyncAttribute>();
+    public void RegisterSync<T>(T data) where T : class {
+        Data.RegisterStoreData(data);
 
-        string id = customId ?? attr?.Id ?? type.Name.ToLower();
-        if(!PacketSyncTypes.IsRegistered(id)) PacketSyncTypes.RegisterType<T>(id);
+        string id = Data.GetId(data);
+        if(!lastState.ContainsKey(id)) {
+            using var writer = new BinaryWriter();
+            writer.WriteObject(Data.SerializeStoreData(data));
 
-        syncRegistry[id] = data;
-        lastSyncTime[id] = DateTime.UtcNow;
-        usedFlags[id] = false;
+            lastState[id] = writer.GetBytes();
+            lastSyncTime[id] = DateTime.UtcNow;
+        }
 
-        using var writer = new BinaryWriter();
-        writer.WriteObject(data);
-        lastState[id] = writer.GetBytes();
-
-        Console.WriteLine($"[SyncManager] Registered {id} for syncing");
+        Console.WriteLine($"[SyncManager] Registered {id} for sync");
     }
 
     public void RegisterSync(string id, object data) {
-        var type = data.GetType();
-        var attr = type.GetCustomAttribute<DataSyncAttribute>();
+        Data.RegisterData(id, data);
 
-        if(!PacketSyncTypes.IsRegistered(id)) PacketSyncTypes.RegisterType(type, id);
-        syncRegistry[id] = data;
-        lastSyncTime[id] = DateTime.UtcNow;
-        usedFlags[id] = false;
+        if(!lastState.ContainsKey(id)) {
+            using var writer = new BinaryWriter();
+            writer.WriteObject(Data.SerializeStoreData(data));
 
-        using var writer = new BinaryWriter();
-        writer.WriteObject(data);
-        lastState[id] = writer.GetBytes();
+            lastState[id] = writer.GetBytes();
+            lastSyncTime[id] = DateTime.UtcNow;
+        }
 
-        Console.WriteLine($"[SyncManager] Registered {id} for syncing");
+        Console.WriteLine($"[SyncManager] Registered {id} for sync");
     }
 
     /**

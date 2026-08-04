@@ -44,7 +44,7 @@ public class Server {
     }
 
     // On Sync Packet
-    private void OnSyncPacket(PacketSync packet) {
+    private void OnSyncPacket(Packet packet) {
         var data = packet.ToBytes();
         Broadcast(data);
     }
@@ -69,7 +69,7 @@ public class Server {
         OnDataReceived?.Invoke(endPoint, data);
 
         try {
-            var packet = PacketSync.FromBytes(data);
+            var packet = Packet.FromBytes(data);
             if(packet.IsValid()) syncManager.ApplyPacket(packet);
         } catch(Exception err) {
             Console.WriteLine($"[Server] Error processing packet: {err.Message}");
@@ -85,7 +85,7 @@ public class Server {
         network.Send(data, endPoint);
     }
 
-    public void SendToClient(IPEndPoint endPoint, PacketSync packet) {
+    public void SendToClient(IPEndPoint endPoint, Packet packet) {
         var data = packet.ToBytes();
         network.Send(data, endPoint);
     }
@@ -97,6 +97,12 @@ public class Server {
      */
     public void Start(int port) {
         if(network.isRunning) return;
+
+        if(!Port.IsAvailable(port)) {
+            Console.WriteLine($"[Server] Port {port} is not available, finding another...");
+            port = Port.Get();
+            Console.WriteLine($"[Server] Using port {port} instead");
+        }
 
         Data.Port = port;
         
@@ -129,7 +135,7 @@ public class Server {
         }
     }
 
-    public void Broadcast(PacketSync packet) {
+    public void Broadcast(Packet packet) {
         var data = packet.ToBytes();
         Broadcast(data);
     }

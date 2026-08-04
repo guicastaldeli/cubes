@@ -3,7 +3,13 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using App.Root._Sync;
 
+/**
+
+    Store Attributes
+
+    */
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class StoreDataAttribute : Attribute {
     public string? Id { get; set; }
@@ -173,12 +179,39 @@ static class Data {
     private static ConcurrentDictionary<string, Type> dataTypes = new();
     private static ConcurrentDictionary<string, DateTime> dataTimestamps = new();
 
+    public static event Action<string, object>? OnDataChanged;
+    public static event Action<string, object>? OnDataRegistered;
+
     private static bool initialized = false;
     private static bool storeDataInitialized = false;
 
     static Data() {
         StateManager.SRegister(typeof(Data));
         Init();
+    }
+
+    // Get Id
+    public static string GetId(object obj) {
+        if(obj == null) throw new ArgumentNullException(nameof(obj));
+
+        var type = obj.GetType();
+        var attr = type.GetCustomAttribute<StoreDataAttribute>();
+        if(attr != null && !string.IsNullOrEmpty(attr.Id)) return attr.Id;
+
+        return type.Name.ToLower();
+    }
+
+    public static string GetId(Type type) {
+        var attr = type.GetCustomAttribute<StoreDataAttribute>();
+        if(attr != null && !string.IsNullOrEmpty(attr.Id)) {
+            return attr.Id;
+        }
+        
+        return type.Name.ToLower();
+    }
+
+    public static string GetId<T>() where T : class {
+        return GetId(typeof(T));
     }
 
     // Get All Store Data Ids
@@ -417,6 +450,11 @@ static class Data {
         dataTimestamps[id] = DateTime.Now;
 
         Console.WriteLine($"[Data] Registered data: {id} ({dataTypes[id]?.Name ?? "null"})");
+    
+        OnDataRegistered?.Invoke(id, data);
+
+        var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
+        if(attr != null && attr.Sync) SyncManager.I.TriggerSync(id);
     }
 
     private static void CacheStoreFields(Type type) {
@@ -502,7 +540,11 @@ static class Data {
             dataTypes[id] = data.GetType();
             dataTimestamps[id] = DateTime.Now;
 
-           Console.WriteLine($"[Data] Updated data: {id}");
+            Console.WriteLine($"[Data] Updated data: {id}");
+
+            OnDataChanged?.Invoke(id, data);
+            var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
+            if(attr != null && attr.Sync) SyncManager.I.TriggerSync(id);
         } else {
             RegisterData(id, data);
         }

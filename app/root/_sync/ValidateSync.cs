@@ -80,7 +80,7 @@ public class ValidateSync {
     }
 
     // Validate Packet
-    public bool ValidatePacket(PacketSync packet) {
+    public bool ValidatePacket(Packet packet) {
         if(packet == null) return false;
         if(string.IsNullOrEmpty(packet.DataId)) return false;
         if(string.IsNullOrEmpty(packet.Action)) return false;

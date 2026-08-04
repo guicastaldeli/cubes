@@ -2,25 +2,45 @@ namespace App.Root;
 using System.Net;
 using System.Net.Sockets;
 
-public class Port {
-    private static readonly Lazy<Port> _instance = new Lazy<Port>(() => new Port());
-    public static Port Instance => _instance.Value;
+public static class Port {
+    private static int? cachedPort;
 
-    private int portNumber;
+    // Is Available
+    public static bool IsAvailable(int port) {
+        try {
+            using var listener = new TcpListener(IPAddress.Loopback, port);
+        
+            listener.Start();
+            listener.Stop();
+
+            return true;
+        } catch(Exception err) {
+            Console.WriteLine(err);
+            return false;
+        }
+    }
+
+    // Reset
+    public static void Reset() {
+        cachedPort = null;
+    }
 
     /**
      *
      * Get
      *
      */
-    public int Get() {
-        var listener = new TcpListener(IPAddress.Loopback, 0);
+    public static int Get() {
+        if(cachedPort.HasValue) return cachedPort.Value;
+
+        using var listener = new TcpListener(IPAddress.Loopback, 0);
         listener.Start();
 
-        portNumber = ((IPEndPoint)listener.LocalEndpoint).Port;
+        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
         listener.Stop();
 
-        return portNumber;
+        cachedPort = port;
+        return port;
     }
 
     /**
@@ -28,7 +48,7 @@ public class Port {
      * Set
      *
      */
-    public void Set(int port) {
-        portNumber = port;
+    public static void Set(int port) {
+        cachedPort = port;
     }
 }

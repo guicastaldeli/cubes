@@ -24,7 +24,7 @@ public class Client {
     public event Action? OnDisconnected;
 
     public event Action<byte[]>? OnDataReceived;
-    public event Action<PacketSync>? OnSyncPacketReceived;
+    public event Action<Packet>? OnSyncPacketReceived;
 
     public Client(Network network) {
         this.network = network;
@@ -35,7 +35,7 @@ public class Client {
     }
 
     // On Sync Packet
-    private void OnSyncPacket(PacketSync packet) {
+    private void OnSyncPacket(Packet packet) {
         var data = packet.ToBytes();
         SendToServer(data);
     }
@@ -45,7 +45,7 @@ public class Client {
         OnDataReceived?.Invoke(data);
         
         try {
-            var packet = PacketSync.FromBytes(data);
+            var packet = Packet.FromBytes(data);
             if(packet.IsValid()) {
                 OnSyncPacketReceived?.Invoke(packet);
                 syncManager.ApplyPacket(packet);
@@ -76,6 +76,8 @@ public class Client {
      *
      */
     public void Connect(string ip, int port) {
+        if(!IP.IsValid(ip)) throw new ArgumentException($"Invalid IP address: {ip}");
+
         Data.ServerIp = ip;
         Data.ServerPort = port;
 
@@ -100,7 +102,7 @@ public class Client {
         Console.WriteLine($"[Client] Connected to {ip}:{port} as {Data.Username} ({Data.UserId})");
         Console.ResetColor();
 
-        Send(new PacketSync {
+        Send(new Packet {
             DataId = "client_join",
             Action = "join",
             UserId = Data.UserId,
@@ -115,7 +117,7 @@ public class Client {
      */
     public void Disconnect() {
         if(Data.IsConnected) {
-            Send(new PacketSync {
+            Send(new Packet {
                 DataId = "client_leave",
                 Action = "leave",
                 UserId = Data.UserId,
@@ -139,7 +141,7 @@ public class Client {
      *
      */
     // Send
-    public void Send(PacketSync packet) {
+    public void Send(Packet packet) {
         if(!Data.IsConnected) {
             queue.Enqueue(packet);
             Console.WriteLine("[Client] Not connected, queuing packet");
