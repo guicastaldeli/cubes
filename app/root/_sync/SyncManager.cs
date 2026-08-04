@@ -97,8 +97,8 @@ public class SyncManager {
 
     private CryptoProvider? crypto;
 
-    private event Action<PacketSync>? OnPacketReceived;
-    private event Action<string, object>? OnDataSynced;
+    public event Action<PacketSync>? OnPacketReceived;
+    public event Action<string, object>? OnDataSynced;
 
     private bool isRunning = false;
 

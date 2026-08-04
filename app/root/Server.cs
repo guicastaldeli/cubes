@@ -37,6 +37,58 @@ public class Server {
 
         this.network.OnDataReceived += OnNetworkDataReceived;
     }
+
+    // Process Packets
+    public void ProcessPackets() {
+        network.ProcessReceived();
+    }
+
+    // On Sync Packet
+    private void OnSyncPacket(PacketSync packet) {
+        var data = packet.ToBytes();
+        Broadcast(data);
+    }
+
+    // On Network Data Received
+    private void OnNetworkDataReceived(IPEndPoint endPoint, byte[] data) {
+        string key = endPoint.ToString();
+        if(!clients.ContainsKey(key)) {
+            if(clients.Count >= Data.MaxPlayers) {
+                Console.WriteLine($"[Server] Max players reached, rejecting {endPoint}");
+                return;
+            }
+
+            clients[key] = endPoint;
+            OnClientConnected?.Invoke(endPoint);
+
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine($"[Server] Client connected: {endPoint} ({clients.Count}/{Data.MaxPlayers})");
+            Console.ResetColor();
+        }
+
+        OnDataReceived?.Invoke(endPoint, data);
+
+        try {
+            var packet = PacketSync.FromBytes(data);
+            if(packet.IsValid()) syncManager.ApplyPacket(packet);
+        } catch(Exception err) {
+            Console.WriteLine($"[Server] Error processing packet: {err.Message}");
+        }
+    }
+
+    /**
+     *
+     * Send To Client
+     *
+     */
+    public void SendToClient(IPEndPoint endPoint, byte[] data) {
+        network.Send(data, endPoint);
+    }
+
+    public void SendToClient(IPEndPoint endPoint, PacketSync packet) {
+        var data = packet.ToBytes();
+        network.Send(data, endPoint);
+    }
     
     /**
      *
@@ -58,8 +110,52 @@ public class Server {
         };
         network.receiveThread.Start();
 
+        syncManager.Start();
+        syncManager.OnPacketReceived += OnSyncPacket;
+
         Console.ForegroundColor = ConsoleColor.DarkMagenta;
-        Console.WriteLine($"[Network] Server started on port {port}...");
+        Console.WriteLine($"------ Server started on port {Data.Port} | Max players: {Data.MaxPlayers} ------");
+        Console.ResetColor();
+    }
+
+    /**
+     *
+     * Broadcast
+     *
+     */
+    // Broadcast
+    public void Broadcast(byte[] data) {
+        foreach(var client in clients.Values) {
+            network.Send(data, client);
+        }
+    }
+
+    public void Broadcast(PacketSync packet) {
+        var data = packet.ToBytes();
+        Broadcast(data);
+    }
+
+    // Broadcast Except
+    public void BroascastExcept(byte[] data, IPEndPoint exclude) {
+        foreach(var client in clients.Values) {
+            if(!clients.Equals(exclude)) {
+                network.Send(data, client);
+            }
+        }
+    }
+
+    /**
+     *
+     * Stop
+     *
+     */
+    public void Stop() {
+        clients.Clear();
+        network.Disconnect();
+        syncManager.Stop();
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("--- Server stopped! ---");
         Console.ResetColor();
     }
 }
