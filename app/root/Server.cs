@@ -99,15 +99,14 @@ public class Server {
         if(network.isRunning) return;
 
         Data.Port = port;
+        
         network.udpClient = new UdpClient(port);
         network.udpClient.Client.SendBufferSize = Network.BUFFER_SIZE;
         network.udpClient.Client.ReceiveBufferSize = Network.BUFFER_SIZE;
 
         network.isRunning = true;
-        network.receiveThread = new Thread(network.ReceiveLoop) {
-            IsBackground = true,
-            Name = "Network-Server"
-        };
+
+        network.receiveThread = new Thread(network.ReceiveLoop) { IsBackground = true, Name = "Network-Server" };
         network.receiveThread.Start();
 
         syncManager.Start();
