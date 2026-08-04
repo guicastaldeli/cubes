@@ -1,6 +1,5 @@
-using System.Collections.Concurrent;
-
 namespace App.Root._Sync;
+using System.Collections.Concurrent;
 
 public class SyncDispatcher {
     private static SyncDispatcher? instance;
