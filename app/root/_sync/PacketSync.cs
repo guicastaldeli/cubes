@@ -6,7 +6,7 @@ public class PacketSync {
     public string DataId { get; set; } = "";
     public string Action { get; set; }= "";
     public byte[] Payload { get; set; } = Array.Empty<byte>();
-    public long Timestamp { get; set; }
+    [SyncTimestamp] public long Timestamp { get; set; }
     public bool IsDelta { get; set; }
     public string? UserId { get; set; }
     public string? SessionId { get; set; }
