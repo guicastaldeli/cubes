@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 public class SyncDispatcher {
     private static SyncDispatcher? instance;
-    public static SyncDispatcher Instance => instance ??= new SyncDispatcher();
+    public static SyncDispatcher I => instance ??= new SyncDispatcher();
 
     private ConcurrentQueue<Action> queue = new();
 

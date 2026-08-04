@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 public class LockSync {
     private static LockSync? instance;
-    public static LockSync Instance => instance ??= new LockSync();
+    public static LockSync I => instance ??= new LockSync();
 
     private ConcurrentDictionary<string, string> locks = new();
 

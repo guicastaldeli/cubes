@@ -83,7 +83,7 @@ public class DataSyncAttribute : Attribute {
     */
 public class SyncManager {
     private static SyncManager? instance;
-    public static SyncManager Instance => instance ??= new SyncManager();
+    public static SyncManager I => instance ??= new SyncManager();
 
     private string sessionId = "";
 
@@ -140,7 +140,7 @@ public class SyncManager {
         var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
         if(attr != null && !string.IsNullOrEmpty(attr.Id)) dataId = attr.Id;
 
-        return LockSync.Instance.IsLocked(dataId);
+        return LockSync.I.IsLocked(dataId);
     }
 
     // Compare Byte Arrays

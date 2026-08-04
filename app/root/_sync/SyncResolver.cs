@@ -85,7 +85,7 @@ public class SyncResolver {
 
     // Lock Based
     private object LockBased(object existing, object incoming) {
-        if(LockSync.Instance.IsLocked(existing.GetType().Name.ToLower())) {
+        if(LockSync.I.IsLocked(existing.GetType().Name.ToLower())) {
             return existing;
         }
         return incoming;

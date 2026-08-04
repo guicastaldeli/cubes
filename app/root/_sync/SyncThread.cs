@@ -55,7 +55,7 @@ public class SyncThread {
     // Process Receive Packet
     private void ProcessReceivePacket(PacketSync packet) {
         try {
-            SyncDispatcher.Instance.Enqueue(() => { syncManager.ApplyPacket(packet); });
+            SyncDispatcher.I.Enqueue(() => { syncManager.ApplyPacket(packet); });
             Console.WriteLine($"[SyncThread] Received packet: {packet.DataId}");
         } catch (Exception ex) {
             Console.WriteLine($"[SyncThread] Receive error: {ex.Message}");
