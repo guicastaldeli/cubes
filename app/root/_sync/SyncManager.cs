@@ -450,7 +450,7 @@ public class SyncManager {
             return;
         }
 
-        Console.WriteLine($"[SyncManager] 🔍 Serializing {dataId}...");
+        Console.WriteLine($"[SyncManager] Serializing {dataId}...");
         var serialized = Data.SerializeStoreData(data);
         if(serialized == null) {
             Console.WriteLine($"[SyncManager] Failed to serialize {dataId}");
