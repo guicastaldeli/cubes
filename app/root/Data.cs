@@ -316,8 +316,8 @@ static class Data {
                 }
 
                 if(value != null) result[field.Key] = value;
-            } catch(Exception ex) {
-                Console.WriteLine($"[Data] Error serializing {field.Key}: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[Data] Error serializing {field.Key}: {err.Message}");
             }
         }
 
@@ -351,8 +351,8 @@ static class Data {
                         actualData = nestedDict;
                         //Console.WriteLine($"[Data] Unwrapped nested JsonElement from section '{firstKey}' with {nestedDict.Count} keys");
                     }
-                } catch(Exception ex) {
-                    Console.WriteLine($"[Data] Failed to unwrap JsonElement: {ex.Message}");
+                } catch(Exception err) {
+                    Console.WriteLine($"[Data] Failed to unwrap JsonElement: {err.Message}");
                 }
             }
         }
@@ -412,8 +412,8 @@ static class Data {
                         field.Field.SetValue(obj, converted);
                         //Console.WriteLine($"[Data] Set {field.Field.Name} = {converted}");
                     }
-                } catch(Exception ex) {
-                    Console.WriteLine($"[Data] Error deserializing {field.Key}: {ex.Message}");
+                } catch(Exception err) {
+                    Console.WriteLine($"[Data] Error deserializing {field.Key}: {err.Message}");
                 }
             } else {
                 Console.WriteLine($"[Data] Key '{key}' not found in data");

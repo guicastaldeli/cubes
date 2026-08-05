@@ -79,6 +79,40 @@ public class DataSyncAttribute : Attribute {
 
 /**
 
+    Sync Data
+
+    */
+public static class SyncData {
+    /**
+     *
+     * Get Id
+     *
+     */
+    public static string GetId(Type type) {
+        var storeAttr = type.GetCustomAttribute<StoreDataAttribute>();
+        if(storeAttr != null && !string.IsNullOrEmpty(storeAttr.Id)) return storeAttr.Id;
+    
+        var dataAttr = type.GetCustomAttribute<DataSyncAttribute>();
+        if(dataAttr != null && !string.IsNullOrEmpty(dataAttr.Id)) return dataAttr.Id;
+        
+        return type.Name.ToLower();
+    }
+
+    public static string GetId<T>() where T : class {
+        string val = GetId(typeof(T));
+        return val;
+    }
+
+    public static string GetId(object obj) {
+        if(obj == null) throw new ArgumentNullException(nameof(obj));
+        
+        string val = GetId(obj.GetType());
+        return val;
+    }
+}
+
+/**
+
     Sync Manager main class.
 
     */
@@ -87,8 +121,11 @@ public class SyncManager {
     public static SyncManager I => instance ??= new SyncManager();
 
     private string sessionId = "";
+    private object? currentTarget = null;
+    private string? currentTargetId = null;
 
     private Dictionary<string, object> syncRegistry = new();
+    private Dictionary<object, string> reverseRegistry = new();
     private Dictionary<string, DateTime> lastSyncTime = new();
     private Dictionary<string, byte[]> lastState = new();
     private Dictionary<string, object> usedFlags = new();
@@ -111,6 +148,18 @@ public class SyncManager {
 
         Data.OnDataChanged += OnDataChanged;
         Data.OnDataRegistered += OnDataRegistered;
+    }
+
+    // Get Current Target
+    public object? GetCurrentTarget() {
+        object? val = currentTarget;
+        return val;
+    }
+
+    // Get Current Target Id
+    public string? GetCurrentTargetId() {
+        string? val = currentTargetId;
+        return val;
     }
 
     // Get Crypto
@@ -250,36 +299,6 @@ public class SyncManager {
         OnPacketReceived?.Invoke(packet);
     }
 
-    // Trigger Sync
-    public void TriggerSync(string dataId) {
-        if(!isRunning) return;
-        if(!PacketTypes.IsRegistered(dataId)) return;
-
-        var data = Data.GetData(dataId);
-        if (data == null) return;
-
-        var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
-        if(attr == null || !attr.Sync) return;
-
-        var serialized = Data.SerializeStoreData(data);
-        if(serialized == null) return;
-
-        using var writer = new BinaryWriter();
-        writer.WriteObject(serialized);
-
-        var currentState = writer.GetBytes();
-        if(lastState.TryGetValue(dataId, out var prevState)) {
-            if(CompareByteArrays(prevState, currentState)) {
-                return;
-            }
-        }
-
-        CreateAndSendPacket(dataId, serialized, !attr.EnableDelta);
-
-        lastState[dataId] = currentState;
-        lastSyncTime[dataId] = DateTime.UtcNow;
-    }
-
     // Full Sync
     public void FullSync() {
         foreach(var id in Data.GetAllDataIds()) {
@@ -375,7 +394,109 @@ public class SyncManager {
         if(!isRunning) return;
 
         var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
-        if(attr != null && attr.Sync) TriggerSync(id);
+        if(attr != null && attr.Sync) {
+            if(currentTarget != null && currentTargetId == id) {
+                TriggerSync();
+            } else {
+                TriggerSync(id);
+            }
+        }
+    }
+
+    // Set Current Target
+    public void SetCurrentTarget(object data) {
+        if(data == null) {
+            currentTarget = null;
+            currentTargetId = null;
+            Console.WriteLine("[SyncManager] Current sync target cleared");
+            return;
+        }
+
+        if(reverseRegistry.TryGetValue(data, out string? id)) {
+            currentTarget = data;
+            currentTargetId = id;
+            Console.WriteLine($"[SyncManager] Current sync target set to: {id}");
+        } else {
+            Console.WriteLine($"[SyncManager] Cannot set target - object not registered: {data.GetType().Name}");
+        }
+    }
+
+    /**
+     *
+     * Trigger Sync
+     *
+     */
+    public void TriggerSync(string dataId) {
+        if(!isRunning) {
+            Console.WriteLine($"[SyncManager] Cannot sync {dataId} - SyncManager not running");
+            return;
+        }
+        
+        if(!PacketTypes.IsRegistered(dataId)) {
+            Console.WriteLine($"[SyncManager] {dataId} not registered in PacketTypes");
+            Console.WriteLine($"[SyncManager] Registered types: {string.Join(", ", PacketTypes.GetAllIds())}");
+            return;
+        }
+        
+        if(!syncRegistry.TryGetValue(dataId, out var data)) {
+            Console.WriteLine($"[SyncManager] {dataId} not found in syncRegistry");
+            Console.WriteLine($"[SyncManager] Registry keys: {string.Join(", ", syncRegistry.Keys)}");
+            return;
+        }
+
+        var attr = data.GetType().GetCustomAttribute<DataSyncAttribute>();
+        if(attr == null || !attr.Sync) {
+            Console.WriteLine($"[SyncManager] {dataId} has no DataSync or Sync=false");
+            return;
+        }
+
+        Console.WriteLine($"[SyncManager] 🔍 Serializing {dataId}...");
+        var serialized = Data.SerializeStoreData(data);
+        if(serialized == null) {
+            Console.WriteLine($"[SyncManager] Failed to serialize {dataId}");
+            return;
+        }
+
+        using var writer = new BinaryWriter();
+        writer.WriteObject(serialized);
+        var currentState = writer.GetBytes();
+        Console.WriteLine($"[SyncManager] Serialized size: {currentState.Length} bytes");
+
+        if(lastState.TryGetValue(dataId, out var prevState)) {
+            if(CompareByteArrays(prevState, currentState)) {
+                Console.WriteLine($"[SyncManager] No change for {dataId}, skipping sync");
+                return;
+            }
+            Console.WriteLine($"[SyncManager] Data changed for {dataId} (previous: {prevState.Length} bytes, current: {currentState.Length} bytes)");
+        } else {
+            Console.WriteLine($"[SyncManager] First sync for {dataId}");
+        }
+
+        Console.WriteLine($"[SyncManager] Sending sync for {dataId} ({currentState.Length} bytes)");
+        CreateAndSendPacket(dataId, serialized, !attr.EnableDelta);
+
+        lastState[dataId] = currentState;
+        lastSyncTime[dataId] = DateTime.UtcNow;
+        Console.WriteLine($"[SyncManager] Sync completed for {dataId}");
+    }
+
+    public void TriggerSync(object data) {
+        if(data == null) return;
+
+        if(reverseRegistry.TryGetValue(data, out string? id)) {
+            TriggerSync(id);
+        } else {
+            Console.WriteLine($"[SyncManager] Object not registered: {data.GetType().Name}");
+        }
+    }
+
+    public void TriggerSync() {
+        if(currentTarget != null && currentTargetId != null) {
+            //Console.WriteLine($"[SyncManager] Triggering sync for current target: {currentTargetId}");
+            TriggerSync(currentTargetId);
+        } else {
+            Console.WriteLine("[SyncManager] No sync target set");
+        }
     }
 
     /**
@@ -384,9 +505,16 @@ public class SyncManager {
      *
      */
     public void RegisterSync<T>(T data) where T : class {
+        if(data == null) return;
+
+        string id = SyncData.GetId(data);
         Data.RegisterStoreData(data);
 
-        string id = Data.GetId(data);
+        syncRegistry[id] = data;
+        reverseRegistry[data] = id;
+
+        SetCurrentTarget(data);
+
         if(!lastState.ContainsKey(id)) {
             using var writer = new BinaryWriter();
             writer.WriteObject(Data.SerializeStoreData(data));
@@ -395,12 +523,17 @@ public class SyncManager {
             lastSyncTime[id] = DateTime.UtcNow;
         }
 
-        Console.WriteLine($"[SyncManager] Registered {id} for sync");
+        Console.WriteLine($"[SyncManager] Registered {id} for sync and set as current target");
     }
 
     public void RegisterSync(string id, object data) {
         Data.RegisterData(id, data);
 
+        syncRegistry[id] = data;
+        reverseRegistry[id] = id;
+
+        SetCurrentTarget(data);
+
         if(!lastState.ContainsKey(id)) {
             using var writer = new BinaryWriter();
             writer.WriteObject(Data.SerializeStoreData(data));
@@ -409,7 +542,29 @@ public class SyncManager {
             lastSyncTime[id] = DateTime.UtcNow;
         }
 
-        Console.WriteLine($"[SyncManager] Registered {id} for sync");
+        Console.WriteLine($"[SyncManager] Registered {id} for sync and set as current target");
+    }
+
+    public void RegisterSync(object data) {
+        if(data == null) return;
+
+        string id = SyncData.GetId(data);
+        Data.RegisterStoreData(data);
+
+        syncRegistry[id] = data;
+        reverseRegistry[data] = id;
+
+        SetCurrentTarget(data);
+
+        if(!lastState.ContainsKey(id)) {
+            using var writer = new BinaryWriter();
+            writer.WriteObject(Data.SerializeStoreData(data));
+
+            lastState[id] = writer.GetBytes();
+            lastSyncTime[id] = DateTime.UtcNow;
+        }
+
+        Console.WriteLine($"[SyncManager] Registered {id} for sync and set as current target");
     }
 
     /**

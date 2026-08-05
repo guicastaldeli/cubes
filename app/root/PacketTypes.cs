@@ -111,8 +111,8 @@ public static class PacketTypes {
             try {
                 object? val = Activator.CreateInstance(type);
                 return val;
-            } catch (Exception ex) {
-                Console.WriteLine($"[PacketTypes] Error creating instance of {dataId}: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[PacketTypes] Error creating instance of {dataId}: {err.Message}");
                 return null;
             }
         }
@@ -133,17 +133,36 @@ public static class PacketTypes {
             try {
                 var types = assembly.GetTypes().Where(t => t.GetCustomAttribute<DataSyncAttribute>() != null).ToList();
                 foreach(var type in types) {
-                    var attr = type.GetCustomAttribute<DataSyncAttribute>()!;
-                    string id = attr.Id ?? type.Name.ToLower();
+                    var storeAttr = type.GetCustomAttribute<StoreDataAttribute>();
+                    if(storeAttr == null) return;
+
+                    string? id = storeAttr.Id;
+
+                    Console.WriteLine($"[PacketTypes] StoreData ID for {type.Name}: {id ?? "null"}");
+                
+                    if(string.IsNullOrEmpty(id)) {
+                        var dataAttr = type.GetCustomAttribute<DataSyncAttribute>();
+                        if(dataAttr == null) return;
+
+                        id = dataAttr.Id;
+                        Console.WriteLine($"[PacketTypes] DataSync ID for {type.Name}: {id ?? "null"}");
+                    }
+                    if(string.IsNullOrEmpty(id)) {
+                        id = type.Name.ToLower();
+                        Console.WriteLine($"[PacketTypes] Using: {id}");
+                    }
 
                     if(!registeredAttributes.ContainsKey(id)) {
                         registeredTypes[id] = type;
+
+                        var attr = type.GetCustomAttribute<DataSyncAttribute>() ?? new DataSyncAttribute();
                         registeredAttributes[id] = attr;
-                        Console.WriteLine($"[PacketTypes] Registered sync type: {id} ({type.Name})");
+
+                        Console.WriteLine($"[PacketTypes] ✅ Registered sync type: {id} ({type.Name})");
                     }
                 }
-            } catch (Exception ex) {
-                Console.WriteLine($"[PacketTypes] Error scanning assembly: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[PacketTypes] Error scanning assembly: {err.Message}");
             }
         }
 
@@ -158,11 +177,21 @@ public static class PacketTypes {
      */
     public static void RegisterType<T>(string? customId = null) where T : class {
         var type = typeof(T);
-        var attr = type.GetCustomAttribute<DataSyncAttribute>();
-        if(attr == null) attr = new DataSyncAttribute();
+        
+        string? id = customId;
+        if(string.IsNullOrEmpty(id)) {
+            var storeAttr = type.GetCustomAttribute<StoreDataAttribute>();
+            id = storeAttr?.Id;
+        }
+        if(string.IsNullOrEmpty(id)) {
+            var dataAttr = type.GetCustomAttribute<DataSyncAttribute>();
+            id = dataAttr?.Id;
+        }
+        if(string.IsNullOrEmpty(id)) {
+            id = type.Name.ToLower();
+        }
 
-        string id = customId ?? attr.Id ?? type.Name.ToLower();
-
+        var attr = type.GetCustomAttribute<DataSyncAttribute>() ?? new DataSyncAttribute();
         if(!registeredTypes.ContainsKey(id)) {
             registeredTypes[id] = type;
             registeredAttributes[id] = attr;
@@ -173,11 +202,20 @@ public static class PacketTypes {
     public static void RegisterType(Type type, string? customId = null) {
         if(type == null) return;
 
-        var attr = type.GetCustomAttribute<DataSyncAttribute>();
-        if(attr == null) attr = new DataSyncAttribute();
+        string? id = customId;
+        if(string.IsNullOrEmpty(id)) {
+            var storeAttr = type.GetCustomAttribute<StoreDataAttribute>();
+            id = storeAttr?.Id;
+        }
+        if(string.IsNullOrEmpty(id)) {
+            var dataAttr = type.GetCustomAttribute<DataSyncAttribute>();
+            id = dataAttr?.Id;
+        }
+        if(string.IsNullOrEmpty(id)) {
+            id = type.Name.ToLower();
+        }
 
-        string id = customId ?? attr.Id ?? type.Name.ToLower();
-
+        var attr = type.GetCustomAttribute<DataSyncAttribute>() ?? new DataSyncAttribute();
         if(!registeredTypes.ContainsKey(id)) {
             registeredTypes[id] = type;
             registeredAttributes[id] = attr;

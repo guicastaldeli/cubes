@@ -47,8 +47,8 @@ public class SyncThread {
         try {
             var bytes = packet.ToBytes();
             Console.WriteLine($"[SyncThread] Sent packet: {packet.DataId} ({bytes.Length} bytes)");
-        } catch (Exception ex) {
-            Console.WriteLine($"[SyncThread] Send error: {ex.Message}");
+        } catch(Exception err) {
+            Console.WriteLine($"[SyncThread] Send error: {err.Message}");
         }
     }
 
@@ -57,8 +57,8 @@ public class SyncThread {
         try {
             SyncDispatcher.I.Enqueue(() => { syncManager.ApplyPacket(packet); });
             Console.WriteLine($"[SyncThread] Received packet: {packet.DataId}");
-        } catch (Exception ex) {
-            Console.WriteLine($"[SyncThread] Receive error: {ex.Message}");
+        } catch(Exception err) {
+            Console.WriteLine($"[SyncThread] Receive error: {err.Message}");
         }
     }
     
@@ -103,8 +103,8 @@ public class SyncThread {
 
                 int t = 50;
                 signal.WaitOne(t);
-            } catch (Exception ex) {
-                Console.WriteLine($"[SyncThread] Error: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[SyncThread] Error: {err.Message}");
             }
         }
     }

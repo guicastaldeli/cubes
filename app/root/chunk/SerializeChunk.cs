@@ -165,8 +165,8 @@ class SerializeChunk {
             }
 
             Console.WriteLine($"[ChunkSerializer] Loaded {result.Count} chunks.");
-        } catch(Exception ex) {
-            Console.Error.WriteLine($"[ChunkSerializer] Failed to load: {ex.Message}");
+        } catch(Exception err) {
+            Console.Error.WriteLine($"[ChunkSerializer] Failed to load: {err.Message}");
         }
 
         return result;

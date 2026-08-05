@@ -113,9 +113,9 @@ public static class SaveLoader {
                 result.SaveInfo = file;
                 Console.WriteLine($"[SaveLoader] Loading save: {file.SaveName} (ID: {saveId})");
             }
-        } catch(Exception ex) {
+        } catch(Exception err) {
             result.Result = LoadResult.Corrupt;
-            result.Message = $"Error loading meta: {ex.Message}";
+            result.Message = $"Error loading meta: {err.Message}";
             result.IsCorrupted = true;
             return result;
         }
@@ -138,11 +138,11 @@ public static class SaveLoader {
             result.Result = LoadResult.Success;
             result.Message = "Save loaded successfully!";
             Console.WriteLine($"[SaveLoader] Loaded save: {saveId}");
-        } catch(Exception ex) {
+        } catch(Exception err) {
             result.Result = LoadResult.Corrupt;
-            result.Message = $"Error loading data: {ex.Message}";
+            result.Message = $"Error loading data: {err.Message}";
             result.IsCorrupted = true;
-            Console.WriteLine($"[SaveLoader] Error: {ex.Message}");
+            Console.WriteLine($"[SaveLoader] Error: {err.Message}");
         }
 
         return result;
@@ -170,8 +170,8 @@ public static class SaveLoader {
                     Data.DeserializeStoreData(obj, data);
                     Console.WriteLine($"[SaveLoader] Restored StoreData {id}");
                 }
-            } catch(Exception ex) {
-                Console.WriteLine($"[SaveLoader] Error loading {file}: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[SaveLoader] Error loading {file}: {err.Message}");
             }
         }
     } 
@@ -192,8 +192,8 @@ public static class SaveLoader {
             Console.ResetColor();
 
             return true;
-        } catch(Exception ex) {
-            Console.WriteLine($"[SaveLoader] Error deleting save: {ex.Message}");
+        } catch(Exception err) {
+            Console.WriteLine($"[SaveLoader] Error deleting save: {err.Message}");
             return false;
         }
     }

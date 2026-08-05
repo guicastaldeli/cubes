@@ -10,9 +10,11 @@ using AppWindow = App.Root.Window;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using App.Root.Chunk;
+using App.Root._Sync;
 
 [ManagedState]
 [StoreData("player_position")]
+[DataSync]
 class PlayerController {
     /**
      * 
@@ -132,6 +134,8 @@ class PlayerController {
             spawned = false;
             setSpawn();
         });
+
+        SyncManager.I.RegisterSync(this);
     }
 
     // Get Window
@@ -449,10 +453,10 @@ class PlayerController {
         
         position = rigidBody.getPosition();
         if(spawned) {
-        posX = position.X;
-        posY = position.Y;
-        posZ = position.Z;
-    }
+            posX = position.X;
+            posY = position.Y;
+            posZ = position.Z;
+        }
 
         camera.setPosition(position);
 
@@ -461,6 +465,10 @@ class PlayerController {
         playerMesh.update();
         raycaster.update();
         mode.update();
+
+        //Console.WriteLine($"[PlayerController] Update - Syncing... IsRunning: {SyncManager.I.IsRunning()}, CurrentTargetId: {SyncManager.I.GetCurrentTargetId()}");
+
+        SyncManager.I.TriggerSync();
     }
 
     /**

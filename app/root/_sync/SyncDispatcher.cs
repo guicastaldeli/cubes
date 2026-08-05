@@ -27,8 +27,8 @@ public class SyncDispatcher {
         while(queue.TryDequeue(out var action)) {
             try {
                 action();
-            } catch(Exception ex) {
-                Console.WriteLine($"[SyncDispatcher] Error: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[SyncDispatcher] Error: {err.Message}");
             }
         }
     }

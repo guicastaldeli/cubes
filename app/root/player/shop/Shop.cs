@@ -253,7 +253,7 @@ class Shop {
                                 Console.WriteLine($"[Shop.Data] Registered {typeName} -> {handlerType.Name}");
                             }
                         }
-                    } catch (Exception err) {
+                    } catch(Exception err) {
                         Console.WriteLine($"[Shop.Data] Error converting {field.Name}: {err.Message}");
                     }
                 }

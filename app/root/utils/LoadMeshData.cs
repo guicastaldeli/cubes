@@ -37,8 +37,8 @@ public static class LoadMeshData {
             try {
                 Console.WriteLine($"Loading from Lua config: {meshType}");
                 result = MeshDataLoader.load(meshType);
-            } catch (Exception ex) {
-                Console.Error.WriteLine($"Failed to load {meshType}: {ex.Message}");
+            } catch(Exception err) {
+                Console.Error.WriteLine($"Failed to load {meshType}: {err.Message}");
                 return null;
             }
         }

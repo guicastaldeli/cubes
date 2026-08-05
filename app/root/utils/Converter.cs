@@ -189,7 +189,7 @@ public static class Converter {
 
             var data = ThisData.GetDataType(targetType);
             return data;
-        } catch (Exception err) {
+        } catch(Exception err) {
             Console.WriteLine($"[Converter.ToData] Error: {err.Message}");
             return null;
         }

@@ -90,8 +90,8 @@ public class SyncQueue {
                 var packets = queue.ToList();
                 var json = JsonSerializer.Serialize(packets);
                 File.WriteAllText(queueFile, json);
-            } catch (Exception ex) {
-                Console.WriteLine($"[SyncQueue] Error saving queue: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[SyncQueue] Error saving queue: {err.Message}");
             }
         }
     }
@@ -115,8 +115,8 @@ public class SyncQueue {
                         }
                     }
                 }
-            } catch (Exception ex) {
-                Console.WriteLine($"[SyncQueue] Error loading queue: {ex.Message}");
+            } catch(Exception err) {
+                Console.WriteLine($"[SyncQueue] Error loading queue: {err.Message}");
             }
         }
     }
