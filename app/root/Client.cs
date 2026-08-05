@@ -88,7 +88,7 @@ public class Client {
         network.udpClient.Client.SendBufferSize = Network.BUFFER_SIZE;
         network.udpClient.Client.ReceiveBufferSize = Network.BUFFER_SIZE;
 
-        network.isRunning = true;
+        network.IsRunning = true;
 
         network.receiveThread = new Thread(network.ReceiveLoop) { IsBackground = true, Name = "Network-Client" };
         network.receiveThread.Start();

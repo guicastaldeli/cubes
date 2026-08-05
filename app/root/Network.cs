@@ -18,13 +18,11 @@ public class Network : IDisposable {
 
     public event Action<IPEndPoint, byte[]>? OnDataReceived;
 
-    public bool IsRunning => isRunning;
-    public bool IsConnected => remoteEndPoint != null && isRunning;
+    public bool IsRunning { get; set; } = false;
+    public bool IsConnected => remoteEndPoint != null && IsRunning;
 
     public Server Server;
     public Client Client;
-
-    public bool isRunning = false;
 
     public Network() {
         this.Server = new Server(this);
@@ -44,7 +42,7 @@ public class Network : IDisposable {
 
     // Receive Loop
     public void ReceiveLoop() {
-        while(isRunning) {
+        while(IsRunning) {
             try {
                 IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
 
@@ -55,13 +53,13 @@ public class Network : IDisposable {
                 err.SocketErrorCode == SocketError.ConnectionReset ||
                 err.SocketErrorCode == SocketError.ConnectionAborted
             ) {
-                if(isRunning) {
+                if(IsRunning) {
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
                     Console.WriteLine($"[Network] Connection reset: {err.Message}");
                     Console.ResetColor();
                 }
             } catch(Exception err) {
-                if(isRunning) {
+                if(IsRunning) {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"[Network] Receive error: {err.Message}");
                     Console.ResetColor();
@@ -83,7 +81,7 @@ public class Network : IDisposable {
     // Send
     public void Send(byte[] data, IPEndPoint endPoint) {
         try {
-            if(udpClient == null || !isRunning) return;
+            if(udpClient == null || !IsRunning) return;
             if(data.Length > MAX_PACKET_SIZE) {
                 SendChunked(data, endPoint);
                 return;
@@ -124,7 +122,7 @@ public class Network : IDisposable {
      *
      */
     public void Disconnect() {
-        isRunning = false;
+        IsRunning = false;
         if(udpClient != null) udpClient.Close();
         if(receiveThread != null) receiveThread.Join(1000);
         receiveQueue.Clear();

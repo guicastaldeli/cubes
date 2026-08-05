@@ -245,7 +245,7 @@ class Weather : WorldHandler, IChunkUpdatable {
 
     // On Weather Changed
     private void onWeatherChanged(string prev, string next) {
-        Console.WriteLine($"*** Weather changed: {prev} → {next} ***");
+        Console.WriteLine($"*** Weather changed: {prev} -> {next} ***");
         
         currentWeather = next;
         prevTemp = currentTemp;

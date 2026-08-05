@@ -96,7 +96,7 @@ public class Server {
      *
      */
     public void Start(int port, int maxPlayers) {
-        if(network.isRunning) return;
+        if(network.IsRunning) return;
 
         if(!Port.IsAvailable(port)) {
             Console.WriteLine($"[Server] Port {port} is not available, finding another...");
@@ -111,7 +111,7 @@ public class Server {
         network.udpClient.Client.SendBufferSize = Network.BUFFER_SIZE;
         network.udpClient.Client.ReceiveBufferSize = Network.BUFFER_SIZE;
 
-        network.isRunning = true;
+        network.IsRunning = true;
 
         network.receiveThread = new Thread(network.ReceiveLoop) { IsBackground = true, Name = "Network-Server" };
         network.receiveThread.Start();

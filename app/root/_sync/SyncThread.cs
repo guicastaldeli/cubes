@@ -46,7 +46,7 @@ public class SyncThread {
     private void ProcessSendPacket(Packet packet) {
         try {
             var bytes = packet.ToBytes();
-            Console.WriteLine($"[SyncThread] Sent packet: {packet.DataId} ({bytes.Length} bytes)");
+            //Console.WriteLine($"[SyncThread] Sent packet: {packet.DataId} ({bytes.Length} bytes)");
         } catch(Exception err) {
             Console.WriteLine($"[SyncThread] Send error: {err.Message}");
         }

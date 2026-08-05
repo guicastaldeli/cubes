@@ -58,16 +58,16 @@ class PlayerController {
     private Mesh mesh;
     private PlayerMesh playerMesh;
     private Raycaster raycaster;
-    private Network? network;
+    private Network network;
 
     private Mode mode;
     private Skills.Skills skills;
 
     private WorldManager? worldManager = null!;
 
-    [StoreField("pos_x")] private float posX = 50.0f;
-    [StoreField("pos_y")] private float posY = 50.0f;
-    [StoreField("pos_z")] private float posZ = 50.0f;
+    [StoreField("pos_x")] public float posX = 50.0f;
+    [StoreField("pos_y")] public float posY = 50.0f;
+    [StoreField("pos_z")] public float posZ = 50.0f;
     private Vector3 position;
     
     private float sizeX = 1.0f;
@@ -98,7 +98,8 @@ class PlayerController {
         Tick tick,
         Input input, 
         ShaderProgram shaderProgram,
-        Mesh mesh
+        Mesh mesh,
+        Network network
     ) {
         instance = this;
 
@@ -110,6 +111,7 @@ class PlayerController {
         this.input = input;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
+        this.network = network;
 
         this.camera = new Camera();
         this.playerInput = new PlayerInput(input, this);
@@ -191,11 +193,6 @@ class PlayerController {
     // Set World Manager
     public void setWorldManager(WorldManager worldManager) {
         this.worldManager = worldManager;
-    }
-    
-    // Set Network
-    public void setNetwork(Network network) {
-        this.network = network;
     }
 
     // Get Network
@@ -452,11 +449,14 @@ class PlayerController {
         }
         
         position = rigidBody.getPosition();
-        if(spawned) {
+        /*if(spawned) {
             posX = position.X;
             posY = position.Y;
             posZ = position.Z;
-        }
+        }*/
+        posX = position.X;
+        posY = position.Y;
+        posZ = position.Z;
 
         camera.setPosition(position);
 

@@ -37,7 +37,8 @@ class MainScene {
         Tick tick,
         ShaderProgram shaderProgram, 
         Input input,
-        Mesh mesh
+        Mesh mesh,
+        Network network
     ) {
         this.window = window;
         this.tick = tick;
@@ -53,7 +54,8 @@ class MainScene {
             tick,
             input,
             shaderProgram, 
-            mesh
+            mesh,
+            network
         );
 
         this.chunkManager = new ChunkManager(window, tick);
@@ -104,11 +106,6 @@ class MainScene {
 
     public UIController getUIController() {
         return uiController;
-    }
-
-    // Set Network
-    public void setNetwork(Network network) {
-        this.network = network;
     }
 
     // Get Player Controller
@@ -164,10 +161,7 @@ class MainScene {
         worldManager.render();
         mesh.initMeshInteractionController();
         
-        if(network != null) {
-            playerController.setNetwork(network);
-            playerController.set();
-        }
+        playerController.set();
     }
 
     private void setInput() {

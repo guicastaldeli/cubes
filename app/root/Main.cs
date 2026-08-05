@@ -118,9 +118,9 @@ class Main {
             tick,
             shaderProgram, 
             input,
-            mesh
+            mesh,
+            network
         );
-        mainScene.setNetwork(network);
         
         screenController = new ScreenController(
             tick,

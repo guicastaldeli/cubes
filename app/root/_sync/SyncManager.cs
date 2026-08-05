@@ -421,6 +421,40 @@ public class SyncManager {
         }
     }
 
+    // Has Data Changed
+    private bool HasDataChanged(byte[] prevState, Dictionary<string, object> currentData) {
+        using var prevReader = new BinaryReader(prevState);
+        
+        var prevData = prevReader.ReadObject<Dictionary<string, object>>();
+        if(prevData == null) return true;
+    
+        foreach(var data in currentData) {
+            if(!prevData.TryGetValue(data.Key, out var prevValue)) {
+                Console.WriteLine($"[SyncManager] New field: {data.Key} = {data.Value}");
+                return true;
+            }
+
+            if(data.Value is float currentFloat && prevValue is float prevFloat) {
+                if(currentFloat != prevFloat) {
+                    Console.WriteLine($"[SyncManager] Float changed: {data.Key} = {prevFloat:F10} -> {currentFloat:F10}");
+                    return true;
+                }
+            }
+            else if(data.Value is double currentDouble && prevValue is double prevDouble) {
+                if(currentDouble != prevDouble) {
+                    Console.WriteLine($"[SyncManager] Double changed: {data.Key} = {prevDouble:F10} -> {currentDouble:F10}");
+                    return true;
+                }
+            }
+            else if(!Equals(data.Value, prevValue)) {
+                Console.WriteLine($"[SyncManager] Value changed: {data.Key} = {prevValue} -> {data.Value}");
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      *
      * Trigger Sync
@@ -450,7 +484,7 @@ public class SyncManager {
             return;
         }
 
-        Console.WriteLine($"[SyncManager] Serializing {dataId}...");
+        //Console.WriteLine($"[SyncManager] Serializing {dataId}...");
         var serialized = Data.SerializeStoreData(data);
         if(serialized == null) {
             Console.WriteLine($"[SyncManager] Failed to serialize {dataId}");
@@ -460,24 +494,21 @@ public class SyncManager {
         using var writer = new BinaryWriter();
         writer.WriteObject(serialized);
         var currentState = writer.GetBytes();
-        Console.WriteLine($"[SyncManager] Serialized size: {currentState.Length} bytes");
+        //Console.WriteLine($"[SyncManager] Serialized size: {currentState.Length} bytes");
 
+        bool hasChanged = true;
         if(lastState.TryGetValue(dataId, out var prevState)) {
-            if(CompareByteArrays(prevState, currentState)) {
-                Console.WriteLine($"[SyncManager] No change for {dataId}, skipping sync");
-                return;
-            }
-            Console.WriteLine($"[SyncManager] Data changed for {dataId} (previous: {prevState.Length} bytes, current: {currentState.Length} bytes)");
+            hasChanged = HasDataChanged(prevState, serialized);
+            if(!hasChanged) return;
         } else {
             Console.WriteLine($"[SyncManager] First sync for {dataId}");
         }
 
-        Console.WriteLine($"[SyncManager] Sending sync for {dataId} ({currentState.Length} bytes)");
+        //Console.WriteLine($"[SyncManager] Sending sync for {dataId} ({currentState.Length} bytes)");
         CreateAndSendPacket(dataId, serialized, !attr.EnableDelta);
-
         lastState[dataId] = currentState;
         lastSyncTime[dataId] = DateTime.UtcNow;
-        Console.WriteLine($"[SyncManager] Sync completed for {dataId}");
+        //Console.WriteLine($"[SyncManager] Sync completed for {dataId}");
     }
 
     public void TriggerSync(object data) {
