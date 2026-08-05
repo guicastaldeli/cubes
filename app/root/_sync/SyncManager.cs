@@ -306,11 +306,14 @@ public class SyncManager {
     public void ApplyPacket(Packet packet) {
         if(!isRunning) return;
 
+        if(packet.IsControl) {
+            Console.WriteLine($"[SyncManager] Control packet: {packet.DataId} (Action: {packet.Action}, User: {packet.UserId})");
+            return; 
+        }
         if(!packet.IsValid()) {
             Console.WriteLine($"[SyncManager] Invalid packet: {packet.DataId}");
             return;
         }
-
         if(!PacketTypes.IsRegistered(packet.DataId)) {
             Console.WriteLine($"[SyncManager] Unknown data ID: {packet.DataId}");
             return;

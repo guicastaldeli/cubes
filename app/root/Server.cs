@@ -119,8 +119,8 @@ public class Server {
         syncManager.Start();
         syncManager.OnPacketReceived += OnSyncPacket;
 
-        Console.ForegroundColor = ConsoleColor.DarkMagenta;
-        Console.WriteLine($"------ Server started with IP: {IP.Get()} on PORT: {Data.Port} | Max players: {Data.MaxPlayers} ------");
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine($"[Server] --- Server started with IP: {IP.Get()} on PORT: {Data.Port} ---");
         Console.ResetColor();
     }
 

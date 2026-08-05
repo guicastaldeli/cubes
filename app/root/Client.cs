@@ -98,11 +98,12 @@ public class Client {
 
         OnConnected?.Invoke();
 
-        Console.ForegroundColor = ConsoleColor.DarkBlue;
+        Console.ForegroundColor = ConsoleColor.Blue;
         Console.WriteLine($"[Client] Connected to {ip}:{port} as {Data.Username} ({Data.UserId})");
         Console.ResetColor();
 
         Send(new Packet {
+            IsControl = true,
             DataId = "client_join",
             Action = "join",
             UserId = Data.UserId,
@@ -118,6 +119,7 @@ public class Client {
     public void Disconnect() {
         if(Data.IsConnected) {
             Send(new Packet {
+                IsControl = true,
                 DataId = "client_leave",
                 Action = "leave",
                 UserId = Data.UserId,

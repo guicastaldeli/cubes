@@ -49,6 +49,7 @@ public class Network : IDisposable {
                 IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
 
                 byte[] data = udpClient!.Receive(ref endPoint);
+                
                 receiveQueue.Enqueue(() => OnDataReceived?.Invoke(endPoint, data));
             } catch(SocketException err) when (
                 err.SocketErrorCode == SocketError.ConnectionReset ||
@@ -88,7 +89,11 @@ public class Network : IDisposable {
                 return;
             }
 
-            udpClient.Send(data, data.Length, endPoint);
+            if(remoteEndPoint != null) {
+                udpClient.Send(data, data.Length);
+            } else {
+                udpClient.Send(data, data.Length, endPoint);
+            }
         } catch(Exception err) {
             Console.WriteLine($"[Network] Send error: {err.Message}");
         }

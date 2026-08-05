@@ -52,6 +52,9 @@ public class BinaryReader : IDisposable {
         int length = reader.ReadInt32();
         return reader.ReadBytes(length);
     }
+    public byte[] ReadBytes(int count) {
+        return reader.ReadBytes(count);
+    }
     public string ReadString() {
         int length = reader.ReadInt32();
         if(length == 0) return string.Empty;
