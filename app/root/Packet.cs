@@ -15,7 +15,9 @@ public class Packet {
     public int SequenceNumber { get; set; }
     public bool IsResponse { get; set; }
     public string? RequestId { get; set; }
-    public bool IsControl { get; set; }= false;
+    public bool IsControl { get; set; } = false;
+    public bool IsHandshake { get; set; } = false;
+    public bool IsHandshakeResponse { get; set; } = false;
 
     public Packet() {}
     public Packet(string DataId, string Action, byte[] Payload, bool IsDelta = false) {
@@ -39,6 +41,8 @@ public class Packet {
         writer.Write(IsResponse);
         writer.Write(RequestId ?? "");
         writer.Write(IsControl);
+        writer.Write(IsHandshake);
+        writer.Write(IsHandshakeResponse);
         writer.Write(Payload.Length);
         if(Payload.Length > 0) {
             writer.Write(Payload);
@@ -66,6 +70,8 @@ public class Packet {
         packet.IsResponse = reader.ReadBool();
         packet.RequestId = reader.ReadString();
         packet.IsControl = reader.ReadBool();
+        packet.IsHandshake = reader.ReadBool();
+        packet.IsHandshakeResponse = reader.ReadBool();
         
         int payloadLength = reader.ReadInt();
         if(payloadLength > 0) {
@@ -98,7 +104,9 @@ public class Packet {
             SequenceNumber = this.SequenceNumber,
             IsResponse = true,
             RequestId = this.RequestId ?? Guid.NewGuid().ToString(),
-            IsControl = this.IsControl
+            IsControl = this.IsControl,
+            IsHandshake = this.IsHandshake,
+            IsHandshakeResponse = this.IsHandshakeResponse
         };
 
         return val;
@@ -109,12 +117,13 @@ public class Packet {
         if(string.IsNullOrEmpty(DataId)) return false;
         if(string.IsNullOrEmpty(Action)) return false;
         if(Timestamp <= 0) return false;
-        if(Checksum != null && Checksum.Length > 0) {
+        /*if(Checksum != null && Checksum.Length > 0) { FIX LATER...
             if(!CryptoProvider.VerifyHash(Payload, Checksum)) {
                 return false;
             }
-        }
+        }*/
 
+        //Console.WriteLine($"[Packet] Packet is valid!");
         return true;
     }
 }

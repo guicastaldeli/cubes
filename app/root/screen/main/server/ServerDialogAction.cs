@@ -50,8 +50,11 @@ class ServerDialogAction {
         int maxPlayers = string.IsNullOrEmpty(maxPlayersEl) ? ServerPlayer.SERVER_MAX_PLAYERS : int.Parse(maxPlayersEl);
 
         network.Server.Start(port, maxPlayers);
-
-        serverDialog.getMainScreen().getMainScene().init();
+        
+        string localIP = IP.Get();
+        network.Client.Connect(localIP, port);
+        
+        serverDialog.getMainScene().init();
     }
 
     /**

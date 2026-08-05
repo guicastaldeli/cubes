@@ -151,6 +151,40 @@ public class SyncManager {
         Data.OnDataRegistered += OnDataRegistered;
     }
 
+    // Get Handshake Packet
+    public HandshakePacket GetHandshakePacket() {
+        if(crypto == null) return new HandshakePacket();
+
+        return new HandshakePacket {
+            SessionId = sessionId,
+            Key = crypto.GetKey(),
+            Iv = crypto.GetIv(),
+            Timestamp = DateTime.UtcNow.Ticks
+        };
+    }
+
+    // Apply Handshake
+    public void ApplyHandshake(HandshakePacket handshake) {
+        if(handshake == null) return;
+        if(handshake.Key == null || handshake.Iv == null) return;
+
+        crypto = new CryptoProvider(handshake.Key, handshake.Iv);
+        sessionId = handshake.SessionId;
+
+        if(!isRunning) {
+            syncThread.Start();
+            isRunning = true;
+            Console.WriteLine($"[SyncManager] Started with handshake from server");
+        }
+
+        Console.BackgroundColor = ConsoleColor.Green;
+        Console.WriteLine($"[SyncManager] Handshake applied from server");
+        Console.WriteLine($"[SyncManager] Session ID: {sessionId}");
+        Console.WriteLine($"[SyncManager] Key (first 8): {BitConverter.ToString(handshake.Key.Take(8).ToArray())}");
+        Console.WriteLine($"[SyncManager] IV (first 8): {BitConverter.ToString(handshake.Iv.Take(8).ToArray())}");
+        Console.ResetColor();
+    }
+
     // Get Current Target
     public object? GetCurrentTarget() {
         object? val = currentTarget;
@@ -330,6 +364,10 @@ public class SyncManager {
             Console.WriteLine($"[SyncManager] Control packet: {packet.DataId} (Action: {packet.Action}, User: {packet.UserId})");
             return; 
         }
+        if(packet.IsHandshake || packet.IsHandshakeResponse) {
+            Console.WriteLine($"[SyncManager] Handshake packet: {packet.DataId} (Action: {packet.Action}, User: {packet.UserId})");
+            return; 
+        }
         if(!packet.IsValid()) {
             Console.WriteLine($"[SyncManager] Invalid packet: {packet.DataId}");
             return;
@@ -345,7 +383,7 @@ public class SyncManager {
 
         using var reader = new BinaryReader(packet.Payload);
         
-        var data = reader.ReadObject<Dictionary<string, object>>();
+        var data = reader.ReadObject() as Dictionary<string, object>;
         if(data == null) return;
     
         var existing = Data.GetData(packet.DataId);
@@ -429,28 +467,28 @@ public class SyncManager {
             return true;
         }
 
-        Console.WriteLine($"[SyncManager] Checking {currentData.Count} fields for changes...");
+        //Console.WriteLine($"[SyncManager] Checking {currentData.Count} fields for changes...");
 
         foreach(var data in currentData) {
             if(!prevData.TryGetValue(data.Key, out var prevValue)) {
-                Console.WriteLine($"[SyncManager] New field: {data.Key} = {data.Value}");
+                //Console.WriteLine($"[SyncManager] New field: {data.Key} = {data.Value}");
                 return true;
             }
 
             if(data.Value is float currentFloat && prevValue is float prevFloat) {
                 if(currentFloat != prevFloat) {
-                    Console.WriteLine($"[SyncManager] CHANGE: {data.Key} = {prevFloat:F10} → {currentFloat:F10}");
+                    //Console.WriteLine($"[SyncManager] CHANGE: {data.Key} = {prevFloat:F10} → {currentFloat:F10}");
                     return true;
                 }
             }
             else if(data.Value is double currentDouble && prevValue is double prevDouble) {
                 if(currentDouble != prevDouble) {
-                    Console.WriteLine($"[SyncManager] CHANGE: {data.Key} = {prevDouble:F10} → {currentDouble:F10}");
+                    //Console.WriteLine($"[SyncManager] CHANGE: {data.Key} = {prevDouble:F10} → {currentDouble:F10}");
                     return true;
                 }
             }
             else if(!Equals(data.Value, prevValue)) {
-                Console.WriteLine($"[SyncManager] CHANGE: {data.Key} = {prevValue} → {data.Value}");
+                //Console.WriteLine($"[SyncManager] CHANGE: {data.Key} = {prevValue} → {data.Value}");
                 return true;
             }
         }
@@ -494,14 +532,7 @@ public class SyncManager {
             return;
         }
 
-        bool hasChanged = true;
-        if(lastData.TryGetValue(dataId, out var prevData)) {
-            hasChanged = HasDataChanged(prevData, serialized);
-            if(!hasChanged) {
-                Console.WriteLine($"[SyncManager] No change for {dataId}, skipping sync");
-                return;
-            }
-        } else {
+        if(!lastData.ContainsKey(dataId)) {
             Console.WriteLine($"[SyncManager] First sync for {dataId}");
         }
 
@@ -512,10 +543,10 @@ public class SyncManager {
 
         var currentState = writer.GetBytes();
 
-        Console.WriteLine($"[SyncManager] Sending sync for {dataId} ({currentState.Length} bytes)");
+        //Console.WriteLine($"[SyncManager] Sending sync for {dataId} ({currentState.Length} bytes)");
         CreateAndSendPacket(dataId, serialized, !attr.EnableDelta);
         lastSyncTime[dataId] = DateTime.UtcNow;
-        Console.WriteLine($"[SyncManager] Sync completed for {dataId}");
+        //Console.WriteLine($"[SyncManager] Sync completed for {dataId}");
     }
 
     public void TriggerSync(object data) {

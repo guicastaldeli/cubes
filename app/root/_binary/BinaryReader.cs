@@ -102,11 +102,13 @@ public class BinaryReader : IDisposable {
                     case "Dictionary":
                         int dictCount = ReadInt();
 
-                        var dict = new Dictionary<object, object?>();
+                        var dict = new Dictionary<string, object?>();
                         for(int i = 0; i < dictCount; i++) {
                             var key = ReadObject();
                             var value = ReadObject();
-                            if(key != null) dict[key] = value;
+                            if(key != null) {
+                                dict[key.ToString()!] = value;
+                            }
                         }
 
                         return dict;

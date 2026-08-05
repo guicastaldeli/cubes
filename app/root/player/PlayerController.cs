@@ -1,6 +1,5 @@
 namespace App.Root.Player;
 using App.Root.Collider;
-using App.Root.Info;
 using App.Root.Mesh;
 using App.Root.Shaders;
 using App.Root.World;
@@ -65,9 +64,9 @@ class PlayerController {
 
     private WorldManager? worldManager = null!;
 
-    [StoreField("pos_x")] public float posX = 50.0f;
-    [StoreField("pos_y")] public float posY = 50.0f;
-    [StoreField("pos_z")] public float posZ = 50.0f;
+    [StoreField("pos_x")] public float posX = 30.0f;
+    [StoreField("pos_y")] public float posY = 0.0f;
+    [StoreField("pos_z")] public float posZ = 0.0f;
     private Vector3 position;
     
     private float sizeX = 1.0f;

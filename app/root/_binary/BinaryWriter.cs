@@ -114,7 +114,7 @@ public class BinaryWriter : IDisposable {
         }
         if(obj is IDictionary dict) {
             writer.Write((byte)TypeCode.Object);
-            Write("Dictioanry");
+            Write("Dictionary");
             
             writer.Write(dict.Keys.Count);
 

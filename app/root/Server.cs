@@ -1,9 +1,10 @@
+namespace App.Root;
+using App.Root._Sync;
+using App.Root._Binary;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using App.Root._Sync;
 
-namespace App.Root;
 
 public class Server {
     private static class Data {
@@ -30,6 +31,8 @@ public class Server {
     public event Action<IPEndPoint>? OnClientConnected;
     public event Action<IPEndPoint>? OnClientDisconnected;
 
+    private HashSet<string> handshakeComplete = new();
+
     public Server() {}
     public Server(Network network) {
         this.network = network;
@@ -37,6 +40,36 @@ public class Server {
 
         this.network.OnDataReceived += OnNetworkDataReceived;
     }
+
+    // Send Handshake
+    private void SendHandshake(IPEndPoint endPoint) {
+    var handshake = syncManager.GetHandshakePacket();
+
+    using var writer = new BinaryWriter();
+    writer.Write(handshake.SessionId);
+    writer.Write(handshake.Key);
+    writer.Write(handshake.Iv);
+    writer.Write(handshake.Timestamp);
+
+    var payload = writer.GetBytes();
+    var packet = new Packet {
+        DataId = "__handshake__",
+        Action = "__handshake__",
+        Payload = payload,
+        Timestamp = DateTime.UtcNow.Ticks,
+        IsDelta = false,
+        SessionId = handshake.SessionId,
+        IsHandshake = true,
+        IsHandshakeResponse = false
+    };
+
+    Console.BackgroundColor = ConsoleColor.Blue;
+    Console.WriteLine($"[Server] 📤 Sending handshake to {endPoint}");
+    Console.ResetColor();
+
+    // Send directly to client - NO ENCRYPTION
+    network.Send(packet.ToBytes(), endPoint);
+}
 
     // Process Packets
     public void ProcessPackets() {
@@ -64,13 +97,26 @@ public class Server {
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine($"[Server] Client connected: {endPoint} ({clients.Count}/{Data.MaxPlayers})");
             Console.ResetColor();
+
+            SendHandshake(endPoint);
         }
 
         OnDataReceived?.Invoke(endPoint, data);
 
         try {
             var packet = Packet.FromBytes(data);
-            if(packet.IsValid()) syncManager.ApplyPacket(packet);
+            if(packet.IsHandshakeResponse) {
+                handshakeComplete.Add(key);
+                Console.WriteLine($"[Server] Handshake complete for {endPoint}");
+                return;
+            }
+
+            if(!handshakeComplete.Contains(key)) {
+                Console.WriteLine($"[Server] Handshake not complete for {endPoint}, ignoring packet");
+                return;
+            }
+
+            syncManager.ApplyPacket(packet);
         } catch(Exception err) {
             Console.WriteLine($"[Server] Error processing packet: {err.Message}");
         }

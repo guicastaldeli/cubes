@@ -1,21 +1,23 @@
 namespace App.Root.Player;
+using App.Root._Sync;
+using App.Root.Info;
 using App.Root.Mesh;
 using OpenTK.Mathematics;
 
 /**
 
     Slot Extensions Helper
-    to help detect arms.
+    to help detect slots.
 
     */
 static class SlotExtensions {
-    public static IEnumerable<Slot> GetArmSlots(this Slot slot) {
+    public static IEnumerable<Slot> GetSlots(this Slot slot) {
         return slot == Slot.CENTER ?
             new[] { Slot.LEFT, Slot.RIGHT } :
             new[] { slot };
     }
 
-    public static Slot GetOppositeArm(this Slot slot) {
+    public static Slot GetOppositeSlot(this Slot slot) {
         return slot switch {
             Slot.LEFT => Slot.RIGHT,
             Slot.RIGHT => Slot.LEFT,
@@ -26,19 +28,32 @@ static class SlotExtensions {
 
 /**
 
-    Arm class helper
+    Slot class helper
 
     */
-class Arm {
-    private Camera camera;
-    private Mesh mesh;
+static class SetSlot {
+    private static Camera camera = null!;
+    private static Mesh mesh = null!;
 
-    public Arm(Camera camera, Mesh mesh) {
-        this.camera = camera;
-        this.mesh = mesh;
+    public static Dictionary<Slot, string?> slotMeshIds = new();
+    public const string SLOT_MESH = "rectangle";
+
+    /**
+     *
+     * Init
+     *
+     */
+    public static void Init(Camera camera, Mesh mesh) {
+        SetSlot.camera = camera;
+        SetSlot.mesh = mesh;
     }
 
-    public Vector3 set(Slot slot, string id) {
+    /**
+     *
+     * Set
+     *
+     */
+    public static Vector3 Set(Slot slot, string id) {
         Vector3 offset = Vector3.Zero;
         Matrix4 rotationMatrix = Matrix4.Identity;
 
@@ -95,36 +110,40 @@ class Arm {
 
     */
 class PlayerMesh {
+    private const string PLAYER_MESH_DATA = "player_mesh_data"; 
+    
+    [StoreData(PLAYER_MESH_DATA)]
+    [DataSync]
+    public class PlayerData {
+        [StoreField("player_id")] public string PlayerId { get; set; } = InfoController.UserId;
+        [StoreField("mesh_type")] public string PlayerMesh { get; set; } = "sphere";
+        [StoreField("visible")] public bool Visible { get; set; } = true;
+    }
+
     private Window window;
     private Camera camera;
     private PlayerController playerController;
     private Mesh mesh;
 
-    private Arm arm;
-    
-    public string PLAYER_ID => PlayerController.getId();
-    public static string PLAYER_MESH = "sphere";
+    private PlayerData Data;
 
-    public Dictionary<Slot, string?> armMeshIds = new();
-    private const string ARM_MESH = "rectangle";
-
-    public PlayerMesh(
-        Window window,
-        Camera camera,
-        PlayerController playerController, 
-        Mesh mesh
-    ) {
+    public PlayerMesh(Window window, Camera camera, PlayerController playerController, Mesh mesh) {
         this.window = window;
         this.camera = camera;
         this.playerController = playerController;
         this.mesh = mesh;
 
-        this.arm = new Arm(camera, mesh);
+        this.Data = new PlayerData();
+        set(false);
+
+        SetSlot.Init(camera, mesh);
+
+        SyncManager.I.RegisterSync(PLAYER_MESH_DATA, Data);
     }
 
-    // Get Arm Id
-    private string getArmId(Slot slot) {
-        string val = $"arm-{slot}";
+    // Get Slot Id
+    private string getSlotId(Slot slot) {
+        string val = $"slot-{slot}";
         return val;
     }
 
@@ -133,39 +152,42 @@ class PlayerMesh {
      * Set
      *
      */
+    // Set
     public void set(bool local) {
-        MeshRegistry.register(PLAYER_ID);
+        MeshRegistry.register(Data.PlayerId);
 
-        if(!mesh.hasMesh(PLAYER_ID)) {
+        if(!mesh.hasMesh(Data.PlayerId)) {
             window.queueOnRenderThread(() => {
-                MeshData data = MeshDataLoader.load(PLAYER_MESH);
-                mesh.add(PLAYER_ID, data);
-                if(local) mesh.setVisible(PLAYER_ID, false);
+                MeshData data = MeshDataLoader.load(Data.PlayerMesh);
+                
+                mesh.add(Data.PlayerId, data);
+                if(local) mesh.setVisible(Data.PlayerId, Data.Visible);
             });
         }
     }
 
-    public void setArm(Slot slot) {
+    // Set Slot Mesh
+    public void setSlotMesh(Slot slot) {
         if(slot == Slot.CENTER) return;
         
-        string ARM_ID = getArmId(slot);
-        if(!mesh.hasMesh(ARM_ID)) {
+        string SLOT_ID = getSlotId(slot);
+        if(!mesh.hasMesh(SLOT_ID)) {
             window.queueOnRenderThread(() => {
-                MeshData data = MeshDataLoader.load(ARM_MESH);
-                mesh.add(ARM_ID, data);
-                mesh.setScale(ARM_ID, 0.5f, 0.5f, 0.5f);
+                MeshData data = MeshDataLoader.load(SetSlot.SLOT_MESH);
+                mesh.add(SLOT_ID, data);
+                mesh.setScale(SLOT_ID, 0.5f, 0.5f, 0.5f);
 
-                var renderer = mesh.getMeshRenderer(ARM_ID);
+                var renderer = mesh.getMeshRenderer(SLOT_ID);
                 if(renderer != null) renderer.renderOnTop = true;
 
-                updateArmPosition(slot, ARM_ID);
-                mesh.setVisible(ARM_ID, true);
-                armMeshIds[slot] = ARM_ID;
+                updateSlotPosition(slot, SLOT_ID);
+                mesh.setVisible(SLOT_ID, true);
+                SetSlot.slotMeshIds[slot] = SLOT_ID;
             });
         } else {
-            updateArmPosition(slot, ARM_ID);
-            mesh.setVisible(ARM_ID, true);
-            armMeshIds[slot] = ARM_ID;
+            updateSlotPosition(slot, SLOT_ID);
+            mesh.setVisible(SLOT_ID, true);
+            SetSlot.slotMeshIds[slot] = SLOT_ID;
         }
     }
 
@@ -174,18 +196,18 @@ class PlayerMesh {
      * Hide
      *
      */
-    private void hideArm(Slot slot) {
+    private void hideSlot(Slot slot) {
         if(slot == Slot.CENTER) return;
 
-        string armId = getArmId(slot);
-        if(mesh.hasMesh(armId)) mesh.setVisible(armId, false);
-        armMeshIds[slot] = null;
+        string id = getSlotId(slot);
+        if(mesh.hasMesh(id)) mesh.setVisible(id, false);
+        SetSlot.slotMeshIds[slot] = null;
     }
 
-    public void hideArms(Slot? slot) {
+    public void hideSlots(Slot? slot) {
         if(slot == null) return;
-        foreach(var s in slot.Value.GetArmSlots()) {
-            hideArm(s);
+        foreach(var s in slot.Value.GetSlots()) {
+            hideSlot(s);
         }
     }
     
@@ -195,15 +217,21 @@ class PlayerMesh {
      * Update
      *
      */
+    // Update
     public void update() {
-        if(!mesh.hasMesh(PLAYER_ID)) return;
+        if(!mesh.hasMesh(Data.PlayerId)) {
+            Console.WriteLine("ID NULL!!!!!!");
+        }
 
         var pos = playerController.getPosition();
-        mesh.setPosition(PLAYER_ID, pos.X, pos.Y, pos.Z);
+        mesh.setPosition(Data.PlayerId, pos.X, pos.Y - 1.5f, pos.Z);
+
+        SyncManager.I.TriggerSync(PLAYER_MESH_DATA);
     }
 
-    public void updateArmPosition(Slot slot, string armId) {
-        Vector3 offset = arm.set(slot, armId);
+    // Update Slot Position
+    public void updateSlotPosition(Slot slot, string slotId) {
+        Vector3 offset = SetSlot.Set(slot, slotId);
 
         Vector3 forward = camera.getFront();
         Vector3 right = camera.getRight();
@@ -215,15 +243,16 @@ class PlayerMesh {
             right * offset.X +
             up * offset.Y;
         
-        mesh.setPosition(armId, pos);
+        mesh.setPosition(slotId, pos);
     }
 
-    public void updateArms(Slot slot) {
+    // Update Slots
+    public void updateSlots(Slot slot) {
         if(slot != Slot.CENTER) {
-            hideArm(slot.GetOppositeArm());
+            hideSlot(slot.GetOppositeSlot());
         }
-        foreach(var s in slot.GetArmSlots()) {
-            setArm(s);
+        foreach(var s in slot.GetSlots()) {
+            setSlotMesh(s);
         }
     }
 }

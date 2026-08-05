@@ -158,7 +158,7 @@ public static class PacketTypes {
                         var attr = type.GetCustomAttribute<DataSyncAttribute>() ?? new DataSyncAttribute();
                         registeredAttributes[id] = attr;
 
-                        Console.WriteLine($"[PacketTypes] ✅ Registered sync type: {id} ({type.Name})");
+                        Console.WriteLine($"[PacketTypes] Registered sync type: {id} ({type.Name})");
                     }
                 }
             } catch(Exception err) {

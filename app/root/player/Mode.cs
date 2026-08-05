@@ -330,7 +330,7 @@ class Mode {
                 if(activeSlot.HasValue) {
                     Slot prevSlotValue = activeSlot.Value;
                     hidePreview(prevSlotValue);
-                    playerMesh.hideArms(activeSlot.Value);
+                    playerMesh.hideSlots(activeSlot.Value);
                 }
 
                 prevSlot = activeSlot;
@@ -340,7 +340,7 @@ class Mode {
                     set(Modes.GETTER, Slot.CENTER);
                 } else {
                     updatePreview(Slot.CENTER);
-                    playerMesh.updateArms(Slot.CENTER);
+                    playerMesh.updateSlots(Slot.CENTER);
                 }
             }
 
@@ -356,37 +356,36 @@ class Mode {
                 activeSlot = targetSlot;
                 lastPreviewedDef = null;
                 updatePreview(targetSlot);
-                playerMesh.updateArms(targetSlot);
+                playerMesh.updateSlots(targetSlot);
             }
 
             prevSlot = null;
             return;
         }
-
         if(!isNewPress) {
             return;
         }
         
         if(currentMode == Modes.NORMAL) {
             set(Modes.GETTER, slot);
-            playerMesh.updateArms(slot);
+            playerMesh.updateSlots(slot);
             return;
         }
         if(activeSlot == slot) {
             set(Modes.NORMAL, slot);
-            playerMesh.hideArms(slot);
+            playerMesh.hideSlots(slot);
             return;
         }
         if(activeSlot.HasValue) {
             Slot prevSlot = activeSlot.Value;
             hidePreview(prevSlot);
-            playerMesh.hideArms(prevSlot);
+            playerMesh.hideSlots(prevSlot);
 
             activeSlot = slot;
             lastPreviewedDef = null;
 
             updatePreview(slot);
-            playerMesh.updateArms(slot);
+            playerMesh.updateSlots(slot);
         }
     }
 
@@ -418,9 +417,9 @@ class Mode {
         }
 
         PlayerMesh playerMesh = playerController.getPlayerMesh();
-        foreach(var id in playerMesh.armMeshIds) {
+        foreach(var id in SetSlot.slotMeshIds) {
             if(id.Value == null) continue;
-            playerMesh.updateArmPosition(id.Key, id.Value);
+            playerMesh.updateSlotPosition(id.Key, id.Value);
         }
 
         foreach(var slot in Enum.GetValues<Slot>()) {

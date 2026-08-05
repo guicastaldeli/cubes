@@ -11,6 +11,22 @@ public class CryptoProvider {
         this.iv = iv;
     }
 
+    // Get Key
+    public byte[] GetKey() {
+        byte[] val = new byte[key.Length];
+        Array.Copy(key, val, key.Length);
+
+        return val;
+    }
+
+    // Get Iv
+    public byte[] GetIv() {
+        byte[] val = new byte[iv.Length];
+        Array.Copy(iv, val, iv.Length);
+        
+        return val;
+    }
+
     // Generate Session Key
     public static (byte[] key, byte[] iv) GenerateSessionKey() {
         var key = new byte[32];

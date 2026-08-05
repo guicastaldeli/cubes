@@ -210,7 +210,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
      *
      */
     public override void render() {
-        ChunkCoord coord = ContextChunk.current!.Value;
+        /*ChunkCoord coord = ContextChunk.current!.Value;
         if(coord.cz != 0) return;
 
         activeChunks.Add(coord);
@@ -231,7 +231,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
             pendingGenerationSet.Add(coord);
             pendingGeneration.Enqueue(coord);
             return;
-        }
+        }*/
     }
 
     /**
@@ -262,7 +262,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
      */
     // Update
     public override void update() {
-        Vector3 playerPosition = playerController.getCamera().getPosition();
+        /*Vector3 playerPosition = playerController.getCamera().getPosition();
         entitySpawner.setPlayerPosition(playerPosition);
         
         entitySpawner.update();
@@ -289,7 +289,7 @@ class MeshEntityGenerator : WorldHandler, IChunkUpdatable {
 
                 generate(data, coord, chunkCenter);
             }
-        }
+        }*/
     }
 
     // Update Visibility

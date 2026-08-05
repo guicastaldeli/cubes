@@ -47,6 +47,11 @@ public class Client {
         try {
             var packet = Packet.FromBytes(data);
             if(packet.IsValid()) {
+                if(packet.IsHandshake || packet.IsHandshakeResponse) {
+                    HandshakePacket.Handle(packet, syncManager, SendPacket);
+                    return;
+                }
+
                 OnSyncPacketReceived?.Invoke(packet);
                 syncManager.ApplyPacket(packet);
             }
@@ -68,6 +73,17 @@ public class Client {
     // Process Packets
     public void ProcessPackets() {
         network.ProcessReceived();
+    }
+
+    // Send Packet
+    private void SendPacket() {
+        Send(new Packet {
+            DataId = "client_join",
+            Action = "join",
+            UserId = Data.UserId,
+            Timestamp = DateTime.UtcNow.Ticks,
+            IsControl = true
+        });
     }
 
     /**
@@ -93,7 +109,6 @@ public class Client {
         network.receiveThread = new Thread(network.ReceiveLoop) { IsBackground = true, Name = "Network-Client" };
         network.receiveThread.Start();
 
-        syncManager.Start();
         syncManager.OnPacketReceived += OnSyncPacket;
 
         OnConnected?.Invoke();
@@ -101,14 +116,6 @@ public class Client {
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.WriteLine($"[Client] Connected to {ip}:{port} as {Data.Username} ({Data.UserId})");
         Console.ResetColor();
-
-        Send(new Packet {
-            IsControl = true,
-            DataId = "client_join",
-            Action = "join",
-            UserId = Data.UserId,
-            Timestamp = DateTime.UtcNow.Ticks
-        });
     }
 
     /**
@@ -119,11 +126,11 @@ public class Client {
     public void Disconnect() {
         if(Data.IsConnected) {
             Send(new Packet {
-                IsControl = true,
                 DataId = "client_leave",
                 Action = "leave",
                 UserId = Data.UserId,
-                Timestamp = DateTime.UtcNow.Ticks
+                Timestamp = DateTime.UtcNow.Ticks,
+                IsControl = true
             });
         }
 
