@@ -95,7 +95,7 @@ public class Server {
      * Start
      *
      */
-    public void Start(int port) {
+    public void Start(int port, int maxPlayers) {
         if(network.isRunning) return;
 
         if(!Port.IsAvailable(port)) {
@@ -105,6 +105,7 @@ public class Server {
         }
 
         Data.Port = port;
+        Data.MaxPlayers = maxPlayers;
         
         network.udpClient = new UdpClient(port);
         network.udpClient.Client.SendBufferSize = Network.BUFFER_SIZE;
@@ -119,7 +120,7 @@ public class Server {
         syncManager.OnPacketReceived += OnSyncPacket;
 
         Console.ForegroundColor = ConsoleColor.DarkMagenta;
-        Console.WriteLine($"------ Server started on port {Data.Port} | Max players: {Data.MaxPlayers} ------");
+        Console.WriteLine($"------ Server started with IP: {IP.Get()} on PORT: {Data.Port} | Max players: {Data.MaxPlayers} ------");
         Console.ResetColor();
     }
 

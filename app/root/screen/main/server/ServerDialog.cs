@@ -33,7 +33,9 @@ class ServerDialog : MainScreenHandler {
 
     // Handle Key Press
     public override void handleKeyPress(int key, int action) {
-        InputField.HandleKeyPress((Keys)key, action);
+        if(!InputField.IsFocus()) {
+            InputField.HandleKeyPress((Keys)key, action);
+        }
     }
 
     // Handle Action

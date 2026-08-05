@@ -57,7 +57,6 @@ class PlayerController {
     private PlayerMesh playerMesh;
     private Raycaster raycaster;
     private Network? network;
-    private NetworkPlayer networkPlayer;
 
     private Mode mode;
     private Skills.Skills skills;
@@ -114,8 +113,6 @@ class PlayerController {
         this.playerInput = new PlayerInput(input, this);
         this.rigidBody = new RigidBody(position, size);
         this.playerMesh = new PlayerMesh(window, camera, this, mesh);
-
-        this.networkPlayer = new NetworkPlayer(this);
 
         this.raycaster = new Raycaster(camera, mesh);
 
@@ -200,20 +197,6 @@ class PlayerController {
     // Get Network
     public Network? getNetwork() {
         return network;
-    }
-
-    // Get Network Player
-    public NetworkPlayer getNetworkPlayer() {
-        return networkPlayer;
-    }
-
-    // Send State
-    public void sendState() {
-        if(network == null || !network.isConnected) return;
-        network.sendState(
-            position.X, position.Y, position.Z,
-            camera.getYaw(), camera.getPitch()
-        );
     }
 
     // Get Id
@@ -353,7 +336,6 @@ class PlayerController {
      */
     // Set
     public void set() {
-        if(network != null) id = network.userId ?? id;
         playerMesh.set(true);
         spawned = false;
 
@@ -474,7 +456,7 @@ class PlayerController {
 
         camera.setPosition(position);
 
-        Console.WriteLine($"position: {position}");
+        //Console.WriteLine($"position: {position}");
         
         playerMesh.update();
         raycaster.update();

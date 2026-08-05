@@ -21,7 +21,15 @@ public class Network : IDisposable {
     public bool IsRunning => isRunning;
     public bool IsConnected => remoteEndPoint != null && isRunning;
 
+    public Server Server;
+    public Client Client;
+
     public bool isRunning = false;
+
+    public Network() {
+        this.Server = new Server(this);
+        this.Client = new Client(this);
+    }
 
     // Process Received
     public void ProcessReceived() {

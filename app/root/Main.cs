@@ -33,7 +33,7 @@ class Main {
             input
         );
 
-        this.network = new Network();
+        this.network = Network.I;
         VoiceController.getInstance().setNetwork(network);
 
         this.window.onResize = handleResize;

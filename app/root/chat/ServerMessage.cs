@@ -1,5 +1,4 @@
 namespace App.Root.Chat;
-using App.Root.Packets;
 
 static class ServerMessage {
     /**
@@ -24,7 +23,7 @@ static class ServerMessage {
     }
 
     // Get
-    public static PacketChat get(string msg, params string[] args) {
+    /*public static PacketChat get(string msg, params string[] args) {
         foreach(var val in args) {
             msg = format(msg, val);
         }
@@ -32,5 +31,5 @@ static class ServerMessage {
             isServer = true,
             message = msg
         };
-    }
+    }*/
 }

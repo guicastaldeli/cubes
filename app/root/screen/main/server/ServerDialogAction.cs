@@ -33,7 +33,7 @@ class ServerDialogAction {
      *
      */
     public dynamic get() {
-        object val = ElementEntry.C(id => serverDialog.getMainScreen().getElementById(id), Elements);
+        object val = ElementEntry.C(id => serverDialog.getElementById(id), Elements);
         return val;
     }
 
@@ -44,12 +44,12 @@ class ServerDialogAction {
      */
     [GlobalInput]
     public void hostServer() {
-        int port = Network.Port.Get();
+        int port = Port.Get();
 
         string maxPlayersEl = get().maxPlayersInput.text;
         int maxPlayers = string.IsNullOrEmpty(maxPlayersEl) ? ServerPlayer.SERVER_MAX_PLAYERS : int.Parse(maxPlayersEl);
 
-        network.host(port, maxPlayers);
+        network.Server.Start(port, maxPlayers);
 
         serverDialog.getMainScreen().getMainScene().init();
     }
@@ -65,7 +65,7 @@ class ServerDialogAction {
         string port = get().joinPortInput.text;
         if(string.IsNullOrEmpty(ip) || string.IsNullOrEmpty(port)) return;
 
-        network.join(ip, int.Parse(port));
+        network.Client.Connect(ip, int.Parse(port));
 
         serverDialog.getMainScreen().getMainScene().init();
     }
@@ -80,6 +80,6 @@ class ServerDialogAction {
         serverDialog.hide();
         serverDialog.getMainScreen().show();
         
-        network.stop();
+        network.Dispose();
     }
 }

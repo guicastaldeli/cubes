@@ -166,8 +166,6 @@ class MainScene {
         
         if(network != null) {
             playerController.setNetwork(network);
-            worldManager.getWorldBroadcaster().set();
-
             playerController.set();
         }
     }
@@ -192,11 +190,6 @@ class MainScene {
         mesh.update();
 
         playerController.update();
-
-        playerController.getNetworkPlayer()?.update();
-
-        //network?.pollAndCache();
-        NetworkUpdate.getInstance().update();
     }
 
     /**

@@ -31,7 +31,7 @@ class PauseScreenAction {
      */
     [GlobalInput]
     public void resume() {
-        if(!network.isConnected) tick.setPaused(false);
+        if(!network.IsConnected) tick.setPaused(false);
         input.lockMouse();
         screenController.closeOverlay();
         input.pauseOverlayOpen = false;
@@ -53,7 +53,7 @@ class PauseScreenAction {
         SaveManager.Save();
 
         screenController.running = false;
-        network.stop();
+        network.Dispose();
         
         pauseScreen.getMainScene().reset();
 

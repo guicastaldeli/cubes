@@ -63,7 +63,7 @@ class ClientDialogAction {
         clientDialog.hide();
         clientDialog.getMainScreen().show();
         
-        network.stop();
+        network.Dispose();
     }
 
     // Register Objects

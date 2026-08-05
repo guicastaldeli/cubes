@@ -424,7 +424,7 @@ class Input {
         if(!screenController.isRunning()) return;
         
         // Multiplayer
-        bool isMultiplayer = network!.isConnected;
+        bool isMultiplayer = network!.IsConnected;
         if(!isMultiplayer) tick.togglePause();
 
         // Pause Screen

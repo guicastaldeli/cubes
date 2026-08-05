@@ -1,5 +1,4 @@
 namespace App.Root.Chat;
-using App.Root.Packets;
 using App.Root.Player;
 using App.Root.Screen;
 using App.Root.Input;
@@ -54,14 +53,14 @@ class InputChat {
     private void send() {
         if(!chatController.isOpen()) return;
 
-        string msg = chatController.getText().Trim();
+        /*string msg = chatController.getText().Trim();
         if(msg.Length > 0) {
             network.getClient()?.send(new PacketChat {
                 userId = network.userId,
                 username = network.username,
                 message = msg
             });
-        }
+        }*/
 
         chatController.close();
     }

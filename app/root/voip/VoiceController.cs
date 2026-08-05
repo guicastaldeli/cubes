@@ -1,5 +1,4 @@
 namespace App.Root.Voip;
-using App.Root.Packets;
 using NAudio.Wave;
 using Concentus;
 using Concentus.Enums;
@@ -44,11 +43,11 @@ class VoiceController {
             encoded.Length
         );
 
-        network.getClient()?.send(new PacketVoice {
+        /*network.getClient()?.send(new PacketVoice {
             userId = network.userId,
             audio = encoded[..len],
             sequence = sendSequence++
-        });
+        });*/
     }
 
     // Remove Player

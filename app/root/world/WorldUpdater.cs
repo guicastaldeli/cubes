@@ -4,7 +4,6 @@ namespace App.Root.World;
 using App.Root;
 using App.Root.Collider;
 using App.Root.Mesh;
-using App.Root.Packets;
 using App.Root.Physics;
 using App.Root.Utils;
 using OpenTK.Mathematics;
@@ -61,7 +60,7 @@ class WorldUpdater {
     ) {
         applyAddMesh(id, meshType, position, scale, texId, texPath, physicsType, meshData, color, isEntity);
 
-        var packet = new PacketMeshUpdate {
+        /*var packet = new PacketMeshUpdate {
             action = MeshAction.ADD,
             meshId = id,
             meshType = meshType,
@@ -71,7 +70,7 @@ class WorldUpdater {
             texPath = texPath
         };
 
-        broadcast(packet);
+        broadcast(packet);*/
     }
 
     public void applyAddMesh(
@@ -125,12 +124,12 @@ class WorldUpdater {
     public void removeMesh(string id) {
         applyRemoveMesh(id);
 
-        var packet = new PacketMeshUpdate {
+        /*var packet = new PacketMeshUpdate {
             action = MeshAction.REMOVE,
             meshId = id
         };
 
-        broadcast(packet);
+        broadcast(packet);*/
     }
 
     public void applyRemoveMesh(string id) {
@@ -151,7 +150,7 @@ class WorldUpdater {
      * Broadcast
      *
      */
-    public void broadcast(PacketMeshUpdate packet) {
+    /*public void broadcast(PacketMeshUpdate packet) {
         if(server != null) {
             foreach(var player in server.players.Values) {
                 if(player.id == packet.userId) continue;
@@ -162,7 +161,7 @@ class WorldUpdater {
                 client.send(packet);
             }
         }
-    }
+    }*/
 
     /**
      * 

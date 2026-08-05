@@ -42,8 +42,6 @@ class WorldManager {
     private Client? client;
 
     private World world;
-    private WorldBroadcaster worldBroadcaster;
-    private NetworkWorld networkWorld;
 
     public WorldManager(
         Window window,
@@ -81,8 +79,6 @@ class WorldManager {
             chunkManager,
             particleController
         );
-        this.worldBroadcaster = new WorldBroadcaster(this);
-        this.networkWorld = new NetworkWorld(this);
 
         StateManager.Register(this);
     }
@@ -95,7 +91,6 @@ class WorldManager {
     // Network
     public void setNetwork(Network network) {
         this.network = network;
-        networkWorld.setNetwork(network);
     }
 
     public Network? getNetwork() {
@@ -123,16 +118,6 @@ class WorldManager {
     // Get World
     public World getWorld() {
         return world;
-    }
-
-    // Get World Broadcaster
-    public WorldBroadcaster getWorldBroadcaster() {
-        return worldBroadcaster;
-    }
-
-    // Get Network World
-    public NetworkWorld getNetworkWorld() {
-        return networkWorld;
     }
 
     // Get Window
