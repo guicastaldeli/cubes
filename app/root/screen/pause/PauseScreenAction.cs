@@ -53,7 +53,7 @@ class PauseScreenAction {
         SaveManager.Save();
 
         screenController.running = false;
-        network.Dispose();
+        //network.Disconnect();
         
         pauseScreen.getMainScene().reset();
 

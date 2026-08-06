@@ -24,7 +24,13 @@ public class Server {
     
     private Network network = null!;
     private SyncManager syncManager = null!;
+
+    private UdpClient? udpClient;
+    private Thread? receiveThread;
+
     public ConcurrentDictionary<string, IPEndPoint> clients = new();
+    
+    private ConcurrentQueue<Action> receiveQueue = new();
 
     public event Action<IPEndPoint, byte[]>? OnDataReceived;
 
@@ -37,43 +43,25 @@ public class Server {
     public Server(Network network) {
         this.network = network;
         this.syncManager = SyncManager.I;
-
-        this.network.OnDataReceived += OnNetworkDataReceived;
     }
 
     // Send Handshake
     private void SendHandshake(IPEndPoint endPoint) {
-    var handshake = syncManager.GetHandshakePacket();
+        Packet packet = HandshakePacket.Send(syncManager, endPoint);
+        
+        var data = packet.ToBytes();
+        network.Send(data, endPoint, udpClient!);
+    }
 
-    using var writer = new BinaryWriter();
-    writer.Write(handshake.SessionId);
-    writer.Write(handshake.Key);
-    writer.Write(handshake.Iv);
-    writer.Write(handshake.Timestamp);
-
-    var payload = writer.GetBytes();
-    var packet = new Packet {
-        DataId = "__handshake__",
-        Action = "__handshake__",
-        Payload = payload,
-        Timestamp = DateTime.UtcNow.Ticks,
-        IsDelta = false,
-        SessionId = handshake.SessionId,
-        IsHandshake = true,
-        IsHandshakeResponse = false
-    };
-
-    Console.BackgroundColor = ConsoleColor.Blue;
-    Console.WriteLine($"[Server] 📤 Sending handshake to {endPoint}");
-    Console.ResetColor();
-
-    // Send directly to client - NO ENCRYPTION
-    network.Send(packet.ToBytes(), endPoint);
-}
+    // Send Handshake Response
+    private void SendHandshakeResponse(IPEndPoint endPoint) {
+        Packet packet = HandshakePacket.Response(syncManager);
+        SendToClient(endPoint, packet);
+    }
 
     // Process Packets
     public void ProcessPackets() {
-        network.ProcessReceived();
+        network.ProcessReceived(receiveQueue);
     }
 
     // On Sync Packet
@@ -99,6 +87,7 @@ public class Server {
             Console.ResetColor();
 
             SendHandshake(endPoint);
+            return;
         }
 
         OnDataReceived?.Invoke(endPoint, data);
@@ -108,6 +97,9 @@ public class Server {
             if(packet.IsHandshakeResponse) {
                 handshakeComplete.Add(key);
                 Console.WriteLine($"[Server] Handshake complete for {endPoint}");
+                
+                SendHandshakeResponse(endPoint);
+                SyncManager.I.FullSync();
                 return;
             }
 
@@ -118,7 +110,9 @@ public class Server {
 
             syncManager.ApplyPacket(packet);
         } catch(Exception err) {
+            Console.BackgroundColor = ConsoleColor.Red;
             Console.WriteLine($"[Server] Error processing packet: {err.Message}");
+            Console.ResetColor();
         }
     }
 
@@ -128,12 +122,12 @@ public class Server {
      *
      */
     public void SendToClient(IPEndPoint endPoint, byte[] data) {
-        network.Send(data, endPoint);
+        network.Send(data, endPoint, udpClient);
     }
 
     public void SendToClient(IPEndPoint endPoint, Packet packet) {
         var data = packet.ToBytes();
-        network.Send(data, endPoint);
+        network.Send(data, endPoint, udpClient);
     }
     
     /**
@@ -153,14 +147,14 @@ public class Server {
         Data.Port = port;
         Data.MaxPlayers = maxPlayers;
         
-        network.udpClient = new UdpClient(port);
-        network.udpClient.Client.SendBufferSize = Network.BUFFER_SIZE;
-        network.udpClient.Client.ReceiveBufferSize = Network.BUFFER_SIZE;
+        udpClient = new UdpClient(port);
+        udpClient.Client.SendBufferSize = Network.BUFFER_SIZE;
+        udpClient.Client.ReceiveBufferSize = Network.BUFFER_SIZE;
 
         network.IsRunning = true;
 
-        network.receiveThread = new Thread(network.ReceiveLoop) { IsBackground = true, Name = "Network-Server" };
-        network.receiveThread.Start();
+        receiveThread = new Thread(() => network.ReceiveLoop(udpClient, receiveQueue, OnNetworkDataReceived)) { IsBackground = true, Name = "Network-Server" };
+        receiveThread.Start();
 
         syncManager.Start();
         syncManager.OnPacketReceived += OnSyncPacket;
@@ -178,7 +172,7 @@ public class Server {
     // Broadcast
     public void Broadcast(byte[] data) {
         foreach(var client in clients.Values) {
-            network.Send(data, client);
+            network.Send(data, client, udpClient);
         }
     }
 
@@ -188,10 +182,10 @@ public class Server {
     }
 
     // Broadcast Except
-    public void BroascastExcept(byte[] data, IPEndPoint exclude) {
+    public void BroadcastExcept(byte[] data, IPEndPoint exclude) {
         foreach(var client in clients.Values) {
-            if(!clients.Equals(exclude)) {
-                network.Send(data, client);
+            if(!client.Equals(exclude)) {
+                network.Send(data, client, udpClient);
             }
         }
     }
@@ -203,7 +197,7 @@ public class Server {
      */
     public void Stop() {
         clients.Clear();
-        network.Disconnect();
+        network.Disconnect(udpClient, receiveThread, receiveQueue);
         syncManager.Stop();
 
         Console.ForegroundColor = ConsoleColor.Yellow;

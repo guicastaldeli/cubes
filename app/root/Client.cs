@@ -1,9 +1,9 @@
 namespace App.Root;
-
-using System.Net;
-using System.Net.Sockets;
 using App.Root._Sync;
 using App.Root.Info;
+using System.Collections.Concurrent;
+using System.Net;
+using System.Net.Sockets;
 
 public class Client {
     private static class Data {
@@ -20,18 +20,23 @@ public class Client {
     private SyncManager syncManager;
     private SyncQueue queue;
 
+    private UdpClient? udpClient;
+    private Thread? receiveThread;
+
     public event Action? OnConnected;
     public event Action? OnDisconnected;
 
     public event Action<byte[]>? OnDataReceived;
     public event Action<Packet>? OnSyncPacketReceived;
 
+    private ConcurrentQueue<Action> receiveQueue = new();
+
+    private bool handshakeComplete = false;
+
     public Client(Network network) {
         this.network = network;
         this.syncManager = SyncManager.I;
         this.queue = new SyncQueue();
-
-        this.network.OnDataReceived += OnNetworkDataReceived;
     }
 
     // On Sync Packet
@@ -47,8 +52,19 @@ public class Client {
         try {
             var packet = Packet.FromBytes(data);
             if(packet.IsValid()) {
-                if(packet.IsHandshake || packet.IsHandshakeResponse) {
-                    HandshakePacket.Handle(packet, syncManager, SendPacket);
+                if(packet.IsHandshake) {
+                    //Console.WriteLine($"[Client] Received handshake from server");
+                    HandshakePacket.Handle(packet, syncManager, Send);
+                    return;
+                }
+                if(packet.IsHandshakeResponse) {
+                    Console.WriteLine($"[Client] Handshake response confirmed");
+                    handshakeComplete = true;
+                    SendPacket();
+                    return;
+                }
+                if(!handshakeComplete) {
+                    Console.WriteLine($"[Client] Waiting for handshake to complete, ignoring packet");
                     return;
                 }
 
@@ -56,7 +72,9 @@ public class Client {
                 syncManager.ApplyPacket(packet);
             }
         } catch(Exception err) {
+            Console.BackgroundColor = ConsoleColor.Red;
             Console.WriteLine($"[Client] Error processing packet: {err.Message}");
+            Console.ResetColor();
         }
     }
 
@@ -72,7 +90,7 @@ public class Client {
 
     // Process Packets
     public void ProcessPackets() {
-        network.ProcessReceived();
+        network.ProcessReceived(receiveQueue);
     }
 
     // Send Packet
@@ -98,16 +116,15 @@ public class Client {
         Data.ServerPort = port;
 
         network.remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-        
-        network.udpClient = new UdpClient();
-        network.udpClient.Connect(network.remoteEndPoint);
-        network.udpClient.Client.SendBufferSize = Network.BUFFER_SIZE;
-        network.udpClient.Client.ReceiveBufferSize = Network.BUFFER_SIZE;
+
+        udpClient = new UdpClient(Port.GetDefault());
+        udpClient.Client.SendBufferSize = Network.BUFFER_SIZE;
+        udpClient.Client.ReceiveBufferSize = Network.BUFFER_SIZE;
 
         network.IsRunning = true;
 
-        network.receiveThread = new Thread(network.ReceiveLoop) { IsBackground = true, Name = "Network-Client" };
-        network.receiveThread.Start();
+        receiveThread = new Thread(() => network.ReceiveLoop(udpClient, receiveQueue, OnNetworkDataReceived)) { IsBackground = true, Name = "Network-Client" };
+        receiveThread.Start();
 
         syncManager.OnPacketReceived += OnSyncPacket;
 
@@ -134,7 +151,7 @@ public class Client {
             });
         }
 
-        network.Disconnect();
+        network.Disconnect(udpClient, receiveThread, receiveQueue);
         syncManager.Stop();
 
         OnDisconnected?.Invoke();
@@ -175,7 +192,7 @@ public class Client {
     // Send To Server
     public void SendToServer(byte[] data) {
         if(network.remoteEndPoint != null) {
-            network.Send(data, network.remoteEndPoint);
+            network.Send(data, network.remoteEndPoint, udpClient);
         }
     }
 }

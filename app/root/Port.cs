@@ -25,6 +25,12 @@ public static class Port {
         cachedPort = null;
     }
 
+    // Get Default
+    public static int GetDefault() {
+        int val = 0;
+        return val;
+    }
+
     /**
      *
      * Get

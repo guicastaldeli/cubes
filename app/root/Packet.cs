@@ -45,11 +45,11 @@ public class Packet {
         writer.Write(IsHandshakeResponse);
         writer.Write(Payload.Length);
         if(Payload.Length > 0) {
-            writer.Write(Payload);
+            writer.WriteRaw(Payload);
         }
         writer.Write(Checksum?.Length ?? 0);
         if(Checksum != null && Checksum.Length > 0) {
-            writer.Write(Checksum);
+            writer.WriteRaw(Checksum);
         }
 
         return writer.GetBytes();
@@ -96,7 +96,7 @@ public class Packet {
         Packet val = new Packet {
             DataId = this.DataId,
             Action = this.Action + "_response",
-            Payload = this.Payload,
+            Payload = payload,
             Timestamp = this.Timestamp,
             IsDelta = this.IsDelta,
             UserId = this.UserId,

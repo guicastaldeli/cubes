@@ -20,7 +20,7 @@ public class HandshakePacket {
      * Response
      *
      */
-    private static Packet Response(SyncManager syncManager) {
+    public static Packet Response(SyncManager syncManager) {
         var packet = new Packet {
             DataId = "__handshake-response__",
             Action = "__handshake-response__",
@@ -29,6 +29,7 @@ public class HandshakePacket {
             IsDelta = false,
             SessionId = syncManager.GetSessionId(),
             IsControl = true,
+            IsHandshake = false,
             IsHandshakeResponse = true
         };
 
@@ -45,8 +46,8 @@ public class HandshakePacket {
 
         using var writer = new BinaryWriter();
         writer.Write(handshake.SessionId);
-        writer.Write(handshake.Key);
-        writer.Write(handshake.Iv);
+        writer.WriteRaw(handshake.Key);
+        writer.WriteRaw(handshake.Iv);
         writer.Write(handshake.Timestamp);
 
         var payload = writer.GetBytes();
@@ -57,6 +58,7 @@ public class HandshakePacket {
             Timestamp = DateTime.UtcNow.Ticks,
             IsDelta = false,
             SessionId = handshake.SessionId,
+            IsControl = true,
             IsHandshake = true,
             IsHandshakeResponse = false
         };
@@ -73,7 +75,7 @@ public class HandshakePacket {
      * Handle
      *
      */
-    public static void Handle(Packet packet, SyncManager syncManager, Action sendCallback) {
+    public static void Handle(Packet packet, SyncManager syncManager, Action<Packet> sendPacket) {
         Console.BackgroundColor = ConsoleColor.DarkBlue;
         Console.WriteLine($"[Client] Received handshake from server");
         Console.ResetColor();
@@ -92,12 +94,12 @@ public class HandshakePacket {
         };
 
         syncManager.ApplyHandshake(handshake);
-        Response(syncManager);
+
+        Packet response = Response(syncManager);
+        sendPacket(response);
 
         Console.BackgroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine($"[Client] Handshake applied, sending confirmation");
         Console.ResetColor();
-
-        sendCallback?.Invoke();
     }
 }

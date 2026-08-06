@@ -318,7 +318,6 @@ public class SyncManager {
         writer.WriteObject(data);
 
         var payload = writer.GetBytes();
-        if(crypto != null) payload = crypto.Encrypt(payload);
 
         var packet = new Packet {
             DataId = dataId,
@@ -329,6 +328,12 @@ public class SyncManager {
             SessionId = sessionId,
             Checksum = CryptoProvider.ComputeHash(payload)
         };
+
+        bool isHandshake = packet.IsHandshake || packet.IsHandshakeResponse;
+        if(!isHandshake && crypto != null) {
+            payload = crypto.Encrypt(payload);
+            packet.Payload = payload;
+        }
 
         syncThread.EnqueuePacket(packet);
         OnPacketReceived?.Invoke(packet);
@@ -364,10 +369,6 @@ public class SyncManager {
             Console.WriteLine($"[SyncManager] Control packet: {packet.DataId} (Action: {packet.Action}, User: {packet.UserId})");
             return; 
         }
-        if(packet.IsHandshake || packet.IsHandshakeResponse) {
-            Console.WriteLine($"[SyncManager] Handshake packet: {packet.DataId} (Action: {packet.Action}, User: {packet.UserId})");
-            return; 
-        }
         if(!packet.IsValid()) {
             Console.WriteLine($"[SyncManager] Invalid packet: {packet.DataId}");
             return;
@@ -377,8 +378,11 @@ public class SyncManager {
             return;
         }
 
-        if(crypto != null && packet.Payload.Length > 0) {
+        bool isHandshake = packet.IsHandshake || packet.IsHandshakeResponse;
+        if(!isHandshake && crypto != null && packet.Payload.Length > 0) {
             packet.Payload = crypto.Decrypt(packet.Payload);
+        } else if(isHandshake) {
+            Console.WriteLine($"[SyncManager] Handshake packet: {packet.DataId} (skipping encryption)");
         }
 
         using var reader = new BinaryReader(packet.Payload);

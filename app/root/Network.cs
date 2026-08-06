@@ -3,20 +3,14 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 
-public class Network : IDisposable {
+public class Network {
     private static Network? instance;
     public static Network I => instance ??= new Network();
     
     public const int BUFFER_SIZE = 65536;
     public const int MAX_PACKET_SIZE = 1400;
     
-    public UdpClient? udpClient;
     public IPEndPoint? remoteEndPoint;
-    public Thread? receiveThread;
-
-    private ConcurrentQueue<Action> receiveQueue = new();
-
-    public event Action<IPEndPoint, byte[]>? OnDataReceived;
 
     public bool IsRunning { get; set; } = false;
     public bool IsConnected => remoteEndPoint != null && IsRunning;
@@ -30,8 +24,8 @@ public class Network : IDisposable {
     }
 
     // Process Received
-    public void ProcessReceived() {
-        while(receiveQueue.TryDequeue(out var action)) {
+    public void ProcessReceived(ConcurrentQueue<Action> queue) {
+        while(queue.TryDequeue(out var action)) {
             try {
                 action();
             } catch(Exception err) {
@@ -40,22 +34,28 @@ public class Network : IDisposable {
         }
     }
 
+    // Process Packets
+    public void ProcessPackets() {
+        Server.ProcessPackets();
+        Client.ProcessPackets();
+    }
+
     // Receive Loop
-    public void ReceiveLoop() {
+    public void ReceiveLoop(UdpClient udpClient, ConcurrentQueue<Action> queue, Action<IPEndPoint, byte[]> onDataReceived) {
         while(IsRunning) {
             try {
                 IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
 
                 byte[] data = udpClient!.Receive(ref endPoint);
                 
-                receiveQueue.Enqueue(() => OnDataReceived?.Invoke(endPoint, data));
+                queue.Enqueue(() => onDataReceived?.Invoke(endPoint, data));
             } catch(SocketException err) when (
                 err.SocketErrorCode == SocketError.ConnectionReset ||
                 err.SocketErrorCode == SocketError.ConnectionAborted
             ) {
                 if(IsRunning) {
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine($"[Network] Connection reset: {err.Message}");
+                    //Console.WriteLine($"[Network] Connection reset: {err.Message}");
                     Console.ResetColor();
                 }
             } catch(Exception err) {
@@ -68,37 +68,28 @@ public class Network : IDisposable {
         }
     }
 
-    // Dispose
-    public void Dispose() {
-        if(udpClient != null) udpClient.Dispose();
-    }
-
     /**
      *
      * Send
      *
      */
     // Send
-    public void Send(byte[] data, IPEndPoint endPoint) {
+    public void Send(byte[] data, IPEndPoint endPoint, UdpClient? udpClient) {
         try {
             if(udpClient == null || !IsRunning) return;
             if(data.Length > MAX_PACKET_SIZE) {
-                SendChunked(data, endPoint);
+                SendChunked(data, endPoint, udpClient);
                 return;
             }
 
-            if(remoteEndPoint != null) {
-                udpClient.Send(data, data.Length);
-            } else {
-                udpClient.Send(data, data.Length, endPoint);
-            }
+            udpClient.Send(data, data.Length, endPoint);
         } catch(Exception err) {
             Console.WriteLine($"[Network] Send error: {err.Message}");
         }
     }
 
     // Send Chunked
-    private void SendChunked(byte[] data, IPEndPoint endPoint) {
+    private void SendChunked(byte[] data, IPEndPoint endPoint, UdpClient? udpClient) {
         const int CHUNK_SIZE = 1200;
         const int HEADER_SIZE = 8;
 
@@ -121,11 +112,11 @@ public class Network : IDisposable {
      * Disconnect
      *
      */
-    public void Disconnect() {
+    public void Disconnect(UdpClient? udpClient, Thread? receiveThread, ConcurrentQueue<Action> queue) {
         IsRunning = false;
         if(udpClient != null) udpClient.Close();
         if(receiveThread != null) receiveThread.Join(1000);
-        receiveQueue.Clear();
+        queue.Clear();
 
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.WriteLine("[Network] Disconnected");

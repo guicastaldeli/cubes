@@ -90,7 +90,7 @@ class Main {
         tick.update();
         window.updateTitle(tick.getTickCount(), tick.getFps());
 
-        network.ProcessReceived();
+        network.ProcessPackets();
         
         screenController.update();
         uiController.update();

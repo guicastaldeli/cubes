@@ -82,7 +82,5 @@ class ServerDialogAction {
     public void back() {
         serverDialog.hide();
         serverDialog.getMainScreen().show();
-        
-        network.Dispose();
     }
 }

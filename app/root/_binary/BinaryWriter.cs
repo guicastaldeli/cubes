@@ -69,6 +69,9 @@ public class BinaryWriter : IDisposable {
     public void Write(Guid value) {
         writer.Write(value.ToByteArray());
     }
+    public void WriteRaw(byte[] value) {
+        writer.Write(value);
+    }
 
     /**
      *
